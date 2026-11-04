@@ -149,7 +149,7 @@ In dieser App verwenden wir durchgängig folgende **Konventionen**:
 | \`a = b\` (Vergleich) | \`a == b\` | \`a == b\` |
 | \`a MOD b\` | \`a % b\` | \`a % b\` |
 | \`a DIV b\` | \`a // b\` | \`a / b\` (bei zwei int-Werten!) |
-| \`UND / ODER / NICHT\` | \`and / or / not\` | \`&& / || / !\` |`,
+| \`UND / ODER / NICHT\` | \`and / or / not\` | \`&&\` / \`\\|\\|\` / \`!\` |`,
         },
         {
           type: 'visual',

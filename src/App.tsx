@@ -43,7 +43,7 @@ function Router({ route }: { route: string }) {
     case 'schwaechen': return p[1] ? <RemediationPage skill={p[1]} key={p[1]} /> : <WeaknessHome />;
     case 'vlsm': return <VlsmTrainer />;
     case 'pruefung':
-      if (p[1] === 'start') return <ExamRun type={p[2] as TestType} module={p[3]} key={path + Date.now()} />;
+      if (p[1] === 'start') return <ExamRun type={p[2] as TestType} module={p[3]} key={path} />;
       if (p[1] === 'ergebnis') return <ExamResult id={p[2]} key={p[2]} />;
       return <ExamHome />;
     case 'einstufung': return <PlacementIntro />;

@@ -27,6 +27,7 @@ import { compressIpv6, expandIpv6, ipv6NthSubnet, ipv6Type, stripLeadingZeros } 
 import { Rng } from './rng';
 import { grade } from './grading';
 import { GENERATORS_HARDWARE } from './gen/hardware';
+import { GENERATORS_PROGRAMMIERUNG } from './gen/programmierung';
 import { GENERATORS_SYSTEME } from './gen/systeme';
 import { GENERATORS_SICHERHEIT } from './gen/sicherheit';
 import { GENERATORS_DATEN } from './gen/daten';
@@ -955,6 +956,7 @@ export const GENERATORS: GeneratorMeta[] = [
   unitsGen, transferTime, rateGen,
   lpmGen,
   ...GENERATORS_HARDWARE,
+  ...GENERATORS_PROGRAMMIERUNG,
   ...GENERATORS_SYSTEME,
   ...GENERATORS_SICHERHEIT,
   ...GENERATORS_DATEN,
