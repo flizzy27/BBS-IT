@@ -2,7 +2,8 @@
  * Fragenkatalog nach dem Fahrschul-Prinzip: Lernen → alle Fragen beantworten, bis jede „sicher“ ist → Prüfung.
  */
 import React, { useEffect, useMemo, useState } from 'react';
-import { AREAS, MODULES, MODULE_MAP, QUESTION_MAP, moduleArea } from '../content';
+import { AREAS, MODULES, MODULE_MAP, QUESTION_MAP, lessonForSkill, moduleArea } from '../content';
+import { SimpleBox } from './Learn';
 import type { Module } from '../content/types';
 import { countStatus, readiness, roundQuestions, statusOf, type QStatus, type RoundFilter } from '../core/catalog';
 import { navigate, useStore } from '../lib/store';
@@ -149,6 +150,7 @@ export function CatalogRound({ filter, scope }: { filter: RoundFilter; scope: st
   const [ids] = useState(() => roundQuestions(scopeIds(scope), qstat, filter, ROUND_SIZE));
   const [i, setI] = useState(0);
   const [answered, setAnswered] = useState(false);
+  const [wrong, setWrong] = useState(false);
   const [results, setResults] = useState<boolean[]>([]);
   useEffect(() => setResume({ route: `/katalog/runde/${filter}/${scope}`, label: `Fragenkatalog: ${scopeLabel(scope)}` }), []); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -182,6 +184,7 @@ export function CatalogRound({ filter, scope }: { filter: RoundFilter; scope: st
   const onDone = async (o: QuestionOutcome) => {
     if (!q) return;
     setAnswered(true);
+    setWrong(!o.result.correct);
     setResults((r) => [...r, o.result.correct]);
     await recordAttempt({ questionId: q.id, skill: q.skill, kind: q.kind, mode: 'ueben', difficulty: q.difficulty, question: q, response: o.response, correct: o.result.correct, score: o.result.score, errorTags: o.result.errorTags, hintsUsed: o.hintsUsed, durationMs: o.durationMs });
   };
@@ -196,6 +199,15 @@ export function CatalogRound({ filter, scope }: { filter: RoundFilter; scope: st
       <div className="stepper mt">{ids.map((_, k) => <div key={k} className={k < i ? 'done' : k === i ? 'cur' : ''} />)}</div>
       <div className="tiny dim mt">Status dieser Frage: <span className="dot" style={{ background: COLORS[st] }} /> {SHORT[st]}</div>
       {q && <div className="mt"><QuestionView key={q.id} question={q} mode="ueben" onDone={onDone} /></div>}
+      {answered && wrong && q && (() => {
+        const l = lessonForSkill(q.skill);
+        return l && (
+          <div className="mt">
+            {l.simple && <SimpleBox text={l.simple} title={`Kurz & einfach erklärt: ${l.title}`} />}
+            <button className="btn sm" onClick={() => navigate(`/lektion/${l.id}`)}><Icon name="BookOpen" size={14} />Ganze Lektion „{l.title}“ öffnen</button>
+          </div>
+        );
+      })()}
       {answered && (
         <div className="row mt">
           <span className="spacer" />

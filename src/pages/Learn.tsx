@@ -193,6 +193,7 @@ export function LessonPage({ id }: { id: string }) {
       <div className="stepper mb">
         {steps.map((_, i) => <div key={i} className={i < cur ? 'done' : i === cur ? 'cur' : ''} />)}
       </div>
+      {lesson.simple && <SimpleBox text={lesson.simple} />}
       <div className="col" style={{ gap: 18 }}>
         {steps.slice(0, cur + 1).map((s, i) => (
           <div key={i} ref={i === cur ? endRef : undefined} style={{ scrollMarginTop: 20 }}>
@@ -345,6 +346,16 @@ function PracticeStep({ step, lessonId, index, onDone }: { step: Extract<LessonS
         <div className="row"><span className="spacer" /><button className="btn primary" onClick={() => { setI(i + 1); setDoneCur(false); }}>Nächste Übungsaufgabe <Icon name="ArrowRight" size={16} /></button></div>
       )}
       {finished && <div className="small muted">Übung abgeschlossen: {score}/{questions.length} richtig. {score < questions.length ? 'Fehler werden im Schwachstellen-Training gezielt wiederholt.' : 'Stark!'}</div>}
+    </div>
+  );
+}
+
+/** „Kurz & einfach“-Kasten einer Lektion. */
+export function SimpleBox({ text, title }: { text: string; title?: string }) {
+  return (
+    <div className="block simple mb">
+      <div className="block-label"><Icon name="Lightbulb" size={14} />{title ?? 'Kurz & einfach'}</div>
+      <Md>{text}</Md>
     </div>
   );
 }

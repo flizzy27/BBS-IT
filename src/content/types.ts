@@ -69,6 +69,12 @@ export interface Lesson {
   relevance: Relevance;
   /** Skills, die diese Lektion vermittelt */
   skills: string[];
+  /**
+   * „Kurz & einfach“: das Thema in 3–6 kurzen Sätzen mit einem Vergleich aus dem Alltag, ohne
+   * Fachwörter, die nicht sofort erklärt werden (Markdown). Steht oben in der Lektion und erscheint im
+   * Fragenkatalog, wenn eine Frage falsch beantwortet wurde.
+   */
+  simple?: string;
   steps: LessonStep[];
 }
 

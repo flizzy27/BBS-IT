@@ -212,6 +212,8 @@ label.field { display: flex; flex-direction: column; gap: 6px; font-size: 0.85re
 .block { border-radius: var(--radius); padding: 20px 22px; border: 1px solid var(--border); background: var(--surface); position: relative; animation: fadeIn 0.25s ease; }
 .block-label { display: inline-flex; align-items: center; gap: 7px; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 700; margin-bottom: 10px; }
 .block.explain { border-left: 4px solid var(--explain); }
+.block.simple { border-left: 4px solid var(--ok); background: linear-gradient(180deg, var(--ok-soft), transparent 160px), var(--surface); }
+.block.simple .block-label { color: var(--ok); }
 .block.explain .block-label { color: var(--explain); }
 .block.visual { border-left: 4px solid var(--info); }
 .block.visual .block-label { color: var(--info); }
