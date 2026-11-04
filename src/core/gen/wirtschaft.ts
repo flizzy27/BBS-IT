@@ -367,8 +367,8 @@ const dienstleistung: GeneratorMeta = {
         { answer: cs((() => { const nt = labour - rabB + material + anfahrt; return nt + pctOf(nt, 19); })()), error: 'w-position-vergessen', why: 'Die Anfahrtspauschale fällt pro Anfahrt an – prüfe die Anzahl der Anfahrten.' },
         { answer: cs((() => { const base = labour + material + anfahrt * anfahrten; const nt = base - pctOf(base, rab); return nt + pctOf(nt, 19); })()), error: 'w-rabatt-basis', why: 'Der Rabatt gilt laut Angebot **nur auf die Arbeitsleistung**, nicht auf Material und Anfahrt.' },
       ]),
-      hints: [`Arbeitszeit gesamt: ${n} × ${task.min} min = ${minutes} min = ${deN(hours)} h.`, 'Arbeitsleistung + Material + Anfahrt = Netto; dann 19 % USt.'],
-      explanation: `| Position | Rechnung | Betrag |\n|---|---|---:|\n| Arbeitsleistung | ${n} × ${task.min} min = ${minutes} min = ${deN(hours)} h · ${eur(rate)} | ${eur(labour)} |\n${rab ? `| − Rabatt ${pctS(rab)} auf Arbeitsleistung | ${eur(labour)} · ${rab} / 100 | − ${eur(rabB)} |\n` : ''}| + Material | pauschal | ${eur(material)} |\n| + Anfahrt | ${anfahrten} × ${eur(anfahrt)} | ${eur(anfahrt * anfahrten)} |\n| **= Angebotspreis netto** | | **${eur(netto)}** |\n| + USt 19 % | ${eur(netto)} · 0,19 | ${eur(ust)} |\n| **= Angebotspreis brutto** | | **${eur(brutto)}** |`,
+      hints: [`Arbeitszeit gesamt: ${n} × ${task.min} min = ${minutes.toLocaleString('de-DE')} min = ${deN(hours)} h.`, 'Arbeitsleistung + Material + Anfahrt = Netto; dann 19 % USt.'],
+      explanation: `| Position | Rechnung | Betrag |\n|---|---|---:|\n| Arbeitsleistung | ${n} × ${task.min} min = ${minutes.toLocaleString('de-DE')} min = ${deN(hours)} h · ${eur(rate)} | ${eur(labour)} |\n${rab ? `| − Rabatt ${pctS(rab)} auf Arbeitsleistung | ${eur(labour)} · ${rab} / 100 | − ${eur(rabB)} |\n` : ''}| + Material | pauschal | ${eur(material)} |\n| + Anfahrt | ${anfahrten} × ${eur(anfahrt)} | ${eur(anfahrt * anfahrten)} |\n| **= Angebotspreis netto** | | **${eur(netto)}** |\n| + USt 19 % | ${eur(netto)} · 0,19 | ${eur(ust)} |\n| **= Angebotspreis brutto** | | **${eur(brutto)}** |`,
     };
   },
 };
@@ -497,7 +497,7 @@ const amortisation: GeneratorMeta = {
     const wartAlt = d === 3 ? rng.pick([150000, 200000, 250000]) : 0; // eingesparte Reparatur/Wartung pro Jahr
     const lizenz = d === 3 ? rng.pick([60000, 90000, 120000]) : 0; // neue laufende Kosten pro Jahr
     const save = energy + wartAlt - lizenz;
-    const invPer = rng.pick([350, 420, 480, 550]) * 100;
+    const invPer = rng.pick([250, 300, 350, 420]) * 100;
     const inv = invPer * n;
     const years = Math.round((inv / save) * 100) / 100;
     const answer = years;
@@ -514,8 +514,8 @@ const amortisation: GeneratorMeta = {
       ]),
       hints: ['Einsparung Leistung: (alt − neu) × Anzahl Geräte, dann × Stunden ÷ 1000 = kWh.', 'Amortisationsdauer = Investition ÷ jährliche Einsparung.'],
       explanation:
-        `1. Leistungsdifferenz: (${pOld} W − ${pNew} W) × ${n} = ${(pOld - pNew) * n} W\n\n` +
-        `2. Energie pro Jahr: ${(pOld - pNew) * n} W × ${h.toLocaleString('de-DE')} h = ${((pOld - pNew) * n * h).toLocaleString('de-DE')} Wh = **${deN(kwh)} kWh**\n\n` +
+        `1. Leistungsdifferenz: (${pOld} W − ${pNew} W) × ${n} = ${((pOld - pNew) * n).toLocaleString('de-DE')} W\n\n` +
+        `2. Energie pro Jahr: ${((pOld - pNew) * n).toLocaleString('de-DE')} W × ${h.toLocaleString('de-DE')} h = ${((pOld - pNew) * n * h).toLocaleString('de-DE')} Wh = **${deN(kwh)} kWh**\n\n` +
         `3. Stromkosten-Ersparnis: ${deN(kwh)} kWh × ${deN(price / 100)} €/kWh = **${eur(energy)}** pro Jahr\n\n` +
         (d === 3 ? `4. Jährliche Gesamtersparnis: ${eur(energy)} + ${eur(wartAlt)} (Wartung alt) − ${eur(lizenz)} (Lizenzen neu) = **${eur(save)}**\n\n` : '') +
         `${d === 3 ? 5 : 4}. Investition: ${n} × ${eur(invPer)} = **${eur(inv)}**\n\n` +

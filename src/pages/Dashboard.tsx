@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { MODULES, SKILL_MAP, skillTitle } from '../content';
+import { AREAS, MODULES, SKILL_MAP, moduleArea, skillTitle } from '../content';
 import { knowledge, STAGE_LABEL, STAGE_ORDER, type Stage } from '../core/learning';
 import { errorInfo } from '../core/errors';
 import { api, localDay, type TestRecord } from '../lib/api';
@@ -91,8 +91,9 @@ export function Dashboard() {
         </div>
         <div className="grid grid-2">
           <Stat icon="Clock" label="Lernzeit gesamt" value={fmtDuration(totalSec)} />
-          <Stat icon="CalendarDays" label="Diese Woche" value={`${weekMin} min`} />
+          
           <Stat icon="Flame" label="Lernserie" value={`${streak} Tag${streak === 1 ? '' : 'e'}`} />
+          <Countdown date={settings.examDate} />
           <Stat icon="Award" label="Letzte AP1-Simulation" value={lastAp1 ? `${Math.round(lastAp1.score ?? 0)} P. (${ihkGrade(lastAp1.score ?? 0).note})` : '–'} />
         </div>
       </div>
@@ -120,14 +121,18 @@ export function Dashboard() {
 
       <div className="grid grid-2 mt">
         <div className="card">
-          <div className="card-title"><Icon name="Map" size={18} />Kenntnisstand je Themengebiet</div>
-          {MODULES.map((m) => {
-            const k = m.skills.length ? m.skills.reduce((s, sk) => s + (skills[sk.id] ? knowledge(skills[sk.id], now) : 0), 0) / m.skills.length : 0;
+          <div className="card-title"><Icon name="Map" size={18} />Kenntnisstand je Fachbereich</div>
+          {AREAS.map((a) => {
+            const mods = MODULES.filter((m) => moduleArea(m) === a.id);
+            const sk = mods.flatMap((m) => m.skills);
+            const k = sk.length ? sk.reduce((s, x) => s + (skills[x.id] ? knowledge(skills[x.id], now) : 0), 0) / sk.length : 0;
             return (
-              <div key={m.id} className="skill-row" style={{ cursor: 'pointer' }} onClick={() => navigate(`/modul/${m.id}`)}>
-                <span className="row small"><Icon name={m.icon} size={15} />{m.title}</span>
-                <Progress value={k} ok={k >= 0.85} />
-                <span className="small mono">{Math.round(k * 100)}%</span>
+              <div key={a.id} style={{ ['--area-c' as string]: a.color, padding: '9px 0', borderBottom: '1px solid var(--border)', cursor: 'pointer' } as React.CSSProperties} onClick={() => navigate('/lehrplan')}>
+                <div className="row between">
+                  <span className="row small"><span className="module-icon" style={{ width: 28, height: 28, borderRadius: 8 }}><Icon name={a.icon} size={15} /></span><b>{a.title}</b></span>
+                  <span className="small mono">{mods.length ? `${Math.round(k * 100)} %` : 'in Arbeit'}</span>
+                </div>
+                <div style={{ marginTop: 6 }}><div className="progress"><div style={{ width: `${Math.round(k * 100)}%`, background: a.color }} /></div></div>
               </div>
             );
           })}
@@ -158,6 +163,25 @@ export function Dashboard() {
           </div>
         </div>
       </div>
+    </div>
+  );
+}
+
+function Countdown({ date }: { date?: string }) {
+  if (!date) {
+    return (
+      <div className="card row" style={{ gap: 14, cursor: 'pointer' }} onClick={() => navigate('/einstellungen')}>
+        <div className="stat-icon"><Icon name="CalendarClock" size={18} /></div>
+        <div className="stat"><span className="label">Prüfungstermin</span><span className="small muted">Termin eintragen →</span></div>
+      </div>
+    );
+  }
+  const days = Math.max(0, Math.ceil((new Date(date).getTime() - Date.now()) / 86400000));
+  const weeks = Math.floor(days / 7);
+  return (
+    <div className="card row" style={{ gap: 14 }}>
+      <div className="stat-icon" style={{ background: 'var(--warn-soft)', color: 'var(--warn)' }}><Icon name="CalendarClock" size={18} /></div>
+      <div className="stat"><span className="label">Bis zur Prüfung</span><span className="value" style={{ fontSize: '1.3rem' }}>{days} Tage</span><span className="tiny dim">≈ {weeks} Wochen · {weeks} Berufsschul-Mittwoche</span></div>
     </div>
   );
 }
