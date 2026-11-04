@@ -2,7 +2,7 @@
  * Werkzeuge: Rechner und Nachschlagetabellen für die AP1-Vorbereitung.
  * Alle Berechnungen laufen über den Rechenkern (src/core) – hier wird nichts nachgebaut.
  */
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import {
   addressClass, and32, blockSize, classifyAddress, formatIp, ipToBinary, isPrivate, maskToPrefix, networkAddress, nthSubnet,
   octets, parseCidr, parseIpSafe, parsePrefixInput, prefixForHosts, prefixToMaskNum, subnetInfo, toBinary8, usableHosts,
@@ -21,6 +21,8 @@ import { Icon, Progress } from '../components/common';
 import { fisiResult, type FisiInput } from '../core/fisiNote';
 import { ihkGrade } from './Exam';
 import { BinaryOctet, BitRow, IpBinary, Ipv6Compress, Legend, VlsmBoxes } from '../components/widgets';
+import { evaluate, formatResult } from '../core/calc';
+import { TOOL_META, openTool, type ToolId } from '../lib/toolWindows';
 
 /* ------------------------------------------------------------------ */
 /* Kleine Helfer                                                       */
@@ -1267,31 +1269,130 @@ function FisiNoteTool() {
 /* Seite                                                               */
 /* ------------------------------------------------------------------ */
 
-type TabId = 'subnet' | 'masks' | 'binary' | 'vlsm' | 'ipv6' | 'units' | 'ports' | 'note';
+/* ------------------------------------------------------------------ */
+/* Taschenrechner                                                      */
+/* ------------------------------------------------------------------ */
 
-const TABS: { id: TabId; label: string; icon: string }[] = [
-  { id: 'subnet', label: 'Subnetzrechner', icon: 'Calculator' },
-  { id: 'masks', label: 'Masken-Tabelle', icon: 'Table' },
-  { id: 'binary', label: 'Binär / Hex / Dez', icon: 'Binary' },
-  { id: 'vlsm', label: 'VLSM-Planer', icon: 'LayoutGrid' },
-  { id: 'ipv6', label: 'IPv6', icon: 'Globe' },
-  { id: 'units', label: 'Übertragung & Einheiten', icon: 'Gauge' },
-  { id: 'ports', label: 'Ports & Protokolle', icon: 'Plug' },
-  { id: 'note', label: 'Gesamtnote FISI', icon: 'GraduationCap' },
+const CALC_KEYS: { label: string; ins?: string; act?: 'C' | 'back' | 'eq'; cls?: string; title?: string }[] = [
+  { label: 'C', act: 'C', cls: 'fn', title: 'Alles löschen (Esc)' }, { label: '⌫', act: 'back', cls: 'fn', title: 'Zeichen löschen (Rücktaste)' }, { label: '(', ins: '(' }, { label: ')', ins: ')' },
+  { label: 'x²', ins: '²', cls: 'fn' }, { label: '√', ins: '√', cls: 'fn' }, { label: 'xʸ', ins: '^', cls: 'fn', title: 'Potenz (^)' }, { label: '÷', ins: '÷', cls: 'op' },
+  { label: '7', ins: '7' }, { label: '8', ins: '8' }, { label: '9', ins: '9' }, { label: '×', ins: '×', cls: 'op' },
+  { label: '4', ins: '4' }, { label: '5', ins: '5' }, { label: '6', ins: '6' }, { label: '−', ins: '−', cls: 'op' },
+  { label: '1', ins: '1' }, { label: '2', ins: '2' }, { label: '3', ins: '3' }, { label: '+', ins: '+', cls: 'op' },
+  { label: '%', ins: '%', cls: 'fn' }, { label: '0', ins: '0' }, { label: ',', ins: ',' }, { label: '=', act: 'eq', cls: 'eq', title: 'Ergebnis (Enter)' },
 ];
 
+export function Calculator() {
+  const [expr, setExpr] = useState('');
+  const [hist, setHist] = useState<{ expr: string; res: string }[]>([]);
+  const [err, setErr] = useState('');
+  const input = useRef<HTMLInputElement>(null);
+  const preview = useMemo(() => {
+    if (!expr.trim()) return '';
+    try { return formatResult(evaluate(expr)); } catch { return ''; }
+  }, [expr]);
+  // Ergebnis ohne Tausenderpunkte weiterverwenden, sonst würde „1.500“ als 1,5 gelesen
+  const plain = (res: string) => res.replace(/\./g, '');
+
+  const run = () => {
+    if (!expr.trim()) return;
+    try {
+      const res = formatResult(evaluate(expr));
+      setHist((h) => [{ expr, res }, ...h].slice(0, 6));
+      setExpr(plain(res));
+      setErr('');
+    } catch (e) {
+      setErr((e as Error).message);
+    }
+  };
+  const insert = (s: string) => {
+    const el = input.current;
+    const a = el?.selectionStart ?? expr.length;
+    const b = el?.selectionEnd ?? expr.length;
+    setExpr(expr.slice(0, a) + s + expr.slice(b));
+    setErr('');
+    requestAnimationFrame(() => { el?.focus(); el?.setSelectionRange(a + s.length, a + s.length); });
+  };
+  const press = (k: (typeof CALC_KEYS)[number]) => {
+    if (k.ins) return insert(k.ins);
+    if (k.act === 'C') { setExpr(''); setErr(''); }
+    if (k.act === 'back') setExpr((x) => x.slice(0, -1));
+    if (k.act === 'eq') run();
+    input.current?.focus();
+  };
+
+  return (
+    <div className="calc">
+      <div className="calc-display">
+        <input
+          ref={input}
+          data-autofocus
+          className="calc-input mono"
+          value={expr}
+          inputMode="decimal"
+          aria-label="Rechenausdruck"
+          placeholder="z. B. 1500 × 8 ÷ 100"
+          onChange={(e) => { setExpr(e.target.value); setErr(''); }}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === '=') { e.preventDefault(); run(); }
+            if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); setExpr(''); setErr(''); }
+          }}
+        />
+        <div className={`calc-preview mono ${err ? 'bad' : ''}`} aria-live="polite">{err || (preview && preview !== expr ? '= ' + preview : ' ')}</div>
+      </div>
+      <div className="calc-keys">
+        {CALC_KEYS.map((k) => (
+          <button key={k.label} type="button" tabIndex={-1} className={`calc-key ${k.cls ?? ''}`} title={k.title} onClick={() => press(k)}>{k.label}</button>
+        ))}
+      </div>
+      {hist.length > 0 && (
+        <div className="calc-hist">
+          {hist.map((h, i) => (
+            <button key={i} type="button" className="calc-hist-row mono" title="Ergebnis übernehmen" onClick={() => insert(plain(h.res))}>
+              <span className="dim">{h.expr} =</span> <b>{h.res}</b>
+            </button>
+          ))}
+        </div>
+      )}
+      <div className="tiny dim mt-xs">Tastatur: Ziffern, + − * / ^ % ( ), Komma oder Punkt · Enter = Ergebnis · Esc = löschen</div>
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* Seite und Fenster                                                   */
+/* ------------------------------------------------------------------ */
+
+const TOOL_COMPONENTS: Record<ToolId, () => React.ReactElement> = {
+  calc: Calculator,
+  subnet: SubnetCalculator,
+  masks: MaskTable,
+  binary: BinaryTools,
+  vlsm: VlsmPlanner,
+  ipv6: Ipv6Tool,
+  units: UnitsTools,
+  ports: PortsTable,
+  note: FisiNoteTool,
+};
+
+/** Einzelnes Werkzeug (für die schwebenden Fenster) */
+export function ToolById({ id }: { id: ToolId }) {
+  const C = TOOL_COMPONENTS[id];
+  return <C />;
+}
+
 export function ToolsPage() {
-  const [tab, setTab] = useState<TabId>('subnet');
+  const [tab, setTab] = useState<ToolId>(() => (new URLSearchParams(location.hash.split('?')[1] ?? '').get('tool') as ToolId) || 'calc');
   return (
     <div className="page">
       <div className="page-header">
         <div>
           <h1 style={{ margin: '0 0 6px' }}>Werkzeuge</h1>
-          <p>Rechner und Nachschlagetabellen – zum Nachrechnen deiner Lösungen und zum Verstehen der Rechenwege.</p>
+          <p>Rechner und Nachschlagetabellen – zum Nachrechnen deiner Lösungen und zum Verstehen der Rechenwege. Tipp: Über „Werkzeuge“ in der Seitenleiste öffnest du jedes Werkzeug als verschiebbares Fenster über der aktuellen Seite.</p>
         </div>
       </div>
       <div className="tabs" role="tablist" style={{ marginBottom: 20 }}>
-        {TABS.map((t) => (
+        {TOOL_META.map((t) => (
           <button
             key={t.id}
             role="tab"
@@ -1305,15 +1406,12 @@ export function ToolsPage() {
           </button>
         ))}
       </div>
+      <div className="row mb"><button className="btn sm" onClick={() => openTool(tab)}><Icon name="PictureInPicture2" size={14} /> Als Fenster öffnen</button></div>
       {/* Alle Werkzeuge bleiben gemountet, damit Eingaben beim Tab-Wechsel erhalten bleiben. */}
-      <div style={{ display: tab === 'subnet' ? undefined : 'none' }}><SubnetCalculator /></div>
-      <div style={{ display: tab === 'masks' ? undefined : 'none' }}><MaskTable /></div>
-      <div style={{ display: tab === 'binary' ? undefined : 'none' }}><BinaryTools /></div>
-      <div style={{ display: tab === 'vlsm' ? undefined : 'none' }}><VlsmPlanner /></div>
-      <div style={{ display: tab === 'ipv6' ? undefined : 'none' }}><Ipv6Tool /></div>
-      <div style={{ display: tab === 'units' ? undefined : 'none' }}><UnitsTools /></div>
-      <div style={{ display: tab === 'ports' ? undefined : 'none' }}><PortsTable /></div>
-      <div style={{ display: tab === 'note' ? undefined : 'none' }}><FisiNoteTool /></div>
+      {TOOL_META.map((t) => {
+        const C = TOOL_COMPONENTS[t.id];
+        return <div key={t.id} style={{ display: tab === t.id ? undefined : 'none', maxWidth: t.id === 'calc' ? 360 : undefined }}><C /></div>;
+      })}
     </div>
   );
 }

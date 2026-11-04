@@ -11,6 +11,8 @@ import { HistoryPage, LabPage, SettingsPage, TutorPage } from './pages/Other';
 import { isDue } from './core/learning';
 import { CatalogHome, CatalogRound } from './pages/Catalog';
 import type { RoundFilter } from './core/catalog';
+import { ToolWindowLayer } from './components/ToolWindows';
+import { TOOL_META, openTool, useToolWindows } from './lib/toolWindows';
 
 const ToolsPage = lazy(() => import('./pages/Tools').then((m) => ({ default: m.ToolsPage })));
 
@@ -61,16 +63,19 @@ function Router({ route }: { route: string }) {
 }
 
 function PlacementIntro() {
-  const { settings } = useStore();
+  const { settings, drafts } = useStore();
+  const draft = drafts['exam:einstufung:'] as { responses: unknown[] } | undefined;
   return (
     <div className="page narrow">
       <h1>Einstufungstest</h1>
       <div className="block explain">
         <div className="block-label"><Icon name="Gauge" size={14} />So funktioniert es</div>
-        <p>Rund 30 Aufgaben aus allen Modulen – mit Schwerpunkt auf Binärsystem, IPv4, Subnetzmasken und Subnetting. Es gibt keine Hilfen und kein Zeitlimit. Lass Aufgaben, die du nicht kannst, ruhig <b>leer</b> – Raten verfälscht das Ergebnis.</p>
+        <p>Rund 40 Aufgaben aus allen Fachbereichen – mit Schwerpunkt auf Binärsystem, IPv4, Subnetzmasken und Subnetting. Es gibt keine Hilfen und kein Zeitlimit. Lass Aufgaben, die du nicht kannst, ruhig <b>leer</b> – Raten verfälscht das Ergebnis.</p>
         <p>Danach kennt das System deinen echten Stand: Was du sicher kannst, wird nur noch gelegentlich wiederholt; Lücken werden gezielt aufgearbeitet.</p>
         {settings.placementDone && <p className="small muted">Du hast den Test schon einmal gemacht. Eine Wiederholung aktualisiert die Einschätzung.</p>}
-        <button className="btn primary lg" onClick={() => navigate('/pruefung/start/einstufung')}>Test starten</button>
+        <button className="btn primary lg" onClick={() => navigate('/pruefung/start/einstufung')}>
+          {draft ? `Test fortsetzen (${draft.responses.filter((r) => r !== null && r !== '').length}/${draft.responses.length} beantwortet)` : 'Test starten'}
+        </button>
       </div>
     </div>
   );
@@ -80,6 +85,8 @@ function Shell() {
   const { loaded, error, tutorOpen, setTutorOpen, overallProgress, skills, settings, aiEnabled, staticMode } = useStore();
   const [route] = useRoute();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [toolsOpen, setToolsOpen] = useState(false);
+  const wins = useToolWindows();
   useEffect(() => {
     document.querySelector('.main')?.scrollTo({ top: 0 });
     setMenuOpen(false);
@@ -105,10 +112,30 @@ function Shell() {
         {NAV.filter((n) => !(staticMode && n.route === '/tutor')).map((n) => (
           <React.Fragment key={n.route + n.label}>
             {n.section && <div className="nav-section">{n.section}</div>}
-            <button className={`nav-item ${active(n) ? 'active' : ''}`} onClick={() => navigate(n.route)}>
-              <Icon name={n.icon} size={18} />{n.label}
-              {n.route === '/schwaechen' && dueCount > 0 && <span className="badge warn">{dueCount}</span>}
-            </button>
+            {n.route === '/werkzeuge' ? (
+              <>
+                <button className={`nav-item ${active(n) ? 'active' : ''}`} aria-expanded={toolsOpen} onClick={() => setToolsOpen(!toolsOpen)}>
+                  <Icon name={n.icon} size={18} />{n.label}
+                  {wins.length > 0 && <span className="badge">{wins.length}</span>}
+                  <span style={{ marginLeft: wins.length ? 6 : 'auto', display: 'flex' }}><Icon name={toolsOpen ? 'ChevronUp' : 'ChevronDown'} size={15} /></span>
+                </button>
+                {toolsOpen && (
+                  <div className="nav-sub">
+                    {TOOL_META.map((t) => (
+                      <button key={t.id} className={`nav-item sub ${wins.some((w) => w.id === t.id) ? 'on' : ''}`} onClick={() => { openTool(t.id); setMenuOpen(false); }}>
+                        <Icon name={t.icon} size={15} />{t.label}
+                      </button>
+                    ))}
+                    <button className="nav-item sub dim" onClick={() => navigate('/werkzeuge')}><Icon name="LayoutPanelTop" size={15} />Alle als Seite</button>
+                  </div>
+                )}
+              </>
+            ) : (
+              <button className={`nav-item ${active(n) ? 'active' : ''}`} onClick={() => navigate(n.route)}>
+                <Icon name={n.icon} size={18} />{n.label}
+                {n.route === '/schwaechen' && dueCount > 0 && <span className="badge warn">{dueCount}</span>}
+              </button>
+            )}
           </React.Fragment>
         ))}
         <div className="sidebar-footer">
@@ -127,6 +154,7 @@ function Shell() {
       <main className="main">
         <Router route={route} />
       </main>
+      <ToolWindowLayer />
       {tutorOpen && aiEnabled && <TutorChat />}
       {!tutorOpen && aiEnabled && (
         <button className="btn primary" style={{ position: 'fixed', right: 22, bottom: 22, borderRadius: 99, padding: '12px 18px', boxShadow: 'var(--shadow)' }} onClick={() => setTutorOpen(true)}>

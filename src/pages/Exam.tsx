@@ -107,11 +107,11 @@ function pickQuestions(cfg: TestConfig, skills: Record<string, import('../core/l
       ['vlsm.sizing', 2], ['ipv6.compress', 1], ['calc.transfertime', 1], ['routing.lpm', 1],
     ];
     for (const [id, d] of plan) if (SKILL_MAP.has(id)) add(fromSkill(id, d));
-    // dazu je eine Frage aus allen übrigen Modulen
-    for (const m of MODULES) {
-      if (['m03', 'm04', 'm05', 'm06', 'm16'].includes(m.id)) continue;
-      const pool = m.questions.filter((q) => q.difficulty <= 2 && q.kind !== 'free');
-      if (pool.length) add(rng.pick(pool));
+    // dazu zwei Fragen je Fachbereich (außer Netzwerk) aus prüfungsrelevanten Modulen – hält den Test bei rund 40 Aufgaben
+    for (const a of AREAS) {
+      if (a.id === 'netzwerk') continue;
+      const pool = MODULES.filter((m) => moduleArea(m) === a.id && m.relevance !== 'vertiefung').flatMap((m) => m.questions.filter((q) => q.difficulty <= 2 && q.kind !== 'free'));
+      for (const q of rng.shuffle(pool).slice(0, 2)) add(q);
     }
   } else {
     // gemischt / ap1: über alle Module verteilt, AP1-relevante stärker gewichtet
@@ -164,6 +164,8 @@ export function ExamHome() {
     api.tests().then(setTests).catch(() => {});
   }, []);
   const ap1 = tests.filter((t) => t.type === 'ap1' || t.type === 'ap1komplett').reverse();
+  const { drafts, saveDraft } = useStore();
+  const open = Object.entries(drafts).filter(([k]) => k.startsWith('exam:')) as [string, ExamDraft][];
   return (
     <div className="page">
       <div className="page-header">
@@ -172,6 +174,25 @@ export function ExamHome() {
           <p>Ohne Hilfestellungen. Die Auswertung kommt erst nach der Abgabe – mit Lösungsweg, Fehleranalyse und Empfehlungen.</p>
         </div>
       </div>
+      {open.length > 0 && (
+        <div className="card mb">
+          <div className="card-title"><Icon name="PlayCircle" size={18} />Angefangene Tests</div>
+          {open.map(([k, d]) => {
+            const [, t, m] = k.split(':');
+            const title = t === 'modul' ? `Modultest: ${MODULE_MAP.get(m)?.title ?? m}` : t === 'einstufung' ? 'Einstufungstest' : TYPES.find((x) => x.type === t)?.title ?? t;
+            const n = d.responses.filter((r) => r !== null && r !== '').length;
+            return (
+              <div key={k} className="row between wrap" style={{ padding: '6px 0' }}>
+                <div><b>{title}</b> <span className="small muted">· {n}/{d.responses.length} beantwortet · gespeichert {fmtDate(d.saved)}</span></div>
+                <div className="row">
+                  <button className="btn sm ghost" onClick={() => { if (window.confirm('Diesen angefangenen Test verwerfen?')) saveDraft(k, null); }}>Verwerfen</button>
+                  <button className="btn sm primary" onClick={() => navigate(`/pruefung/start/${t}${m ? '/' + m : ''}`)}>Fortsetzen</button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
       <div className="grid grid-3">
         {TYPES.map((t) => (
           <div key={t.type} className="card module-card" style={t.type === 'ap1' || t.type === 'ap1komplett' ? { borderColor: 'var(--accent)', background: 'radial-gradient(500px 120px at 0 0, var(--accent-soft), transparent), var(--surface)' } : undefined}
@@ -223,16 +244,43 @@ export function ExamHome() {
 
 /* ------------------------------------------------------------------ */
 
+interface ExamDraft {
+  questions: Question[];
+  points: number[];
+  responses: ResponseValue[];
+  cur: number;
+  elapsedMs: number;
+  testId: string;
+  qTime: number[];
+  saved: number;
+}
+
+export const draftKey = (type: TestType, module?: string) => `exam:${type}:${module ?? ''}`;
+
+/** Hält den Zwischenstand; „Neu beginnen“ verwirft ihn und startet frisch. */
 export function ExamRun({ type, module }: { type: TestType; module?: string }) {
-  const { skills, recordAttempt, updateSettings, setResume } = useStore();
+  const { drafts, saveDraft } = useStore();
+  const key = draftKey(type, module);
+  const [state, setState] = useState(() => ({ n: 0, draft: drafts[key] as ExamDraft | undefined }));
+  const restart = () => {
+    saveDraft(key, null);
+    setState((s) => ({ n: s.n + 1, draft: undefined }));
+  };
+  return <ExamRunInner key={key + state.n} type={type} module={module} draft={state.draft} onRestart={restart} />;
+}
+
+function ExamRunInner({ type, module, draft, onRestart }: { type: TestType; module?: string; draft?: ExamDraft; onRestart: () => void }) {
+  const { skills, recordAttempt, updateSettings, setResume, saveDraft } = useStore();
+  const key = draftKey(type, module);
   const meta = TYPES.find((t) => t.type === type);
   const cfg: TestConfig = useMemo(() => {
     if (type === 'einstufung') return { type, count: 30, minutes: null, title: 'Einstufungstest' };
     return { type, module, count: meta?.count ?? 10, minutes: meta?.minutes ?? null, title: type === 'modul' ? `Modultest: ${MODULE_MAP.get(module ?? '')?.title}` : meta?.title ?? 'Test' };
   }, [type, module]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const [questions] = useState(() => pickQuestions(cfg, skills));
+  const [questions] = useState(() => draft?.questions ?? pickQuestions(cfg, skills));
   const [points] = useState(() => {
+    if (draft?.points) return draft.points;
     const blocks = questions.map((q) => (q as Question & { block?: number }).block);
     if (type !== 'ap1komplett' || blocks.some((b) => b === undefined)) return pointsFor(questions);
     const pts = questions.map(() => 0);
@@ -244,19 +292,28 @@ export function ExamRun({ type, module }: { type: TestType; module?: string }) {
     }
     return pts;
   });
-  const [responses, setResponses] = useState<ResponseValue[]>(() => questions.map(() => null));
-  const [cur, setCur] = useState(0);
-  const [started] = useState(Date.now());
-  const [left, setLeft] = useState(cfg.minutes ? cfg.minutes * 60 : 0);
+  const [responses, setResponses] = useState<ResponseValue[]>(() => draft?.responses ?? questions.map(() => null));
+  const [cur, setCur] = useState(() => draft?.cur ?? 0);
+  // Zeit läuft nur, solange der Test offen ist: beim Fortsetzen zählt die bisher verbrauchte Zeit weiter
+  const [started] = useState(() => Date.now() - (draft?.elapsedMs ?? 0));
+  const [left, setLeft] = useState(cfg.minutes ? cfg.minutes * 60 - Math.floor((draft?.elapsedMs ?? 0) / 1000) : 0);
   const [submitted, setSubmitted] = useState(false);
   const [confirm, setConfirm] = useState(false);
-  const testId = useRef(`t-${Date.now().toString(36)}`);
+  const testId = useRef(draft?.testId ?? `t-${Date.now().toString(36)}`);
   const qStart = useRef<number[]>(questions.map(() => 0));
-  const qTime = useRef<number[]>(questions.map(() => 0));
+  const qTime = useRef<number[]>(draft?.qTime ?? questions.map(() => 0));
 
   useEffect(() => {
-    setResume({ route: '/pruefung', label: cfg.title });
+    setResume({ route: location.hash.slice(1) || '/pruefung', label: cfg.title });
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Zwischenstand bei jeder Änderung (und jede Minute wegen der Zeit) sichern
+  const minute = Math.floor((Date.now() - started) / 60000);
+  useEffect(() => {
+    if (submitted) return;
+    const d: ExamDraft = { questions, points, responses, cur, elapsedMs: Date.now() - started, testId: testId.current, qTime: qTime.current, saved: Date.now() };
+    saveDraft(key, d);
+  }, [responses, cur, minute, submitted]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     qStart.current[cur] = Date.now();
@@ -278,6 +335,7 @@ export function ExamRun({ type, module }: { type: TestType; module?: string }) {
   const submit = async () => {
     if (submitted) return;
     setSubmitted(true);
+    saveDraft(key, null);
     const items = questions.map((q, i) => {
       const r = grade(q, responses[i] ?? null);
       return { question: q, response: responses[i], correct: r.correct, score: r.pending ? 0 : r.score, errorTags: r.errorTags, feedback: r.feedback, points: points[i], pending: !!r.pending };
@@ -304,6 +362,10 @@ export function ExamRun({ type, module }: { type: TestType; module?: string }) {
         <div>
           <h2 style={{ margin: 0 }}>{cfg.title}</h2>
           <div className="small muted">{type === 'einstufung' ? 'Beantworte ehrlich – raten verfälscht deine Einstufung. „Weiß ich nicht“ ist erlaubt (einfach leer lassen).' : 'Keine Hilfen, keine Rückmeldung bis zur Abgabe.'}</div>
+          <div className="tiny dim mt-xs">
+            <Icon name="Save" size={12} /> {draft ? 'Fortgesetzt – ' : ''}Dein Stand wird automatisch gespeichert. Du kannst die Seite jederzeit verlassen.
+            {' '}<button className="linkbtn" onClick={() => { if (confirmRestart()) onRestart(); }}>Neu beginnen</button>
+          </div>
         </div>
         {cfg.minutes && <div className={`timer ${left < 300 ? 'low' : ''}`}><Icon name="Timer" size={16} /> {String(mm).padStart(2, '0')}:{String(ss).padStart(2, '0')}</div>}
       </div>
@@ -342,8 +404,14 @@ export function ExamRun({ type, module }: { type: TestType; module?: string }) {
       <div className="row mt">
         <button className="btn" onClick={() => setCur(Math.max(0, cur - 1))} disabled={cur === 0}><Icon name="ArrowLeft" size={16} /> Zurück</button>
         <span className="spacer" />
-        {cur < questions.length - 1 && <button className="btn" onClick={() => setCur(cur + 1)}>Weiter <Icon name="ArrowRight" size={16} /></button>}
-        <button className="btn primary" onClick={() => setConfirm(true)}>Abgeben</button>
+        {cur < questions.length - 1 ? (
+          <>
+            <button className="btn sm ghost" onClick={() => setConfirm(true)} title="Den ganzen Test jetzt beenden und auswerten"><Icon name="Flag" size={14} /> Test abgeben</button>
+            <button className="btn primary" onClick={() => setCur(cur + 1)}>Weiter <Icon name="ArrowRight" size={16} /></button>
+          </>
+        ) : (
+          <button className="btn primary" onClick={() => setConfirm(true)}><Icon name="Flag" size={16} /> Test abgeben</button>
+        )}
       </div>
       {confirm && (
         <div className="modal-back" onClick={() => setConfirm(false)}>
@@ -357,6 +425,8 @@ export function ExamRun({ type, module }: { type: TestType; module?: string }) {
     </div>
   );
 }
+
+const confirmRestart = () => window.confirm('Test neu beginnen? Dein bisheriger Stand in diesem Test wird verworfen.');
 
 /* ------------------------------------------------------------------ */
 

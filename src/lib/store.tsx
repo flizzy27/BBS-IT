@@ -63,6 +63,9 @@ interface Ctx {
   studyTime: { day: string; seconds: number }[];
   /** Fragenkatalog: letzte Ergebnisse je Frage (Fahrschul-Prinzip) */
   qstat: QStatMap;
+  /** Angefangene Tests/Runden (Schlüssel → Zwischenstand), werden mit gespeichert */
+  drafts: Record<string, unknown>;
+  saveDraft: (key: string, value: unknown | null) => void;
   updateSettings: (p: Partial<Settings>) => void;
   setLessonProgress: (lessonId: string, step: number, done?: boolean) => void;
   completeLesson: (lessonId: string, skills: string[]) => void;
@@ -95,6 +98,9 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   const [resume, setResumeState] = useState<ResumeInfo | null>(null);
   const [studyTime, setStudyTime] = useState<{ day: string; seconds: number }[]>([]);
   const [qstat, setQstat] = useState<QStatMap>({});
+  const [drafts, setDrafts] = useState<Record<string, unknown>>({});
+  const draftsRef = useRef(drafts);
+  const draftTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [tutorContext, setTutorContext] = useState<TutorContext>({ view: 'Dashboard' });
   const [tutorOpen, setTutorOpen] = useState(false);
   const [tutorQueue, setTutorQueue] = useState<string | null>(null);
@@ -116,6 +122,8 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       setLP((s.kv.lessonProgress as LessonProgress) ?? {});
       setResumeState((s.kv.resume as ResumeInfo) ?? null);
       setStudyTime(s.studyTime);
+      setDrafts((s.kv.drafts as Record<string, unknown>) ?? {});
+      draftsRef.current = (s.kv.drafts as Record<string, unknown>) ?? {};
       // einmalige Übernahme aus dem bisherigen Verlauf, falls der Katalogstatus noch fehlt
       const qs = (s.kv.qstat as QStatMap | undefined) ?? buildQStat(await api.attempts(5000).catch(() => []));
       setQstat(qs);
@@ -220,6 +228,28 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     return next;
   }, []);
 
+  const flushDrafts = useCallback(() => {
+    if (!draftTimer.current) return;
+    clearTimeout(draftTimer.current);
+    draftTimer.current = null;
+    api.setKv('drafts', draftsRef.current).catch(() => {});
+  }, []);
+  const saveDraft = useCallback((key: string, value: unknown | null) => {
+    const n = { ...draftsRef.current };
+    if (value === null) delete n[key];
+    else n[key] = value;
+    draftsRef.current = n;
+    setDrafts(n);
+    if (draftTimer.current) clearTimeout(draftTimer.current);
+    draftTimer.current = setTimeout(flushDrafts, value === null ? 0 : 800);
+  }, [flushDrafts]);
+  useEffect(() => {
+    const onHide = () => { if (document.visibilityState === 'hidden') flushDrafts(); };
+    window.addEventListener('pagehide', flushDrafts);
+    document.addEventListener('visibilitychange', onHide);
+    return () => { window.removeEventListener('pagehide', flushDrafts); document.removeEventListener('visibilitychange', onHide); };
+  }, [flushDrafts]);
+
   const setResume = useCallback((r: Omit<ResumeInfo, 'ts'>) => {
     const v = { ...r, ts: Date.now() };
     setResumeState(v);
@@ -244,7 +274,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   }, [skills]);
 
   const value: Ctx = {
-    loaded, error, skills, settings, lessonProgress, resume, studyTime, qstat, updateSettings, setLessonProgress, completeLesson, recordAttempt,
+    loaded, error, skills, settings, lessonProgress, resume, studyTime, qstat, drafts, saveDraft, updateSettings, setLessonProgress, completeLesson, recordAttempt,
     setResume, tutorContext, setTutorContext, tutorOpen, setTutorOpen, tutorQueue, askTutor, consumeTutorQueue, overallProgress, reload, aiEnabled, staticMode, refreshAi,
   };
   return <StoreCtx.Provider value={value}>{children}</StoreCtx.Provider>;

@@ -383,3 +383,47 @@ h1 { background: linear-gradient(90deg, var(--text) 30%, color-mix(in srgb, var(
 .catalog-row { display: grid; grid-template-columns: minmax(0, 1fr) 160px auto; gap: 14px; align-items: center; padding: 9px 0; border-bottom: 1px solid var(--border); }
 .catalog-row:last-child { border-bottom: none; }
 .ellipsis { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* Textlink-Knopf und kleiner Abstand */
+.linkbtn { background: none; border: 0; padding: 0; color: var(--accent); cursor: pointer; font: inherit; text-decoration: underline; text-underline-offset: 2px; }
+.linkbtn:hover { color: var(--text); }
+.mt-xs { margin-top: 4px; }
+
+/* Werkzeuge: Untermenü in der Seitenleiste */
+.nav-sub { display: flex; flex-direction: column; gap: 1px; margin: 2px 0 6px 18px; padding-left: 8px; border-left: 1px solid var(--border); }
+.nav-item.sub { padding: 6px 10px; font-size: 0.86rem; gap: 9px; }
+.nav-item.sub.on { color: var(--accent-2); }
+.nav-item.sub.dim { color: var(--text-3, var(--text-2)); }
+
+/* Schwebende Werkzeug-Fenster */
+.toolwin { position: fixed; max-width: calc(100vw - 16px); max-height: calc(100vh - 24px); display: flex; flex-direction: column; background: var(--surface); border: 1px solid var(--border); border-radius: 14px; box-shadow: 0 18px 50px rgba(0, 0, 0, 0.35), 0 2px 8px rgba(0, 0, 0, 0.2); overflow: hidden; }
+.toolwin.top { border-color: var(--accent); }
+.toolwin-head { display: flex; align-items: center; gap: 8px; padding: 6px 6px 6px 12px; background: var(--surface-2); border-bottom: 1px solid var(--border); cursor: grab; user-select: none; touch-action: none; font-size: 0.9rem; }
+.toolwin-head:active { cursor: grabbing; }
+.toolwin-head:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.toolwin-body { padding: 12px; overflow: auto; resize: vertical; min-height: 120px; }
+.toolwin-body > .card, .toolwin-body .card { box-shadow: none; }
+.toolwin-body .grid-2, .toolwin-body .grid-3 { grid-template-columns: 1fr; }
+.btn.icon { padding: 5px; }
+@media (max-width: 760px) {
+  .toolwin { left: 8px !important; right: 8px; top: auto !important; bottom: 8px; width: auto !important; max-height: 72vh; }
+  .toolwin-head { cursor: default; }
+}
+
+/* Taschenrechner */
+.calc { display: flex; flex-direction: column; gap: 10px; }
+.calc-display { background: var(--surface-2); border: 1px solid var(--border); border-radius: 12px; padding: 10px 12px 8px; }
+.calc-input { width: 100%; background: transparent; border: 0; outline: none; color: var(--text); font-size: 1.35rem; text-align: right; padding: 0; }
+.calc-preview { text-align: right; color: var(--text-2); font-size: 0.95rem; min-height: 1.3em; }
+.calc-preview.bad { color: var(--bad); }
+.calc-display:focus-within { border-color: var(--accent); }
+.calc-keys { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+.calc-key { height: 44px; border-radius: 10px; border: 1px solid var(--border); background: var(--surface-2); color: var(--text); font-size: 1.05rem; font-weight: 600; cursor: pointer; transition: background 0.12s, transform 0.05s; }
+.calc-key:hover { background: var(--surface-3); }
+.calc-key:active { transform: scale(0.97); }
+.calc-key.fn { color: var(--text-2); font-size: 0.95rem; }
+.calc-key.op { color: var(--accent-2); }
+.calc-key.eq { background: var(--accent); border-color: var(--accent); color: #fff; }
+.calc-hist { display: flex; flex-direction: column; border-top: 1px solid var(--border); padding-top: 6px; }
+.calc-hist-row { background: none; border: 0; text-align: right; padding: 3px 2px; color: var(--text); cursor: pointer; font-size: 0.85rem; border-radius: 6px; }
+.calc-hist-row:hover { background: var(--surface-2); }
