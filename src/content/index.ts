@@ -37,6 +37,12 @@ import { s02 } from './modules/s02';
 import { s03 } from './modules/s03';
 import { s04 } from './modules/s04';
 import { s05 } from './modules/s05';
+import { b01 } from './modules/b01';
+import { b02 } from './modules/b02';
+import { b03 } from './modules/b03';
+import { b04 } from './modules/b04';
+import { b05 } from './modules/b05';
+import { b06 } from './modules/b06';
 
 /**
  * Fachbereiche. Neue Bereiche (z. B. IT-Sicherheit, Wirtschaft, Programmierung, AP2-Themen)
@@ -53,7 +59,7 @@ export const AREAS: Area[] = [
 ];
 
 /** Empfohlene Lernreihenfolge (Binär vor IPv4, IPv4 vor Subnetting …). */
-export const MODULES: Module[] = [m01, m02, m04, m03, m05, m06, m07, m08, m09, m10, m11, m12, m13, m14, m15, m16, h01, h02, h03, h04, h05, w01, w02, w03, w04, w05, d01, d02, d03, s01, s02, s03, s04, s05].filter(Boolean);
+export const MODULES: Module[] = [m01, m02, m04, m03, m05, m06, m07, m08, m09, m10, m11, m12, m13, m14, m15, m16, h01, h02, h03, h04, h05, w01, w02, w03, w04, w05, d01, d02, d03, s01, s02, s03, s04, s05, b01, b02, b03, b04, b05, b06].filter(Boolean);
 
 export const moduleArea = (m: Module) => m.area ?? 'netzwerk';
 

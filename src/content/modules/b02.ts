@@ -590,6 +590,22 @@ Drei Ziffern = Besitzer · Gruppe · Andere. **\`chmod 754 datei\`** → 7 = \`r
 **Windows-Pendant:** „Als Administrator ausführen“ bzw. die UAC-Abfrage; separates Admin-Konto. In beiden Welten gilt: **administrative Rechte nur, wenn nötig, und nachvollziehbar.**`,
         },
         {
+          type: 'visual',
+          title: 'Drei Wege zu root-Rechten',
+          widget: {
+            kind: 'cards',
+            data: {
+              columns: 3,
+              items: [
+                { title: 'Als root anmelden', text: 'Dauerhaft volle Rechte, kein Nachweis, wer was getan hat. Vermeiden – SSH-Login für root sperren.', icon: 'TriangleAlert' },
+                { title: 'su -', text: 'Wechsel zu root mit dem root-Passwort. Das Passwort müssen alle Admins kennen.', icon: 'KeyRound' },
+                { title: 'sudo befehl', text: 'Ein Befehl mit root-Rechten, eigenes Passwort, protokolliert, gezielt per sudoers erlaubt. Empfohlen.', icon: 'ShieldCheck' },
+              ],
+            },
+          },
+          caption: 'sudo setzt Least Privilege und Nachvollziehbarkeit am besten um.',
+        },
+        {
           type: 'example',
           title: 'Paket installieren ohne root-Login',
           problem: 'Der Azubi `lnowak` soll auf einem Ubuntu-Server das Paket `htop` installieren. Er hat kein root-Passwort. Was ist nötig?',

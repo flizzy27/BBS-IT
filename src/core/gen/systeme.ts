@@ -383,7 +383,9 @@ const fsGen: GeneratorMeta = {
       };
     }
     // table
-    const chosen = rng.shuffle(pool).slice(0, 4);
+    const fitting = rng.shuffle(pool.filter((c) => c.bytes <= FAT32_MAX));
+    const tooBig = rng.shuffle(pool.filter((c) => c.bytes > FAT32_MAX));
+    const chosen = rng.shuffle([...fitting.slice(0, 2), ...tooBig.slice(0, 2)]);
     const rows: TableQuestion['rows'] = chosen.map((c) => ({
       label: c.text,
       cells: { fat: { answer: c.bytes <= FAT32_MAX ? 'ja' : 'nein', accept: c.bytes <= FAT32_MAX ? ['ja', 'j', 'yes', 'passt'] : ['nein', 'n', 'no', 'passt nicht'] }, ex: { answer: 'ja', accept: ['j', 'yes', 'passt'] } },
@@ -394,7 +396,7 @@ const fsGen: GeneratorMeta = {
       columns: [{ key: 'fat', label: 'FAT32', type: 'text' }, { key: 'ex', label: 'exFAT', type: 'text' }],
       rows,
       hints: ['FAT32: max. 4.294.967.295 Byte pro Datei. GB = 10⁹ Byte, GiB = 2³⁰ Byte.', 'exFAT hat keine für USB-Sticks relevante Dateigrößengrenze.'],
-      misconceptions: chosen.flatMap((c, i) => (c.bytes <= FAT32_MAX && c.bytes > 4e9 ? [{ cell: `${i}:fat`, answer: 'nein', error: 'einheit-gb-gib', why: `${c.text}: ${c.calc} – das ist kleiner als 4.294.967.295 Byte, passt also noch.` }] : [])),
+      misconceptions: chosen.flatMap((c, i) => (c.bytes <= FAT32_MAX && c.bytes > 4e9 ? [{ cell: `${i}:fat`, answer: 'nein', error: 'einheit-gb-gib', why: `${c.calc} – das ist kleiner als 4.294.967.295 Byte, passt also noch.` }] : [])),
       explanation:
         `FAT32-Grenze: **4.294.967.295 Byte** (4 GiB − 1 Byte).\n\n| Datei | in Byte | FAT32 | exFAT |\n|---|---|---|---|\n` +
         chosen.map((c) => `| ${c.text} | ${fmtN(c.bytes)} | ${c.bytes <= FAT32_MAX ? 'ja' : '**nein**'} | ja |`).join('\n') +

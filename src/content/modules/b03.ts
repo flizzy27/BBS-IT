@@ -526,6 +526,22 @@ Erstelle die Bilanz.`,
 - Teams/Kanäle nach Projekten statt endloser E-Mail-Verteiler`,
         },
         {
+          type: 'visual',
+          title: 'Drei Betriebsmodelle für Office & Collaboration',
+          widget: {
+            kind: 'cards',
+            data: {
+              columns: 3,
+              items: [
+                { title: 'Cloud-Abo (SaaS)', text: 'Microsoft 365, Google Workspace: immer aktuell, Collaboration inklusive, monatliche Kosten, Daten beim Anbieter.', icon: 'Cloud' },
+                { title: 'Kauflizenz lokal', text: 'Office 2024/LTSC: einmalige Kosten, keine Cloud-Dienste, Version altert, eigener Mail-/Dateiserver nötig.', icon: 'MonitorCog' },
+                { title: 'Open Source selbst betrieben', text: 'LibreOffice + Nextcloud: keine Lizenzkosten, Daten im Haus, aber eigener Betriebs- und Supportaufwand.', icon: 'PackageOpen' },
+              ],
+            },
+          },
+          caption: 'Es gibt keine pauschal beste Lösung – sie muss zu Anforderungen, Budget und Datenschutzvorgaben passen.',
+        },
+        {
           type: 'example',
           title: 'Kostenvergleich für 20 Arbeitsplätze über 3 Jahre',
           problem: `Der Berliner Standort (20 Benutzer) braucht Office-Programme, E-Mail und Dateiablage. Angebot (fiktive Preise, netto):
