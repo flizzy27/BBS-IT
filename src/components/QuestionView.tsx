@@ -12,6 +12,8 @@ import { useStore, navigate } from '../lib/store';
 import { api } from '../lib/api';
 import { Icon, Md } from './common';
 import { Widget, VlsmBoxes } from './widgets';
+import { CopyPromptButton } from './CopyPrompt';
+import { buildPrompt } from '../lib/aiPrompt';
 import type { VlsmValidation } from '../core/vlsm';
 import { blockSize, parseIpSafe, parsePrefixInput } from '../core/ipv4';
 
@@ -37,7 +39,7 @@ interface Props {
 }
 
 export function QuestionView({ question: q, mode, onDone, onChange, initialResponse, reviewResult, hideSubmit, compact }: Props) {
-  const { setTutorContext, askTutor } = useStore();
+  const { setTutorContext, askTutor, aiEnabled } = useStore();
   const [resp, setResp] = useState<ResponseValue>(initialResponse ?? defaultResponse(q));
   const [result, setResult] = useState<GradeResult | null>(reviewResult ?? null);
   const [hints, setHints] = useState(0);
@@ -144,10 +146,19 @@ export function QuestionView({ question: q, mode, onDone, onChange, initialRespo
                 <Icon name="Lightbulb" size={16} /> Tipp ({hints + 1}/{q.hints.length})
               </button>
             )}
-            {mode !== 'pruefung' && mode !== 'einstufung' && (
+            {mode !== 'pruefung' && mode !== 'einstufung' && aiEnabled && (
               <button className="btn ghost" onClick={() => askTutor('Ich komme bei dieser Aufgabe nicht weiter. Gib mir bitte einen Denkanstoß, aber verrate noch nicht die Lösung.')}>
                 <Icon name="MessageCircleQuestion" size={16} /> Denkanstoß vom Tutor
               </button>
+            )}
+            {mode !== 'pruefung' && mode !== 'einstufung' && (
+              <CopyPromptButton
+                options={[
+                  { label: 'Nur einen Denkanstoß', hint: 'Die KI verrät die Lösung nicht', icon: 'Lightbulb', build: () => buildPrompt('tipp', q, { response: resp }) },
+                  { label: 'Aufgabe komplett erklären', hint: 'mit exakter Lösung und Lösungsweg', icon: 'BookOpen', build: () => buildPrompt('erklaeren', q) },
+                  { label: 'Ähnliche Aufgaben üben', hint: '5 neue Aufgaben im IHK-Stil', icon: 'Repeat', build: () => buildPrompt('aehnlich', q) },
+                ]}
+              />
             )}
           </div>
         )}
@@ -515,7 +526,7 @@ function VlsmDiagram({ q, resp, validation }: { q: VlsmQuestion; resp: Record<st
 /* ------------------------------------------------------------------ */
 
 export function ResultView({ q, result, resp, compact }: { q: Question; result: GradeResult; resp: ResponseValue; compact?: boolean }) {
-  const { askTutor, skills } = useStore();
+  const { askTutor, skills, aiEnabled } = useStore();
   const tone = result.correct ? 'result-ok' : result.score > 0 ? 'result-part' : 'result-bad';
   const errors = [...new Set(result.errorTags)].filter((t) => t !== 'eingabeformat' && t !== 'keine-antwort');
   return (
@@ -558,16 +569,27 @@ export function ResultView({ q, result, resp, compact }: { q: Question; result: 
           <div className="mt"><Md>{q.explanation}</Md></div>
         </details>
       )}
-      {!result.correct && (
-        <div className="row wrap mt">
-          <button className="btn sm" onClick={() => askTutor('Ich habe diese Aufgabe falsch beantwortet. Analysiere bitte, welchen Denkfehler ich gemacht habe, und hilf mir, ihn zu verstehen.')}>
-            <Icon name="MessageCircle" size={14} /> Fehler mit dem Tutor besprechen
-          </button>
-          <button className="btn sm ghost" onClick={() => askTutor('Stopp, das verstehe ich nicht. Erkläre mir den Lösungsweg bitte noch einmal anders und kleinschrittiger.')}>
-            Stopp, das verstehe ich nicht
-          </button>
-        </div>
-      )}
+      <div className="row wrap mt">
+        <CopyPromptButton
+          small
+          label={result.correct ? 'KI-Prompt kopieren' : 'Fehler von einer KI erklären lassen'}
+          options={[
+            ...(!result.correct ? [{ label: 'Meinen Fehler analysieren', hint: 'Denkfehler, neue Erklärung, Übungsaufgabe', icon: 'SearchCheck', build: () => buildPrompt('fehler', q, { response: resp, result }) }] : []),
+            { label: 'Lösungsweg ausführlich erklären', hint: 'anders erklärt als in der App', icon: 'BookOpen', build: () => buildPrompt('erklaeren', q, { response: resp, result }) },
+            { label: 'Ähnliche Aufgaben üben', hint: '5 neue Aufgaben im IHK-Stil', icon: 'Repeat', build: () => buildPrompt('aehnlich', q) },
+          ]}
+        />
+        {!result.correct && aiEnabled && (
+          <>
+            <button className="btn sm" onClick={() => askTutor('Ich habe diese Aufgabe falsch beantwortet. Analysiere bitte, welchen Denkfehler ich gemacht habe, und hilf mir, ihn zu verstehen.')}>
+              <Icon name="MessageCircle" size={14} /> Fehler mit dem Tutor besprechen
+            </button>
+            <button className="btn sm ghost" onClick={() => askTutor('Stopp, das verstehe ich nicht. Erkläre mir den Lösungsweg bitte noch einmal anders und kleinschrittiger.')}>
+              Stopp, das verstehe ich nicht
+            </button>
+          </>
+        )}
+      </div>
       {skills[q.skill] && <div className="tiny dim mt">Kenntnisstand „{skillTitle(q.skill)}“: {Math.round(skills[q.skill].mastery * 100)} %</div>}
     </div>
   );

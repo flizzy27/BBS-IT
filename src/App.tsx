@@ -73,23 +73,23 @@ function PlacementIntro() {
 }
 
 function Shell() {
-  const { loaded, error, tutorOpen, setTutorOpen, overallProgress, skills, settings } = useStore();
+  const { loaded, error, tutorOpen, setTutorOpen, overallProgress, skills, settings, aiEnabled, staticMode } = useStore();
   const [route] = useRoute();
   useEffect(() => {
     document.querySelector('.main')?.scrollTo({ top: 0 });
   }, [route]);
   if (error) return <div className="page"><div className="block result-bad"><b>Fehler:</b> {error}</div></div>;
-  if (!loaded) return <div className="page dim">Lade Network Academy …</div>;
+  if (!loaded) return <div className="page dim">Lade FISI Academy …</div>;
   const dueCount = Object.values(skills).filter((s) => isDue(s, Date.now())).length;
   const active = (n: (typeof NAV)[number]) => (n.route === '/' ? route === '/' : (n.match ?? [n.route]).some((m) => route === m || route.startsWith(m + '/') || route.startsWith(m + '?')) && !(n.route === '/lehrplan' && route === '/lektion/m05-l02'));
   return (
-    <div className={`app ${tutorOpen ? 'tutor-open' : ''}`}>
+    <div className={`app ${tutorOpen && aiEnabled ? 'tutor-open' : ''}`}>
       <aside className="sidebar">
         <div className="brand">
           <div className="brand-logo"><Icon name="Network" size={20} /></div>
-          <div>Network Academy<small>FISI · AP1 Netzwerktechnik</small></div>
+          <div>FISI Academy<small>Prüfungsvorbereitung AP1 & AP2</small></div>
         </div>
-        {NAV.map((n) => (
+        {NAV.filter((n) => !(staticMode && n.route === '/tutor')).map((n) => (
           <React.Fragment key={n.route + n.label}>
             {n.section && <div className="nav-section">{n.section}</div>}
             <button className={`nav-item ${active(n) ? 'active' : ''}`} onClick={() => navigate(n.route)}>
@@ -103,17 +103,19 @@ function Shell() {
             <div className="row between tiny dim"><span>Kenntnisstand AP1</span><b>{Math.round(overallProgress * 100)} %</b></div>
             <div className="mt" style={{ marginTop: 8 }}><Progress value={overallProgress} /></div>
           </div>
-          <button className="nav-item mt" onClick={() => setTutorOpen(!tutorOpen)} style={{ background: tutorOpen ? 'var(--accent-soft)' : undefined }}>
-            <Icon name="GraduationCap" size={18} />KI-Tutor {tutorOpen ? 'ausblenden' : 'einblenden'}
-          </button>
+          {aiEnabled && (
+            <button className="nav-item mt" onClick={() => setTutorOpen(!tutorOpen)} style={{ background: tutorOpen ? 'var(--accent-soft)' : undefined }}>
+              <Icon name="GraduationCap" size={18} />KI-Tutor {tutorOpen ? 'ausblenden' : 'einblenden'}
+            </button>
+          )}
           {settings.examDate && <div className="tiny dim" style={{ padding: '6px 12px' }}>Prüfung in {Math.max(0, Math.ceil((new Date(settings.examDate).getTime() - Date.now()) / 86400000))} Tagen</div>}
         </div>
       </aside>
       <main className="main">
         <Router route={route} />
       </main>
-      {tutorOpen && <TutorChat />}
-      {!tutorOpen && (
+      {tutorOpen && aiEnabled && <TutorChat />}
+      {!tutorOpen && aiEnabled && (
         <button className="btn primary" style={{ position: 'fixed', right: 22, bottom: 22, borderRadius: 99, padding: '12px 18px', boxShadow: 'var(--shadow)' }} onClick={() => setTutorOpen(true)}>
           <Icon name="GraduationCap" size={18} /> Tutor fragen
         </button>

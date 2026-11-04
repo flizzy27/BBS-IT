@@ -1,4 +1,4 @@
-// Network Academy – lokaler Server (nur an 127.0.0.1 gebunden).
+// FISI Academy – lokaler Server (nur an 127.0.0.1 gebunden).
 // Liefert die gebaute Oberfläche aus und stellt die REST-API für Speicherung und KI-Tutor bereit.
 import http from 'node:http';
 import fs from 'node:fs';
@@ -293,7 +293,7 @@ const server = http.createServer(async (req, res) => {
 });
 
 server.listen(PORT, '127.0.0.1', () => {
-  console.log(`\n  Network Academy läuft auf  http://localhost:${PORT}`);
+  console.log(`\n  FISI Academy läuft auf  http://localhost:${PORT}`);
   console.log(`  Daten: ${DATA_DIR}\n  Beenden mit Strg+C.\n`);
 });
 

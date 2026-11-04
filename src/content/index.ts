@@ -25,7 +25,12 @@ import { m16 } from './modules/m16';
  * hier eintragen und Module mit `area: '<id>'` anlegen – siehe docs/INHALTE-ERWEITERN.md.
  */
 export const AREAS: Area[] = [
-  { id: 'netzwerk', title: 'Netzwerktechnik', short: 'Von Grundlagen bis Subnetting, VLSM, Protokolle und Diagnose.', icon: 'Network', exams: ['AP1', 'AP2'] },
+  { id: 'netzwerk', title: 'Netzwerktechnik', short: 'Von Grundlagen bis Subnetting, VLSM, Protokolle und Diagnose.', icon: 'Network', color: '#5b8cff', exams: ['AP1', 'AP2'] },
+  { id: 'hardware', title: 'IT-Systeme, Hardware & Energie', short: 'Komponenten, Speicher, Schnittstellen, Energieeffizienz, USV, Ergonomie.', icon: 'Cpu', color: '#3cc8e0', exams: ['AP1'] },
+  { id: 'systeme', title: 'Betriebssysteme, Software & Cloud', short: 'Installation, Rechte, Lizenzen, Cloud, Virtualisierung, Qualität.', icon: 'MonitorCog', color: '#34c77b', exams: ['AP1', 'AP2'] },
+  { id: 'sicherheit', title: 'IT-Sicherheit & Datenschutz', short: 'Schutzziele, BSI-Grundschutz, DSGVO, Datensicherung, Zugriffsschutz.', icon: 'ShieldCheck', color: '#ff6b9a', exams: ['AP1', 'AP2'] },
+  { id: 'programmierung', title: 'Programmierung & Softwareentwicklung', short: 'Pseudocode, Kontrollstrukturen, Algorithmen, UML, Testen.', icon: 'Code', color: '#a77bff', exams: ['AP1'] },
+  { id: 'wirtschaft', title: 'Kundenberatung, Wirtschaft & Recht', short: 'Kundengespräch, Angebotsvergleich, Nutzwertanalyse, Kalkulation, Verträge, Projekt.', icon: 'Briefcase', color: '#f5b942', exams: ['AP1', 'AP2'] },
 ];
 
 /** Empfohlene Lernreihenfolge (Binär vor IPv4, IPv4 vor Subnetting …). */

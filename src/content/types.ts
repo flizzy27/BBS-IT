@@ -34,6 +34,8 @@ export interface Area {
   title: string;
   short: string;
   icon: string;
+  /** Akzentfarbe (CSS-Farbe) */
+  color: string;
   /** Prüfungsteile, für die der Bereich relevant ist */
   exams: ('AP1' | 'AP2')[];
 }

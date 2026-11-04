@@ -50,7 +50,7 @@ export function Dashboard() {
     <div className="page">
       <div className="page-header">
         <div>
-          <h1>{settings.name ? `Hallo ${settings.name}!` : 'Willkommen bei Network Academy'}</h1>
+          <h1>{settings.name ? `Hallo ${settings.name}!` : 'Willkommen bei FISI Academy'}</h1>
           <p>Dein Lernstand basiert auf nachgewiesenem Verständnis – nicht auf angeklickten Lektionen.</p>
         </div>
         {resume && (

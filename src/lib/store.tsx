@@ -7,7 +7,7 @@ import type { Question } from '../content/types';
 import { MODULE_MAP, SKILL_MAP } from '../content';
 import { applyEvidence, knowledge, markLessonDone, newSkillState, type SkillState } from '../core/learning';
 import type { GradeResult } from '../core/grading';
-import { api, localDay, type Attempt } from './api';
+import { api, backendMode, localDay, type Attempt } from './api';
 
 export interface Settings {
   theme: 'dark' | 'light';
@@ -73,6 +73,10 @@ interface Ctx {
   consumeTutorQueue: () => string | null;
   overallProgress: number;
   reload: () => Promise<void>;
+  /** In-App-KI-Tutor eingerichtet (lokale Version mit Anbieter) */
+  aiEnabled: boolean;
+  staticMode: boolean;
+  refreshAi: () => void;
 }
 
 const StoreCtx = createContext<Ctx | null>(null);
@@ -88,6 +92,13 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   const [tutorContext, setTutorContext] = useState<TutorContext>({ view: 'Dashboard' });
   const [tutorOpen, setTutorOpen] = useState(false);
   const [tutorQueue, setTutorQueue] = useState<string | null>(null);
+  const [aiEnabled, setAiEnabled] = useState(false);
+  const [staticMode, setStaticMode] = useState(false);
+  const refreshAi = useCallback(() => {
+    backendMode().then((m) => setStaticMode(m === 'static'));
+    api.aiStatus().then((s) => setAiEnabled(!s.staticMode && s.provider !== 'none')).catch(() => setAiEnabled(false));
+  }, []);
+  useEffect(() => refreshAi(), [refreshAi]);
   const skillsRef = useRef(skills);
   skillsRef.current = skills;
 
@@ -219,7 +230,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
 
   const value: Ctx = {
     loaded, error, skills, settings, lessonProgress, resume, studyTime, updateSettings, setLessonProgress, completeLesson, recordAttempt,
-    setResume, tutorContext, setTutorContext, tutorOpen, setTutorOpen, tutorQueue, askTutor, consumeTutorQueue, overallProgress, reload,
+    setResume, tutorContext, setTutorContext, tutorOpen, setTutorOpen, tutorQueue, askTutor, consumeTutorQueue, overallProgress, reload, aiEnabled, staticMode, refreshAi,
   };
   return <StoreCtx.Provider value={value}>{children}</StoreCtx.Provider>;
 }

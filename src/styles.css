@@ -1,4 +1,4 @@
-/* Network Academy – Designsystem. Dark Mode Standard, Light Mode optional. */
+/* FISI Academy – Designsystem. Dark Mode Standard, Light Mode optional. */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
 :root,
@@ -306,3 +306,59 @@ label.field { display: flex; flex-direction: column; gap: 6px; font-size: 0.85re
 .stepper div.cur { background: var(--sub); }
 .timer { font-family: 'JetBrains Mono', monospace; font-weight: 600; font-size: 1.1rem; }
 .timer.low { color: var(--bad); }
+
+/* ---------- Prompt-Kopieren-Menü ---------- */
+.copy-prompt { position: relative; display: inline-block; }
+.copy-prompt .menu { position: absolute; z-index: 50; top: calc(100% + 6px); left: 0; min-width: 300px; background: var(--surface); border: 1px solid var(--border-strong); border-radius: 12px; box-shadow: var(--shadow); padding: 4px; animation: pop 0.15s ease; }
+.menu-item { display: flex; gap: 10px; align-items: flex-start; width: 100%; text-align: left; padding: 9px 10px; border: none; background: none; border-radius: 9px; cursor: pointer; color: var(--text); }
+.menu-item:hover { background: var(--accent-soft); }
+.menu-item svg { margin-top: 3px; color: var(--accent-2); flex-shrink: 0; }
+a.chip { text-decoration: none; }
+
+/* =====================================================================
+   Design-Aufwertung v2: Tiefe, Verläufe, Akzentfarben je Fachbereich
+   ===================================================================== */
+:root, :root[data-theme='dark'] {
+  --grad: linear-gradient(135deg, #5b8cff 0%, #8b6cff 55%, #c56cff 100%);
+  --glow: 0 0 0 1px rgba(91, 140, 255, 0.25), 0 10px 40px rgba(91, 140, 255, 0.12);
+  --card-grad: linear-gradient(180deg, rgba(255,255,255,0.025), rgba(255,255,255,0));
+}
+:root[data-theme='light'] {
+  --grad: linear-gradient(135deg, #3366ee 0%, #6b4ddb 60%, #a04ddb 100%);
+  --glow: 0 0 0 1px rgba(51, 102, 238, 0.2), 0 10px 30px rgba(51, 102, 238, 0.1);
+  --card-grad: linear-gradient(180deg, rgba(255,255,255,0.7), rgba(255,255,255,0));
+}
+body {
+  background:
+    radial-gradient(900px 500px at 85% -10%, rgba(139, 108, 255, 0.10), transparent 60%),
+    radial-gradient(700px 400px at 10% 110%, rgba(91, 140, 255, 0.08), transparent 60%),
+    var(--bg);
+  background-attachment: fixed;
+}
+.sidebar { background: color-mix(in srgb, var(--bg-2) 82%, transparent); backdrop-filter: blur(14px); }
+.brand-logo { background: var(--grad); box-shadow: 0 6px 18px rgba(91, 140, 255, 0.35); }
+.card, .block { background-image: var(--card-grad); box-shadow: 0 1px 0 rgba(255,255,255,0.03) inset, 0 6px 24px rgba(0,0,0,0.12); }
+.module-card { position: relative; overflow: hidden; }
+.module-card::after { content: ''; position: absolute; inset: 0 0 auto 0; height: 3px; background: var(--area, var(--grad)); opacity: 0.85; }
+.module-card:hover { box-shadow: var(--glow); }
+.module-icon { background: color-mix(in srgb, var(--area-c, var(--accent)) 16%, transparent); color: var(--area-c, var(--accent-2)); }
+.btn.primary { background: var(--grad); border: none; box-shadow: 0 4px 16px rgba(91, 140, 255, 0.28); }
+.btn.primary:hover:not(:disabled) { filter: brightness(1.08); background: var(--grad); transform: translateY(-1px); }
+.btn { transition: transform 0.12s, background 0.15s, border-color 0.15s, box-shadow 0.15s, filter 0.15s; }
+.btn:active:not(:disabled) { transform: translateY(0) scale(0.98); }
+h1 { background: linear-gradient(90deg, var(--text) 30%, color-mix(in srgb, var(--accent-2) 70%, var(--text))); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.nav-item.active { background: linear-gradient(90deg, var(--accent-soft), transparent); box-shadow: inset 3px 0 0 var(--accent); }
+.nav-group { margin-top: 2px; }
+.nav-sub { padding-left: 34px; font-size: 0.86rem; }
+.progress > div { background: var(--grad); }
+.hero-card { background: radial-gradient(800px 260px at 0% 0%, rgba(139, 108, 255, 0.16), transparent 60%), var(--surface); border-color: color-mix(in srgb, var(--accent) 30%, var(--border)); }
+.option { transition: border-color 0.15s, background 0.15s, transform 0.12s; }
+.option:hover:not(:disabled) { transform: translateX(2px); }
+.area-pill { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; border-radius: 99px; font-size: 0.75rem; font-weight: 600; background: color-mix(in srgb, var(--area-c, var(--accent)) 14%, transparent); color: var(--area-c, var(--accent-2)); }
+.countdown { display: flex; gap: 10px; }
+.countdown div { text-align: center; padding: 10px 14px; border-radius: 12px; background: var(--surface-2); border: 1px solid var(--border); min-width: 70px; }
+.countdown b { display: block; font-size: 1.5rem; line-height: 1.1; }
+.section-title { display: flex; align-items: center; gap: 10px; margin: 28px 0 12px; }
+.section-title h2 { margin: 0; }
+.section-title .line { flex: 1; height: 1px; background: linear-gradient(90deg, var(--border-strong), transparent); }
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }

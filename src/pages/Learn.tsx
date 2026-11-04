@@ -12,6 +12,8 @@ import { navigate, useStore } from '../lib/store';
 import { Icon, Md, Progress, RelevanceBadge } from '../components/common';
 import { Widget } from '../components/widgets';
 import { QuestionView, type QuestionOutcome } from '../components/QuestionView';
+import { CopyPromptButton } from '../components/CopyPrompt';
+import { buildSectionPrompt } from '../lib/aiPrompt';
 
 export function CurriculumPage() {
   const { skills, lessonProgress } = useStore();
@@ -26,8 +28,14 @@ export function CurriculumPage() {
         <div className="row small muted"><RelevanceBadge r="ap1" /> <RelevanceBadge r="ap1-teilweise" /> <RelevanceBadge r="vertiefung" /></div>
       </div>
       {AREAS.map((area) => (
-        <div key={area.id} className="mb">
-          <h2 className="row"><Icon name={area.icon} /> {area.title} <span className="badge">{area.exams.join(' · ')}</span></h2>
+        <div key={area.id} className="mb" style={{ ['--area-c' as string]: area.color, ['--area' as string]: area.color } as React.CSSProperties}>
+          <div className="section-title">
+            <div className="module-icon"><Icon name={area.icon} /></div>
+            <div><h2>{area.title}</h2><div className="small muted">{area.short}</div></div>
+            <span className="line" />
+            <span className="area-pill">{area.exams.join(' · ')}</span>
+          </div>
+          {MODULES.filter((m) => moduleArea(m) === area.id).length === 0 && <div className="card small muted">Inhalte für diesen Bereich sind in Arbeit.</div>}
           <div className="grid grid-3">
             {MODULES.filter((m) => moduleArea(m) === area.id).map((m) => {
               const done = m.lessons.filter((l) => lessonProgress[l.id]?.done).length;
@@ -130,7 +138,7 @@ export function ModulePage({ id }: { id: string }) {
 
 export function LessonPage({ id }: { id: string }) {
   const lesson = LESSON_MAP.get(id);
-  const { lessonProgress, setLessonProgress, completeLesson, setResume, recordAttempt, setTutorContext, askTutor } = useStore();
+  const { lessonProgress, setLessonProgress, completeLesson, setResume, recordAttempt, setTutorContext, askTutor, aiEnabled } = useStore();
   const saved = lessonProgress[id];
   const [cur, setCur] = useState(() => (saved && !saved.done ? saved.step : 0));
   const [answered, setAnswered] = useState<Record<number, boolean>>({});
@@ -195,7 +203,15 @@ export function LessonPage({ id }: { id: string }) {
       <div className="row mt-lg">
         {cur > 0 && <button className="btn ghost" onClick={() => setCur(cur - 1)}><Icon name="ChevronUp" size={16} /> Zurück</button>}
         <span className="spacer" />
-        <button className="btn" onClick={() => askTutor('Stopp, das verstehe ich nicht. Erkläre mir den letzten Schritt bitte noch einmal anders.')}>Stopp, das verstehe ich nicht</button>
+        {aiEnabled ? (
+          <button className="btn" onClick={() => askTutor('Stopp, das verstehe ich nicht. Erkläre mir den letzten Schritt bitte noch einmal anders.')}>Stopp, das verstehe ich nicht</button>
+        ) : (
+          (() => {
+            const st = steps[cur];
+            const txt = st.type === 'explain' ? st.body : st.type === 'example' ? `${st.problem}\n${st.steps.map((s) => s.label + ': ' + s.body).join('\n')}\n${st.result}` : st.type === 'summary' ? st.points.join('\n') : st.type === 'visual' ? st.caption ?? '' : '';
+            return txt ? <CopyPromptButton label="Stopp, das verstehe ich nicht" options={[{ label: 'Prompt für eine KI kopieren', hint: 'erklärt den aktuellen Schritt anders', icon: 'MessageCircleQuestion', build: () => buildSectionPrompt('title' in st ? st.title : 'Zusammenfassung', txt, lesson.title) }]} /> : null;
+          })()
+        )}
         <button className="btn primary lg" onClick={next} disabled={blocking(cur)}>
           {atEnd ? <>Lektion abschließen <Icon name="Check" size={16} /></> : <>Weiter <Icon name="ChevronDown" size={16} /></>}
         </button>
@@ -210,7 +226,10 @@ function StepView({ step, index, lessonId, onCheckDone, onPracticeDone }: { step
     case 'explain':
       return (
         <div className="block explain">
-          <div className="block-label"><Icon name="BookOpen" size={14} />Erklärung</div>
+          <div className="row between">
+            <div className="block-label"><Icon name="BookOpen" size={14} />Erklärung</div>
+            <SectionPrompt title={step.title} content={step.body} lessonId={lessonId} />
+          </div>
           <h3>{step.title}</h3>
           <Md>{step.body}</Md>
         </div>
@@ -227,7 +246,10 @@ function StepView({ step, index, lessonId, onCheckDone, onPracticeDone }: { step
     case 'example':
       return (
         <div className="block example">
-          <div className="block-label"><Icon name="ListOrdered" size={14} />Durchgerechnetes Beispiel</div>
+          <div className="row between">
+            <div className="block-label"><Icon name="ListOrdered" size={14} />Durchgerechnetes Beispiel</div>
+            <SectionPrompt title={step.title} content={`${step.problem}\n\n${step.steps.map((s, i) => `${i + 1}. ${s.label}: ${s.body}`).join('\n')}\n\nErgebnis: ${step.result}`} lessonId={lessonId} />
+          </div>
           <h3>{step.title}</h3>
           <Md>{step.problem}</Md>
           <ExampleSteps steps={step.steps} />
@@ -251,6 +273,17 @@ function StepView({ step, index, lessonId, onCheckDone, onPracticeDone }: { step
         </div>
       );
   }
+}
+
+function SectionPrompt({ title, content, lessonId }: { title: string; content: string; lessonId: string }) {
+  const lesson = LESSON_MAP.get(lessonId);
+  return (
+    <CopyPromptButton
+      small
+      label="Anders erklären lassen"
+      options={[{ label: 'Diesen Abschnitt von einer KI erklären lassen', hint: 'einfacher, mit Analogie und Kontrollfragen', icon: 'MessageCircleQuestion', build: () => buildSectionPrompt(title, content, lesson?.title ?? '') }]}
+    />
+  );
 }
 
 /** Beispiel-Schritte nacheinander aufdecken – erst selbst nachdenken. */

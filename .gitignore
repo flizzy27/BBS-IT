@@ -9,3 +9,6 @@ data/
 coverage/
 .DS_Store
 Thumbs.db
+
+# Unterrichtsmaterial (urheberrechtlich geschützt, nicht öffentlich veröffentlichen)
+material/
