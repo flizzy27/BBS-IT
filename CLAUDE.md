@@ -41,7 +41,10 @@ Einzelne Inhaltsdatei prüfen: `npx tsc --noEmit --strict --skipLibCheck --ignor
 
 ## Inhalte erweitern
 Siehe `docs/INHALTE-ERWEITERN.md` und den ausführlichen Agent-Brief `docs/CONTENT-BRIEF.md`.
-Fachbereiche (AREAS): netzwerk (m01–m16), hardware (h*), systeme (b*), sicherheit (s*), programmierung (p*), wirtschaft (w*), daten (d*).
+Fachbereiche (AREAS): netzwerk (m01–m16), hardware (h01–h05), systeme (b01–b06), sicherheit (s01–s05), programmierung (p01–p05), wirtschaft (w01–w05), daten (d01–d03). Neue Module registrieren: `python scripts/register-modules.py <ids> <gen-datei> <EXPORT>`.
+
+## Stand (04.11.2026)
+45 Module, 284 Lektionen, ~1.900 Fragen, 74 Generatoren, alle Tests grün. Details und nächste Schritte: `docs/ROADMAP.md`.
 
 ## Wichtige Dokumente
 - `docs/ROADMAP.md` – Stand, Grenzen, nächste Schritte

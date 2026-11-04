@@ -1,6 +1,21 @@
-# Network Academy – FISI-Lernplattform (AP1 Netzwerktechnik)
+# FISI Academy – Lernplattform für die IHK-Prüfungen (Fachinformatiker Systemintegration)
 
-Interaktive Lernsoftware für die Ausbildung **Fachinformatiker/-in Systemintegration**. Sie bereitet systematisch auf den Netzwerkteil der **IHK-Abschlussprüfung Teil 1 (AP1)** vor: von den absoluten Grundlagen (Was ist eine Subnetzmaske? Wie rechnet man binär?) bis zu prüfungsnahen Subnetting-, VLSM-, IPv6- und Übertragungsrechnungen.
+Interaktive Lernsoftware für die Ausbildung **Fachinformatiker/-in Systemintegration**. Sie bereitet systematisch auf die **IHK-Abschlussprüfung Teil 1 (AP1)** vor – mit **allen Fachbereichen** – und wird schrittweise um AP2 erweitert.
+
+**➡ Direkt im Browser nutzen (kostenlos, ohne Installation): https://flizzy27.github.io/BBS-IT/**
+Der Lernstand wird im Browser gespeichert (Sicherung unter *Einstellungen → Export*).
+
+| Fachbereich | Module |
+|---|---|
+| Netzwerktechnik | 16 (Grundlagen, OSI, Binär, IPv4, Subnetting, VLSM, IPv6, Switching/VLAN, Routing, Protokolle, Dienste, Verkabelung/WLAN, Diagnose, Sicherheit, Berechnungen, Prüfungspraxis) |
+| IT-Systeme, Hardware & Energie | 5 |
+| Betriebssysteme, Software, Cloud, Qualität & Service | 6 |
+| IT-Sicherheit & Datenschutz | 5 |
+| Programmierung & Softwareentwicklung | 5 |
+| Kundenberatung, Wirtschaft & Recht | 5 |
+| Datenbanken | 3 |
+
+Insgesamt 45 Module, 284 Lektionen, rund 1.900 Fragen und 74 Aufgabengeneratoren für unbegrenzt viele Rechenaufgaben.
 
 **Kernprinzip:** Alle Rechenaufgaben werden **algorithmisch exakt** erzeugt und bewertet. Die KI erklärt und unterstützt – sie entscheidet nie allein, ob eine Antwort richtig ist.
 
@@ -16,14 +31,15 @@ Interaktive Lernsoftware für die Ausbildung **Fachinformatiker/-in Systemintegr
 | **VLSM-Trainer** | Automatisch generierte Mehrstandort-Aufgaben mit Netzwerkdiagramm, eigene Aufgaben, Aufgaben aus **hochgeladenen Bildern** (KI-Erkennung, vom Nutzer prüf- und korrigierbar). Jeder korrekte Plan wird akzeptiert. |
 | **Üben** | Tipps, sofortige Auswertung, adaptive Schwierigkeit, immer neue Aufgabenvarianten |
 | **Schwachstellen** | Spaced Repetition, Förderschleife bei wiederholten Fehlern (Wiederholung → neue Erklärung → leichte Übung → steigern) |
-| **Prüfung & Tests** | Kurztests, Modultests, gemischte Tests, Schwachstellen-Test, Rechen-Marathon, **AP1-Simulation** (90 min, offene Aufgaben, 100 Punkte, IHK-Notenschlüssel), Einstufungstest |
+| **Prüfung & Tests** | Kurztests, Modultests, gemischte Tests, Schwachstellen-Test, Rechen-Marathon, **AP1-Simulation komplett** (wie die echte Prüfung: 4 Aufgaben à 25 Punkte zu je einer Handlungssituation, nur offene Aufgaben, 90 min, IHK-Notenschlüssel), Netzwerk-Simulation, Einstufungstest |
 | **Antwortformate** | Einfach-/Mehrfachauswahl, Freitext, Zahl, IP-Adresse, CIDR, Tabellen, Zuordnung, Reihenfolge, VLSM-Pläne mit Diagramm |
 | **Auswertung** | deine Antwort, korrekte Lösung, Begründung, vollständiger Lösungsweg, **Fehleranalyse** (z. B. „nächste Netzadresse statt Broadcast“), Wiederholungsempfehlung |
-| **KI-Tutor** | Chat direkt neben jeder Aufgabe; kennt Aufgabe, deine Antwort, die exakte Bewertung, deinen Kenntnisstand und typische Fehler; „Stopp, das verstehe ich nicht“ |
+| **KI-Prompt kopieren** | An jeder Aufgabe, jedem Ergebnis und jedem Lernabschnitt: fertiger Prompt (inkl. exakter Lösung) für ChatGPT, Claude, Gemini, Copilot – „Nur Denkanstoß“, „Fehler analysieren“, „Ähnliche Aufgaben“, „Anders erklären“ |
+| **KI-Tutor (lokal, optional)** | Chat direkt neben jeder Aufgabe; kennt Aufgabe, deine Antwort, die exakte Bewertung, deinen Kenntnisstand und typische Fehler; „Stopp, das verstehe ich nicht“ |
 | **Werkzeuge** | Subnetzrechner, Maskentabelle, Binär/Hex, VLSM-Planer, IPv6-Werkzeug, Übertragungszeit & Einheiten, Energie/Kosten, Ports-Referenz |
 | **Historie** | alle Aufgaben, Antworten, Lösungen, Bearbeitungszeit, Tipps, Fehlerkategorien, Tests, Chatverläufe – lokal gespeichert, mit Diagrammen |
 
-## Installation unter Windows 11
+## Lokale Installation unter Windows 11 (optional, z. B. für den eingebauten KI-Tutor)
 
 1. **Node.js LTS** (Version 22 oder neuer) installieren: <https://nodejs.org/de>
 2. Repository herunterladen (grüner Button „Code → Download ZIP“ entpacken) **oder** mit Git:
@@ -49,7 +65,17 @@ Ein Claude-Abo (Pro/Max) beinhaltet **keinen** API-Zugang – die API wird separ
 
 ## Web-Version (GitHub Pages)
 
-Die App kann zusätzlich als statische Webseite gehostet werden: Repository → *Settings → Pages → Source: GitHub Actions*. Der Workflow `.github/workflows/pages.yml` baut und veröffentlicht sie bei jedem Push. In der Web-Version werden Lernstände im Browser gespeichert; der KI-Tutor ist dort aus Sicherheitsgründen deaktiviert (kein API-Schlüssel in öffentlichen Seiten).
+Bei jedem Push auf `main` baut `.github/workflows/pages.yml` die statische Version und veröffentlicht sie im Branch `gh-pages` → https://flizzy27.github.io/BBS-IT/ (kostenlos für öffentliche Repositories). Lernstände liegen im Browser; der eingebaute KI-Tutor ist dort deaktiviert (kein API-Schlüssel in öffentlichen Seiten) – stattdessen gibt es überall „KI-Prompt kopieren“.
+
+## Weiterarbeiten auf einem anderen PC
+
+```bash
+git clone https://github.com/flizzy27/BBS-IT.git
+cd BBS-IT
+npm install
+npm test
+```
+Claude Code liest beim Start automatisch `CLAUDE.md` (Projektkontext, Ziele, Arbeitsweise) und findet die Agent-Definitionen in `.claude/agents/`. Den lokalen Ordner `material/` (Schulunterlagen, urheberrechtlich geschützt, **nicht** im Repository) separat kopieren.
 
 ## Entwicklung
 
@@ -70,6 +96,9 @@ npm run build && npm start
 | [docs/AP1-RELEVANZ.md](docs/AP1-RELEVANZ.md) | Recherche: offizielle AP1-Anforderungen, Modul-Relevanz |
 | [docs/AP1-PRUEFUNGSANALYSE.md](docs/AP1-PRUEFUNGSANALYSE.md) | Recherche: Termine, Notenschlüssel, Themen, IHK Koblenz |
 | [docs/ROADMAP.md](docs/ROADMAP.md) | Implementierungsstand, offene Funktionen, nächste Schritte |
+| [docs/AP-QUELLEN-UND-THEMEN.md](docs/AP-QUELLEN-UND-THEMEN.md) | Lernfelder 1–12, Quellen, AP1-/AP2-Themenübersicht |
+| [docs/CONTENT-BRIEF.md](docs/CONTENT-BRIEF.md) | Vorgaben für neue Inhalte (auch für KI-Agents) |
+| [CLAUDE.md](CLAUDE.md) | Projektkontext für Claude Code |
 
 ## Lizenz / Hinweise
 

@@ -1,42 +1,33 @@
 # Implementierungsstand & Roadmap
 
-Stand: 04.11.2026
+Stand: 04.11.2026 · AP1 des Hauptnutzers: Ende Februar 2027
 
 ## Fertig und getestet
 
 | Bereich | Stand |
 |---|---|
-| Rechenkern IPv4/Subnetting/VLSM/IPv6/Einheiten | vollständig; 71 automatisierte Testfälle, darunter 2.000 Zufallsprüfungen und Validierung von VLSM-Plänen |
-| Aufgabengeneratoren | 26 Generatoren (Binär, Masken, Netz/Broadcast, Hosts, Subnetze, n-tes Subnetz, Tabellen, VLSM, IPv6, Einheiten, Übertragungszeit, Routing/LPM); jeder Generator wird mit 120 Zufallsaufgaben gegen die eigene Musterlösung geprüft |
-| Inhalte | 16 Module, ~105 Lektionen, ~700 Fragen; automatischer Test prüft IDs, Verweise, Antwortindizes und dass jede Musterlösung als korrekt bewertet wird |
-| Lernmodus | geführte Lektionen, schrittweises Aufdecken von Beispielen, Verständnisfragen blockieren das Weiterklicken, Fortschritt & Fortsetzen |
-| Üben / Schwachstellen | adaptive Schwierigkeit, Spaced Repetition, Förderschleife, Fehleranalyse mit Wiederholungslink |
-| Prüfung | Kurz-, Modul-, gemischte, Schwachstellen-, Rechen- und AP1-Simulation (90 min, 100 Punkte, IHK-Notenschlüssel), Einstufungstest, Auswertung mit Lösungsweg |
-| VLSM-Trainer | generierte Aufgaben mit Diagramm, eigene Aufgaben, Aufgaben aus Bild (KI, korrigierbar), alternative Lösungen werden akzeptiert |
-| Werkzeuge | Subnetzrechner, Maskentabelle, Binär/Hex, VLSM-Planer, IPv6, Einheiten/Übertragung/Energie, Ports |
-| KI-Tutor | Anthropic-API (Streaming, Caching, strukturierte Ausgaben) und Claude-Code-CLI; Kontext: Aufgabe, Antwort, exakte Bewertung, Kenntnisstand, Fehler; Freitextbewertung; Bildanalyse. CLI-Variante end-to-end getestet. |
-| Datenhaltung | SQLite lokal, tägliche Sicherung, Export/Import, Zurücksetzen; statische Variante mit Browser-Speicher |
-| Betrieb | `start.bat`/`stop.bat`/`update.bat`, GitHub-Actions für Tests und GitHub-Pages-Hosting |
+| Inhalte | **7 Fachbereiche, 45 Module, 284 Lektionen, ~1.500 Pool-Fragen + ~400 Verständnisfragen, 329 Kompetenzen** |
+| Aufgabengeneratoren | **74 Generatoren** (Subnetting, VLSM, IPv6, Einheiten, Routing, Stromkosten, USV, Speicher, Nutzwertanalyse, Kalkulation, Leasing, AfA, Netzplan, SLA/Verfügbarkeit, Pareto, Backup, Risiko, Brute-Force, chmod, NTFS-Rechte, Dateisysteme, Lizenzen, VM-Sizing, Pseudocode-Schreibtischtests, Arrays, Logik, Testfälle, SQL-Aggregate/Joins …). Jeder Generator wird automatisch mit 120 Zufallsaufgaben geprüft. |
+| Genauigkeit | 71 automatisierte Testfälle; `tests/content.test.ts` prüft **jede** Frage (Musterlösung wird als korrekt bewertet, Fehlbilder nie, alle Verweise gültig). Pseudocode-Aufgaben wurden mit einem Interpreter, SQL-Aufgaben mit SQLite nachgerechnet. |
+| Lernen / Üben / Schwachstellen | geführte Lektionen, adaptive Schwierigkeit, Spaced Repetition, Förderschleife, Fehleranalyse |
+| Prüfung | Kurz-, Modul-, gemischte, Schwachstellen-, Rechentests, **AP1-Simulation komplett** (4 × 25 Punkte, Handlungssituationen, 90 min, IHK-Notenschlüssel), Netzwerk-Simulation, Einstufungstest |
+| KI | „KI-Prompt kopieren“ überall (ChatGPT/Claude/Gemini/Copilot); optional eingebauter Tutor (lokal, Anthropic-API oder Claude-Code-CLI) |
+| Hosting | GitHub Pages: https://flizzy27.github.io/BBS-IT/ (automatisch bei jedem Push) |
+| Lokal | `start.bat`, SQLite, Sicherungen, Export/Import |
 
 ## Bekannte Grenzen (ehrlich)
 
-- **AP1-Simulation deckt nur den Netzwerkanteil ab.** Die echte AP1 enthält weitere Bereiche (Hardware/Software, IT-Sicherheit, Datenschutz, Wirtschaftlichkeit, Energie, Kundenkommunikation, Pseudocode …). Ein Bestehen der Netzwerk-Simulation ist deshalb **kein** Nachweis für das Bestehen der gesamten AP1.
-- Für einzelne AP1-Termine sind **keine öffentlichen Themenlisten** auffindbar (Aufgaben werden nicht veröffentlicht, siehe `docs/AP1-PRUEFUNGSANALYSE.md`). Gewichtungen der Simulation sind daher aus dem Prüfungskatalog abgeleitet, nicht aus Originalprüfungen.
-- Freitextaufgaben werden per Selbsteinschätzung oder als gekennzeichnete KI-Bewertung bewertet – nicht algorithmisch.
-- Die Anthropic-API-Anbindung ist implementiert, aber ohne API-Schlüssel nicht live getestet (die CLI-Variante wurde live getestet).
-- Inhalte der Module 1, 2, 7–15 wurden mit KI-Unterstützung erstellt, automatisch auf Konsistenz geprüft und stichprobenartig gelesen; unsichere Fakten sind in den Lektionen gekennzeichnet. Ein fachliches Review durch Ausbilder/Lehrkraft ist empfehlenswert.
-- Die Oberfläche ist für Desktop optimiert; auf dem Smartphone nur eingeschränkt nutzbar.
+- Für einzelne AP1-Termine gibt es **keine öffentlichen Aufgaben** – die Simulation folgt Prüfungskatalog, Lernfeldern und Themenstatistiken, nicht Originalprüfungen. Kalibrierung mit echten Ergebnissen steht aus.
+- Freitextaufgaben: Selbsteinschätzung oder KI-Bewertung, nicht algorithmisch.
+- Inhalte wurden überwiegend KI-gestützt erstellt, automatisch auf Konsistenz und Rechenrichtigkeit geprüft und stichprobenartig gelesen. Unsichere Fakten (z. B. GWG-Grenzen 2027, BSI Grundschutz++, AI-Act-Fristen, Microsoft-Lizenzdetails) sind in den Lektionen gekennzeichnet. **Fachliches Gegenlesen durch Lehrkraft/Ausbilder empfohlen.**
+- AP1-Relevanz von SQL/Datenbanken ist widersprüchlich belegt (IHK Hannover: AP2; Verlagsstatistik: AP1) → als „AP1 teilweise/Vertiefung“ markiert.
+- Desktop-optimiert; Smartphone nur eingeschränkt.
 
-## Nächste Schritte (empfohlen)
+## Nächste Schritte
 
-1. **Weitere AP1-Fachbereiche** als Module ergänzen, damit die Simulation die komplette AP1 abbildet:
-   - IT-Sicherheit & Datenschutz (Schutzbedarf, BSI-Grundschutz, DSGVO, TOM)
-   - Hardware & Arbeitsplatz (Komponenten, Schnittstellen, Energieeffizienz, USV)
-   - Software, Betriebssysteme, Lizenzen, Cloud-Modelle
-   - Wirtschaft (Angebotsvergleich, Nutzwertanalyse, Kalkulation, Kaufvertrag)
-   - Programmierung/Pseudocode-Grundlagen, Qualitätssicherung, Kundenkommunikation
-   Danach eine **„AP1 komplett“-Simulation** mit Gewichtung nach Prüfungskatalog.
-2. Kalibrierung: eigene Ergebnisse aus Simulation und echter AP1 vergleichen und die Schwierigkeit anpassen.
-3. AP2-Fachbereiche (FISI: Netzwerkanalyse und -entwicklung, Betrieb, WiSo).
-4. Druck-/PDF-Export von Testauswertungen; Lernkarten-Export.
-5. Mobile Optimierung.
+1. **Material-Ordner** regelmäßig scannen (`.claude/agents/material-scanner.md`) und neue Inhalte übernehmen.
+2. **Fehlerkatalog** um die neuen Fehlerkategorien der Fachbereiche ergänzen (z. B. `chmod-wertigkeit`, `rechte-maximum-statt-minimum`, `sla-prozent`) – aktuell werden sie generisch angezeigt.
+3. Eigene Widgets für neue Bereiche (z. B. interaktiver Pseudocode-Schreibtischtest, Nutzwertanalyse-Tabelle, UML-Diagramme als SVG).
+4. Kalibrierung der AP1-Simulation nach der Prüfung (Februar 2027) mit echten Ergebnissen der Klasse.
+5. **AP2 FISI**: Fachbereiche „Konzeption & Administration von IT-Systemen“, „Analyse & Entwicklung von Netzwerken“ (u. a. RAID, Routingprotokolle, Monitoring), WiSo (MC-Format!), Projektarbeit & Fachgespräch.
+6. Mobile Optimierung, PDF-Export von Testauswertungen.
