@@ -30,7 +30,7 @@ echo  Starte Network Academy ...
 start "Network Academy Server" /min node server/index.mjs
 
 rem kurz warten, bis der Server antwortet
-powershell -NoProfile -Command "for($i=0;$i -lt 40;$i++){try{Invoke-WebRequest -UseBasicParsing http://localhost:4317/api/health -TimeoutSec 1 ^| Out-Null; exit 0}catch{Start-Sleep -Milliseconds 250}}; exit 1"
+powershell -NoProfile -Command "for($i=0;$i -lt 40;$i++){try{Invoke-WebRequest -UseBasicParsing http://127.0.0.1:4317/api/health -TimeoutSec 2 | Out-Null; exit 0}catch{Start-Sleep -Milliseconds 250}}; exit 1"
 
 rem Als App-Fenster in Microsoft Edge oeffnen (sieht aus wie ein eigenes Programm), sonst Standardbrowser
 where msedge >nul 2>nul

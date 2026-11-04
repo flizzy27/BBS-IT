@@ -273,7 +273,7 @@ function AnswerInput({ q, resp, setResp, locked, result }: { q: Question; resp: 
             placeholder={ph}
             disabled={locked}
             onChange={(e) => setResp(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && (e.currentTarget.closest('.block')?.querySelector('.btn.primary') as HTMLButtonElement | null)?.click()}
+            onKeyDown={(e) => { if (e.key === 'Enter' && !e.repeat) { e.preventDefault(); (e.currentTarget.closest('.block')?.querySelector('.btn.primary') as HTMLButtonElement | null)?.click(); } }}
             autoFocus
             spellCheck={false}
           />

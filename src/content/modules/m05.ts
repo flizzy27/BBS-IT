@@ -111,9 +111,9 @@ Leihst du **2 Bits** aus (/26), gibt es vier Kombinationen: 00, 01, 10, 11 → *
 
 Daraus folgen die **drei Grundformeln**:
 
-> **Anzahl Subnetze = 2^(ausgeliehene Bits)**
-> **Adressen pro Subnetz = 2^(verbleibende Hostbits)**
-> **Nutzbare Hosts pro Subnetz = 2^(Hostbits) − 2**
+> - **Anzahl Subnetze = 2^(ausgeliehene Bits)**
+> - **Adressen pro Subnetz = 2^(verbleibende Hostbits)**
+> - **Nutzbare Hosts pro Subnetz = 2^(Hostbits) − 2**
 
 Und die Probe: Subnetze × Adressen pro Subnetz = Adressen des Ausgangsnetzes (z. B. 8 × 32 = 256).`,
         },

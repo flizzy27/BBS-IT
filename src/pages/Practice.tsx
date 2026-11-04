@@ -137,7 +137,7 @@ export function PracticeSession({ scope, title }: { scope: string; title?: strin
               <div className="row">
                 <span className="small muted">Nächste Schwierigkeit: {'●'.repeat(nextDifficulty(skills[q.skill]))}{'○'.repeat(3 - nextDifficulty(skills[q.skill]))} (passt sich deinen Ergebnissen an)</span>
                 <span className="spacer" />
-                <button className="btn primary" onClick={nextQuestion} autoFocus>Nächste Aufgabe <Icon name="ArrowRight" size={16} /></button>
+                <button className="btn primary" onClick={nextQuestion}>Nächste Aufgabe <Icon name="ArrowRight" size={16} /></button>
               </div>
             </div>
           )}
