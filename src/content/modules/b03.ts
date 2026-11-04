@@ -5,7 +5,7 @@ export const b03: Module = {
   nr: 3,
   area: 'systeme',
   title: 'Software & Lizenzen',
-  short: 'Softwarearten, Lizenzmodelle (Einzelplatz, Volumen, OEM, Subscription), Urheberrecht, Open Source (Copyleft vs. permissiv), Serverlizenzen, Lizenzmanagement, Softwareverteilung und Collaboration.',
+  short: 'Softwarearten und Anwendungssysteme (ERP, WWS, CRM), Anpassung von Standardsoftware und Datenmigration, Lizenzmodelle (Einzelplatz, Volumen, OEM, Subscription), Urheberrecht, Open Source (Copyleft vs. permissiv), Serverlizenzen, Lizenzmanagement, Softwareverteilung und Collaboration.',
   icon: 'FileKey',
   relevance: 'ap1',
   prerequisites: ['b01'],
@@ -18,6 +18,7 @@ export const b03: Module = {
     { id: 'lic.sam', module: 'b03', title: 'Lizenzmanagement und Lizenzbilanz', requires: ['lic.models'] },
     { id: 'lic.deploy', module: 'b03', title: 'Softwareverteilung', requires: ['lic.types'] },
     { id: 'lic.office', module: 'b03', title: 'Office- und Collaboration-Software auswählen', requires: ['lic.models'] },
+    { id: 'lic.customizing', module: 'b03', title: 'Standardsoftware anpassen (Konfiguration bis Neuentwicklung) und Daten migrieren', requires: ['lic.types'] },
   ],
   lessons: [
     /* ------------------------------------------------------------ */
@@ -27,6 +28,9 @@ export const b03: Module = {
       minutes: 15,
       relevance: 'ap1',
       skills: ['lic.types'],
+      simple: `Software ist wie Kleidung: Standardsoftware ist Kleidung von der Stange (günstig, sofort da, passt ungefähr), Branchensoftware ist Berufskleidung für eine bestimmte Branche, Individualsoftware ist ein Maßanzug (passt genau, ist aber teuer und dauert). Systemsoftware wie Betriebssystem oder Treiber sorgt dafür, dass der Rechner überhaupt läuft. Anwendungssoftware erledigt die eigentliche Arbeit, z. B. Textverarbeitung oder Warenwirtschaft. Die Entscheidung „selbst entwickeln lassen oder kaufen“ heißt Make or Buy.
+
+**Merke:** Systemsoftware betreibt die Hardware, Anwendungssoftware löst Fachaufgaben; Standard = günstig und sofort, Individual = passgenau, aber teuer.`,
       steps: [
         {
           type: 'explain',
@@ -98,11 +102,112 @@ export const b03: Module = {
     },
     /* ------------------------------------------------------------ */
     {
+      id: 'b03-l01b',
+      title: 'Standardsoftware anpassen, Anwendungssysteme und Datenmigration',
+      minutes: 25,
+      relevance: 'ap1',
+      skills: ['lic.customizing'],
+      simple: `Standardsoftware anzupassen ist wie eine neue Küche einzurichten: Zuerst wählst du aus, welche Schränke du überhaupt brauchst (Konfiguration). Dann stellst du die Regalböden auf die passende Höhe (Parametrisierung – Einstellwerte ändern, ohne zu programmieren). Reicht das nicht, baust du über vorgesehene Anschlüsse ein Zusatzgerät ein (Erweiterungsprogrammierung). Erst wenn gar nichts passt, lässt du eine ganz neue Küche schreinern (Neuentwicklung). Beim Umzug ins neue System müssen die alten Daten mit: Das heißt Datenmigration – vorher aufräumen, testen und danach nachzählen.
+
+**Merke:** Reihenfolge: Konfiguration → Parametrisierung → Erweiterungsprogrammierung → Neuentwicklung – so wenig Eingriff wie möglich, damit die Software updatefähig bleibt.`,
+      steps: [
+        {
+          type: 'explain',
+          title: 'Typische Anwendungssysteme im Unternehmen',
+          body: `In Firmen begegnen dir immer wieder dieselben großen **Anwendungssysteme** (Software für betriebliche Aufgaben). Die Abkürzungen solltest du kennen:
+
+| Abkürzung | Name | Aufgabe | Beispiel bei der Elektro Krämer GmbH |
+|---|---|---|---|
+| **ERP** | Enterprise Resource Planning | **integrierte Unternehmenssoftware**: Einkauf, Lager, Vertrieb, Finanzbuchhaltung, Personal in **einer** gemeinsamen Datenbank | Auftrag anlegen → Lager bucht ab → Rechnung → Buchhaltung |
+| **WWS** | Warenwirtschaftssystem | Warenfluss steuern: Wareneingang, Bestand, Bestellung, Verkauf (oft Teil eines ERP) | Meldebestand für Kabeltrommeln erreicht → Bestellvorschlag |
+| **CRM** | Customer Relationship Management | Kundenbeziehungen pflegen: Kontakte, Gesprächsnotizen, Angebote, Verkaufschancen | Außendienst sieht alle Kontakte zum Kunden |
+| **SCM** | Supply Chain Management | Lieferkette mit Lieferanten und Logistik planen und abstimmen | Liefertermine des Großhändlers einplanen |
+| **DMS** | Dokumentenmanagementsystem | Dokumente digital ablegen, versionieren, finden, revisionssicher archivieren | eingehende Rechnungen scannen und ablegen |
+
+Fast alle diese Systeme werden als **Standard- oder Branchensoftware** gekauft und dann an das Unternehmen **angepasst**.`,
+        },
+        {
+          type: 'explain',
+          title: 'Vier Stufen der Anpassung – und Datenmigration',
+          body: `Standardsoftware passt nie zu 100 % zu den Abläufen eines Unternehmens. Deshalb wird sie angepasst – und zwar **so wenig wie möglich und so viel wie nötig**. Die Stufen steigen in Aufwand und Risiko:
+
+| Stufe | Was passiert? | Quellcode des Herstellers geändert? | Beispiel |
+|---|---|---|---|
+| **1. Konfiguration** | vorhandene **Module/Funktionen auswählen** und zusammenstellen | nein | Module „Lager“ und „Einkauf“ aktivieren, „Produktion“ weglassen |
+| **2. Parametrisierung** | Verhalten über **Einstellwerte (Parameter)** festlegen | nein | Nummernkreise, Zahlungsfristen, Mahnstufen, Steuersätze, Pflichtfelder, Druckvorlagen |
+| **3. Erweiterungsprogrammierung** | **Zusatzfunktionen** über vom Hersteller vorgesehene **Schnittstellen** (API, Add-ins, Skripte) programmieren | nein – eigener Zusatzcode, der Kern bleibt unverändert | Anbindung des Online-Shops, eigener Auswertungsbericht |
+| **4. Neuentwicklung** | Software wird **eigens programmiert** (Individualsoftware), weil Standard plus Erweiterung nicht reicht | – (eigener Code) | einzigartige Fertigungssteuerung |
+
+Stufe 1 und 2 nennt man **Customizing** (Anpassung ohne Programmierung). Manche Hersteller und Bücher verwenden „Customizing“ auch als Oberbegriff für jede Anpassung.
+
+**Warum so wenig wie möglich?** Jede Erweiterung muss bei **Updates** geprüft und ggf. angepasst werden, verursacht Kosten und kann den Herstellersupport erschweren. Änderungen direkt im Quellcode des Herstellers (Modifikation) sind besonders riskant und sollten vermieden werden.
+
+**Datenmigration** heißt: Daten aus dem **Altsystem** in das **neue System** übertragen. Typischer Ablauf:
+
+1. **Analysieren:** Welche Daten (Kunden, Artikel, offene Posten …), welche Formate, welche Qualität?
+2. **Bereinigen:** Dubletten, veraltete und fehlerhafte Datensätze entfernen oder korrigieren.
+3. **Zuordnen (Mapping):** Welches alte Feld kommt in welches neue Feld? Formate umwandeln (Datum, Zeichensatz, Einheiten).
+4. **Testmigration** mit einer Kopie und **Kontrolle:** Anzahl der Datensätze, Stichproben, Summen (z. B. Lagerwert) vergleichen.
+5. **Altsystem sichern**, Stichtag festlegen (Änderungen im Altsystem einfrieren).
+6. **Produktive Migration** durchführen.
+7. **Prüfen und abnehmen**; Altsystem bzw. Daten so lange lesbar aufbewahren, wie es Aufbewahrungsfristen verlangen.
+
+**Datenschutz:** Nur die personenbezogenen Daten übernehmen, die noch gebraucht werden (Datenminimierung).`,
+        },
+        {
+          type: 'visual',
+          title: 'Anpassungsstufen von Standardsoftware',
+          widget: {
+            kind: 'cards',
+            data: {
+              columns: 4,
+              items: [
+                { title: '1. Konfiguration', text: 'Module auswählen – ohne Programmierung.', icon: 'ToggleRight' },
+                { title: '2. Parametrisierung', text: 'Einstellwerte festlegen – ohne Programmierung.', icon: 'SlidersHorizontal' },
+                { title: '3. Erweiterungsprogrammierung', text: 'Zusatzcode über Schnittstellen, Kern bleibt unverändert.', icon: 'Puzzle' },
+                { title: '4. Neuentwicklung', text: 'Eigene Software, wenn nichts Passendes existiert.', icon: 'Code' },
+              ],
+            },
+          },
+          caption: 'Von links nach rechts steigen Kosten, Dauer und Risiko bei Updates.',
+        },
+        {
+          type: 'example',
+          title: 'Neues Warenwirtschaftssystem bei der Elektro Krämer GmbH',
+          problem: 'Die Elektro Krämer GmbH führt eine Branchen-Warenwirtschaft ein. Ordne die Anforderungen ein: (a) Die Kassenfunktion wird nicht gebraucht. (b) Kundennummern sollen mit „K-“ beginnen. (c) Bestellungen aus dem Online-Shop sollen automatisch übernommen werden; der Hersteller bietet dafür eine API. (d) 12.480 Artikel aus dem Altsystem sollen übernommen werden – 312 davon sind Dubletten.',
+          steps: [
+            { label: '(a)', body: 'Modul nicht aktivieren → **Konfiguration**.' },
+            { label: '(b)', body: 'Nummernkreis in den Einstellungen festlegen → **Parametrisierung**.' },
+            { label: '(c)', body: 'Eigenes Zusatzprogramm über die Hersteller-Schnittstelle → **Erweiterungsprogrammierung**.' },
+            { label: '(d)', body: '**Datenmigration**: zuerst die 312 Dubletten bereinigen, Felder zuordnen, Testmigration; danach kontrollieren, dass 12.480 − 312 = **12.168** Artikel im neuen System sind.' },
+          ],
+          result: 'Drei der vier Anforderungen lassen sich ohne Eingriff in den Kern der Software lösen – nur die Shop-Anbindung braucht Zusatzcode.',
+        },
+        {
+          type: 'check',
+          question: {
+            id: 'b03-c09', kind: 'match', skill: 'lic.customizing', difficulty: 1,
+            prompt: 'Ordne die Anpassung der passenden Stufe zu.',
+            left: ['Modul „Personal“ wird freigeschaltet.', 'Die Mahnfrist wird in den Einstellungen von 14 auf 10 Tage geändert.', 'Über die API wird ein Zusatzprogramm für den Etikettendruck angebunden.', 'Ein Softwarehaus programmiert eine komplett eigene Anwendung.'],
+            right: ['Konfiguration', 'Parametrisierung', 'Erweiterungsprogrammierung', 'Neuentwicklung'],
+            answer: [0, 1, 2, 3],
+            explanation: 'Module wählen = Konfiguration; Einstellwert ändern = Parametrisierung; Zusatzcode über Schnittstelle = Erweiterungsprogrammierung; alles neu = Neuentwicklung.',
+          },
+        },
+        { type: 'practice', title: 'Übung: Anpassung und Datenmigration', questionIds: ['b03-q031', 'b03-q032', 'b03-q033', 'b03-q034', 'b03-q035', 'b03-q036'], count: 6, difficulty: 2 },
+        { type: 'summary', points: ['ERP = integrierte Unternehmenssoftware; WWS = Warenwirtschaft; CRM = Kundenbeziehungen; SCM = Lieferkette; DMS = Dokumente.', 'Anpassungsstufen: Konfiguration → Parametrisierung → Erweiterungsprogrammierung → Neuentwicklung.', 'Konfiguration und Parametrisierung = Customizing ohne Programmierung.', 'So wenig Eingriff wie möglich: Updates, Kosten, Support.', 'Datenmigration: analysieren, bereinigen, zuordnen (Mapping), testen, sichern, migrieren, prüfen.'] },
+      ],
+    },
+    /* ------------------------------------------------------------ */
+    {
       id: 'b03-l02',
       title: 'Lizenzmodelle und Urheberrecht',
       minutes: 25,
       relevance: 'ap1',
       skills: ['lic.models'],
+      simple: `Eine Lizenz ist wie eine Kinokarte: Du kaufst nicht das Kino, sondern nur das Recht, den Film zu sehen. Software ist durch das Urheberrecht geschützt; wer sie ohne passende Lizenz nutzt, verstößt gegen das Gesetz, und die Firma haftet für ihre Mitarbeitenden. Lizenzen gibt es pro Gerät, pro Benutzer, für gleichzeitige Nutzer, als Mengenpaket (Volumenlizenz), als OEM-Lizenz (fest an einen PC gebunden) oder als Abo. Beim Abo zahlst du laufend – hörst du auf zu zahlen, endet das Nutzungsrecht.
+
+**Merke:** Kauf oder Abo? Der Kauf lohnt sich ab dem Break-even: Kaufpreis / Monatsrate = Anzahl Monate.`,
       steps: [
         {
           type: 'explain',
@@ -189,6 +294,9 @@ Wichtige Punkte aus dem UrhG:
       minutes: 25,
       relevance: 'ap1',
       skills: ['lic.oss'],
+      simple: `Open Source ist wie ein Kochrezept, das jeder lesen, nachkochen, verändern und weitergeben darf. Freeware ist ein fertiges Gericht zum Mitnehmen: kostenlos, aber das Rezept bleibt geheim – und oft nur für private Nutzung erlaubt. Shareware darfst du erst testen und musst danach bezahlen. Bei Open-Source-Lizenzen gibt es zwei Familien: Copyleft (z. B. GPL) verlangt, dass veränderte Versionen bei Weitergabe wieder offen sind; permissive Lizenzen (z. B. MIT) erlauben auch geschlossene Weiterverwendung.
+
+**Merke:** Open Source = Quellcode offen (nutzen, untersuchen, verändern, weitergeben); kostenlos heißt nicht automatisch Open Source.`,
       steps: [
         {
           type: 'explain',
@@ -268,6 +376,9 @@ Wichtige Punkte aus dem UrhG:
       minutes: 25,
       relevance: 'ap1-teilweise',
       skills: ['lic.server'],
+      simple: `Bei Windows Server zahlst du zweimal – wie im Schwimmbad Eintritt und Spind: Einmal lizenzierst du den Server selbst nach Prozessorkernen, zusätzlich braucht jeder Benutzer oder jedes Gerät, das zugreift, eine Zugriffslizenz (CAL, Client Access License). Lizenziert werden alle physischen Kerne, mindestens 8 pro Prozessor und 16 pro Server, verkauft in 2-Kern-Paketen. Eine User-CAL gilt für eine Person an beliebig vielen Geräten, eine Device-CAL für ein Gerät, an dem viele Personen arbeiten.
+
+**Merke:** Alle Kerne lizenzieren (mindestens 8 je CPU, 16 je Server); dazu CALs – User-CAL bei mehreren Geräten pro Person, Device-CAL bei Schichtbetrieb.`,
       steps: [
         {
           type: 'explain',
@@ -342,6 +453,9 @@ Lizenzbedingungen ändern sich – vor einem Kauf immer die aktuellen Produktbed
       minutes: 20,
       relevance: 'ap1',
       skills: ['lic.sam'],
+      simple: `Lizenzmanagement ist wie eine Inventur im Getränkelager: Du zählst, was da ist (gekaufte Lizenzen), und vergleichst mit dem, was verbraucht wird (Installationen bzw. Nutzer). Hast du weniger Lizenzen als nötig (Unterlizenzierung), verstößt die Firma gegen das Urheberrecht und riskiert Nachzahlungen bei einer Prüfung (Audit). Hast du mehr Lizenzen als nötig (Überlizenzierung), verschwendest du Geld. Wichtig ist, wonach eine Lizenz zählt: Gerät, Benutzer oder Prozessorkerne.
+
+**Merke:** Lizenzbilanz = vorhandene minus benötigte Lizenzen; negativ heißt nachkaufen, positiv heißt Kosten sparen.`,
       steps: [
         {
           type: 'explain',
@@ -419,6 +533,9 @@ Erstelle die Bilanz.`,
       minutes: 20,
       relevance: 'ap1',
       skills: ['lic.deploy'],
+      simple: `Softwareverteilung ist wie ein Lieferdienst für Programme: Statt an jeden PC zu laufen und von Hand zu installieren, schickt die IT die Software zentral an alle Geräte. Das geht über Images, Gruppenrichtlinien, Verteilsysteme wie Intune oder Paketmanager wie winget. Die Installation läuft „silent“, also ohne Rückfragen an den Benutzer – und der Benutzer braucht keine Admin-Rechte. Bevor alle das Paket bekommen, testet man es an einer kleinen Pilotgruppe.
+
+**Merke:** Ablauf: Paketieren → Testen → Pilot → Rollout → Kontrolle → Dokumentation.`,
       steps: [
         {
           type: 'explain',
@@ -503,6 +620,9 @@ Erstelle die Bilanz.`,
       minutes: 15,
       relevance: 'ap1-teilweise',
       skills: ['lic.office'],
+      simple: `Office-Software auszuwählen ist wie ein Auto zu wählen: Kaufen, leasen oder Carsharing – jedes Modell passt zu anderen Bedürfnissen. Microsoft 365 ist ein Abo mit Cloud-Diensten wie Teams und OneDrive, Office 2024 kaufst du einmal und nutzt es lokal, LibreOffice und Nextcloud sind Open Source und können im eigenen Haus laufen. Entscheide nach Funktionen, Kompatibilität, Kosten, Datenschutz und wie gut es zu den übrigen Systemen passt. Statt Dateien per E-Mail hin und her zu schicken, bearbeiten mehrere Personen ein Dokument gleichzeitig (Co-Authoring).
+
+**Merke:** Abo (Cloud) vs. Kauf (lokal) vs. Open Source – die Auswahl immer mit Funktion, Kompatibilität, Kosten und Datenschutz begründen.`,
       steps: [
         {
           type: 'explain',
@@ -607,5 +727,55 @@ Vergleiche die Kosten für 3 Jahre.`,
     { id: 'b03-q028', kind: 'text', skill: 'lic.models', difficulty: 1, prompt: 'Wie heißt der Lizenzvertrag zwischen Softwarehersteller und Endnutzer, dem man bei der Installation zustimmt? (Abkürzung)', accept: ['EULA', 'End User License Agreement', 'Endbenutzer-Lizenzvertrag', 'Endbenutzerlizenzvertrag'], explanation: '**EULA** – End User License Agreement.' },
     { id: 'b03-q029', kind: 'single', skill: 'lic.models', difficulty: 2, prompt: 'Darf ein Unternehmen von seiner rechtmäßig erworbenen Software eine **Sicherungskopie** anlegen, obwohl die EULA das verbietet?', options: ['Ja, wenn sie für die Sicherung der künftigen Benutzung erforderlich ist – das kann vertraglich nicht untersagt werden (§ 69d Abs. 2 UrhG).', 'Nein, die EULA geht immer vor.', 'Ja, und es darf beliebig viele Kopien weitergeben.', 'Nur mit Genehmigung des Gerichts.'], answer: 0, distractors: { '1': { why: '§ 69d Abs. 2 UrhG lässt sich vertraglich nicht ausschließen.', error: 'urhg-sicherungskopie' }, '2': { why: 'Erlaubt ist nur eine Sicherungskopie, keine Weitergabe.', error: 'urhg-sicherungskopie' }, '3': { why: 'Ein Gericht muss nicht zustimmen.', error: 'urhg-sicherungskopie' } }, explanation: 'Sicherungskopie zur Sicherung der Nutzung ist gesetzlich erlaubt.' },
     { id: 'b03-q030', kind: 'free', skill: 'lic.types', difficulty: 2, prompt: 'Erkläre den Begriff **„Make or Buy“** im Zusammenhang mit Software und nenne zwei Entscheidungskriterien.', modelAnswer: 'Make or Buy ist die Entscheidung, ob ein Unternehmen eine Softwarelösung selbst entwickelt bzw. entwickeln lässt (Make, Individualsoftware) oder fertige Standard-/Branchensoftware kauft und ggf. anpasst (Buy). Kriterien: Kosten (Entwicklung vs. Lizenz und Anpassung, laufende Wartung), Zeit bis zur Einsatzbereitschaft, Erfüllung der Anforderungen, strategische Bedeutung/Wettbewerbsvorteil, Know-how und Abhängigkeit, Risiko.', keywords: ['selbst entwickeln', 'kaufen', 'Kosten', 'Zeit', 'Anforderungen', 'Abhängigkeit'], explanation: 'Definition + zwei Kriterien.' },
+    /* ---------- Anpassung, Anwendungssysteme, Datenmigration ---------- */
+    {
+      id: 'b03-q031', kind: 'table', skill: 'lic.customizing', difficulty: 2,
+      prompt: 'Die Elektro Krämer GmbH führt ein ERP-System ein. Welche Anpassungsstufe liegt jeweils vor? Trage **Konfiguration**, **Parametrisierung**, **Erweiterungsprogrammierung** oder **Neuentwicklung** ein.',
+      columns: [{ key: 's', label: 'Stufe', type: 'text' }],
+      rows: [
+        { label: 'Das Modul „Produktion“ wird nicht benötigt und deshalb nicht aktiviert.', cells: { s: { answer: 'Konfiguration' } } },
+        { label: 'Rechnungsnummern sollen mit „RE-2027-“ beginnen; dafür gibt es ein Einstellfeld.', cells: { s: { answer: 'Parametrisierung' } } },
+        { label: 'Über die vom Hersteller angebotene Schnittstelle (API) wird ein eigenes Programm angebunden, das Bestellungen aus dem Online-Shop überträgt.', cells: { s: { answer: 'Erweiterungsprogrammierung', accept: ['erweiterung'] } } },
+        { label: 'Kein Produkt am Markt bildet die eigene Fertigungssteuerung ab; ein Softwarehaus programmiert eine eigene Anwendung.', cells: { s: { answer: 'Neuentwicklung', accept: ['individualsoftware', 'individualentwicklung'] } } },
+        { label: 'Die Zahlungsfrist auf Rechnungen wird in den Einstellungen von 30 auf 14 Tage geändert.', cells: { s: { answer: 'Parametrisierung' } } },
+      ],
+      hints: ['Ohne Programmierung: Module wählen (Konfiguration) oder Werte einstellen (Parametrisierung).', 'Mit Programmierung: Zusatzcode über Schnittstelle oder komplett neu.'],
+      explanation: 'Modul an/aus = **Konfiguration**. Nummernkreis und Zahlungsfrist sind Einstellwerte = **Parametrisierung**. Zusatzprogramm über die API = **Erweiterungsprogrammierung** (der Kern bleibt unverändert). Eigene Anwendung = **Neuentwicklung**.\n\nHäufiger Fehler: Konfiguration und Parametrisierung verwechseln. Merkhilfe: Konfiguration = *welche* Teile, Parametrisierung = *wie* sie sich verhalten.',
+    },
+    {
+      id: 'b03-q032', kind: 'order', skill: 'lic.customizing', difficulty: 2,
+      prompt: 'Bringe die Schritte einer **Datenmigration** vom alten in das neue Warenwirtschaftssystem in eine sinnvolle Reihenfolge.',
+      items: ['Datenbestand des Altsystems analysieren', 'Daten bereinigen (Dubletten, veraltete Sätze)', 'Felder alt → neu zuordnen (Mapping)', 'Testmigration mit einer Kopie durchführen und kontrollieren', 'Altsystem sichern und Stichtag festlegen', 'Produktive Migration durchführen', 'Ergebnis prüfen (Anzahl, Stichproben, Summen) und abnehmen'],
+      explanation: 'Erst verstehen und aufräumen, dann zuordnen und testen – und erst nach Sicherung produktiv migrieren und kontrollieren. Fehler in der Testmigration kosten wenig, Fehler im Echtbetrieb viel.',
+    },
+    {
+      id: 'b03-q033', kind: 'free', skill: 'lic.customizing', difficulty: 3,
+      prompt: 'Die Vertriebsleitung möchte, dass das neue CRM-System „genau wie die alte Excel-Liste“ aussieht und funktioniert, und schlägt vor, dafür den Quellcode des Herstellers ändern zu lassen. Berate die Vertriebsleitung: Welche Anpassungsstufe empfiehlst du und warum?',
+      modelAnswer: 'Ich empfehle, zuerst die Möglichkeiten ohne Programmierung auszuschöpfen: per Konfiguration benötigte Module und Ansichten auswählen und per Parametrisierung Felder, Pflichtfelder, Listenansichten und Vorlagen einstellen. Nur wenn wichtige Anforderungen dann noch fehlen, sollte eine Erweiterung über die vorgesehenen Schnittstellen programmiert werden. Eine Änderung des Hersteller-Quellcodes rate ich ab: Sie verursacht hohe Kosten, muss bei jedem Update neu geprüft und angepasst werden, kann den Herstellersupport bzw. die Gewährleistung gefährden und macht das Unternehmen von einem Entwickler abhängig. Oft ist es wirtschaftlicher, den Ablauf im Vertrieb etwas an den bewährten Standardprozess anzupassen; dazu gehören Schulung der Anwender und eine Datenmigration der Excel-Liste.',
+      keywords: ['Konfiguration', 'Parametrisierung', 'Schnittstelle', 'Updates', 'Kosten', 'Support', 'Prozess anpassen'],
+      explanation: 'So wenig Eingriff wie möglich: Standard ist updatefähig und günstiger; Quellcodeänderungen sind teuer und riskant.',
+    },
+    {
+      id: 'b03-q034', kind: 'match', skill: 'lic.customizing', difficulty: 1,
+      prompt: 'Ordne das Anwendungssystem seiner Hauptaufgabe zu.',
+      left: ['ERP', 'WWS', 'CRM', 'SCM', 'DMS'],
+      right: ['integrierte Unternehmenssoftware für Einkauf, Lager, Vertrieb, Finanzen und Personal', 'Warenfluss steuern: Wareneingang, Bestand, Bestellung, Verkauf', 'Kundenkontakte, Angebote und Verkaufschancen pflegen', 'Lieferkette mit Lieferanten und Logistik planen', 'Dokumente digital ablegen, versionieren und archivieren'],
+      answer: [0, 1, 2, 3, 4],
+      explanation: 'ERP = alles integriert; WWS = Waren; CRM = Kunden; SCM = Lieferkette; DMS = Dokumente.',
+    },
+    {
+      id: 'b03-q035', kind: 'free', skill: 'lic.customizing', difficulty: 2,
+      prompt: 'Nenne drei **Risiken** einer Datenmigration und jeweils eine Maßnahme dagegen.',
+      modelAnswer: 'Datenverlust oder unvollständige Übernahme → vorher vollständige Sicherung des Altsystems, nach der Migration Anzahl der Datensätze und Summen vergleichen. Fehlerhafte oder doppelte Daten werden mitgeschleppt → Daten vor der Migration bereinigen (Dubletten, veraltete Sätze). Falsche Feldzuordnung oder Formatfehler (Datum, Umlaute, Dezimaltrennzeichen) → sorgfältiges Mapping und Testmigration mit Stichproben. Längerer Stillstand → Stichtag außerhalb der Geschäftszeit, Ablauf vorher testen, Rückfallplan. Datenschutzverstoß → nur benötigte personenbezogene Daten übernehmen, Zugriff auf Exportdateien beschränken und sie danach sicher löschen.',
+      keywords: ['Sicherung', 'Bereinigung', 'Mapping', 'Testmigration', 'Kontrolle', 'Stichtag', 'Datenschutz'],
+      explanation: 'Gute Antworten koppeln jedes Risiko an eine konkrete Gegenmaßnahme.',
+    },
+    {
+      id: 'b03-q036', kind: 'number', skill: 'lic.customizing', difficulty: 2,
+      prompt: 'Im alten Warenwirtschaftssystem stehen **12.480** Artikel. Bei der Bereinigung werden **312** Dubletten entfernt und **168** seit Jahren nicht mehr geführte Artikel bewusst nicht übernommen. Wie viele Artikel müssen nach der Migration im neuen System stehen?',
+      answer: 12000, unit: 'Artikel',
+      misconceptions: [{ answer: '12168', error: 'migration-nur-dubletten', why: 'Du hast nur die Dubletten abgezogen. Auch die 168 bewusst nicht übernommenen Artikel fehlen im neuen System.' }, { answer: '12480', error: 'migration-bereinigung-vergessen', why: 'Die bereinigten Datensätze dürfen im neuen System nicht auftauchen.' }],
+      explanation: '**12.000 Artikel.**\n\n12.480 − 312 − 168 = **12.000**.\n\nDiese Zahl ist der Sollwert für die Kontrolle nach der Migration: Stehen mehr oder weniger Artikel im neuen System, ist bei der Übernahme etwas schiefgelaufen.',
+    },
   ],
 };

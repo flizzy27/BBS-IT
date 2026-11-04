@@ -891,7 +891,296 @@ const paretoGen: GeneratorMeta = {
   },
 };
 
-export const GENERATORS_SYSTEME: GeneratorMeta[] = [chmodGen, effRightsGen, fsGen, partitionGen, serverLicGen, vmHostGen, slaGen, prioGen, paretoGen];
+/* ------------------------------------------------------------------ */
+/* MTBF / MTTR bei k Ausfällen                                         */
+/* ------------------------------------------------------------------ */
+
+/** kaufmännisch runden (bei .5 vom Nullpunkt weg) */
+const roundHalf = (x: number, digits: number) => {
+  const f = 10 ** digits;
+  return (Math.sign(x) * Math.round(Math.abs(x) * f + 1e-9)) / f;
+};
+const SYSTEMS = ['Dateiserver FS01', 'Warenwirtschaftsserver', 'Mailserver', 'Firewall-Cluster', 'Terminalserver'];
+
+const mtbfGen: GeneratorMeta = {
+  id: 'sys.mtbf',
+  title: 'MTBF, MTTR und Verfügbarkeit bei mehreren Ausfällen',
+  skill: 'itsm.sla',
+  module: 'b06',
+  make(rng, d): Question {
+    const sys = rng.pick(SYSTEMS);
+    if (d === 1) {
+      const k = rng.int(3, 5);
+      const mins = Array.from({ length: k }, () => rng.int(2, 24) * 5);
+      const sum = mins.reduce((a, b) => a + b, 0);
+      const ans = roundHalf(sum / k, 1);
+      return {
+        id: gid('sys.mtbf'), generated: true, kind: 'number', skill: 'itsm.sla', difficulty: d,
+        prompt: `Der **${sys}** ist im letzten Quartal **${k}-mal** ausgefallen. Bis zur Wiederherstellung dauerte es jeweils: ${mins.map((m) => `**${m} min**`).join(', ')}.\n\nWie groß ist die **MTTR** (Mean Time To Repair, mittlere Zeit bis zur Wiederherstellung) in Minuten? (auf eine Nachkommastelle runden)`,
+        answer: ans,
+        tolerance: 0.05,
+        unit: 'min',
+        hints: ['MTTR = Summe aller Ausfallzeiten / Anzahl der Ausfälle.'],
+        misconceptions: [{ answer: String(sum), error: 'mttr-nicht-geteilt', why: 'Das ist die **gesamte** Ausfallzeit. Die MTTR ist ein Mittelwert: Summe durch die Anzahl der Ausfälle teilen.' }],
+        explanation: `**Ergebnis: ${fmtN(ans, 1)} min.**\n\n1. Ausfallzeiten addieren: ${mins.join(' + ')} = ${sum} min.\n2. Durch die Anzahl der Ausfälle teilen: ${sum} min / ${k} = ${fmtN(sum / k, 3)} min ≈ **${fmtN(ans, 1)} min**.\n\nHäufiger Fehler: Die Summe (${sum} min) als MTTR angeben – „Mean“ heißt Mittelwert.`,
+      };
+    }
+    if (d === 2) {
+      const a = rng.pick([99.5, 99.8, 99.9, 99.95]);
+      const a100 = Math.round(a * 100);
+      const k = rng.int(2, 8);
+      const downMin = (525600 * (10000 - a100)) / 10000; // erlaubte Ausfallzeit pro Jahr in min
+      const downH = downMin / 60;
+      if (rng.bool()) {
+        const ans = roundHalf(downMin / k, 1);
+        return {
+          id: gid('sys.mtbf'), generated: true, kind: 'number', skill: 'itsm.sla', difficulty: d,
+          prompt: `Für den **${sys}** ist eine Verfügbarkeit von **${fmtN(a, 2)} %** pro Jahr (365 Tage, 24/7) vereinbart. Aus Erfahrung rechnet ihr mit **${k} Ausfällen** pro Jahr.\n\nWie lange darf ein Ausfall **im Mittel** höchstens dauern (maximale MTTR), damit das Ziel noch erreicht wird? Angabe in Minuten, auf eine Nachkommastelle runden.`,
+          answer: ans,
+          tolerance: 0.05,
+          unit: 'min',
+          hints: ['Erst die erlaubte Ausfallzeit pro Jahr: 525.600 min · (100 % − Verfügbarkeit).', `Dann auf die ${k} Ausfälle verteilen.`],
+          misconceptions: [
+            { answer: String(roundHalf(downMin, 1)), error: 'mttr-nicht-geteilt', why: `Das ist die erlaubte Ausfallzeit für das **ganze Jahr**. Sie verteilt sich auf ${k} Ausfälle.` },
+            { answer: String(roundHalf(downH / k, 1)), error: 'sla-einheit', why: 'Das ist das Ergebnis in **Stunden** – gefragt sind Minuten.' },
+          ],
+          explanation: `**Ergebnis: ${fmtN(ans, 1)} min je Ausfall.**\n\n1. Jahr in Minuten: 365 · 24 · 60 = 525.600 min.\n2. Erlaubter Ausfall: 525.600 min · (100 − ${fmtN(a, 2)}) % = 525.600 · ${fmtN((10000 - a100) / 10000, 4)} = ${fmtN(downMin, 2)} min.\n3. Auf ${k} Ausfälle verteilen: ${fmtN(downMin, 2)} min / ${k} = ${fmtN(downMin / k, 3)} min ≈ **${fmtN(ans, 1)} min**.\n\nHäufiger Fehler: die Jahres-Ausfallzeit nicht durch die Zahl der Ausfälle teilen.`,
+        };
+      }
+      const ans = roundHalf((8760 - downH) / k, 2);
+      return {
+        id: gid('sys.mtbf'), generated: true, kind: 'number', skill: 'itsm.sla', difficulty: d,
+        prompt: `Der **${sys}** soll eine Verfügbarkeit von **${fmtN(a, 2)} %** pro Jahr (8.760 h, 24/7) erreichen. Ihr plant mit **${k} Ausfällen** pro Jahr, die die erlaubte Ausfallzeit genau ausschöpfen.\n\nWie groß ist dann die **MTBF** (Mean Time Between Failures, mittlere Betriebszeit zwischen zwei Ausfällen) in Stunden? (auf 2 Nachkommastellen runden)`,
+        answer: ans,
+        tolerance: 0.01,
+        unit: 'h',
+        hints: ['Erlaubte Ausfallzeit: 8.760 h · (100 % − Verfügbarkeit).', 'MTBF = (8.760 h − Ausfallzeit) / Anzahl der Ausfälle.'],
+        misconceptions: [{ answer: String(roundHalf(8760 / k, 2)), error: 'mtbf-ausfall-nicht-abgezogen', why: 'Die Ausfallzeit gehört nicht zur Betriebszeit. Erst 8.760 h minus Ausfallzeit, dann durch die Zahl der Ausfälle teilen.' }],
+        explanation: `**Ergebnis: ${fmtN(ans, 2)} h.**\n\n1. Erlaubter Ausfall: 8.760 h · ${fmtN((10000 - a100) / 10000, 4)} = ${fmtN(downH, 3)} h.\n2. Betriebszeit (Uptime): 8.760 h − ${fmtN(downH, 3)} h = ${fmtN(8760 - downH, 3)} h.\n3. MTBF = ${fmtN(8760 - downH, 3)} h / ${k} = **${fmtN(ans, 2)} h**.\n\nProbe: MTTR = ${fmtN(downH, 3)} h / ${k} = ${fmtN(downH / k, 4)} h; MTBF / (MTBF + MTTR) = ${fmtN(a, 2)} %.\n\nHäufiger Fehler: 8.760 h / ${k} rechnen und die Ausfallzeit vergessen.`,
+      };
+    }
+    // d3: Tabelle aus Ausfallliste
+    const k = rng.int(3, 6);
+    const halves = Array.from({ length: k }, () => rng.int(1, 12)); // 0,5 … 6 h
+    const dh = halves.reduce((a, b) => a + b, 0); // Ausfall in halben Stunden
+    const mtbf = Math.round(((17520 - dh) * 50) / k) / 100;
+    const mttr = Math.round((dh * 50) / k) / 100;
+    const v = Math.round(((17520 - dh) * 10000) / 17520) / 100;
+    const vAlt = roundHalf((mtbf / (mtbf + mttr)) * 100, 2);
+    const vAcc = vAlt !== v ? [String(vAlt)] : [];
+    const list = halves.map((h) => `${fmtN(h / 2, 1)} h`).join(', ');
+    return {
+      id: gid('sys.mtbf'), generated: true, kind: 'table', skill: 'itsm.sla', difficulty: d,
+      prompt: `Auswertung des Monitorings für den **${sys}** über ein Jahr (365 Tage, 24/7 = 8.760 h):\n\n| Kennzahl | Wert |\n|---|---|\n| Anzahl Ausfälle | ${k} |\n| Dauer der Ausfälle | ${list} |\n\nBerechne MTBF, MTTR (beide in Stunden) und die Verfügbarkeit in %. Runde alle Werte auf **2 Nachkommastellen**.`,
+      columns: [{ key: 'v', label: 'Wert', type: 'number' }],
+      rows: [
+        { label: 'MTBF in h', cells: { v: { answer: String(mtbf) } } },
+        { label: 'MTTR in h', cells: { v: { answer: String(mttr) } } },
+        { label: 'Verfügbarkeit in %', cells: { v: { answer: String(v), accept: vAcc } } },
+      ],
+      hints: ['Gesamtausfall = Summe der Ausfälle. Betriebszeit = 8.760 h − Gesamtausfall.', 'MTBF = Betriebszeit / Anzahl; MTTR = Gesamtausfall / Anzahl.', 'Verfügbarkeit = MTBF / (MTBF + MTTR) · 100 %.'],
+      misconceptions: [{ cell: '0:v', answer: String(roundHalf(8760 / k, 2)), error: 'mtbf-ausfall-nicht-abgezogen', why: 'Die Ausfallzeit gehört nicht zur Betriebszeit – erst abziehen, dann teilen.' }],
+      explanation: `1. Gesamtausfall: ${halves.map((h) => fmtN(h / 2, 1)).join(' + ')} = ${fmtN(dh / 2, 1)} h.\n2. Betriebszeit: 8.760 h − ${fmtN(dh / 2, 1)} h = ${fmtN(8760 - dh / 2, 1)} h.\n3. **MTBF** = ${fmtN(8760 - dh / 2, 1)} h / ${k} = **${fmtN(mtbf, 2)} h**.\n4. **MTTR** = ${fmtN(dh / 2, 1)} h / ${k} = **${fmtN(mttr, 2)} h**.\n5. **Verfügbarkeit** = MTBF / (MTBF + MTTR) = (8.760 − ${fmtN(dh / 2, 1)}) / 8.760 · 100 % = **${fmtN(v, 2)} %**.\n\nBeide Wege (über MTBF/MTTR oder über Betriebszeit/Gesamtzeit) ergeben dasselbe, weil sich die Anzahl der Ausfälle herauskürzt.`,
+    };
+  },
+};
+
+/* ------------------------------------------------------------------ */
+/* MTTR: Soll/Ist-Vergleich mit Teilzeiten                             */
+/* ------------------------------------------------------------------ */
+
+const MTTR_SOLL = [30, 45, 60, 90, 120, 240];
+const INCIDENTS = ['Mailserver nicht erreichbar', 'Switch im Lager ausgefallen', 'Warenwirtschaft meldet Datenbankfehler', 'VPN-Gateway hängt', 'Drucker-Warteschlange blockiert', 'Fileserver-Freigabe nicht erreichbar'];
+
+function phases(rng: Rng) {
+  return { erk: rng.int(1, 4) * 5, rea: rng.int(1, 6) * 5, beh: rng.int(2, 18) * 5, test: rng.int(1, 4) * 5 };
+}
+const phaseText = (p: ReturnType<typeof phases>) => `Erkennen ${p.erk} min, Reagieren ${p.rea} min, Beheben ${p.beh} min, Testen/Wiederherstellen ${p.test} min`;
+const phaseSum = (p: ReturnType<typeof phases>) => p.erk + p.rea + p.beh + p.test;
+
+const mttrGen: GeneratorMeta = {
+  id: 'sys.mttr',
+  title: 'MTTR: Soll/Ist-Abweichung in Prozent',
+  skill: 'itsm.sla',
+  module: 'b06',
+  make(rng, d): Question {
+    const intro = 'Im SLA zählt zur Wiederherstellungszeit (MTTR) **jede Phase** von der Störung bis zum wiederhergestellten Service: Erkennen, Reagieren, Beheben, Testen/Wiederherstellen.\n\n';
+    if (d <= 2) {
+      let p = phases(rng);
+      let soll = rng.pick(MTTR_SOLL);
+      while (phaseSum(p) === soll) { p = phases(rng); soll = rng.pick(MTTR_SOLL); }
+      const ist = phaseSum(p);
+      const inc = rng.pick(INCIDENTS);
+      if (d === 1) {
+        return {
+          id: gid('sys.mttr'), generated: true, kind: 'number', skill: 'itsm.sla', difficulty: d,
+          prompt: intro + `Störung „${inc}“: ${phaseText(p)}. Die Vorgabe (MTTR-Soll) beträgt **${soll} min**.\n\nUm wie viele Minuten weicht die Ist-Zeit von der Vorgabe ab? (Überschreitung positiv, Unterschreitung mit Minuszeichen)`,
+          answer: ist - soll,
+          unit: 'min',
+          hints: ['Ist-Zeit = Summe aller vier Phasen.', 'Abweichung = Ist − Soll.'],
+          misconceptions: [{ answer: String(p.beh - soll), error: 'mttr-nur-reparatur', why: 'Du hast nur die Behebungszeit genommen. Laut Aufgabe zählen alle Phasen zur MTTR.' }].filter((m) => m.answer !== String(ist - soll)),
+          explanation: `**Ergebnis: ${ist - soll > 0 ? '+' : ''}${ist - soll} min.**\n\n1. Ist-Zeit: ${p.erk} + ${p.rea} + ${p.beh} + ${p.test} = ${ist} min.\n2. Abweichung: ${ist} min − ${soll} min = **${ist - soll} min** → ${ist > soll ? 'Vorgabe überschritten' : 'Vorgabe eingehalten'}.\n\nHäufiger Fehler: nur die eigentliche Reparatur (${p.beh} min) zählen.`,
+        };
+      }
+      const ans = roundHalf(((ist - soll) * 100) / soll, 1);
+      const other = (Math.sign(ist - soll) * Math.round(Math.abs(((ist - soll) * 1000) / soll) - 1e-9)) / 10;
+      const relIst = roundHalf(((ist - soll) * 100) / ist, 1);
+      return {
+        id: gid('sys.mttr'), generated: true, kind: 'number', skill: 'itsm.sla', difficulty: d,
+        prompt: intro + `Störung „${inc}“: ${phaseText(p)}. Die Vorgabe (MTTR-Soll) beträgt **${soll} min**.\n\nUm wie viel **Prozent** weicht die Ist-Zeit von der Vorgabe ab? (Bezugsgröße ist die Vorgabe; Überschreitung positiv, Unterschreitung mit Minuszeichen; auf eine Nachkommastelle runden)`,
+        answer: ans,
+        tolerance: 0.05,
+        accept: other !== ans ? [other] : undefined,
+        unit: '%',
+        hints: ['Ist-Zeit = Summe aller Phasen.', 'Abweichung in % = (Ist − Soll) / Soll · 100.'],
+        misconceptions: [
+          { answer: String(relIst), error: 'prozent-falsche-basis', why: 'Du hast durch die **Ist-Zeit** geteilt. Bezugsgröße (100 %) ist die **Vorgabe** (Soll).' },
+          { answer: String(ist - soll), error: 'prozent-statt-absolut', why: 'Das ist die Abweichung in **Minuten** – gefragt ist sie in Prozent der Vorgabe.' },
+        ].filter((m) => Math.abs(Number(m.answer) - ans) > 0.05),
+        explanation: `**Ergebnis: ${ans > 0 ? '+' : ''}${fmtN(ans, 1)} %.**\n\n1. Ist-Zeit: ${p.erk} + ${p.rea} + ${p.beh} + ${p.test} = ${ist} min.\n2. Differenz: ${ist} − ${soll} = ${ist - soll} min.\n3. Bezogen auf die Vorgabe: ${ist - soll} / ${soll} · 100 % = ${fmtN(((ist - soll) * 100) / soll, 4)} % ≈ **${fmtN(ans, 1)} %**.\n\nHäufiger Fehler: durch die Ist-Zeit (${ist} min) teilen – das ergäbe ${fmtN(relIst, 1)} %.`,
+      };
+    }
+    // d3: drei Störungen in einer Tabelle
+    const rows: TableQuestion['rows'] = [];
+    const sol: string[] = [];
+    const incs = rng.shuffle(INCIDENTS).slice(0, 3);
+    const yes = ['ja', 'j', 'eingehalten', 'yes'];
+    const no = ['nein', 'n', 'nicht eingehalten', 'no', 'verletzt'];
+    // mindestens eine eingehaltene und eine verfehlte Vorgabe
+    let cases: { p: ReturnType<typeof phases>; soll: number }[] = [];
+    do {
+      cases = incs.map(() => {
+        let p = phases(rng);
+        let soll = rng.pick(MTTR_SOLL);
+        while (phaseSum(p) === soll) { p = phases(rng); soll = rng.pick(MTTR_SOLL); }
+        return { p, soll };
+      });
+    } while (!cases.some((c) => phaseSum(c.p) < c.soll) || !cases.some((c) => phaseSum(c.p) > c.soll));
+    incs.forEach((inc, i) => {
+      const { p, soll } = cases[i];
+      const ist = phaseSum(p);
+      const dev = roundHalf(((ist - soll) * 100) / soll, 1);
+      const other = (Math.sign(ist - soll) * Math.round(Math.abs(((ist - soll) * 1000) / soll) - 1e-9)) / 10;
+      rows.push({
+        label: `${String.fromCharCode(65 + i)}: ${inc} (${phaseText(p)}; Soll ${soll} min)`,
+        cells: {
+          ist: { answer: String(ist) },
+          dev: { answer: String(dev), accept: other !== dev ? [String(other)] : undefined },
+          ok: ist <= soll ? { answer: 'ja', accept: yes } : { answer: 'nein', accept: no },
+        },
+      });
+      sol.push(`| ${String.fromCharCode(65 + i)} | ${p.erk} + ${p.rea} + ${p.beh} + ${p.test} = ${ist} min | (${ist} − ${soll}) / ${soll} · 100 % = ${fmtN(dev, 1)} % | ${ist <= soll ? 'ja' : 'nein'} |`);
+    });
+    return {
+      id: gid('sys.mttr'), generated: true, kind: 'table', skill: 'itsm.sla', difficulty: d,
+      prompt: intro + 'Werte die drei Störungen des Monats aus. Abweichung in % der **Vorgabe**, eine Nachkommastelle (Unterschreitung mit Minuszeichen). Spalte „eingehalten“: *ja* oder *nein*.',
+      columns: [{ key: 'ist', label: 'Ist (min)', type: 'number' }, { key: 'dev', label: 'Abweichung %', type: 'number' }, { key: 'ok', label: 'eingehalten?', type: 'text' }],
+      rows,
+      hints: ['Ist = Summe der vier Phasen.', 'Abweichung = (Ist − Soll) / Soll · 100.', 'Eingehalten, wenn Ist ≤ Soll.'],
+      explanation: `| Störung | Ist | Abweichung | eingehalten |\n|---|---|---|---|\n${sol.join('\n')}\n\nBezugsgröße für die Prozentangabe ist immer die **Vorgabe** (Soll = 100 %).`,
+    };
+  },
+};
+
+/* ------------------------------------------------------------------ */
+/* Monitoring: ping-Ausgabe auswerten                                  */
+/* ------------------------------------------------------------------ */
+
+const TARGETS = [
+  { name: 'Standardgateway', ip: '192.168.10.1' },
+  { name: 'Fileserver FS01', ip: '192.168.10.10' },
+  { name: 'Standort Berlin (VPN)', ip: '10.20.0.1' },
+  { name: 'Cloud-Dienst', ip: '20.50.2.15' },
+  { name: 'Drucker Lager', ip: '192.168.10.201' },
+];
+const STATUS_ACCEPT: Record<string, string[]> = {
+  OK: ['ok', 'in ordnung', 'grün', 'gruen', 'normal'],
+  Warnung: ['warnung', 'warning', 'gelb', 'warn'],
+  Kritisch: ['kritisch', 'critical', 'rot', 'alarm', 'störung'],
+};
+
+const pingGen: GeneratorMeta = {
+  id: 'sys.ping',
+  title: 'Monitoring: Paketverlust und Antwortzeit aus ping-Ausgaben',
+  skill: 'itsm.monitor',
+  module: 'b06',
+  make(rng, d): Question {
+    const t = rng.pick(TARGETS);
+    if (d === 1) {
+      const sent = rng.pick([4, 10, 20, 50, 100, 200]);
+      const lost = rng.int(1, Math.max(1, Math.floor(sent / 5)));
+      const ans = (lost * 1000) / sent / 10; // exakt mit max. einer Nachkommastelle
+      const mis = [
+        { answer: String((1000 - (lost * 1000) / sent) / 10), error: 'monitor-empfangen-statt-verlust', why: 'Das ist der Anteil der **angekommenen** Pakete. Gefragt ist der Verlust.' },
+        { answer: String(lost), error: 'prozent-statt-absolut', why: 'Das ist die **Anzahl** verlorener Pakete, nicht der Anteil in Prozent.' },
+      ].filter((m) => Number(m.answer) !== ans);
+      return {
+        id: gid('sys.ping'), generated: true, kind: 'number', skill: 'itsm.monitor', difficulty: d,
+        prompt: `Eine Anwenderin meldet Aussetzer. Du prüfst die Verbindung zum **${t.name}** mit \`ping -n ${sent} ${t.ip}\`. Am Ende steht:\n\n\`\`\`\nPing-Statistik für ${t.ip}:\n    Pakete: Gesendet = ${sent}, Empfangen = ${sent - lost}\n\`\`\`\n\nWie hoch ist der **Paketverlust** in Prozent?`,
+        answer: ans,
+        tolerance: 0.05,
+        unit: '%',
+        hints: ['Verlorene Pakete = gesendet − empfangen.', 'Verlust in % = verloren / gesendet · 100.'],
+        misconceptions: mis,
+        explanation: `**Ergebnis: ${fmtN(ans, 1)} % Verlust.**\n\n1. Verloren: ${sent} − ${sent - lost} = ${lost} Pakete.\n2. Anteil: ${lost} / ${sent} · 100 % = **${fmtN(ans, 1)} %**.\n\nIdealerweise ist der Verlust 0 % – schon wenige Prozent stören Telefonie und Videokonferenzen spürbar.`,
+      };
+    }
+    if (d === 2) {
+      const base = rng.pick([2, 8, 18, 25, 35, 60]);
+      const times = Array.from({ length: 5 }, () => base + rng.int(0, Math.max(3, Math.round(base * 0.6))));
+      const sum = times.reduce((a, b) => a + b, 0);
+      const ans = sum / 5; // exakt mit einer Nachkommastelle
+      const ttl = t.ip.startsWith('192.168') ? 64 : 116;
+      const lines = times.map((ms) => `Antwort von ${t.ip}: Bytes=32 Zeit=${ms}ms TTL=${ttl}`).join('\n');
+      return {
+        id: gid('sys.ping'), generated: true, kind: 'number', skill: 'itsm.monitor', difficulty: d,
+        prompt: `Ausgabe von \`ping -n 5 ${t.ip}\` (${t.name}):\n\n\`\`\`\n${lines}\n\`\`\`\n\nWie groß ist die **mittlere Round-Trip-Time (RTT)** in Millisekunden? (eine Nachkommastelle)`,
+        answer: ans,
+        tolerance: 0.05,
+        unit: 'ms',
+        hints: ['Die RTT steht hinter „Zeit=“: Hin- und Rückweg eines Pakets.', 'Mittelwert = Summe der fünf Zeiten / 5.'],
+        misconceptions: [
+          { answer: String(sum), error: 'mittelwert-nicht-geteilt', why: 'Das ist die **Summe** – für den Mittelwert durch 5 teilen.' },
+          { answer: String(Math.max(...times)), error: 'monitor-maximum-statt-mittel', why: 'Das ist die **höchste** Antwortzeit (Maximum), nicht der Mittelwert.' },
+          { answer: String(ttl), error: 'monitor-ttl-statt-zeit', why: 'TTL ist die Lebensdauer des Pakets (Anzahl Router-Sprünge), keine Zeit in ms.' },
+        ].filter((m) => Math.abs(Number(m.answer) - ans) > 0.05),
+        explanation: `**Ergebnis: ${fmtN(ans, 1)} ms.**\n\n1. Zeiten ablesen: ${times.join(' + ')} = ${sum} ms.\n2. Durch die Anzahl teilen: ${sum} ms / 5 = **${fmtN(ans, 1)} ms**.\n\nHäufiger Fehler: den TTL-Wert (${ttl}) für eine Zeit halten – er zählt Router-Sprünge, keine Millisekunden.`,
+      };
+    }
+    // d3: drei Ziele mit Schwellwerten bewerten
+    const status = rng.shuffle(['OK', 'Warnung', 'Kritisch']);
+    const targets = rng.shuffle(TARGETS).slice(0, 3);
+    const rows: TableQuestion['rows'] = [];
+    const sol: string[] = [];
+    targets.forEach((tg, i) => {
+      const sent = rng.pick([100, 200]);
+      const st = status[i];
+      let lost: number, rtt: number;
+      if (st === 'OK') { lost = rng.int(0, Math.floor(sent / 100)); rtt = rng.int(1, 60); }
+      else if (st === 'Warnung') {
+        if (rng.bool()) { lost = (sent * rng.int(2, 9)) / 100; rtt = rng.int(1, 80); }
+        else { lost = rng.int(0, Math.floor(sent / 100)); rtt = rng.int(100, 250); }
+      } else { lost = (sent * rng.int(10, 40)) / 100; rtt = rng.int(5, 200); }
+      const pctLoss = (lost * 100) / sent;
+      const why = st === 'Kritisch' ? `Verlust ${fmtN(pctLoss, 1)} % ≥ 10 %` : st === 'Warnung' ? (pctLoss >= 2 ? `Verlust ${fmtN(pctLoss, 1)} % ≥ 2 %` : `Ø-RTT ${rtt} ms ≥ 100 ms`) : 'Verlust < 2 % und Ø-RTT < 100 ms';
+      rows.push({
+        label: `${tg.name}: gesendet ${sent}, empfangen ${sent - lost}, Ø-RTT ${rtt} ms`,
+        cells: { v: { answer: String(pctLoss) }, s: { answer: st, accept: STATUS_ACCEPT[st] } },
+      });
+      sol.push(`| ${tg.name} | ${lost} / ${sent} · 100 % = ${fmtN(pctLoss, 1)} % | **${st}** (${why}) |`);
+    });
+    return {
+      id: gid('sys.ping'), generated: true, kind: 'table', skill: 'itsm.monitor', difficulty: d,
+      prompt: `Das Monitoring-System pingt regelmäßig wichtige Ziele an. **Schwellwerte laut Betriebshandbuch:**\n\n| Status | Bedingung |\n|---|---|\n| Kritisch | Paketverlust ≥ 10 % |\n| Warnung | Paketverlust ≥ 2 % **oder** mittlere RTT ≥ 100 ms |\n| OK | alles darunter |\n\nTrage für jedes Ziel den **Paketverlust in %** (ohne %-Zeichen) und den **Status** (*OK*, *Warnung* oder *Kritisch*) ein.`,
+      columns: [{ key: 'v', label: 'Verlust %', type: 'number' }, { key: 's', label: 'Status', type: 'text' }],
+      rows,
+      hints: ['Verlust = (gesendet − empfangen) / gesendet · 100.', 'Zuerst „Kritisch“ prüfen, dann „Warnung“, sonst OK.'],
+      explanation: `| Ziel | Verlust | Status |\n|---|---|---|\n${sol.join('\n')}\n\nDie strengste zutreffende Stufe zählt: Erst auf „Kritisch“ prüfen, dann auf „Warnung“.`,
+    };
+  },
+};
+
+export const GENERATORS_SYSTEME: GeneratorMeta[] = [chmodGen, effRightsGen, fsGen, partitionGen, serverLicGen, vmHostGen, slaGen, prioGen, paretoGen, mtbfGen, mttrGen, pingGen];
 
 /** nur für Tests/Debugging */
 export const _internal = { FAT32_MAX, MBR_MAX, Rng: Rng as typeof Rng, d: (x: number) => x as Difficulty };

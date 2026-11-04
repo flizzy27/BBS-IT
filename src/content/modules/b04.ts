@@ -28,6 +28,9 @@ export const b04: Module = {
       minutes: 20,
       relevance: 'ap1',
       skills: ['cloud.basics'],
+      simple: `Cloud Computing ist wie Strom aus der Steckdose: Du baust kein eigenes Kraftwerk, sondern nimmst so viel, wie du brauchst, und zahlst nach Verbrauch. Typisch sind Selbstbedienung, Zugriff über das Netz, gemeinsam genutzte Ressourcen beim Anbieter, schnelles Anpassen nach oben und unten (Elastizität) und Abrechnung nach Messung. Eine Public Cloud teilen sich viele Kunden, eine Private Cloud nutzt nur eine Organisation, die Hybrid Cloud kombiniert beides, und eine Community Cloud teilen sich mehrere Organisationen mit gleichen Anforderungen. On-Premises heißt: Alles läuft im eigenen Haus.
+
+**Merke:** Cloud = IT-Ressourcen nach Bedarf über das Netz, gemessen abgerechnet; Modelle: Public, Private, Hybrid, Community.`,
       steps: [
         {
           type: 'explain',
@@ -112,6 +115,9 @@ Gegenstück zur Cloud ist **On-Premises** („im eigenen Haus“): Server stehen
       minutes: 25,
       relevance: 'ap1',
       skills: ['cloud.service'],
+      simple: `Denk an Pizza: Bei IaaS (Infrastructure as a Service) mietest du die Küche und kochst selbst – der Anbieter stellt Server, Speicher und Netz, du kümmerst dich ab dem Betriebssystem. Bei PaaS (Platform as a Service) bekommst du die eingerichtete Küche samt Ofen; du lieferst nur noch dein Rezept, also deine Anwendung und Daten. Bei SaaS (Software as a Service) wird die fertige Pizza geliefert – du nutzt nur die Software, z. B. Microsoft 365. In jedem Modell bleiben deine Daten und Benutzerkonten in deiner Verantwortung.
+
+**Merke:** IaaS = Infrastruktur, PaaS = Plattform, SaaS = fertige Software; je weiter Richtung SaaS, desto mehr übernimmt der Anbieter (Shared Responsibility).`,
       steps: [
         {
           type: 'explain',
@@ -198,6 +204,9 @@ Weitere „as a Service“-Begriffe: **FaaS/Serverless** (nur Funktionen hochlad
       minutes: 25,
       relevance: 'ap1',
       skills: ['cloud.eval'],
+      simple: `Einen Cloud-Dienst zu nutzen ist wie eine Wohnung zu mieten statt zu kaufen: keine große Anfangsinvestition und flexibel – aber du zahlst jeden Monat und bist vom Vermieter abhängig. Vorteile sind schnelle Skalierung und professionelle Rechenzentren. Risiken sind die Abhängigkeit vom Internet und vom Anbieter (Vendor-Lock-in), laufende Kosten und der Datenschutz. Für personenbezogene Daten brauchst du einen Vertrag zur Auftragsverarbeitung (AVV, Art. 28 DSGVO) und musst prüfen, ob Daten in ein Land außerhalb der EU fließen.
+
+**Merke:** Kosten über die gleiche Laufzeit vergleichen (TCO, Gesamtkosten) und an Datenschutz (AVV, Drittland) und eine Ausstiegsstrategie denken.`,
       steps: [
         {
           type: 'explain',
@@ -277,6 +286,9 @@ Vergleiche die Kosten über 5 Jahre.`,
       minutes: 25,
       relevance: 'ap1',
       skills: ['virt.basics', 'virt.sizing'],
+      simple: `Virtualisierung ist wie ein Haus mit vielen Mietwohnungen: Ein Gebäude (die echte Hardware) wird in mehrere abgeschlossene Wohnungen (virtuelle Maschinen) aufgeteilt. Der Hypervisor ist der Hausverwalter, der Strom, Wasser und Räume verteilt. Ein Typ-1-Hypervisor läuft direkt auf der Hardware, ohne Betriebssystem darunter – z. B. VMware ESXi, Microsoft Hyper-V oder Proxmox VE. Ein Typ-2-Hypervisor ist ein normales Programm auf deinem Windows oder macOS, z. B. VirtualBox – praktisch zum Testen.
+
+**Merke:** Typ 1 (Bare Metal) für Server: ESXi, Hyper-V, Proxmox VE (KVM); Typ 2 (Hosted) für Tests am PC: VirtualBox, VMware Workstation.`,
       steps: [
         {
           type: 'explain',
@@ -291,6 +303,8 @@ Vergleiche die Kosten über 5 Jahre.`,
 | Beispiele | VMware ESXi, **Microsoft Hyper-V**, Xen, KVM (z. B. in Proxmox VE) | Oracle VirtualBox, VMware Workstation, Parallels Desktop |
 
 Hinweis: Wird Hyper-V unter Windows 11 Pro aktiviert, schiebt es sich **unter** Windows – das Windows wird selbst zu einer besonderen Partition. Hyper-V bleibt also ein Typ-1-Hypervisor. KVM ist Teil des Linux-Kernels und wird meist ebenfalls zu Typ 1 gezählt.
+
+**Achtung Prüfungsfalle:** Manche Schulbücher ordnen **Proxmox VE** als Typ 2 ein, weil darunter ein Debian-Linux läuft. Fachlich korrekt ist **Typ 1**: Proxmox VE nutzt KVM im Linux-Kernel, und das ganze System wird direkt auf dem Server installiert – es gibt kein separates Arbeitsplatz-Betriebssystem, auf dem der Hypervisor als Programm läuft. Merkfrage: *Installiere ich es direkt auf die leere Hardware?* → Typ 1. *Installiere ich es als Programm in mein Windows/macOS?* → Typ 2.
 
 **Voraussetzungen:** CPU mit Virtualisierungsunterstützung (**Intel VT-x** bzw. **AMD-V**), im UEFI aktiviert; ausreichend RAM und schneller Speicher.
 
@@ -337,6 +351,7 @@ Hinweis: Wird Hyper-V unter Windows 11 Pro aktiviert, schiebt es sich **unter** 
             explanation: 'VirtualBox läuft als Anwendung auf einem Host-Betriebssystem → Typ 2.',
           },
         },
+        { type: 'practice', title: 'Übung: Hypervisor-Typen und Virtualisierung', questionIds: ['b04-q031', 'b04-q015', 'b04-q017', 'b04-q028', 'b04-q016'], count: 4, difficulty: 2 },
         { type: 'practice', title: 'Übung: Host dimensionieren', generator: 'sys.vmhost', count: 4, difficulty: 2 },
         { type: 'summary', points: ['Hypervisor teilt Hardware in isolierte VMs.', 'Typ 1 (Bare Metal): ESXi, Hyper-V, KVM, Xen. Typ 2 (Hosted): VirtualBox, VMware Workstation.', 'Voraussetzung: VT-x/AMD-V im UEFI aktiv.', 'Vorteile: Auslastung, Templates, Snapshots, Live-Migration, HA-Cluster.', 'Dimensionierung: RAM fest + Reserve, CPU überbuchbar, Engpass entscheidet.'] },
       ],
@@ -348,6 +363,9 @@ Hinweis: Wird Hyper-V unter Windows 11 Pro aktiviert, schiebt es sich **unter** 
       minutes: 20,
       relevance: 'ap1-teilweise',
       skills: ['virt.container'],
+      simple: `Eine virtuelle Maschine ist wie ein Einfamilienhaus mit eigenem Fundament: Sie hat ein eigenes Betriebssystem mit eigenem Kern (Kernel). Ein Container ist eher eine Wohnung im Mehrfamilienhaus: Er bringt nur die Anwendung und ihre Bibliotheken mit und teilt sich den Kernel des Gastgebers. Darum starten Container in Sekunden und brauchen weniger Speicher, VMs sind dafür stärker voneinander abgeschottet. Container entstehen aus einer Vorlage (Image), die in einer Registry (Ablage für Images) liegt.
+
+**Merke:** VM = eigenes Gast-Betriebssystem, starke Isolation; Container = teilt den Host-Kernel, leicht und schnell.`,
       steps: [
         {
           type: 'explain',
@@ -417,6 +435,9 @@ Oft wird beides kombiniert: Container laufen **in** VMs – so erhält man die I
       minutes: 20,
       relevance: 'ap1-teilweise',
       skills: ['virt.vdi'],
+      simple: `Ein Thin Client ist wie eine Fernbedienung: Er zeigt nur Bild und Ton an und schickt Tastatur und Maus weiter – gerechnet wird auf dem Server im Rechenzentrum. Ein Fat Client ist dagegen ein vollwertiger PC, der alles selbst erledigt. Beim Terminalserver teilen sich viele Benutzer ein Server-Betriebssystem, jeder in seiner eigenen Sitzung. Bei VDI (Virtual Desktop Infrastructure) bekommt jeder Benutzer eine eigene virtuelle Desktop-Maschine. Vorteil: zentrale Verwaltung, die Daten bleiben im Rechenzentrum; Nachteil: Ohne Netz und Server geht nichts.
+
+**Merke:** Terminalserver = viele Sitzungen auf einem Server-Betriebssystem; VDI = je Benutzer eine eigene Desktop-VM.`,
       steps: [
         {
           type: 'explain',
@@ -495,6 +516,9 @@ Oft wird beides kombiniert: Container laufen **in** VMs – so erhält man die I
       minutes: 20,
       relevance: 'ap1',
       skills: ['virt.snapshot'],
+      simple: `Ein Snapshot ist wie ein Lesezeichen im Buch: Du springst schnell zu einer Stelle zurück – aber verbrennt das Buch, ist auch das Lesezeichen weg. Er speichert den Zustand einer VM, hängt an der Original-Festplatte und liegt auf demselben Speicher. Ein Backup ist dagegen eine echte Kopie an einem anderen Ort, wie eine Fotokopie im Tresor. Nach der 3-2-1-Regel hast du 3 Kopien deiner Daten auf 2 verschiedenen Medien, davon 1 außer Haus.
+
+**Merke:** Snapshot = kurzfristiger Rücksprungpunkt vor Änderungen, kein Backup; Backup = unabhängige Kopie auf anderem Medium und an anderem Ort.`,
       steps: [
         {
           type: 'explain',
@@ -595,5 +619,19 @@ Inkrementell spart am meisten Platz und Zeit beim Sichern, die Wiederherstellung
     { id: 'b04-q028', kind: 'single', skill: 'virt.basics', difficulty: 2, prompt: 'VirtualBox meldet beim Start einer 64-Bit-VM, dass die Hardware-Virtualisierung nicht verfügbar ist. Was prüfst du zuerst?', options: ['Ob Intel VT-x bzw. AMD-V im UEFI aktiviert ist', 'Ob die Festplatte mit GPT partitioniert ist', 'Ob Secure Boot deaktiviert ist', 'Ob der Bildschirm Full HD unterstützt'], answer: 0, distractors: { '1': { why: 'Der Partitionsstil hat mit der CPU-Virtualisierung nichts zu tun.', error: 'virt-voraussetzung' }, '2': { why: 'Secure Boot beeinflusst die CPU-Virtualisierung nicht.', error: 'virt-voraussetzung' }, '3': { why: 'Die Bildschirmauflösung spielt keine Rolle.', error: 'virt-voraussetzung' } }, explanation: 'Hardwarevirtualisierung muss in der Firmware eingeschaltet sein (VT-x/AMD-V).' },
     { id: 'b04-q029', kind: 'number', skill: 'virt.sizing', difficulty: 3, prompt: 'Host: **48 physische Kerne**, erlaubte Überbuchung **4 vCPUs pro Kern**, **384 GB RAM** (davon 32 GB Reserve). VM-Profil: **8 vCPUs, 32 GB RAM**. Wie viele VMs sind maximal möglich?', answer: 11, unit: 'VMs', hints: ['RAM- und CPU-Grenze getrennt berechnen, dann das Minimum nehmen.'], misconceptions: [{ answer: '24', error: 'vm-engpass', why: '24 ist die CPU-Grenze – der RAM begrenzt stärker.' }, { answer: '6', error: 'vm-ueberbuchung', why: 'Die erlaubte Überbuchung 4:1 wurde nicht berücksichtigt.' }], explanation: 'RAM: (384 − 32) / 32 = 11. CPU: 48 · 4 / 8 = 24. Minimum → **11 VMs**.' },
     { id: 'b04-q030', kind: 'free', skill: 'cloud.service', difficulty: 3, prompt: 'Die Elektro Krämer GmbH möchte ihren Webshop in die Cloud verlagern. Vergleiche **IaaS** und **PaaS** für diesen Zweck und gib eine begründete Empfehlung.', modelAnswer: 'Bei IaaS mietet die Firma virtuelle Server und betreibt Betriebssystem, Webserver, Datenbank und Shop selbst: volle Kontrolle und freie Softwarewahl, aber hoher Administrationsaufwand (Patches, Härtung, Skalierung, Backups des OS). Bei PaaS stellt der Anbieter Betriebssystem, Laufzeit und verwaltete Datenbank bereit; die Firma kümmert sich nur um die Shop-Anwendung und Daten, Skalierung ist oft automatisch – dafür weniger Kontrolle und stärkere Bindung an den Anbieter. Empfehlung: Wenn die Shop-Software auf der PaaS-Plattform unterstützt wird und wenig eigenes Admin-Personal vorhanden ist, PaaS (weniger Betriebsaufwand, bessere Skalierung); wenn spezielle Software/Konfiguration nötig ist, IaaS.', keywords: ['Kontrolle', 'Administrationsaufwand', 'Patches', 'Skalierung', 'Bindung', 'Empfehlung'], explanation: 'Abwägung Kontrolle vs. Aufwand mit begründeter Empfehlung.' },
+    {
+      id: 'b04-q031', kind: 'table', skill: 'virt.basics', difficulty: 1,
+      prompt: 'Ordne jedes Produkt dem Hypervisor-Typ zu. Trage **1** (Bare Metal) oder **2** (Hosted) ein.',
+      columns: [{ key: 't', label: 'Typ', type: 'number' }],
+      rows: [
+        { label: 'VMware ESXi', cells: { t: { answer: '1' } } },
+        { label: 'Oracle VirtualBox', cells: { t: { answer: '2' } } },
+        { label: 'Proxmox VE', cells: { t: { answer: '1' } } },
+        { label: 'Microsoft Hyper-V', cells: { t: { answer: '1' } } },
+        { label: 'VMware Workstation', cells: { t: { answer: '2' } } },
+      ],
+      misconceptions: [{ cell: '2:t', answer: '2', error: 'proxmox-typ2', why: 'Proxmox VE wird direkt auf dem Server installiert und nutzt KVM im Linux-Kernel – das ist Typ 1, auch wenn darunter Debian steckt.' }],
+      explanation: '**Typ 1:** ESXi, Proxmox VE, Hyper-V. **Typ 2:** VirtualBox, VMware Workstation.\n\nPrüffrage: Wird das Produkt direkt auf die leere Hardware installiert (Typ 1) oder als Programm in ein Arbeitsplatz-Betriebssystem (Typ 2)?\n\nHäufiger Fehler: Proxmox VE als Typ 2 einordnen, weil darunter Debian läuft. Der Hypervisor KVM ist aber Teil dieses Linux-Kernels – kein Programm auf einem fremden Betriebssystem.',
+    },
   ],
 };

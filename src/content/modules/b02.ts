@@ -27,6 +27,9 @@ export const b02: Module = {
       minutes: 20,
       relevance: 'ap1',
       skills: ['rights.accounts'],
+      simple: `Ein Benutzerkonto ist wie ein Firmenausweis: Beim Anmelden zeigst du, wer du bist (Authentifizierung), danach entscheidet das System, welche Türen du öffnen darfst (Autorisierung). Ein lokales Konto gilt nur an einem PC, ein Domänenkonto zentral an allen Firmen-PCs. Nach dem Prinzip der minimalen Rechte (Least Privilege) bekommt jeder nur die Rechte, die er für seine Arbeit braucht – der Azubi im Lager braucht keinen Zugang zur Lohnbuchhaltung. Admins arbeiten im Alltag mit einem normalen Konto und nutzen ein getrenntes Admin-Konto nur für Verwaltungsaufgaben.
+
+**Merke:** Authentifizierung = wer bist du, Autorisierung = was darfst du; Rechte an Gruppen vergeben, nie an einzelne Personen.`,
       steps: [
         {
           type: 'explain',
@@ -105,6 +108,9 @@ Warum? Schadsoftware läuft mit den Rechten des angemeldeten Benutzers. Surft ei
       minutes: 25,
       relevance: 'ap1',
       skills: ['rights.ad'],
+      simple: `Active Directory ist das zentrale Adress- und Schlüsselbuch einer Firma: Darin stehen alle Benutzer, Gruppen und Computer. Der Domänencontroller (ein Server) prüft bei jeder Anmeldung das Passwort – deshalb betreibt man mindestens zwei davon. Organisationseinheiten (OUs) sind wie Ordner, mit denen du Objekte sortierst und Richtlinien zuweist. Gruppen nutzt du dagegen, um Rechte zu vergeben. Nach AGDLP kommen Konten in globale Gruppen, diese in domänenlokale Gruppen, und nur die domänenlokale Gruppe bekommt die Berechtigung.
+
+**Merke:** OU = ordnen und Richtlinien verknüpfen, Gruppe = berechtigen; AGDLP: Accounts → Global → Domain Local → Permissions.`,
       steps: [
         {
           type: 'explain',
@@ -193,6 +199,9 @@ Bewährte Strategie **AGDLP**: **A**ccounts → in **G**lobale Gruppen → diese
       minutes: 20,
       relevance: 'ap1-teilweise',
       skills: ['rights.gpo'],
+      simple: `Eine Gruppenrichtlinie (GPO) ist wie eine Hausordnung, die automatisch an alle Räume verteilt wird: Du stellst etwas einmal zentral ein, und alle betroffenen PCs oder Benutzer übernehmen es. Computereinstellungen wirken beim Start des PCs, Benutzereinstellungen bei der Anmeldung. Richtlinien werden in der Reihenfolge Lokal, Standort, Domäne, OU angewendet (LSDOU) – bei Widersprüchen gewinnt die zuletzt angewendete, außer eine Richtlinie ist „erzwungen“. Mit dem Befehl gpupdate /force holst du Richtlinien sofort, mit gpresult /r siehst du, welche wirken.
+
+**Merke:** LSDOU – Lokal, Standort, Domäne, OU; die zuletzt angewendete Richtlinie gewinnt, „Erzwungen“ schlägt das.`,
       steps: [
         {
           type: 'explain',
@@ -267,6 +276,9 @@ Verwaltet wird mit der **Gruppenrichtlinienverwaltung** (\`gpmc.msc\`). Einzelpl
       minutes: 25,
       relevance: 'ap1',
       skills: ['rights.ntfs'],
+      simple: `NTFS-Rechte sind wie Schlüssel an einem Schlüsselbund: Lesen, Schreiben, Ändern (inklusive Löschen) und Vollzugriff (inklusive Rechte verteilen). Bekommst du Rechte über mehrere Gruppen, zählen sie zusammen – du hast also den größten Schlüsselbund. Einzige Ausnahme: Ein ausdrückliches „Verweigern“ sticht jedes „Zulassen“. Unterordner erben die Rechte vom Oberordner, so wie neue Zimmer an einem Flur automatisch zur selben Schließanlage gehören.
+
+**Merke:** Rechte addieren sich, Verweigern schlägt Zulassen; Ändern darf löschen, Vollzugriff darf zusätzlich Rechte ändern.`,
       steps: [
         {
           type: 'explain',
@@ -360,6 +372,9 @@ Welches Recht hat Tim? Was ändert sich, wenn zusätzlich „GG_Azubis: **Verwei
       minutes: 25,
       relevance: 'ap1',
       skills: ['rights.share'],
+      simple: `Greifst du über das Netzwerk auf einen Ordner zu, musst du durch zwei Türen: zuerst die Freigabe (Haustür), dann die NTFS-Rechte (Wohnungstür). Du kommst nur so weit, wie die strengere der beiden Türen erlaubt. Innerhalb einer Tür zählen deine Gruppenrechte zusammen (Maximum), zwischen den beiden Türen gilt das Minimum. Sitzt du direkt am Server, gibt es die Haustür nicht – dann gilt nur NTFS.
+
+**Merke:** Effektives Netzwerkrecht = das Minimum aus Freigaberecht und NTFS-Recht.`,
       steps: [
         {
           type: 'explain',
@@ -451,6 +466,9 @@ Bestimme die Rechte über das Netzwerk und bei lokaler Anmeldung am Server.`,
       minutes: 30,
       relevance: 'ap1',
       skills: ['rights.linux'],
+      simple: `Linux-Rechte sind wie drei Schilder an einer Tür: eines für den Besitzer (u), eines für die Gruppe (g) und eines für alle anderen (o). Auf jedem Schild gibt es drei Schalter: lesen (r = 4), schreiben (w = 2), ausführen (x = 1). Du addierst die Werte pro Schild: rwx = 4 + 2 + 1 = 7, r-x = 4 + 1 = 5, r-- = 4. So bedeutet chmod 754: Besitzer darf alles, Gruppe lesen und ausführen, alle anderen nur lesen.
+
+**Merke:** r = 4, w = 2, x = 1, pro Klasse addieren – Reihenfolge immer Besitzer, Gruppe, Andere.`,
       steps: [
         {
           type: 'explain',
@@ -568,6 +586,9 @@ Drei Ziffern = Besitzer · Gruppe · Andere. **\`chmod 754 datei\`** → 7 = \`r
       minutes: 15,
       relevance: 'ap1-teilweise',
       skills: ['rights.root'],
+      simple: `root ist unter Linux der Generalschlüssel: Dieses Konto (Benutzer-ID 0) darf alles – auch aus Versehen das ganze System löschen. Deshalb arbeitest du normalerweise mit einem einfachen Konto und holst dir nur für einen einzelnen Befehl Admin-Rechte mit sudo. Dabei gibst du dein eigenes Passwort ein, und jeder Aufruf wird protokolliert. Wer sudo benutzen darf, steht in der Datei /etc/sudoers oder ergibt sich aus der Gruppe sudo bzw. wheel.
+
+**Merke:** sudo = ein einzelner Befehl mit root-Rechten, eigenes Passwort, protokolliert – root nicht dauerhaft nutzen.`,
       steps: [
         {
           type: 'explain',

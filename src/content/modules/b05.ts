@@ -24,6 +24,9 @@ export const b05: Module = {
       minutes: 20,
       relevance: 'ap1-teilweise',
       skills: ['qm.basics'],
+      simple: `Qualität heißt nicht „teuer“ oder „Luxus“, sondern: Das Ergebnis erfüllt die vereinbarten Anforderungen. Ein günstiger Büro-PC, der alles kann, was im Pflichtenheft steht, hat also hohe Qualität. Qualitätsmanagement (QM) ist wie das Rezeptbuch einer Restaurantküche: Es legt fest, wie gearbeitet wird, damit jedes Gericht gleich gut gelingt. Normen helfen dabei: ISO 9001 für QM-Systeme, ISO/IEC 20000 für IT-Services, ISO/IEC 27001 für Informationssicherheit.
+
+**Merke:** Qualität = Grad, in dem Merkmale die Anforderungen erfüllen (ISO 9000); Fehler vermeiden ist besser als Fehler finden.`,
       steps: [
         {
           type: 'explain',
@@ -102,6 +105,9 @@ Warum lassen sich Firmen zertifizieren? Kunden (z. B. Industrie, öffentliche Au
       minutes: 20,
       relevance: 'ap1',
       skills: ['qm.pdca'],
+      simple: `Der PDCA-Zyklus funktioniert wie das Verbessern eines Rezepts: Du planst (Plan), probierst es im Kleinen aus (Do), prüfst, ob es besser geschmeckt hat (Check), und machst die verbesserte Version zum festen Rezept (Act). Danach beginnt der Kreis von vorn, denn es gibt immer etwas zu verbessern. Diese Haltung heißt kontinuierlicher Verbesserungsprozess (KVP), auf Japanisch Kaizen: viele kleine Schritte statt eines großen Sprungs. Ob es wirklich besser geworden ist, misst du mit Kennzahlen.
+
+**Merke:** Plan – Do – Check – Act: Do im Kleinen (Pilot), Act = als neuen Standard übernehmen.`,
       steps: [
         {
           type: 'explain',
@@ -177,6 +183,9 @@ Danach beginnt der Kreis von vorn – das ist der **kontinuierliche Verbesserung
       minutes: 20,
       relevance: 'ap1',
       skills: ['qm.requirements'],
+      simple: `Das Lastenheft ist wie ein Wunschzettel: Der Auftraggeber schreibt auf, WAS er braucht und WOFÜR. Das Pflichtenheft ist die Antwort des Auftragnehmers: WIE und WOMIT er die Wünsche umsetzt. Funktionale Anforderungen beschreiben, was das System tun soll (z. B. „druckt doppelseitig“), nicht-funktionale, wie gut es das tun soll (z. B. „startet in unter 30 Sekunden“). Gute Anforderungen sind eindeutig und prüfbar, damit man bei der Abnahme klar sagen kann: erfüllt oder nicht erfüllt.
+
+**Merke:** Lastenheft = Auftraggeber, was und wofür; Pflichtenheft = Auftragnehmer, wie und womit – Grundlage der Abnahme.`,
       steps: [
         {
           type: 'explain',
@@ -253,6 +262,9 @@ Gute Anforderungen sind **eindeutig und prüfbar**. „Der PC soll schnell sein�
       minutes: 25,
       relevance: 'ap1',
       skills: ['qm.testing'],
+      simple: `Testen ist wie die Probefahrt vor dem Autokauf: Du prüfst geplant, ob alles so funktioniert wie versprochen. Für jeden Testfall legst du vorher das erwartete Ergebnis fest – für den Normalfall, einen Ausnahmefall und einen Fehlerfall. Getestet wird in Stufen: einzelne Teile, ihr Zusammenspiel, das ganze System und zum Schluss die Abnahme durch den Kunden. Mit der Abnahme bestätigt der Kunde, dass die Leistung vertragsgemäß ist; ab dann ist die Bezahlung fällig, und die Verjährungsfrist für Mängel beginnt.
+
+**Merke:** Teststufen: Komponente → Integration → System → Abnahme; die Abnahme wird im Protokoll mit Mängeln, Fristen und Unterschriften festgehalten.`,
       steps: [
         {
           type: 'explain',
@@ -331,6 +343,9 @@ Gute Anforderungen sind **eindeutig und prüfbar**. „Der PC soll schnell sein�
       minutes: 20,
       relevance: 'ap1',
       skills: ['qm.doc'],
+      simple: `Dokumentation ist das Gedächtnis der IT: Was nicht aufgeschrieben ist, weiß im Notfall niemand – vor allem nicht die Kollegin, die dich im Urlaub vertritt. Das Installationsprotokoll hält fest, was technisch eingerichtet wurde; das Übergabeprotokoll bestätigt mit Unterschrift, dass der Kunde alles erhalten hat; das Benutzerhandbuch erklärt den Anwendern die Bedienung. Gute Dokumentation ist für die Zielgruppe verständlich, aktuell, vollständig, versioniert und leicht zu finden. Passwörter gehören nie im Klartext in ein Dokument.
+
+**Merke:** Installationsprotokoll (für die IT), Übergabeprotokoll (IT und Kunde), Benutzerhandbuch (für Anwender).`,
       steps: [
         {
           type: 'explain',

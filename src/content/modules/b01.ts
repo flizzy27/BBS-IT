@@ -28,6 +28,9 @@ export const b01: Module = {
       minutes: 20,
       relevance: 'ap1',
       skills: ['os.tasks'],
+      simple: `Ein Betriebssystem ist wie der Hausmeister in einem großen Bürogebäude: Er verteilt die Räume (Arbeitsspeicher), regelt, wer wann den Aufzug benutzt (Prozessor), verwaltet die Schlüssel (Benutzerrechte) und kennt jeden Aktenschrank (Dateisystem). Programme wie Word sprechen nicht selbst mit der Hardware, sondern bitten das Betriebssystem darum. Für einen einzelnen Arbeitsplatz nimmt man ein Client-Betriebssystem (z. B. Windows 11), für Dienste im Netz wie Dateiablage oder Anmeldung ein Server-Betriebssystem (z. B. Windows Server oder Linux). Bei der Auswahl zählt auch, wie lange der Hersteller noch Sicherheitsupdates liefert (Support-Zeitraum).
+
+**Merke:** Das Betriebssystem vermittelt zwischen Hardware und Anwendungen und verwaltet Prozesse, Speicher, Dateien, Geräte und Benutzer.`,
       steps: [
         {
           type: 'explain',
@@ -123,6 +126,9 @@ Der innerste Teil heißt **Kernel** (Kern). Er läuft im privilegierten **Kernel
       minutes: 20,
       relevance: 'ap1',
       skills: ['os.requirements'],
+      simple: `Systemvoraussetzungen sind wie die Mindestgröße bei einer Achterbahn: Wer darunter liegt, darf nicht mitfahren. Windows 11 verlangt unter anderem einen 64-Bit-Prozessor mit mindestens 2 Kernen, 4 GB Arbeitsspeicher, 64 GB Speicherplatz, UEFI mit Secure Boot und TPM 2.0 (einen Sicherheitschip). In der Prüfung vergleichst du die Werte aus dem Datenblatt Zeile für Zeile mit diesen Anforderungen: Soll-Wert gegen Ist-Wert. Mindestwerte reichen nur zum Starten – für flüssiges Arbeiten im Büro plant man mehr ein, etwa 16 GB RAM und eine SSD. Für Firmen-PCs brauchst du außerdem mindestens die Pro-Edition, weil Home keiner Domäne beitreten kann.
+
+**Merke:** Immer Soll und Ist gegenüberstellen und begründen – und für Firmen-PCs mindestens Windows 11 Pro wählen.`,
       steps: [
         {
           type: 'explain',
@@ -224,6 +230,9 @@ Der innerste Teil heißt **Kernel** (Kern). Er läuft im privilegierten **Kernel
       minutes: 25,
       relevance: 'ap1',
       skills: ['os.partition'],
+      simple: `UEFI ist die Startsoftware des Mainboards (Firmware) – der Pförtner, der den PC hochfährt und das Betriebssystem hereinlässt. Secure Boot lässt nur Startprogramme mit gültiger digitaler Unterschrift (Signatur) hinein, wie eine Ausweiskontrolle an der Pforte. Das TPM ist ein kleiner Sicherheitschip, eine Art Tresor für Schlüssel, z. B. für die Laufwerksverschlüsselung BitLocker. Der Partitionsstil legt fest, wie die Festplatte in Bereiche aufgeteilt wird: Das alte MBR schafft nur 4 primäre Partitionen und höchstens 2 TiB, das moderne GPT bis zu 128 Partitionen und praktisch beliebig große Platten.
+
+**Merke:** Windows 11 startet per UEFI von einer GPT-Platte; MBR ist auf 2 TiB und 4 primäre Partitionen begrenzt.`,
       steps: [
         {
           type: 'explain',
@@ -320,6 +329,9 @@ Viele UEFI-Firmwares haben ein **CSM (Compatibility Support Module)**, das ein a
       minutes: 25,
       relevance: 'ap1',
       skills: ['os.filesystems'],
+      simple: `Ein Dateisystem ist das Ordnungssystem eines Datenträgers – wie Regalordnung und Katalog einer Bibliothek. Jedes Dateisystem hat eigene Regeln und Grenzen: FAT32 versteht fast jedes Gerät, erlaubt aber nur Dateien bis knapp 4 GiB. exFAT ist für USB-Sticks mit großen Dateien gedacht, NTFS ist der Windows-Standard mit Zugriffsrechten und Änderungsprotokoll (Journaling), ext4 ist der Standard unter Linux. Achte auf die Einheiten: 1 GB sind 1.000.000.000 Byte, 1 GiB sind 1.073.741.824 Byte (2 hoch 30).
+
+**Merke:** Ist eine Datei größer als 4 GiB, scheidet FAT32 aus – unter Windows nimmst du NTFS, für Wechseldatenträger exFAT.`,
       steps: [
         {
           type: 'explain',
@@ -397,6 +409,9 @@ Praxisbeispiel: Manche Windows-Installations-ISOs enthalten eine Datei \`install
       minutes: 30,
       relevance: 'ap1',
       skills: ['os.install', 'os.deploy'],
+      simple: `Jeden PC einzeln zu installieren ist wie jedes Brot von Hand zu formen; ein Image (Abbild einer fertigen Installation) ist die Backform, mit der alle Brote gleich werden. Du richtest einen Musterrechner ein, machst ihn mit Sysprep neutral (Rechnername und Kennungen werden entfernt) und speicherst ihn als Image. Dieses Image verteilst du über das Netz an viele PCs, z. B. per PXE (Start über die Netzwerkkarte). Egal wie du installierst: vorher Daten sichern, danach testen und dokumentieren.
+
+**Merke:** Ablauf: Vorbereitung mit Sicherung → Installation → Nacharbeiten → Test → Dokumentation; für viele PCs Imaging oder automatische Verteilung.`,
       steps: [
         {
           type: 'explain',
@@ -446,7 +461,9 @@ Praxisbeispiel: Manche Windows-Installations-ISOs enthalten eine Datei \`install
 | **Clonezilla, FOG Project** | Open-Source-Imaging |
 | **Linux** | automatisierte Installation über Kickstart (RHEL), Preseed (Debian), autoinstall/cloud-init (Ubuntu) |
 
-**Vorteile automatisierter Verteilung:** einheitliche, dokumentierte Konfiguration (**Qualität**), Zeitersparnis, weniger Fehler, schnelle Wiederherstellung nach Defekt.`,
+**Vorteile automatisierter Verteilung:** einheitliche, dokumentierte Konfiguration (**Qualität**), Zeitersparnis, weniger Fehler, schnelle Wiederherstellung nach Defekt.
+
+**Installationsmedium prüfen:** Bevor ein heruntergeladenes ISO oder Image verteilt wird, vergleichst du seine **Prüfsumme (Hashwert)** mit dem Wert des Herstellers – Windows: \`Get-FileHash datei.iso -Algorithm SHA256\`, Linux: \`sha256sum datei.iso\`. Gleicher Hash = Datei ist **unverändert und vollständig** (Integrität). Ob die Datei wirklich vom Hersteller stammt (Authentizität), zeigt erst eine **digitale Signatur** (z. B. GPG-signierte Prüfsummenliste) – denn ein Angreifer, der die Download-Seite manipuliert, kann auch den dort angegebenen Hash austauschen.`,
         },
         {
           type: 'visual',
@@ -497,7 +514,7 @@ Praxisbeispiel: Manche Windows-Installations-ISOs enthalten eine Datei \`install
             explanation: '**Sysprep** mit dem Parameter `/generalize`.',
           },
         },
-        { type: 'practice', title: 'Übung: Installation und Deployment', questionIds: ['b01-q014', 'b01-q015', 'b01-q016', 'b01-q017', 'b01-q018'], count: 5, difficulty: 2 },
+        { type: 'practice', title: 'Übung: Installation und Deployment', questionIds: ['b01-q014', 'b01-q015', 'b01-q016', 'b01-q017', 'b01-q018', 'b01-q035'], count: 5, difficulty: 2 },
         { type: 'summary', points: ['Phasen: Vorbereitung (Sicherung!) → Medium → Partitionierung → Installation → Nacharbeiten → Test → Dokumentation.', 'Clean Install, In-Place-Upgrade, Image, unattended (unattend.xml).', 'Imaging: Musterrechner → Sysprep → Image → Verteilung (PXE).', 'PXE: DHCP liefert IP + Bootserver, Bootdatei per TFTP.', 'Moderne Alternative: Autopilot + Intune, MECM.'] },
       ],
     },
@@ -508,6 +525,9 @@ Praxisbeispiel: Manche Windows-Installations-ISOs enthalten eine Datei \`install
       minutes: 20,
       relevance: 'ap1',
       skills: ['os.maintain'],
+      simple: `Ein Treiber ist wie ein Dolmetscher zwischen Betriebssystem und Gerät: Ohne ihn verstehen sich Windows und Drucker nicht. Treiber holst du nur aus sicheren Quellen (Hersteller oder Windows Update), damit dir niemand Schadsoftware unterschiebt. Updates sind wie Rückrufaktionen beim Auto: Sie beheben Fehler und schließen Sicherheitslücken. Microsoft veröffentlicht Sicherheitsupdates monatlich am Patchday (2. Dienstag im Monat), neue Windows-Versionen einmal im Jahr. In Firmen testet man Updates zuerst an wenigen Geräten, bevor alle sie bekommen.
+
+**Merke:** Patchmanagement = erfassen → testen → verteilen → kontrollieren; bei einem fehlerhaften Treiber hilft das Zurücksetzen (Rollback).`,
       steps: [
         {
           type: 'explain',
@@ -598,6 +618,9 @@ Werkzeuge: Windows Update for Business / **Intune**, **MECM**, **WSUS** (Windows
       minutes: 20,
       relevance: 'ap1',
       skills: ['os.remote'],
+      simple: `Fernzugriff ist wie ein Zweitschlüssel zur Wohnung: praktisch, aber gefährlich, wenn er in falsche Hände gerät. Mit Remotedesktop (RDP) arbeitest du in einer eigenen Sitzung auf einem entfernten Windows-Rechner, mit SSH bedienst du vor allem Linux-Server über eine verschlüsselte Kommandozeile. Bei der Fernwartung schaut der Support dem angemeldeten Benutzer auf den Bildschirm – nur mit dessen Zustimmung. RDP gibst du nie direkt ins Internet frei, sondern nur über ein VPN (verschlüsselter Tunnel) oder ein Gateway.
+
+**Merke:** RDP = Port 3389, SSH = Port 22; Telnet ist unverschlüsselt und tabu, Fernwartung nur mit Einverständnis und Protokoll.`,
       steps: [
         {
           type: 'explain',
@@ -615,6 +638,7 @@ Werkzeuge: Windows Update for Business / **Intune**, **MECM**, **WSUS** (Windows
 - Starke Passwörter bzw. **Mehr-Faktor-Authentifizierung**, Kontosperrung nach Fehlversuchen.
 - SSH: **Schlüsselbasierte Anmeldung** statt Passwort, Root-Login verbieten (\`PermitRootLogin no\`).
 - **Telnet** überträgt alles im Klartext – nicht mehr verwenden, stattdessen SSH.
+- **VNC** (Virtual Network Computing, Protokoll **RFB**, Standardport **TCP 5900**) überträgt den Bildschirm plattformübergreifend (Linux, macOS, Windows). Viele VNC-Varianten verschlüsseln nicht oder nur schwach – deshalb nur durch einen **SSH-Tunnel** oder ein **VPN** nutzen.
 - Fernwartung: nur mit **Einverständnis** des Benutzers, Sitzung protokollieren, keine Dauer-Freigaben; Datenschutz beachten (der Supporter sieht ggf. personenbezogene Daten).`,
         },
         {
@@ -666,7 +690,7 @@ Werkzeuge: Windows Update for Business / **Intune**, **MECM**, **WSUS** (Windows
             explanation: 'RDP: **3389** (TCP, zusätzlich UDP 3389 für bessere Performance).',
           },
         },
-        { type: 'practice', title: 'Übung: Fernzugriff', questionIds: ['b01-q023', 'b01-q024', 'b01-q025', 'b01-q026'], count: 4, difficulty: 2 },
+        { type: 'practice', title: 'Übung: Fernzugriff', questionIds: ['b01-q023', 'b01-q024', 'b01-q025', 'b01-q026', 'b01-q034'], count: 4, difficulty: 2 },
         { type: 'summary', points: ['RDP: TCP/UDP 3389, Host nur ab Windows Pro, NLA aktivieren.', 'RDP nie direkt ins Internet – VPN oder RD-Gateway.', 'SSH: TCP 22, verschlüsselt, Schlüsselanmeldung; Telnet ist Klartext.', 'Fernwartung nur mit Zustimmung und Protokoll.'] },
       ],
     },
@@ -713,5 +737,19 @@ Werkzeuge: Windows Update for Business / **Intune**, **MECM**, **WSUS** (Windows
     { id: 'b01-q031', kind: 'free', skill: 'os.install', difficulty: 2, prompt: 'Nenne fünf Angaben, die in ein **Installationsprotokoll** für einen neu eingerichteten Arbeitsplatz gehören.', modelAnswer: 'Gerät (Hersteller, Modell, Seriennummer/Inventarnummer), Betriebssystem mit Edition, Version/Build und Lizenz, installierte Treiber und Software mit Version und Lizenz, Netzwerkkonfiguration (Rechnername, IP/DHCP, Domäne), Benutzer/Standort, Datum und ausführende Person, durchgeführte Tests und Besonderheiten/offene Punkte.', keywords: ['Seriennummer', 'Version', 'Lizenz', 'Rechnername', 'Datum', 'Test'], explanation: 'Alles, was zur Nachvollziehbarkeit und Wiederherstellung nötig ist.' },
     { id: 'b01-q032', kind: 'text', skill: 'os.partition', difficulty: 2, prompt: 'Welches Windows-Kommandozeilenwerkzeug wandelt einen Systemdatenträger **ohne Datenverlust** von MBR in GPT um?', accept: ['mbr2gpt', 'mbr2gpt.exe', 'mbr2gpt /convert'], explanation: '`mbr2gpt /convert` (danach im UEFI den Bootmodus auf UEFI umstellen).' },
     { id: 'b01-q033', kind: 'single', skill: 'os.deploy', difficulty: 3, prompt: 'Warum muss ein Musterrechner vor dem Erstellen des Images mit **Sysprep** generalisiert werden?', options: ['Damit rechnerspezifische Merkmale wie die SID entfernt und auf jedem Zielrechner neu erzeugt werden.', 'Damit das Image kleiner wird.', 'Damit die Lizenz automatisch auf alle Rechner übertragen wird.', 'Damit Treiber dauerhaft entfernt werden.'], answer: 0, distractors: { '1': { why: 'Die Größe ändert sich kaum – es geht um eindeutige Systemkennungen.', error: 'sysprep' }, '2': { why: 'Lizenzen müssen trotzdem für jedes Gerät vorhanden sein.', error: 'sysprep' }, '3': { why: 'Treiber werden beim ersten Start neu erkannt; „entfernen“ ist nicht der Zweck.', error: 'sysprep' } }, explanation: 'Sysprep /generalize entfernt SID, Rechnername und Hardwarebindungen; beim ersten Start (OOBE) werden sie neu gesetzt.' },
+    {
+      id: 'b01-q034', kind: 'single', skill: 'os.remote', difficulty: 2,
+      prompt: 'Ein Kollege will per **VNC** (Standardport TCP 5900) aus dem Homeoffice auf einen Linux-Rechner der Elektro Krämer GmbH zugreifen. Was ist die sicherste Lösung?',
+      options: ['VNC nur durch einen SSH-Tunnel oder über das Firmen-VPN nutzen; Port 5900 nicht ins Internet freigeben.', 'Port 5900 in der Firewall für das Internet öffnen und ein langes VNC-Passwort setzen.', 'VNC auf Port 5901 verlegen, dann wird er nicht gefunden.', 'Statt VNC Telnet verwenden, weil es schneller ist.'],
+      answer: 0,
+      explanation: 'VNC verschlüsselt je nach Variante nicht oder nur schwach. Deshalb gehört es in einen verschlüsselten Tunnel (SSH oder VPN). Ein anderer Port ist keine Sicherheitsmaßnahme, und Telnet überträgt alles im Klartext.\n\nHäufiger Fehler: Ein starkes Passwort für ausreichend halten – ohne Verschlüsselung können Bildschirminhalte trotzdem mitgelesen werden.',
+    },
+    {
+      id: 'b01-q035', kind: 'single', skill: 'os.deploy', difficulty: 2,
+      prompt: 'Du hast ein Linux-ISO heruntergeladen und `sha256sum` liefert genau den Hashwert, der auf der Download-Seite steht. Welche Aussage stimmt?',
+      options: ['Die Datei ist vollständig und unverändert gegenüber der Datei, zu der der angegebene Hash gehört; dass sie wirklich vom Hersteller stammt, beweist erst eine digitale Signatur.', 'Damit ist bewiesen, dass die Datei vom Hersteller stammt und virenfrei ist.', 'Der Hashwert verschlüsselt die Datei, sodass sie niemand verändern kann.', 'Ein übereinstimmender Hash zeigt nur, dass die Dateigröße stimmt.'],
+      answer: 0,
+      explanation: 'Ein Hash prüft die **Integrität** (unverändert, vollständig). Die **Authentizität** (Herkunft) belegt erst eine Signatur – wer die Download-Seite manipuliert, kann auch den Hash austauschen. Ein Hash verschlüsselt nichts.\n\nHäufiger Fehler: Integrität und Authentizität gleichsetzen.',
+    },
   ],
 };
