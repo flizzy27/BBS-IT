@@ -63,8 +63,15 @@ function randomPrivateNet(rng: Rng, difficulty: Difficulty): { base: number; bas
   ]);
 }
 
-/** Zufällige Host-IP + Präfix passend zur Schwierigkeit. */
+/** Zufällige Host-IP + Präfix passend zur Schwierigkeit – nie Netz- oder Broadcastadresse selbst. */
 function randomHostWithPrefix(rng: Rng, difficulty: Difficulty): { addr: number; prefix: number } {
+  for (;;) {
+    const r = rawHostWithPrefix(rng, difficulty);
+    if (r.addr !== networkAddress(r.addr, r.prefix) && r.addr !== broadcastAddress(r.addr, r.prefix)) return r;
+  }
+}
+
+function rawHostWithPrefix(rng: Rng, difficulty: Difficulty): { addr: number; prefix: number } {
   if (difficulty === 1) {
     const prefix = rng.int(25, 28);
     const base = (192 * 2 ** 24 + 168 * 2 ** 16 + rng.int(0, 254) * 256) >>> 0;

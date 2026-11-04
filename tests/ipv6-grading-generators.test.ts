@@ -123,6 +123,16 @@ describe('Generatoren', () => {
       }
     }
   });
+  it('keine Aufgabe verrät ihre Lösung im Text; Auswahloptionen sind eindeutig', () => {
+    const bad: string[] = [];
+    const esc = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    for (const g of GENERATORS) for (const d of diffs) for (let s = 1; s <= 60; s++) {
+      const q = generate(g.id, d, s * 104729 + d);
+      if ((q.kind === 'ip' || (q.kind === 'cidr' && q.answer.includes('.'))) && new RegExp(`(?<![\\d.:])${esc(q.answer)}(?![\\d.:])`).test(q.prompt)) bad.push(`${g.id} d${d} s${s}: ${q.answer}`);
+      if ((q.kind === 'single' || q.kind === 'multi') && new Set(q.options).size !== q.options.length) bad.push(`${g.id} d${d} s${s}: doppelte Option`);
+    }
+    expect([...new Set(bad.map((b) => b.split(' ')[0]))], bad.slice(0, 5).join('\n')).toEqual([]);
+  });
   it('VLSM-Aufgaben sind lösbar und die Musterlösung ist überlappungsfrei', () => {
     for (let s = 0; s < 100; s++) {
       const q = generate('vlsm.plan', ((s % 3) + 1) as Difficulty, s);
