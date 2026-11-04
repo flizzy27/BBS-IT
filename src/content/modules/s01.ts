@@ -579,7 +579,7 @@ Jede Festlegung wird **schriftlich begründet** – nur so ist sie später nachv
                 { id: 'app3', type: 'cloud', label: 'Intranet', sub: 'normal', x: 680, y: 60 },
                 { id: 'srv1', type: 'server', label: 'SRV-HH-01', sub: 'V sehr hoch · A sehr hoch', x: 260, y: 220 },
                 { id: 'srv2', type: 'server', label: 'SRV-HH-02', sub: 'normal', x: 600, y: 220 },
-                { id: 'fw', type: 'firewall', label: 'Serverraum HH', sub: 'Maximum aller Server', x: 430, y: 370 },
+                { id: 'fw', type: 'hub', label: 'Serverraum HH', sub: 'Maximum aller Server', x: 430, y: 370 },
               ],
               links: [
                 { from: 'app1', to: 'srv1', label: 'läuft auf' },

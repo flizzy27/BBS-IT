@@ -29,6 +29,14 @@ import { w02 } from './modules/w02';
 import { w03 } from './modules/w03';
 import { w04 } from './modules/w04';
 import { w05 } from './modules/w05';
+import { d01 } from './modules/d01';
+import { d02 } from './modules/d02';
+import { d03 } from './modules/d03';
+import { s01 } from './modules/s01';
+import { s02 } from './modules/s02';
+import { s03 } from './modules/s03';
+import { s04 } from './modules/s04';
+import { s05 } from './modules/s05';
 
 /**
  * Fachbereiche. Neue Bereiche (z. B. IT-Sicherheit, Wirtschaft, Programmierung, AP2-Themen)
@@ -40,11 +48,12 @@ export const AREAS: Area[] = [
   { id: 'systeme', title: 'Betriebssysteme, Software & Cloud', short: 'Installation, Rechte, Lizenzen, Cloud, Virtualisierung, Qualität.', icon: 'MonitorCog', color: '#34c77b', exams: ['AP1', 'AP2'] },
   { id: 'sicherheit', title: 'IT-Sicherheit & Datenschutz', short: 'Schutzziele, BSI-Grundschutz, DSGVO, Datensicherung, Zugriffsschutz.', icon: 'ShieldCheck', color: '#ff6b9a', exams: ['AP1', 'AP2'] },
   { id: 'programmierung', title: 'Programmierung & Softwareentwicklung', short: 'Pseudocode, Kontrollstrukturen, Algorithmen, UML, Testen.', icon: 'Code', color: '#a77bff', exams: ['AP1'] },
+  { id: 'daten', title: 'Datenbanken', short: 'Relationale Grundlagen, ER-Modell, Normalisierung, SQL.', icon: 'Database', color: '#ff9f43', exams: ['AP1', 'AP2'] },
   { id: 'wirtschaft', title: 'Kundenberatung, Wirtschaft & Recht', short: 'Kundengespräch, Angebotsvergleich, Nutzwertanalyse, Kalkulation, Verträge, Projekt.', icon: 'Briefcase', color: '#f5b942', exams: ['AP1', 'AP2'] },
 ];
 
 /** Empfohlene Lernreihenfolge (Binär vor IPv4, IPv4 vor Subnetting …). */
-export const MODULES: Module[] = [m01, m02, m04, m03, m05, m06, m07, m08, m09, m10, m11, m12, m13, m14, m15, m16, h01, h02, h03, h04, h05, w01, w02, w03, w04, w05].filter(Boolean);
+export const MODULES: Module[] = [m01, m02, m04, m03, m05, m06, m07, m08, m09, m10, m11, m12, m13, m14, m15, m16, h01, h02, h03, h04, h05, w01, w02, w03, w04, w05, d01, d02, d03, s01, s02, s03, s04, s05].filter(Boolean);
 
 export const moduleArea = (m: Module) => m.area ?? 'netzwerk';
 
