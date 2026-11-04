@@ -33,6 +33,10 @@ Attribute (Schlüssel jeweils zuerst, im Diagramm als unterstrichene Ellipsen):
 - **Geraet**: InvNr, Typ, Preis
 - **Software**: SoftwareID, Bezeichnung, Hersteller`;
 
+const SZ_PROJEKT = `**Handlungssituation:** Das IT-Systemhaus, das die Elektro Krämer GmbH betreut, will seine Projekte in einer Datenbank verwalten. Aus dem Gespräch mit der Leitung:
+
+> „Jeder **Techniker** gehört zu genau einem **Team**; ein Team hat mehrere Techniker. Ein Techniker arbeitet an mehreren **Projekten**, und an einem Projekt arbeiten meist mehrere Techniker. Jedes Projekt wird von genau einem **Kunden** beauftragt; ein Kunde kann mehrere Projekte beauftragen. Zu jedem Projekt gibt es genau einen **Projektvertrag**, und jeder Vertrag gehört zu genau einem Projekt.“`;
+
 export const d02: Module = {
   id: 'd02',
   nr: 2,
@@ -58,8 +62,11 @@ export const d02: Module = {
       id: 'd02-l01',
       title: 'Vom Szenario zum ER-Modell',
       minutes: 25,
-      relevance: 'ap1-teilweise',
+      relevance: 'ap1',
       skills: ['dm.erm'],
+      simple: `Bevor du Tabellen baust, zeichnest du einen Plan – wie ein Architekt den Grundriss vor dem Hausbau. Dieser Plan heißt **ER-Modell** (Entity-Relationship-Modell). **Entitätstypen** sind die „Dinge“, über die du Daten speicherst (Rechteck, z. B. Mitarbeiter), **Attribute** ihre Eigenschaften (Ellipse, z. B. Name) und **Beziehungen** die Verbindungen dazwischen (Raute, z. B. „nutzt“). Im Aufgabentext erkennst du Entitätstypen meist an den Hauptwörtern und Beziehungen an den Verben.
+
+**Merke:** Chen-Notation: Rechteck = Entitätstyp, Ellipse = Attribut (Schlüssel unterstrichen), Raute = Beziehung mit Kardinalität (1, n, m).`,
       steps: [
         {
           type: 'explain',
@@ -163,8 +170,11 @@ In der Prüfung zeichnest du das ERM von Hand: Rechtecke, Rauten, Ovale für Att
       id: 'd02-l02',
       title: 'Kardinalitäten lesen: Chen, Krähenfuß und (min,max)',
       minutes: 20,
-      relevance: 'ap1-teilweise',
+      relevance: 'ap1',
       skills: ['dm.kardinalitaet'],
+      simple: `Die **Kardinalität** sagt, wie viele Partner ein Datensatz auf der anderen Seite haben kann. Für dieselbe Aussage gibt es drei Schreibweisen – so wie „5 Euro“, „fünf Euro“ und „5 €“: **Chen** (1, n, m an der Linie), **Krähenfuß** (Symbole an den Linienenden) und **(min,max)** (z. B. (0,*) = keinmal bis beliebig oft). Beim Krähenfuß bedeutet der „Fuß“ mit drei Zehen „viele“, ein Strich „eins“ und ein Kreis „null“.
+
+**Merke:** Lies jede Beziehung in beide Richtungen und achte darauf, an welchem Linienende ein Symbol steht.`,
       steps: [
         {
           type: 'explain',
@@ -276,6 +286,9 @@ Mitarbeiter o|---------------o< Geraet
       minutes: 25,
       relevance: 'ap1-teilweise',
       skills: ['dm.tabellenmodell'],
+      simple: `Aus dem ER-Modell machst du Tabellen nach festen Regeln – wie beim Kochen nach Rezept. Jeder Entitätstyp wird eine Tabelle. Bei **1:n** bekommt die Tabelle auf der n-Seite den Fremdschlüssel (jede Person merkt sich ihre Abteilung, nicht die Abteilung alle Personen). Bei **n:m** entsteht eine eigene **Zwischentabelle** mit beiden Fremdschlüsseln. Bei **1:1** genügt ein Fremdschlüssel mit **UNIQUE** (der Wert darf nur einmal vorkommen).
+
+**Merke:** 1:n → Fremdschlüssel auf die n-Seite; n:m → Zwischentabelle; 1:1 → Fremdschlüssel mit UNIQUE.`,
       steps: [
         {
           type: 'explain',
@@ -386,6 +399,9 @@ Aus dem Inventar-ERM (Lektion 1) wird:
       minutes: 25,
       relevance: 'ap1-teilweise',
       skills: ['dm.abhaengigkeit', 'dm.nf1'],
+      simple: `**Normalisierung** räumt Tabellen auf, damit nichts unnötig doppelt gespeichert wird – wie das Aufräumen einer Schublade, in der alles durcheinanderliegt. **Funktionale Abhängigkeit** heißt: Kennst du den einen Wert, kennst du auch den anderen (aus der Inventarnummer folgt der Gerätetyp). Die **1. Normalform (1NF)** verlangt, dass in jeder Zelle genau **ein** Wert steht (atomar), also nicht „Word, Excel, Outlook“ in einer Zelle.
+
+**Merke:** 1NF = nur atomare Werte, keine Listen oder Wiederholungsgruppen in einer Zelle.`,
       steps: [
         {
           type: 'explain',
@@ -501,6 +517,9 @@ Die Tabelle ist jetzt in 1NF – aber die Redundanz ist sogar **größer** gewor
       minutes: 20,
       relevance: 'ap1-teilweise',
       skills: ['dm.nf2'],
+      simple: `Die **2. Normalform (2NF)** betrifft Tabellen, deren Primärschlüssel aus mehreren Spalten besteht. Jede andere Spalte muss vom **ganzen** Schlüssel abhängen, nicht nur von einem Teil. Denk an ein Zeugnis: Die Note hängt von Schüler **und** Fach ab, der Name des Schülers aber nur vom Schüler – er gehört deshalb in eine eigene Schülertabelle. Solche **Teilabhängigkeiten** lagerst du in eigene Tabellen aus.
+
+**Merke:** 2NF = 1NF + kein Attribut hängt nur von einem Teil des zusammengesetzten Schlüssels ab.`,
       steps: [
         {
           type: 'explain',
@@ -626,6 +645,9 @@ Prüfe die 2NF und zerlege die Tabelle, falls nötig.`,
       minutes: 30,
       relevance: 'ap1-teilweise',
       skills: ['dm.nf3'],
+      simple: `Die **3. Normalform (3NF)** verbietet „Umwege“: Ein Attribut, das nicht zum Schlüssel gehört, darf nicht von einem anderen Nicht-Schlüssel-Attribut abhängen (**transitive Abhängigkeit**). Beispiel: In der Mitarbeitertabelle steht die StandortID, und daraus folgt die Standortadresse – die Adresse hängt also nur über den Umweg StandortID von der Personalnummer ab. Das ist wie eine Nachricht aus zweiter Hand: Sie gehört an ihre eigentliche Quelle, hier in eine eigene Tabelle Standort.
+
+**Merke:** 3NF = 2NF + keine transitiven Abhängigkeiten (Nicht-Schlüssel → Nicht-Schlüssel).`,
       steps: [
         {
           type: 'explain',
@@ -1133,6 +1155,39 @@ Normalisiere die Tabelle bis zur **3NF**. Nenne die Abhängigkeiten und gib das 
       hints: ['Jedes Gerät steht in der neuen Tabelle nur einmal.'],
       misconceptions: [{ answer: '5', error: 'dm-nf2-zeilen', why: 'L01 kommt in der 1NF-Tabelle zweimal vor, in Leihgeraet aber nur einmal (InvNr ist dort Primärschlüssel).' }],
       explanation: 'Verschiedene InvNr: L01, L02, L03, L04 → **4 Zeilen**. Genau dadurch verschwindet die Redundanz.',
+    },
+    {
+      id: 'd02-q034', kind: 'table', skill: 'dm.kardinalitaet', difficulty: 2,
+      prompt: `${SZ_PROJEKT}\n\nBestimme für jede Beziehung die Kardinalität in Chen-Schreibweise (**1:1**, **1:n** oder **n:m**, in der Reihenfolge der genannten Entitätstypen).`,
+      columns: [{ key: 'k', label: 'Kardinalität', type: 'text' }],
+      rows: [
+        { label: 'Team – Techniker', cells: { k: { answer: '1:n', accept: ['1:N', '1 : n', '1:m', '1:*', '1 zu n'] } } },
+        { label: 'Techniker – Projekt', cells: { k: { answer: 'n:m', accept: ['m:n', 'N:M', 'M:N', 'n : m', 'm : n', 'n zu m', '*:*'] } } },
+        { label: 'Kunde – Projekt', cells: { k: { answer: '1:n', accept: ['1:N', '1 : n', '1:m', '1:*', '1 zu n'] } } },
+        { label: 'Projekt – Projektvertrag', cells: { k: { answer: '1:1', accept: ['1 : 1', '1 zu 1'] } } },
+      ],
+      misconceptions: [{ answer: '1:n', cell: '1:k', error: 'db-kardinalitaet', why: 'Lies beide Richtungen: Ein Techniker hat mehrere Projekte **und** ein Projekt hat mehrere Techniker → n:m.' }],
+      hints: ['Frage je Beziehung in beide Richtungen: „Wie viele …?“', 'Achte auf „mehrere“ und „genau ein“ im Text.'],
+      explanation: 'Team–Techniker **1:n** (ein Team, viele Techniker) · Techniker–Projekt **n:m** (in beide Richtungen „mehrere“) · Kunde–Projekt **1:n** · Projekt–Projektvertrag **1:1**.',
+    },
+    {
+      id: 'd02-q035', kind: 'number', skill: 'dm.tabellenmodell', difficulty: 2,
+      prompt: `${SZ_PROJEKT}\n\nWie viele **Tabellen** hat das daraus abgeleitete relationale Tabellenmodell?`,
+      answer: 6,
+      unit: 'Tabellen',
+      hints: ['Jeder Entitätstyp wird eine Tabelle.', 'Welche Beziehung braucht zusätzlich eine eigene Tabelle?'],
+      misconceptions: [
+        { answer: '5', error: 'dm-nm-ohne-zwischentabelle', why: 'Die n:m-Beziehung Techniker–Projekt braucht eine **Zwischentabelle** (z. B. Mitarbeit mit #TechnikerNr und #ProjektNr).' },
+        { answer: '7', error: 'db-zwischentabelle-unnoetig', why: 'Nur n:m braucht eine Zwischentabelle. 1:n und 1:1 werden über Fremdschlüssel umgesetzt.' },
+      ],
+      explanation: '**6 Tabellen:** Team, Techniker, Kunde, Projekt, Projektvertrag (5 Entitätstypen) + 1 Zwischentabelle für Techniker n:m Projekt.\n\nUmsetzung: #TeamNr in Techniker (1:n), #KundenNr in Projekt (1:n), #ProjektNr mit UNIQUE in Projektvertrag (1:1), Zwischentabelle Mitarbeit(#TechnikerNr, #ProjektNr).\n\nHäufiger Fehler: die Zwischentabelle für n:m vergessen.',
+    },
+    {
+      id: 'd02-q036', kind: 'free', skill: 'dm.erm', difficulty: 3,
+      prompt: `${SZ_PROJEKT}\n\nZeichne (auf Papier) ein **ER-Diagramm in Chen-Notation** mit allen Entitätstypen, je einem Schlüsselattribut und einem weiteren Attribut sowie allen Beziehungen mit Kardinalitäten. Beschreibe deine Lösung anschließend in Textform und prüfe sie mit der Prüfliste in der Musterlösung.`,
+      modelAnswer: 'Entitätstypen (Rechtecke) mit Attributen (Ellipsen, Schlüssel unterstrichen): Team (TeamNr, Bezeichnung), Techniker (TechnikerNr, Name), Projekt (ProjektNr, Titel), Kunde (KundenNr, Firmenname), Projektvertrag (VertragsNr, Vertragssumme). Beziehungen (Rauten): Team 1 – „gehört zu“ – n Techniker; Techniker n – „arbeitet an“ – m Projekt; Kunde 1 – „beauftragt“ – n Projekt; Projekt 1 – „hat“ – 1 Projektvertrag. Prüfliste: (1) fünf Rechtecke, (2) je ein unterstrichenes Schlüsselattribut, (3) vier Rauten mit Verb, (4) Kardinalitäten 1:n, n:m, 1:n, 1:1 an den richtigen Linienenden, (5) keine Fremdschlüssel im ER-Diagramm (die entstehen erst im Tabellenmodell).',
+      keywords: ['Rechteck', 'Raute', 'Ellipse', 'Schlüssel unterstrichen', '1:n', 'n:m', '1:1'],
+      explanation: 'Im ER-Diagramm stehen nur Entitätstypen, Attribute und Beziehungen. Fremdschlüssel und Zwischentabellen gehören erst ins Tabellenmodell.',
     },
   ],
 };

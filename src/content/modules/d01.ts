@@ -58,6 +58,9 @@ export const d01: Module = {
       minutes: 20,
       relevance: 'ap1-teilweise',
       skills: ['db.grundbegriffe', 'db.vergleich'],
+      simple: `**Daten** sind einzelne Werte wie „1290“ oder „G07“. Erst im Zusammenhang werden sie zur **Information**: „Notebook G07 hat 1.290 € gekostet.“ Eine **Datenbank** ist wie ein gut geführter Aktenschrank, und das **DBMS** (Datenbankmanagementsystem, z. B. MariaDB) ist der Archivar: Er sortiert ein, gibt heraus und passt auf, dass nur Berechtigte hineinschauen. Anders als bei einer Excel-Datei können viele Personen gleichzeitig arbeiten, ohne sich gegenseitig etwas zu überschreiben.
+
+**Merke:** Datenbanksystem = Datenbank (die Daten) + DBMS (die Verwaltungssoftware); bei vielen Nutzern und verknüpften Daten ist es einer Tabellenkalkulation überlegen.`,
       steps: [
         {
           type: 'explain',
@@ -198,6 +201,9 @@ Eine Datenbank speichert **Daten**. Zu **Informationen** werden sie, wenn du sie
       minutes: 20,
       relevance: 'ap1-teilweise',
       skills: ['db.tabelle'],
+      simple: `Eine Datenbanktabelle sieht aus wie eine Excel-Tabelle. Jede **Zeile** ist ein **Datensatz** (z. B. ein Gerät), jede **Spalte** ein **Attribut** (eine Eigenschaft, z. B. der Preis). Für jede Spalte legst du einen **Datentyp** fest – wie bei einem Formular, in dem ein Feld nur ein Datum oder nur eine Zahl annimmt. So kann niemand „zwölf Euro“ in das Preisfeld tippen.
+
+**Merke:** Zeile = Datensatz, Spalte = Attribut; Geldbeträge als DECIMAL, Kennungen wie Telefonnummern als Text (VARCHAR).`,
       steps: [
         {
           type: 'explain',
@@ -324,6 +330,9 @@ Die Tabelle oben hat also **5 Datensätze** und **5 Attribute**.
       minutes: 25,
       relevance: 'ap1-teilweise',
       skills: ['db.schluessel'],
+      simple: `Der **Primärschlüssel** ist wie die Nummer im Personalausweis: Jeder Datensatz hat genau eine, und keine kommt doppelt vor. Ein **Fremdschlüssel** ist ein Verweis auf den Primärschlüssel einer anderen Tabelle – wie die Kundennummer auf einer Rechnung, über die du die Kundendaten findest. So musst du Daten nicht mehrfach abschreiben, sondern verweist nur darauf.
+
+**Merke:** Primärschlüssel = eindeutig und nie leer; Fremdschlüssel = Verweis auf den Primärschlüssel einer anderen Tabelle.`,
       steps: [
         {
           type: 'explain',
@@ -435,8 +444,11 @@ ${T_GER}
       id: 'd01-l04',
       title: 'Beziehungen: 1:1, 1:n und n:m',
       minutes: 25,
-      relevance: 'ap1-teilweise',
+      relevance: 'ap1',
       skills: ['db.beziehungen'],
+      simple: `Beziehungen beschreiben, wie viele Datensätze zueinander gehören. **1:1** ist wie Person und Personalausweis: Ein Ausweis gehört genau einer Person, und eine Person hat höchstens einen gültigen Personalausweis. **1:n** ist wie Abteilung und Mitarbeitende: Eine Abteilung hat viele Mitarbeitende, jede Person gehört aber nur zu einer Abteilung. **n:m** ist wie Schüler und Kurse: Ein Schüler besucht viele Kurse, ein Kurs hat viele Schüler. Frage immer in **beide** Richtungen: „Wie viele B hat ein A?“ und „Wie viele A hat ein B?“
+
+**Merke:** Bei 1:n steht der Fremdschlüssel auf der n-Seite, n:m wird über eine Zwischentabelle aufgelöst.`,
       steps: [
         {
           type: 'explain',
@@ -529,6 +541,9 @@ Die Zwischentabelle kann zusätzlich **eigene Attribute** der Beziehung aufnehme
       minutes: 20,
       relevance: 'ap1-teilweise',
       skills: ['db.anomalien'],
+      simple: `**Redundanz** heißt: Dieselbe Angabe steht mehrfach in der Datenbank, z. B. die Adresse des Standorts in jeder Gerätezeile. Das ist wie ein Adressbuch, in dem deine Nummer zehnmal steht: Ziehst du um, musst du alle zehn Stellen ändern – vergisst du eine, stimmt das Buch nicht mehr. Solche Fehler heißen **Anomalien** und treten beim Ändern, Einfügen und Löschen auf.
+
+**Merke:** Drei Anomalien – Änderungs-, Einfüge- und Löschanomalie; Ursache ist Redundanz, Abhilfe sind getrennte, über Schlüssel verknüpfte Tabellen.`,
       steps: [
         {
           type: 'explain',
@@ -611,6 +626,9 @@ Die Adresse des Standorts Berlin steht dreimal in der Liste, die Abteilung von S
       minutes: 20,
       relevance: 'ap1-teilweise',
       skills: ['db.integritaet'],
+      simple: `**Integrität** heißt: Die Daten sind korrekt, vollständig und widersprechen sich nicht. Die Datenbank prüft das mit Regeln, wie ein Türsteher mit Gästeliste: Ein Gerät darf nur einer Person zugeordnet werden, die es wirklich gibt (**referenzielle Integrität**), eine Inventarnummer darf nicht doppelt vorkommen (**Entitätsintegrität**), ein Preis darf nicht negativ sein. Verstößt eine Eingabe gegen eine Regel, lehnt das DBMS sie ab.
+
+**Merke:** Referenzielle Integrität = jeder Fremdschlüsselwert verweist auf einen vorhandenen Primärschlüssel (oder ist NULL, wenn das erlaubt ist).`,
       steps: [
         {
           type: 'explain',

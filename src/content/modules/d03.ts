@@ -63,6 +63,9 @@ export const d03: Module = {
       minutes: 25,
       relevance: 'vertiefung',
       skills: ['sql.select'],
+      simple: `**SQL** (Structured Query Language) ist die Sprache, mit der du einer Datenbank Fragen stellst – wie eine Bestellung im Restaurant: Du sagst, **was** du willst, nicht **wie** die Küche es zubereitet. \`SELECT\` nennt die gewünschten Spalten, \`FROM\` die Tabelle und \`WHERE\` die Bedingung für die Zeilen. Laut Prüfungskatalog 2025 gehört SQL zur AP2 – für die AP1 ist dieses Modul Vertiefung.
+
+**Merke:** Grundform: SELECT Spalten FROM Tabelle WHERE Bedingung;`,
       steps: [
         {
           type: 'explain',
@@ -205,6 +208,9 @@ WHERE Typ = 'Notebook' AND Preis > 1000;`)}`,
       minutes: 20,
       relevance: 'vertiefung',
       skills: ['sql.select'],
+      simple: `Mit \`ORDER BY\` sortierst du das Ergebnis, z. B. nach Preis (\`ASC\` aufsteigend, \`DESC\` absteigend). \`DISTINCT\` entfernt doppelte Ergebniszeilen. Zum Filtern gibt es Werkzeuge wie Siebe mit verschiedenen Löchern: \`BETWEEN\` für Bereiche (beide Grenzen zählen mit), \`IN\` für Wertelisten, \`LIKE\` für Muster (\`%\` = beliebig viele Zeichen) und \`IS NULL\` für leere Felder.
+
+**Merke:** Leere Felder (NULL) findest du nur mit IS NULL, nie mit = NULL.`,
       steps: [
         {
           type: 'explain',
@@ -301,6 +307,9 @@ ORDER BY Preis DESC;`)}`,
       minutes: 20,
       relevance: 'vertiefung',
       skills: ['sql.aggregat'],
+      simple: `Aggregatfunktionen fassen viele Zeilen zu **einem** Wert zusammen – wie der Kassenbon, der am Ende nur die Summe zeigt. \`COUNT\` zählt, \`SUM\` addiert, \`AVG\` bildet den Durchschnitt, \`MIN\` und \`MAX\` finden den kleinsten und größten Wert. Leere Felder (NULL) werden dabei übersprungen – nur \`COUNT(*)\` zählt wirklich alle Zeilen.
+
+**Merke:** COUNT(*) zählt alle Zeilen, COUNT(Spalte) nur die Zeilen, in denen diese Spalte einen Wert hat.`,
       steps: [
         {
           type: 'explain',
@@ -407,6 +416,9 @@ FROM Geraet;`)}`,
       minutes: 25,
       relevance: 'vertiefung',
       skills: ['sql.aggregat'],
+      simple: `Mit \`GROUP BY\` bildest du Gruppen und rechnest je Gruppe – wie beim Sortieren von Münzen in Häufchen, bevor du jedes Häufchen zählst. \`WHERE\` filtert **einzelne Zeilen vor** dem Gruppieren, \`HAVING\` filtert **ganze Gruppen danach**, z. B. „nur Standorte mit mehr als 10 Geräten“.
+
+**Merke:** WHERE wirkt vor der Gruppierung auf Zeilen, HAVING danach auf Gruppen (meist mit COUNT, SUM oder AVG).`,
       steps: [
         {
           type: 'explain',
@@ -531,6 +543,9 @@ HAVING COUNT(*) > 1;`)}`,
       minutes: 30,
       relevance: 'vertiefung',
       skills: ['sql.join'],
+      simple: `Ein \`JOIN\` setzt Daten aus zwei Tabellen wieder zusammen – wie ein Reißverschluss, dessen Zähne über den Schlüssel ineinandergreifen (Fremdschlüssel = Primärschlüssel). Der \`INNER JOIN\` zeigt nur Paare, die auf beiden Seiten einen Partner haben. Der \`LEFT JOIN\` zeigt alle Zeilen der linken Tabelle, auch ohne Partner; die fehlenden Werte der rechten Seite stehen dann als NULL da.
+
+**Merke:** INNER JOIN = nur Treffer auf beiden Seiten; LEFT JOIN = alles von links, rechts notfalls NULL.`,
       steps: [
         {
           type: 'explain',
@@ -655,6 +670,9 @@ WHERE g.InvNr IS NULL;`)}\n\nWelchen Namen liefert die Abfrage?`,
       minutes: 20,
       relevance: 'vertiefung',
       skills: ['sql.dml'],
+      simple: `Mit drei Befehlen änderst du Daten: \`INSERT\` fügt neue Zeilen ein, \`UPDATE\` ändert vorhandene, \`DELETE\` löscht sie. Bei \`UPDATE\` und \`DELETE\` ist die \`WHERE\`-Bedingung wie die Adresse auf einem Brief: Fehlt sie, trifft der Befehl **alle** Zeilen der Tabelle. Deshalb prüfst du die Bedingung vorher mit einem \`SELECT\`.
+
+**Merke:** UPDATE oder DELETE ohne WHERE ändert bzw. löscht die ganze Tabelle.`,
       steps: [
         {
           type: 'explain',
@@ -764,6 +782,9 @@ COMMIT;              -- oder ROLLBACK; zum Rückgängigmachen`)}
       minutes: 25,
       relevance: 'vertiefung',
       skills: ['sql.ddl'],
+      simple: `Mit \`CREATE TABLE\` baust du aus dem Tabellenmodell eine echte Tabelle – wie ein Formular, bei dem du für jedes Feld Typ und Regeln festlegst. Zu jeder Spalte gehört ein Datentyp, dazu kommen **Constraints** (Regeln): \`PRIMARY KEY\` (eindeutige Kennung), \`FOREIGN KEY … REFERENCES\` (Verweis auf eine andere Tabelle), \`NOT NULL\` (Pflichtfeld), \`UNIQUE\` (kein Wert doppelt) und \`CHECK\` (Wertebereich, z. B. Preis ≥ 0).
+
+**Merke:** Constraints sorgen dafür, dass die Datenbank selbst auf korrekte Daten achtet.`,
       steps: [
         {
           type: 'explain',
