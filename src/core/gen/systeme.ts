@@ -47,7 +47,7 @@ function chmodTable(mode: number): string {
   const digits = [(mode >> 6) & 7, (mode >> 3) & 7, mode & 7];
   const rows = digits
     .map((d, i) => {
-      const parts = [d & 4 ? 'r = 4' : null, d & 2 ? 'w = 2' : null, d & 1 ? 'x = 1' : null].filter(Boolean);
+      const parts = [d & 4 ? 'r (4)' : null, d & 2 ? 'w (2)' : null, d & 1 ? 'x (1)' : null].filter(Boolean);
       return `| ${CLASS_NAMES[i]} | \`${triple(d)}\` | ${parts.length ? parts.join(' + ') : '–'} | **${d}** |`;
     })
     .join('\n');
@@ -75,7 +75,7 @@ const chmodGen: GeneratorMeta = {
   title: 'Linux-Rechte oktal ↔ symbolisch',
   skill: 'rights.linux',
   module: 'b02',
-  make(rng, d) {
+  make(rng, d): Question {
     let mode: number;
     if (d === 1) mode = rng.pick(COMMON_MODES);
     else if (d === 2) mode = (rng.int(4, 7) << 6) | (rng.int(0, 7) << 3) | rng.int(0, 7);
@@ -187,7 +187,7 @@ const effRightsGen: GeneratorMeta = {
   title: 'Effektive Rechte aus NTFS und Freigabe',
   skill: 'rights.share',
   module: 'b02',
-  make(rng, d) {
+  make(rng, d): Question {
     const person = rng.pick(PERSONS);
     const share = rng.pick(SHARES);
     const depts = rng.shuffle(DEPT_GROUPS);
@@ -345,7 +345,7 @@ const fsGen: GeneratorMeta = {
   title: 'Dateisystem-Grenzen und -Auswahl',
   skill: 'os.filesystems',
   module: 'b01',
-  make(rng, d) {
+  make(rng, d): Question {
     const mode = d === 1 ? rng.pick(['fits', 'fits', 'choose'] as const) : d === 2 ? rng.pick(['fits', 'choose', 'table'] as const) : rng.pick(['fits', 'table'] as const);
     if (mode === 'choose') {
       const sc = rng.pick(SCENARIOS);
@@ -414,7 +414,7 @@ const partitionGen: GeneratorMeta = {
   title: 'MBR-Grenze und Partitionsstil',
   skill: 'os.partition',
   module: 'b01',
-  make(rng, d) {
+  make(rng, d): Question {
     const mode = d === 1 ? rng.pick(['fits', 'style'] as const) : d === 2 ? rng.pick(['fits', 'lost', 'style'] as const) : rng.pick(['fits', 'lost'] as const);
     if (mode === 'style') {
       const sc = rng.pick([
@@ -483,7 +483,7 @@ const serverLicGen: GeneratorMeta = {
   title: 'Windows Server: Core-Lizenzen berechnen',
   skill: 'lic.server',
   module: 'b03',
-  make(rng, d) {
+  make(rng, d): Question {
     const cpus = d === 1 ? rng.pick([1, 2]) : rng.pick([1, 2, 2]);
     const cores = d === 1 ? rng.pick([4, 6, 8, 12, 16]) : rng.pick([4, 6, 8, 10, 12, 16, 20, 24, 32]);
     const base = coreLicenses(cpus, cores);
@@ -492,7 +492,7 @@ const serverLicGen: GeneratorMeta = {
     if (d === 1) {
       return {
         id: gid('sys.serverlic'), generated: true, kind: 'number', skill: 'lic.server', difficulty: d,
-        prompt: `Ein Server erhält **Windows Server Standard** und betreibt höchstens 2 VMs. Er hat **${cpus} Prozessor${cpus > 1 ? 'en' : ''} mit je ${cores} Kernen**.\n\n${rule}\n\nWie viele **Core-Lizenzen** werden benötigt?`,
+        prompt: `Ein Server erhält **Windows Server Standard** und betreibt höchstens 2 VMs. Er hat **${cpus} Prozessor${cpus > 1 ? `en mit je ${cores} Kernen` : ` mit ${cores} Kernen`}**.\n\n${rule}\n\nWie viele **Core-Lizenzen** werden benötigt?`,
         answer: base,
         unit: 'Core-Lizenzen',
         hints: ['Pro Prozessor mindestens 8 Kerne zählen.', 'Pro Server mindestens 16.'],
@@ -532,7 +532,7 @@ const serverLicGen: GeneratorMeta = {
     const packs = total / 2;
     return {
       id: gid('sys.serverlic'), generated: true, kind: 'number', skill: 'lic.server', difficulty: d,
-      prompt: `Ein Hyper-V-Host der Elektro Krämer GmbH hat **${cpus} Prozessor${cpus > 1 ? 'en' : ''} mit je ${cores} Kernen** und soll **${vms} VMs** mit Windows Server betreiben. Lizenziert wird **Windows Server Standard**.\n\n${rule}\n\nWie viele **2-Core-Pakete** müssen gekauft werden?`,
+      prompt: `Ein Hyper-V-Host der Elektro Krämer GmbH hat **${cpus} Prozessor${cpus > 1 ? `en mit je ${cores} Kernen` : ` mit ${cores} Kernen`}** und soll **${vms} VMs** mit Windows Server betreiben. Lizenziert wird **Windows Server Standard**.\n\n${rule}\n\nWie viele **2-Core-Pakete** müssen gekauft werden?`,
       answer: packs,
       unit: 'Pakete',
       hints: ['Erst die Core-Lizenzen für den Host bestimmen (Mindestmengen!).', `${vms} VMs → wie oft müssen alle Kerne lizenziert werden? (je 2 VMs einmal)`],
@@ -558,7 +558,7 @@ const vmHostGen: GeneratorMeta = {
   title: 'Virtualisierungshost dimensionieren',
   skill: 'virt.sizing',
   module: 'b04',
-  make(rng, d) {
+  make(rng, d): Question {
     if (d === 1 || (d === 2 && rng.bool(0.5))) {
       const host = rng.pick([64, 96, 128, 192, 256]);
       const reserve = rng.pick([4, 8, 16]);
@@ -592,7 +592,7 @@ const vmHostGen: GeneratorMeta = {
         hints: ['Bedarf = Anzahl VMs · RAM je VM + Reserve.', 'Dann die kleinste Ausstattung wählen, die mindestens so groß ist.'],
         misconceptions: [
           ...(offers.find((o) => o >= n * vm) !== pick ? [{ answer: String(offers.find((o) => o >= n * vm)), error: 'vm-reserve-vergessen', why: 'Die Hypervisor-Reserve fehlt in deiner Rechnung.' }] : []),
-          { answer: String(need), error: 'vm-angebot', why: `${need} GB ist der Bedarf – gefragt ist die passende **Angebotsgröße**.` },
+          ...(need !== pick ? [{ answer: String(need), error: 'vm-angebot', why: `${need} GB ist der Bedarf – gefragt ist die passende **Angebotsgröße**.` }] : []),
         ],
         explanation: `Bedarf: ${n} · ${vm} GB + ${reserve} GB = **${need} GB**.\n\nKleinste angebotene Ausstattung ≥ ${need} GB: **${pick} GB**.`,
       };
@@ -642,8 +642,8 @@ const slaGen: GeneratorMeta = {
   id: 'sys.sla',
   title: 'SLA: Verfügbarkeit und Ausfallzeit',
   skill: 'itsm.sla',
-  module: 'b05',
-  make(rng, d) {
+  module: 'b06',
+  make(rng, d): Question {
     const variant = d === 1 ? 'down-min' : d === 2 ? rng.pick(['down-min', 'down-h'] as const) : rng.pick(['service', 'avail'] as const);
     if (variant === 'service' || variant === 'avail') {
       const weeks = 4;
@@ -721,7 +721,175 @@ const slaGen: GeneratorMeta = {
   },
 };
 
-export const GENERATORS_SYSTEME: GeneratorMeta[] = [chmodGen, effRightsGen, fsGen, partitionGen, serverLicGen, vmHostGen, slaGen];
+/* ------------------------------------------------------------------ */
+/* Priorisierung: Auswirkung × Dringlichkeit                          */
+/* ------------------------------------------------------------------ */
+
+const LVL = ['hoch', 'mittel', 'gering'] as const;
+const LVL_ACCEPT: string[][] = [['hoch', 'h', 'high'], ['mittel', 'm', 'medium', 'mittelmäßig'], ['gering', 'niedrig', 'g', 'low', 'n']];
+/** Priorität 1 (kritisch) … 5 (niedrig): Index Auswirkung + Index Dringlichkeit + 1 (Indizes 0 = hoch … 2 = gering) */
+export const priority = (impact: number, urgency: number) => impact + urgency + 1;
+const REACT_MIN = [15, 30, 120, 240, 480];
+const SOLVE_MIN = [120, 240, 480, 960, 2400];
+const PRIO_NAMES = ['kritisch', 'hoch', 'mittel', 'niedrig', 'planbar'];
+
+const PROBLEMS = [
+  { p: 'Drucken auf dem Etagendrucker funktioniert nicht', wa: 'Ausdruck über den Drucker im Nachbarraum' },
+  { p: 'der Zugriff auf das Netzlaufwerk P: schlägt fehl', wa: 'Zugriff über die Weboberfläche des Dokumentenmanagements' },
+  { p: 'Outlook synchronisiert keine E-Mails mehr', wa: 'Outlook im Web im Browser' },
+  { p: 'die Anmeldung an der Warenwirtschaft bricht mit einem Fehler ab', wa: 'Erfassung von Aufträgen auf Papier und Nachtragen am Folgetag' },
+  { p: 'das VPN baut keine Verbindung auf', wa: 'Arbeiten im Büro statt im Homeoffice' },
+];
+
+const hhmm = (min: number) => `${String(Math.floor(min / 60)).padStart(2, '0')}:${String(min % 60).padStart(2, '0')}`;
+const timeAccept = (min: number) => {
+  const h = Math.floor(min / 60), m = String(min % 60).padStart(2, '0');
+  return [`${String(h).padStart(2, '0')}:${m}`, `${h}:${m}`, `${h}:${m} uhr`, `${String(h).padStart(2, '0')}:${m} uhr`, `${h}.${m}`, `${h}.${m} uhr`];
+};
+
+const prioGen: GeneratorMeta = {
+  id: 'sys.prio',
+  title: 'Störung priorisieren (Auswirkung × Dringlichkeit)',
+  skill: 'itsm.priority',
+  module: 'b06',
+  make(rng, d): Question {
+    const impact = rng.int(0, 2);
+    const urgency = rng.int(0, 2);
+    const prio = priority(impact, urgency);
+    const pr = rng.pick(PROBLEMS);
+    const name = rng.pick(['Frau Aksoy', 'Herr Becker', 'Frau Nowak', 'Herr Hansen']);
+    const dept = rng.pick(['Vertrieb', 'Einkauf', 'Buchhaltung', 'Lager']);
+    const impactText = [
+      `Betroffen ist der **gesamte Standort ${rng.pick(['Hamburg', 'Berlin'])}** (${rng.int(45, 70)} Mitarbeitende).`,
+      `Betroffen sind die **${rng.int(6, 18)} Mitarbeitenden der Abteilung ${dept}**.`,
+      `Betroffen ist **nur der Arbeitsplatz von ${name}** (${dept}).`,
+    ][impact];
+    const urgencyText = [
+      'Die Betroffenen können **nicht weiterarbeiten**, eine Ausweichlösung gibt es nicht.',
+      `Weiterarbeiten ist **eingeschränkt möglich** (Ausweichlösung: ${pr.wa}).`,
+      'Die laufende Arbeit ist **nicht beeinträchtigt**; die Behebung kann bis nächste Woche warten.',
+    ][urgency];
+    const report = 7 * 60 + 30 + rng.int(0, 29) * 5; // 07:30 … 09:55
+    const react = report + REACT_MIN[prio - 1];
+    const rows: TableQuestion['rows'] = [
+      { label: 'Auswirkung (Impact)', cells: { v: { answer: LVL[impact], accept: LVL_ACCEPT[impact] } } },
+      { label: 'Dringlichkeit (Urgency)', cells: { v: { answer: LVL[urgency], accept: LVL_ACCEPT[urgency] } } },
+      { label: 'Priorität (Zahl 1–5)', cells: { v: { answer: String(prio), accept: [`p${prio}`, `prio ${prio}`, `priorität ${prio}`, `prio${prio}`] } } },
+    ];
+    if (d >= 2) rows.push({ label: 'Reaktion spätestens um (hh:mm)', cells: { v: { answer: hhmm(react), accept: timeAccept(react) } } });
+    const mis: NonNullable<Question['misconceptions']> = [];
+    if (d >= 2) {
+      const solve = report + SOLVE_MIN[prio - 1];
+      if (solve < 24 * 60) mis.push({ cell: '3:v', answer: hhmm(solve), error: 'sla-reaktion-loesung', why: 'Das ist die **Lösungszeit**. Die **Reaktionszeit** ist die Zeit bis zur ersten qualifizierten Rückmeldung durch den Support.' });
+    }
+    return {
+      id: gid('sys.prio'), generated: true, kind: 'table', skill: 'itsm.priority', difficulty: d,
+      prompt:
+        `Um **${hhmm(report)} Uhr** (Mittwoch) meldet sich die Elektro Krämer GmbH beim Service Desk: ${pr.p}. ${impactText} ${urgencyText}\n\n` +
+        `**Einstufungsregeln laut SLA:**\n\n| Stufe | Auswirkung | Dringlichkeit |\n|---|---|---|\n| hoch | ganzer Standort oder geschäftskritischer Dienst für mehr als 20 Personen | Arbeit nicht möglich, keine Ausweichlösung |\n| mittel | eine Abteilung bzw. 2–20 Personen | Arbeit eingeschränkt möglich, Ausweichlösung vorhanden |\n| gering | eine einzelne Person | keine akute Beeinträchtigung, kann warten |\n\n` +
+        `**Prioritätsmatrix:**\n\n| Auswirkung ↓ / Dringlichkeit → | hoch | mittel | gering |\n|---|---|---|---|\n| **hoch** | 1 | 2 | 3 |\n| **mittel** | 2 | 3 | 4 |\n| **gering** | 3 | 4 | 5 |\n\n` +
+        (d >= 2 ? `**Zeiten (innerhalb der Servicezeit Mo–Fr 07:00–18:00 Uhr):**\n\n| Priorität | Reaktionszeit | Lösungszeit |\n|---|---|---|\n${REACT_MIN.map((r, i) => `| ${i + 1} (${PRIO_NAMES[i]}) | ${r >= 60 ? r / 60 + ' h' : r + ' min'} | ${SOLVE_MIN[i] / 60} h |`).join('\n')}\n\n` : '') +
+        `Fülle die Tabelle aus (Auswirkung/Dringlichkeit: *hoch*, *mittel* oder *gering*).`,
+      columns: [{ key: 'v', label: 'Einstufung', type: 'text' }],
+      rows,
+      hints: ['Auswirkung = Wie viele bzw. wie wichtig? Dringlichkeit = Wie schnell muss es gehen, gibt es einen Workaround?', 'Priorität aus der Matrix ablesen: Zeile Auswirkung, Spalte Dringlichkeit.', ...(d >= 2 ? ['Reaktionszeit zur Meldezeit addieren.'] : [])],
+      misconceptions: mis,
+      explanation:
+        `**Auswirkung:** ${impactText.replace(/\*\*/g, '')} → **${LVL[impact]}**.\n\n**Dringlichkeit:** ${urgencyText.replace(/\*\*/g, '')} → **${LVL[urgency]}**.\n\n` +
+        `**Priorität:** Matrix Zeile „${LVL[impact]}“, Spalte „${LVL[urgency]}“ → **${prio} (${PRIO_NAMES[prio - 1]})**.` +
+        (d >= 2 ? `\n\n**Reaktion:** ${hhmm(report)} Uhr + ${REACT_MIN[prio - 1]} min = **${hhmm(react)} Uhr** (liegt innerhalb der Servicezeit).` : ''),
+    };
+  },
+};
+
+/* ------------------------------------------------------------------ */
+/* Pareto-Analyse (80/20)                                              */
+/* ------------------------------------------------------------------ */
+
+const TICKET_CATS = ['Passwort / Konto gesperrt', 'Drucker', 'E-Mail / Outlook', 'VPN / Homeoffice', 'Hardwaredefekt', 'Softwareinstallation', 'WLAN', 'Sonstiges'];
+
+function paretoData(rng: Rng, n: number) {
+  const total = rng.pick([200, 250, 500]);
+  const cats = rng.shuffle(TICKET_CATS.filter((c) => c !== 'Sonstiges')).slice(0, n - 1);
+  // abfallende Gewichte (Pareto-typisch)
+  let w = [rng.int(34, 42), rng.int(20, 28), rng.int(10, 15), rng.int(6, 9), rng.int(4, 5), 3, 2, 1].slice(0, n);
+  const sum = w.reduce((a, b) => a + b, 0);
+  let counts = w.map((x) => Math.floor((x / sum) * total));
+  counts[0] += total - counts.reduce((a, b) => a + b, 0);
+  // eindeutige Reihenfolge erzwingen
+  for (let i = 1; i < counts.length; i++) if (counts[i] >= counts[i - 1]) { const diff = counts[i] - counts[i - 1] + 1; counts[i] -= diff; counts[0] += diff; }
+  counts = counts.map((c) => Math.max(1, c));
+  const fix = total - counts.reduce((a, b) => a + b, 0);
+  counts[0] += fix;
+  w = counts;
+  const items = cats.map((c, i) => ({ cat: c, count: w[i] }));
+  items.push({ cat: 'Sonstiges', count: w[n - 1] });
+  return { total, sorted: items, shown: rng.shuffle(items) };
+}
+const tenths = (count: number, total: number) => (count * 1000) / total; // ganzzahlig für total ∈ {200, 250, 500}
+const pct = (t: number) => t / 10;
+
+const paretoGen: GeneratorMeta = {
+  id: 'sys.pareto',
+  title: 'Pareto-Analyse von Tickets',
+  skill: 'itsm.analysis',
+  module: 'b06',
+  make(rng, d): Question {
+    const n = d === 1 ? 5 : d === 2 ? 6 : 7;
+    const { total, sorted, shown } = paretoData(rng, n);
+    // Sonstiges immer ans Ende der Pareto-Reihenfolge (Konvention), restliche absteigend
+    const order = [...sorted.filter((x) => x.cat !== 'Sonstiges').sort((a, b) => b.count - a.count), sorted.find((x) => x.cat === 'Sonstiges')!];
+    const shares = order.map((x) => tenths(x.count, total));
+    const cum: number[] = [];
+    shares.reduce((acc, s, i) => ((cum[i] = acc + s), acc + s), 0);
+    const table = `| Kategorie | Anzahl Tickets |\n|---|---|\n${shown.map((x) => `| ${x.cat} | ${x.count} |`).join('\n')}\n| **Summe** | **${total}** |`;
+    const intro = `Der Service Desk hat die Tickets des letzten Quartals nach Kategorien ausgewertet:\n\n${table}\n\n`;
+    const solTable = `| Rang | Kategorie | Anzahl | Anteil | kumuliert |\n|---|---|---|---|---|\n${order.map((x, i) => `| ${i + 1} | ${x.cat} | ${x.count} | ${fmtN(pct(shares[i]), 1)} % | ${fmtN(pct(cum[i]), 1)} % |`).join('\n')}`;
+    const mode = d === 1 ? 'topk' : d === 2 ? rng.pick(['topk', 'count80'] as const) : rng.pick(['table', 'count80'] as const);
+
+    if (mode === 'topk') {
+      const k = rng.pick([2, 3]);
+      const ans = pct(cum[k - 1]);
+      return {
+        id: gid('sys.pareto'), generated: true, kind: 'number', skill: 'itsm.analysis', difficulty: d,
+        prompt: intro + `Welchen Anteil (in %) an allen Tickets haben die **${k} häufigsten Kategorien** zusammen? (auf eine Nachkommastelle)`,
+        answer: ans,
+        tolerance: 0.05,
+        unit: '%',
+        hints: ['Kategorien absteigend nach Anzahl sortieren.', `Die ${k} größten Anzahlen addieren und durch ${total} teilen.`],
+        misconceptions: [{ answer: String(order.slice(0, k).reduce((a, x) => a + x.count, 0)), error: 'pareto-anzahl-statt-anteil', why: 'Das ist die **Anzahl** der Tickets – gefragt ist der prozentuale Anteil.' }],
+        explanation: `${solTable}\n\nDie ${k} häufigsten Kategorien: ${order.slice(0, k).map((x) => x.count).join(' + ')} = ${order.slice(0, k).reduce((a, x) => a + x.count, 0)} Tickets → ${order.slice(0, k).reduce((a, x) => a + x.count, 0)} / ${total} · 100 % = **${fmtN(ans, 1)} %**.`,
+      };
+    }
+    if (mode === 'count80') {
+      const idx = cum.findIndex((c) => c >= 800);
+      const ans = idx + 1;
+      return {
+        id: gid('sys.pareto'), generated: true, kind: 'number', skill: 'itsm.analysis', difficulty: d,
+        prompt: intro + 'Wie viele Kategorien (die häufigsten zuerst, „Sonstiges“ zuletzt) muss das Team mindestens angehen, um **mindestens 80 %** aller Tickets abzudecken?',
+        answer: ans,
+        unit: 'Kategorien',
+        hints: ['Absteigend sortieren und kumulierte Anteile bilden.', 'Die erste Kategorie, bei der die Summe 80 % erreicht oder überschreitet, gibt die Anzahl an.'],
+        misconceptions: ans > 1 ? [{ answer: String(ans - 1), error: 'pareto-schwelle', why: `Mit ${ans - 1} Kategorien sind erst ${fmtN(pct(cum[ans - 2]), 1)} % abgedeckt – das ist weniger als 80 %.` }] : [],
+        explanation: `${solTable}\n\nDie kumulierte Summe erreicht 80 % erstmals bei Rang ${ans} (${fmtN(pct(cum[idx]), 1)} %) → **${ans} Kategorien**. Genau das meint das Pareto-Prinzip: wenige Ursachen erzeugen den Großteil der Tickets.`,
+      };
+    }
+    const rows: TableQuestion['rows'] = order.map((x, i) => ({
+      label: `${i + 1}. ${x.cat} (${x.count})`,
+      cells: { a: { answer: String(pct(shares[i])) }, k: { answer: String(pct(cum[i])) } },
+    }));
+    return {
+      id: gid('sys.pareto'), generated: true, kind: 'table', skill: 'itsm.analysis', difficulty: d,
+      prompt: intro + 'Erstelle die Pareto-Tabelle: Die Kategorien sind bereits absteigend sortiert (Sonstiges zuletzt). Trage jeweils den **Anteil in %** und den **kumulierten Anteil in %** ein (eine Nachkommastelle, ohne %-Zeichen).',
+      columns: [{ key: 'a', label: 'Anteil %', type: 'number' }, { key: 'k', label: 'kumuliert %', type: 'number' }],
+      rows,
+      hints: [`Anteil = Anzahl / ${total} · 100.`, 'Kumuliert = Summe aller Anteile bis einschließlich dieser Zeile; die letzte Zeile muss 100 ergeben.'],
+      explanation: `${solTable}\n\nKontrolle: Die letzte kumulierte Zahl ist 100 %.`,
+    };
+  },
+};
+
+export const GENERATORS_SYSTEME: GeneratorMeta[] = [chmodGen, effRightsGen, fsGen, partitionGen, serverLicGen, vmHostGen, slaGen, prioGen, paretoGen];
 
 /** nur für Tests/Debugging */
 export const _internal = { FAT32_MAX, MBR_MAX, Rng: Rng as typeof Rng, d: (x: number) => x as Difficulty };

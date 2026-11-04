@@ -19,6 +19,11 @@ import { m13 } from './modules/m13';
 import { m14 } from './modules/m14';
 import { m15 } from './modules/m15';
 import { m16 } from './modules/m16';
+import { h01 } from './modules/h01';
+import { h02 } from './modules/h02';
+import { h03 } from './modules/h03';
+import { h04 } from './modules/h04';
+import { h05 } from './modules/h05';
 
 /**
  * Fachbereiche. Neue Bereiche (z. B. IT-Sicherheit, Wirtschaft, Programmierung, AP2-Themen)
@@ -34,7 +39,7 @@ export const AREAS: Area[] = [
 ];
 
 /** Empfohlene Lernreihenfolge (Binär vor IPv4, IPv4 vor Subnetting …). */
-export const MODULES: Module[] = [m01, m02, m04, m03, m05, m06, m07, m08, m09, m10, m11, m12, m13, m14, m15, m16].filter(Boolean);
+export const MODULES: Module[] = [m01, m02, m04, m03, m05, m06, m07, m08, m09, m10, m11, m12, m13, m14, m15, m16, h01, h02, h03, h04, h05].filter(Boolean);
 
 export const moduleArea = (m: Module) => m.area ?? 'netzwerk';
 

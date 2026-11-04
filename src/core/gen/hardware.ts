@@ -5,6 +5,7 @@
 import type { Difficulty, NumberQuestion } from '../../content/types';
 import type { GeneratorMeta } from '../generators';
 import { Rng } from '../rng';
+import { grade } from '../grading';
 
 let counter = 0;
 const gid = (g: string) => `gen:${g}:${Date.now().toString(36)}${(counter++).toString(36)}`;
@@ -32,7 +33,7 @@ function numQ(
     .filter((m) => Number.isFinite(m.answer) && Math.abs(m.answer - o.answer) > o.tolerance + 1e-9)
     .map((m) => ({ answer: String(m.answer), error: m.error, why: m.why }))
     .filter((m) => (seen.has(m.answer) ? false : (seen.add(m.answer), true)));
-  return {
+  const q: NumberQuestion = {
     id: gid(genId),
     generated: true,
     kind: 'number',
@@ -46,6 +47,9 @@ function numQ(
     misconceptions,
     explanation: o.explanation,
   };
+  // Fehlbilder entfernen, die der Bewertungskern (z. B. wegen 1.234 = 1234) als richtig werten würde
+  q.misconceptions = misconceptions.filter((m) => !grade(q, m.answer).correct);
+  return q;
 }
 
 /* ------------------------------------------------------------------ */
@@ -161,14 +165,14 @@ const leistung: GeneratorMeta = {
       ]);
       const p = round(dev.u * dev.i, 2);
       return numQ('hw.leistung', 'hw.energy.power', d, {
-        prompt: `${dev.name} **${f(dev.u)} V** bei **${f(dev.i)} A**${dev.u === 230 ? ' auf' : ''}. Welche **Leistung in Watt** ergibt sich? (auf zwei Nachkommastellen runden)`,
+        prompt: `${dev.name} **${f(dev.u)} V** bei **${f(dev.i)} A**${dev.u === 230 ? ' auf (vereinfacht: Wechselstrom mit cos φ = 1)' : ''}. Welche **Leistung in Watt** ergibt sich? (auf zwei Nachkommastellen runden)`,
         answer: p,
         tolerance: 0.01,
         unit: 'W',
         hints: ['P = U · I'],
         mcs: [
-          { answer: round(dev.u / dev.i, 2), error: 'leistung-formel', why: 'U / I ergibt den **Widerstand** (Ohm), nicht die Leistung. Leistung: P = U · I.' },
-          { answer: round(dev.i / dev.u, 2), error: 'leistung-formel', why: 'Leistung: P = U · I (multiplizieren, nicht teilen).' },
+          { answer: round(dev.u / dev.i, 4), error: 'leistung-formel', why: 'U / I ergibt den **Widerstand** (Ohm), nicht die Leistung. Leistung: P = U · I.' },
+          { answer: round(dev.i / dev.u, 4), error: 'leistung-formel', why: 'Leistung: P = U · I (multiplizieren, nicht teilen).' },
         ],
         explanation: `P = U · I = ${f(dev.u)} V · ${f(dev.i)} A = **${f(p)} W**`,
       });
@@ -185,7 +189,7 @@ const leistung: GeneratorMeta = {
         hints: ['P = U · I nach I umstellen.', 'I = P / U'],
         mcs: [
           { answer: round(pw * u, 3), error: 'leistung-formel', why: 'Falsch umgestellt: aus P = U · I folgt I = P / U, nicht P · U.' },
-          { answer: round(u / pw, 3), error: 'leistung-formel', why: 'Falsch umgestellt: I = P / U (Leistung durch Spannung).' },
+          { answer: round(u / pw, 4), error: 'leistung-formel', why: 'Falsch umgestellt: I = P / U (Leistung durch Spannung).' },
         ],
         explanation: `I = P / U = ${pw} W / ${u} V = **${f(i, 3)} A**`,
       });
@@ -508,7 +512,7 @@ const seitenkosten: GeneratorMeta = {
         tolerance: 0.01,
         unit: 'ct',
         hints: ['Kosten pro Seite = Preis / Reichweite.', 'Euro · 100 = Cent.'],
-        mcs: [{ answer: round(tonerPrice / yieldPages, 2), error: 'energie-cent-euro', why: 'Das Ergebnis ist in **Euro**. Für Cent mit 100 multiplizieren.' }],
+        mcs: [{ answer: round(tonerPrice / yieldPages, 5), error: 'energie-cent-euro', why: 'Das Ergebnis ist in **Euro**. Für Cent mit 100 multiplizieren.' }],
         explanation: `${fx(tonerPrice)} € / ${f(yieldPages, 0)} Seiten = ${f(tonerPrice / yieldPages, 5)} € = **${f(ans, 2)} ct** pro Seite`,
       });
     }
@@ -518,6 +522,7 @@ const seitenkosten: GeneratorMeta = {
     const drumCt = (drumPrice / drumYield) * 100;
     const paperCt = (paperPack / 500) * 100;
     const pageCt = tonerCt + drumCt + paperCt;
+    const pageCtGiven = round(pageCt, 4);
     if (d === 2) {
       const ans = round(pageCt, 2);
       return numQ('hw.seitenkosten', 'hw.io.printer', d, {
@@ -542,24 +547,24 @@ const seitenkosten: GeneratorMeta = {
     const years = rng.pick([3, 4, 5]);
     const pagesPerMonth = rng.pick([1500, 2000, 2500, 3000]);
     const pagesYear = pagesPerMonth * 12;
-    const total = round(devicePrice / years + (pagesYear * pageCt) / 100, 2);
+    const total = round(devicePrice / years + (pagesYear * pageCtGiven) / 100, 2);
     return numQ('hw.seitenkosten', 'hw.io.printer', d, {
       prompt:
-        `Für die Buchhaltung soll ein Laserdrucker angeschafft werden: Anschaffungspreis **${fx(devicePrice)} €**, geplante Nutzungsdauer **${years} Jahre** (lineare Verteilung). Pro Seite fallen **${fx(pageCt, 4)} ct** Verbrauchskosten an (Toner, Trommel, Papier). Die Abteilung druckt **${f(pagesPerMonth, 0)} Seiten pro Monat**.\n\n` +
+        `Für die Buchhaltung soll ein Laserdrucker angeschafft werden: Anschaffungspreis **${fx(devicePrice)} €**, geplante Nutzungsdauer **${years} Jahre** (lineare Verteilung). Pro Seite fallen **${fx(pageCtGiven, 4)} ct** Verbrauchskosten an (Toner, Trommel, Papier). Die Abteilung druckt **${f(pagesPerMonth, 0)} Seiten pro Monat**.\n\n` +
         `Wie hoch sind die **Gesamtkosten pro Jahr in Euro** (anteiliger Gerätepreis + Verbrauch)? (auf Cent runden)`,
       answer: total,
       tolerance: 0.02,
       unit: '€',
       hints: ['Anteiliger Gerätepreis pro Jahr = Preis / Nutzungsdauer.', 'Seiten pro Jahr = Seiten pro Monat · 12; Verbrauch = Seiten · Kosten pro Seite (ct → €).'],
       mcs: [
-        { answer: round(devicePrice + (pagesYear * pageCt) / 100, 2), error: 'druck-abschreibung', why: 'Der Gerätepreis verteilt sich auf die Nutzungsdauer – pro Jahr nur Preis / Jahre.' },
-        { answer: round(devicePrice / years + pagesYear * pageCt, 2), error: 'energie-cent-euro', why: 'Die Seitenkosten sind in **Cent** angegeben – durch 100 teilen.' },
-        { answer: round(devicePrice / years + (pagesPerMonth * pageCt) / 100, 2), error: 'energie-zeitraum', why: 'Monatsmenge statt Jahresmenge verwendet (· 12).' },
+        { answer: round(devicePrice + (pagesYear * pageCtGiven) / 100, 2), error: 'druck-abschreibung', why: 'Der Gerätepreis verteilt sich auf die Nutzungsdauer – pro Jahr nur Preis / Jahre.' },
+        { answer: round(devicePrice / years + pagesYear * pageCtGiven, 2), error: 'energie-cent-euro', why: 'Die Seitenkosten sind in **Cent** angegeben – durch 100 teilen.' },
+        { answer: round(devicePrice / years + (pagesPerMonth * pageCtGiven) / 100, 2), error: 'energie-zeitraum', why: 'Monatsmenge statt Jahresmenge verwendet (· 12).' },
       ],
       explanation:
         `**1. Geräteanteil:** ${fx(devicePrice)} € / ${years} = **${fx(devicePrice / years)} €** pro Jahr\n\n` +
         `**2. Seiten pro Jahr:** ${f(pagesPerMonth, 0)} · 12 = **${f(pagesYear, 0)}**\n\n` +
-        `**3. Verbrauch:** ${f(pagesYear, 0)} · ${fx(pageCt, 4)} ct = ${f(pagesYear * pageCt, 2)} ct = **${fx((pagesYear * pageCt) / 100)} €**\n\n` +
+        `**3. Verbrauch:** ${f(pagesYear, 0)} · ${fx(pageCtGiven, 4)} ct = ${f(pagesYear * pageCtGiven, 2)} ct = **${fx((pagesYear * pageCtGiven) / 100)} €**\n\n` +
         `**4. Summe:** **${fx(total)} €** pro Jahr`,
     });
   },
@@ -662,13 +667,13 @@ const tbw: GeneratorMeta = {
       unit: 'Jahre',
       hints: ['TBW in GB umrechnen: · 1000.', 'Tage = GB / (GB pro Tag); Jahre = Tage / 365.'],
       mcs: [
-        { answer: round(tbwVal / (perDayGB * 365), 1), error: 'einheit-tb-gb', why: 'TB und GB nicht angeglichen: 1 TB = 1000 GB.' },
+        { answer: round(tbwVal / (perDayGB * 365), 4), error: 'einheit-tb-gb', why: 'TB und GB nicht angeglichen: 1 TB = 1000 GB.' },
         { answer: round((tbwVal * 1000) / perDayGB, 1), error: 'tbw-tage-jahre', why: 'Das Ergebnis sind **Tage**. Durch 365 teilen für Jahre.' },
       ],
       explanation:
         `**1. TBW in GB:** ${f(tbwVal, 0)} TB · 1000 = **${f(tbwVal * 1000, 0)} GB**\n\n` +
         `**2. Tage:** ${f(tbwVal * 1000, 0)} GB / ${perDayGB} GB/Tag = **${f((tbwVal * 1000) / perDayGB, 1)} Tage**\n\n` +
-        `**3. Jahre:** / 365 = **${f(years, 1)} Jahre**\n\n` +
+        `**3. Jahre:** / 365 = **${fx(years, 1)} Jahre**\n\n` +
         (years > 10 ? 'Für einen normalen Büro-PC ist die TBW-Angabe also praktisch nie das begrenzende Kriterium.' : 'Bei dieser Schreiblast ist eine SSD mit höherer TBW/DWPD (z. B. Enterprise-SSD) sinnvoll.'),
     });
   },

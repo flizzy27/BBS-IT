@@ -32,7 +32,7 @@ function correctResponse(q: Question): unknown {
 
 describe('Inhalte', () => {
   it('Module, Lektionen und Fragen sind vorhanden', () => {
-    expect(MODULES.length).toBe(16);
+    expect(MODULES.length).toBeGreaterThanOrEqual(16);
     expect(LESSONS.length).toBeGreaterThan(80);
     expect(QUESTIONS.length).toBeGreaterThan(400);
   });
