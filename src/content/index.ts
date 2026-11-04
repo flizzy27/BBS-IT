@@ -67,7 +67,7 @@ export const AREAS: Area[] = [
 ];
 
 /** Empfohlene Lernreihenfolge (Binär vor IPv4, IPv4 vor Subnetting …). */
-export const MODULES: Module[] = [m01, m02, m04, m03, m05, m06, m07, m08, m09, m10, m11, m12, m13, m14, m15, m16, h01, h02, h03, h04, h05, w01, w02, w03, w04, w05, d01, d02, d03, s01, s02, s03, s04, s05, b01, b02, b03, b04, b05, b06, p01, p02, p03, p04, p05, e01, d04].filter(Boolean);
+export const MODULES: Module[] = [m01, m02, m04, m03, m05, m06, m07, m08, m09, m10, m11, m12, m13, m14, m15, m16, h01, h02, h03, h04, h05, w01, w02, w03, w04, w05, d01, d02, d03, d04, s01, s02, s03, s04, s05, b01, b02, b03, b04, b05, b06, p01, p02, p03, p04, p05, e01].filter(Boolean);
 
 export const moduleArea = (m: Module) => m.area ?? 'netzwerk';
 

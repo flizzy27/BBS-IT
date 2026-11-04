@@ -360,6 +360,16 @@ export function ExamRun({ type, module }: { type: TestType; module?: string }) {
 
 /* ------------------------------------------------------------------ */
 
+/** Selbstdiagnose: Warum wurden Punkte verloren? (Prüfungsverhalten statt nur Fachwissen) */
+const REASONS: { id: string; label: string; tip: string }[] = [
+  { id: 'wissen', label: 'Wusste es nicht', tip: 'Thema im Fragenkatalog lernen – erst die Lektion („Kurz & einfach“), dann die Fragen, bis sie sicher sitzen.' },
+  { id: 'operator', label: 'Aufgabe falsch gelesen', tip: 'Operator unterstreichen: „nennen“ = Stichworte, „erläutern“ = mit Begründung/Beispiel, „beurteilen“ = Entscheidung + Begründung. Auf Anzahl achten („zwei Vorteile“).' },
+  { id: 'beleg', label: 'Beleg nicht genutzt', tip: 'Vor dem Antworten den Beleg (Tabelle, Datenblatt, Angebot) markieren: Welche Werte braucht die Aufgabe? Antworten immer auf die Handlungssituation beziehen.' },
+  { id: 'rechenweg', label: 'Rechenweg/Einheit', tip: 'Formel hinschreiben, Werte mit Einheit einsetzen, Zwischenergebnisse notieren – auch bei falschem Ergebnis gibt es Teilpunkte für den Weg.' },
+  { id: 'fluechtig', label: 'Flüchtigkeitsfehler', tip: 'Am Ende 5 Minuten zum Kontrollieren einplanen: Einheiten, Kommastellen, Rundungsvorgabe.' },
+  { id: 'zeit', label: 'Zeit hat nicht gereicht', tip: 'Zeitplan: ca. 20 Minuten je 25-Punkte-Aufgabe. Erst alles bearbeiten, was du sicher kannst, dann den Rest.' },
+];
+
 export function ExamResult({ id }: { id: string }) {
   const [test, setTest] = useState<TestRecord | null>(null);
   const [open, setOpen] = useState<number | null>(null);
@@ -381,6 +391,13 @@ export function ExamResult({ id }: { id: string }) {
   const errs = new Map<string, number>();
   for (const it of test.items) for (const t of it.errorTags) errs.set(t, (errs.get(t) ?? 0) + 1);
   const dur = test.tsEnd ? Math.round((test.tsEnd - test.tsStart) / 60000) : 0;
+  const lost = test.items.map((it, i) => ({ it, i })).filter(({ it }) => !(it as { pending?: boolean }).pending && it.score < 1);
+  const reasonCount = REASONS.map((r) => ({ ...r, n: lost.filter(({ it }) => it.reason === r.id).length })).filter((r) => r.n > 0).sort((a, b) => b.n - a.n);
+  const setReason = async (i: number, reason: string) => {
+    const t2 = { ...test, items: test.items.map((it, j) => (j === i ? { ...it, reason } : it)) };
+    setTest(t2);
+    await api.saveTest(t2);
+  };
 
   const rateFree = async (i: number, s: number) => {
     const items = test.items.map((it, j) => (j === i ? { ...it, score: s, correct: s >= 0.75, pending: false } : it));
@@ -426,6 +443,28 @@ export function ExamResult({ id }: { id: string }) {
           </div>
         ))}
       </div>
+      {lost.length > 0 && test.type !== 'einstufung' && (
+        <div className="card mt">
+          <div className="card-title"><Icon name="Stethoscope" size={18} />Selbstdiagnose: Woran lag es?</div>
+          <p className="small muted" style={{ marginTop: 0 }}>Wähle bei jeder Aufgabe mit Punktverlust den Hauptgrund. In der echten Prüfung gehen viele Punkte nicht durch fehlendes Wissen verloren, sondern durch falsch gelesene Aufgaben oder fehlende Rechenwege.</p>
+          {lost.map(({ it, i }) => (
+            <div key={i} className="row wrap small" style={{ padding: '6px 0', borderBottom: '1px solid var(--border)', gap: 6 }}>
+              <b style={{ minWidth: 90 }}>Aufgabe {i + 1}</b>
+              <span className="muted" style={{ flex: 1, minWidth: 140 }}>{skillTitle(it.question.skill)} · {Math.round(it.score * it.points * 10) / 10}/{it.points} P.</span>
+              {REASONS.map((r) => (
+                <button key={r.id} className={`btn sm ${it.reason === r.id ? 'primary' : 'ghost'}`} onClick={() => setReason(i, r.id)}>{r.label}</button>
+              ))}
+            </div>
+          ))}
+          {reasonCount.length > 0 && (
+            <div className="col mt">
+              {reasonCount.map((r) => (
+                <div key={r.id} className="block explain" style={{ padding: '12px 16px' }}><b>{r.label} ({r.n}×):</b> {r.tip}</div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
       <h2 className="mt-lg">Alle Aufgaben</h2>
       <div className="col">
         {test.items.map((it, i) => {

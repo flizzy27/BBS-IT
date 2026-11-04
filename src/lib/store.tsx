@@ -26,6 +26,8 @@ export const DEFAULT_SETTINGS: Settings = {
   name: '',
   selfReport:
     'Subnetting begonnen. Verstanden: IPv4 = 32 Bit; /24 → 8 Hostbits, 256 Adressen; 1 ausgeliehenes Bit → zwei /25, 2 Bits → vier /26; Subnetze = 2^ausgeliehene Bits; Adressen = 2^Hostbits; 2 reservierte Adressen. Richtig gelöst: 48 Hosts → /26, 23 Hosts → /27, zweites /27-Subnetz von 192.168.1.0 beginnt bei .32, 192.168.10.192/27 endet bei .223. Unsicher: binäre Hintergründe, Funktionsweise der Masken, vollständige Netzplanung.',
+  // bundesweiter Termin AP1 IT-Berufe Frühjahr 2027 (IHK Berlin/Hagen, AkA)
+  examDate: '2027-02-24',
   onboarded: false,
   placementDone: false,
   dailyGoalMin: 30,

@@ -38,7 +38,7 @@ export interface TestRecord {
   score?: number;
   maxScore?: number;
   timeLimitMin?: number;
-  items: { question: Question; response: unknown; correct: boolean; score: number; errorTags: string[]; feedback: string; points: number }[];
+  items: { question: Question; response: unknown; correct: boolean; score: number; errorTags: string[]; feedback: string; points: number; reason?: string }[];
 }
 
 export interface AiStatus {

@@ -18,6 +18,8 @@ import {
   type RateUnit,
 } from '../core/units';
 import { Icon, Progress } from '../components/common';
+import { fisiResult, type FisiInput } from '../core/fisiNote';
+import { ihkGrade } from './Exam';
 import { BinaryOctet, BitRow, IpBinary, Ipv6Compress, Legend, VlsmBoxes } from '../components/widgets';
 
 /* ------------------------------------------------------------------ */
@@ -1217,10 +1219,55 @@ function PortsTable() {
 }
 
 /* ------------------------------------------------------------------ */
+/* Gesamtnote FISI                                                     */
+/* ------------------------------------------------------------------ */
+
+const NOTE_FIELDS: { key: keyof FisiInput; label: string; w: string }[] = [
+  { key: 'ap1', label: 'Teil 1: Einrichten eines IT-gestützten Arbeitsplatzes', w: '20 %' },
+  { key: 'projektarbeit', label: 'Projekt: Dokumentation der Projektarbeit', w: '25 %' },
+  { key: 'praesentation', label: 'Projekt: Präsentation und Fachgespräch', w: '25 %' },
+  { key: 'ka', label: 'Konzeption und Administration von IT-Systemen', w: '10 %' },
+  { key: 'nw', label: 'Analyse und Entwicklung von Netzwerken', w: '10 %' },
+  { key: 'wiso', label: 'Wirtschafts- und Sozialkunde', w: '10 %' },
+];
+const NOTE_LABEL: Record<'ka' | 'nw' | 'wiso', string> = { ka: 'Konzeption & Administration', nw: 'Netzwerke', wiso: 'WiSo' };
+
+function FisiNoteTool() {
+  const [v, setV] = useState<Record<keyof FisiInput, string>>({ ap1: '75', projektarbeit: '80', praesentation: '80', ka: '65', nw: '65', wiso: '70' });
+  const nums = Object.fromEntries(Object.entries(v).map(([k, x]) => [k, Math.max(0, Math.min(100, Number(x.replace(',', '.')) || 0))])) as unknown as FisiInput;
+  const r = fisiResult(nums);
+  return (
+    <div className="grid grid-2">
+      <div className="card">
+        <div className="card-title"><Icon name="GraduationCap" size={18} />Deine Punkte (0–100)</div>
+        {NOTE_FIELDS.map((f) => (
+          <label key={f.key} className="row between small" style={{ padding: '5px 0', gap: 10 }}>
+            <span>{f.label} <span className="dim">({f.w})</span></span>
+            <input className="input mono" style={{ width: 80 }} inputMode="decimal" value={v[f.key]} onChange={(e) => setV({ ...v, [f.key]: e.target.value })} />
+          </label>
+        ))}
+        <p className="tiny dim mt">Gewichtung und Bestehensregeln nach FIAusbV § 24 (Fachrichtung Systemintegration). Projektarbeit und Präsentation zählen je zur Hälfte (§ 20).</p>
+      </div>
+      <div className="card">
+        <div className="card-title"><Icon name="Award" size={18} />Ergebnis</div>
+        <div style={{ fontSize: '2.2rem', fontWeight: 800 }}>{r.gesamt.toLocaleString('de-DE')} <span className="dim" style={{ fontSize: '1rem' }}>Punkte gesamt</span></div>
+        <div className="small">Note {ihkGrade(r.gesamt).note} – {ihkGrade(r.gesamt).label} · Teil 2: {r.teil2.toLocaleString('de-DE')} P. · Projekt: {r.projekt.toLocaleString('de-DE')} P.</div>
+        <div className={`block mt ${r.bestanden ? 'summary' : 'explain'}`} style={{ padding: '12px 16px' }}>
+          <b>{r.bestanden ? 'Bestanden' : 'Nicht bestanden'}</b>
+          {r.gruende.map((g) => <div key={g} className="small">• {g}</div>)}
+          {r.ergaenzung.length > 0 && <div className="small mt">Möglich: mündliche Ergänzungsprüfung (15 Min., Verrechnung 2 : 1) in {r.ergaenzung.map((k) => NOTE_LABEL[k]).join(' oder ')}.</div>}
+        </div>
+        <div className="small muted mt">Bestanden, wenn: Gesamtergebnis ≥ 50, Teil 2 ≥ 50, mindestens drei der vier Teil-2-Bereiche ≥ 50 und keiner unter 30 Punkten.</div>
+      </div>
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------ */
 /* Seite                                                               */
 /* ------------------------------------------------------------------ */
 
-type TabId = 'subnet' | 'masks' | 'binary' | 'vlsm' | 'ipv6' | 'units' | 'ports';
+type TabId = 'subnet' | 'masks' | 'binary' | 'vlsm' | 'ipv6' | 'units' | 'ports' | 'note';
 
 const TABS: { id: TabId; label: string; icon: string }[] = [
   { id: 'subnet', label: 'Subnetzrechner', icon: 'Calculator' },
@@ -1230,6 +1277,7 @@ const TABS: { id: TabId; label: string; icon: string }[] = [
   { id: 'ipv6', label: 'IPv6', icon: 'Globe' },
   { id: 'units', label: 'Übertragung & Einheiten', icon: 'Gauge' },
   { id: 'ports', label: 'Ports & Protokolle', icon: 'Plug' },
+  { id: 'note', label: 'Gesamtnote FISI', icon: 'GraduationCap' },
 ];
 
 export function ToolsPage() {
@@ -1265,6 +1313,7 @@ export function ToolsPage() {
       <div style={{ display: tab === 'ipv6' ? undefined : 'none' }}><Ipv6Tool /></div>
       <div style={{ display: tab === 'units' ? undefined : 'none' }}><UnitsTools /></div>
       <div style={{ display: tab === 'ports' ? undefined : 'none' }}><PortsTable /></div>
+      <div style={{ display: tab === 'note' ? undefined : 'none' }}><FisiNoteTool /></div>
     </div>
   );
 }
