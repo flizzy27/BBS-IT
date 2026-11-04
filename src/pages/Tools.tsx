@@ -647,7 +647,7 @@ function VlsmPlanner() {
           <Card title="Machbarkeit" icon="Gauge">
             <div className="small">
               Benötigt: {result.demands.map((d) => de(blockSize(requiredPrefix(d, result.opts)))).join(' + ')} = <b>{de(result.needed)}</b> Adressen ·
-              verfügbar in {result.baseStr}: <b>{de(result.available)}</b> Adressen ({Math.round((result.needed / result.available) * 1000) / 10} %)
+              verfügbar in {result.baseStr}: <b>{de(result.available)}</b> Adressen ({formatNumber(Math.round((result.needed / result.available) * 1000) / 10)} %)
             </div>
             <div className="mt"><Progress value={result.needed / result.available} ok={!!result.plan} /></div>
             {result.plan ? (
