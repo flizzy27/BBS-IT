@@ -6,7 +6,7 @@ Stand: 04.11.2026
 
 | Bereich | Stand |
 |---|---|
-| Rechenkern IPv4/Subnetting/VLSM/IPv6/Einheiten | vollständig, 90+ automatisierte Tests inkl. 2.000 Zufallsprüfungen und Validierung von VLSM-Plänen |
+| Rechenkern IPv4/Subnetting/VLSM/IPv6/Einheiten | vollständig; 71 automatisierte Testfälle, darunter 2.000 Zufallsprüfungen und Validierung von VLSM-Plänen |
 | Aufgabengeneratoren | 26 Generatoren (Binär, Masken, Netz/Broadcast, Hosts, Subnetze, n-tes Subnetz, Tabellen, VLSM, IPv6, Einheiten, Übertragungszeit, Routing/LPM); jeder Generator wird mit 120 Zufallsaufgaben gegen die eigene Musterlösung geprüft |
 | Inhalte | 16 Module, ~105 Lektionen, ~700 Fragen; automatischer Test prüft IDs, Verweise, Antwortindizes und dass jede Musterlösung als korrekt bewertet wird |
 | Lernmodus | geführte Lektionen, schrittweises Aufdecken von Beispielen, Verständnisfragen blockieren das Weiterklicken, Fortschritt & Fortsetzen |
