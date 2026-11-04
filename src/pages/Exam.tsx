@@ -3,7 +3,7 @@
  * ausführliche Auswertung mit IHK-Notenschlüssel. Enthält auch den Einstufungstest.
  */
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { MODULES, MODULE_MAP, QUESTIONS, SKILL_MAP, skillTitle } from '../content';
+import { AREAS, MODULES, MODULE_MAP, QUESTIONS, SKILL_MAP, moduleArea, skillTitle } from '../content';
 import type { Difficulty, Question } from '../content/types';
 import { GENERATORS, generate } from '../core/generators';
 import { grade, type GradeResult, type ResponseValue } from '../core/grading';
@@ -29,7 +29,7 @@ export function ihkGrade(points: number): { note: number; label: string; color: 
 const BASE_POINTS: Record<Question['kind'], number> = { single: 3, multi: 4, match: 4, order: 4, text: 4, number: 5, ip: 5, cidr: 4, table: 8, free: 8, vlsm: 14 };
 const OPEN_KINDS: Question['kind'][] = ['number', 'ip', 'cidr', 'text', 'table', 'free', 'vlsm'];
 
-export type TestType = 'kurz' | 'modul' | 'gemischt' | 'schwaechen' | 'rechnen' | 'ap1' | 'einstufung';
+export type TestType = 'kurz' | 'modul' | 'gemischt' | 'schwaechen' | 'rechnen' | 'ap1' | 'ap1komplett' | 'einstufung';
 
 interface TestConfig { type: TestType; module?: string; count: number; minutes: number | null; title: string }
 
@@ -39,6 +39,7 @@ const TYPES: { type: TestType; title: string; desc: string; icon: string; count:
   { type: 'gemischt', title: 'Gemischter Netzwerktest', desc: '20 Aufgaben über alle Module.', icon: 'Shuffle', count: 20, minutes: 40 },
   { type: 'schwaechen', title: 'Schwachstellen-Test', desc: 'Gezielt deine unsichersten Themen.', icon: 'Target', count: 10, minutes: 20 },
   { type: 'rechnen', title: 'Rechen-Marathon', desc: 'Anspruchsvolle Subnetting-, VLSM-, IPv6- und Übertragungsrechnungen.', icon: 'Calculator', count: 10, minutes: 35 },
+  { type: 'ap1komplett', title: 'AP1-Simulation komplett', desc: 'Wie die echte Prüfung: 4 Aufgaben à 25 Punkte aus allen Fachbereichen, nur offene Aufgaben, 90 Minuten, IHK-Notenschlüssel.', icon: 'Trophy', count: 20, minutes: 90 },
   { type: 'ap1', title: 'AP1-Simulation Netzwerk', desc: 'Prüfungsnah: 90 Minuten, offene Aufgaben ohne Hilfen, 100 Punkte, IHK-Notenschlüssel.', icon: 'GraduationCap', count: 22, minutes: 90 },
 ];
 
@@ -81,6 +82,22 @@ function pickQuestions(cfg: TestConfig, skills: Record<string, import('../core/l
     const started = practicableSkills().filter((id) => skills[id]);
     const list = rng.shuffle(started.length >= 3 ? started : practicableSkills());
     for (let i = 0; out.length < cfg.count && i < cfg.count * 4; i++) add(fromSkill(list[i % list.length], 2));
+  } else if (cfg.type === 'ap1komplett') {
+    for (const block of AP1_BLOCKS) {
+      const mods = MODULES.filter((m) => block.areas.includes(moduleArea(m)) && m.relevance !== 'vertiefung');
+      const ids = rng.shuffle(mods.flatMap((m) => practicableSkills(m.id)));
+      let n = 0;
+      for (let i = 0; n < 5 && i < ids.length * 2; i++) {
+        const q = fromSkill(ids[i % ids.length], rng.bool(0.6) ? 2 : rng.bool(0.5) ? 3 : 1, true);
+        if (!q || q.kind === 'vlsm' || out.some((x) => x.skill === q.skill)) continue;
+        const before = out.length;
+        add(q);
+        if (out.length > before) {
+          (q as Question & { block?: number }).block = AP1_BLOCKS.indexOf(block);
+          n++;
+        }
+      }
+    }
   } else if (cfg.type === 'einstufung') {
     // Einstufung: Grundlagen breit, Schwerpunkt Binär/IPv4/Subnetting (bekannte Lücke)
     const plan: [string, Difficulty][] = [
@@ -119,6 +136,14 @@ function pickQuestions(cfg: TestConfig, skills: Record<string, import('../core/l
   return out;
 }
 
+/** Aufgabenblöcke der Komplett-Simulation: je 25 Punkte, Fachbereiche nach Prüfungskatalog/Themenstatistik. */
+export const AP1_BLOCKS: { title: string; areas: string[]; scenario: string }[] = [
+  { title: 'Netzwerk & IP-Konfiguration', areas: ['netzwerk'], scenario: 'Die Elektro Krämer GmbH richtet für neue Mitarbeitende Arbeitsplätze ein und bindet sie ins Firmennetz ein.' },
+  { title: 'IT-Systeme, Hardware & Betrieb', areas: ['hardware', 'systeme'], scenario: 'Für die Abteilung Vertrieb werden neue Arbeitsplatzrechner ausgewählt, installiert und übergeben.' },
+  { title: 'IT-Sicherheit & Datenschutz', areas: ['sicherheit', 'daten'], scenario: 'Die Geschäftsführung möchte die Sicherheit der neuen Arbeitsplätze und den Datenschutz verbessern.' },
+  { title: 'Programmierung, Wirtschaft & Kundenberatung', areas: ['programmierung', 'wirtschaft'], scenario: 'Ein Kunde des Systemhauses benötigt eine Beratung, ein Angebot und ein kleines Hilfsprogramm.' },
+];
+
 export function pointsFor(qs: Question[], total = 100): number[] {
   const raw = qs.map((q) => BASE_POINTS[q.kind] * (q.difficulty === 3 ? 1.3 : q.difficulty === 1 ? 0.8 : 1));
   const sum = raw.reduce((a, b) => a + b, 0) || 1;
@@ -138,7 +163,7 @@ export function ExamHome() {
   useEffect(() => {
     api.tests().then(setTests).catch(() => {});
   }, []);
-  const ap1 = tests.filter((t) => t.type === 'ap1').reverse();
+  const ap1 = tests.filter((t) => t.type === 'ap1' || t.type === 'ap1komplett').reverse();
   return (
     <div className="page">
       <div className="page-header">
@@ -149,7 +174,7 @@ export function ExamHome() {
       </div>
       <div className="grid grid-3">
         {TYPES.map((t) => (
-          <div key={t.type} className="card module-card" style={t.type === 'ap1' ? { borderColor: 'var(--accent)', background: 'radial-gradient(500px 120px at 0 0, var(--accent-soft), transparent), var(--surface)' } : undefined}
+          <div key={t.type} className="card module-card" style={t.type === 'ap1' || t.type === 'ap1komplett' ? { borderColor: 'var(--accent)', background: 'radial-gradient(500px 120px at 0 0, var(--accent-soft), transparent), var(--surface)' } : undefined}
             onClick={() => navigate(`/pruefung/start/${t.type}${t.type === 'modul' ? '/' + module : ''}`)}>
             <div className="row"><div className="module-icon"><Icon name={t.icon} /></div><b>{t.title}</b></div>
             <div className="small muted" style={{ flex: 1 }}>{t.desc}</div>
@@ -207,7 +232,18 @@ export function ExamRun({ type, module }: { type: TestType; module?: string }) {
   }, [type, module]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const [questions] = useState(() => pickQuestions(cfg, skills));
-  const [points] = useState(() => pointsFor(questions));
+  const [points] = useState(() => {
+    const blocks = questions.map((q) => (q as Question & { block?: number }).block);
+    if (type !== 'ap1komplett' || blocks.some((b) => b === undefined)) return pointsFor(questions);
+    const pts = questions.map(() => 0);
+    const used = [...new Set(blocks as number[])];
+    for (const b of used) {
+      const idx = questions.map((_, i) => i).filter((i) => blocks[i] === b);
+      const p = pointsFor(idx.map((i) => questions[i]), 100 / used.length);
+      idx.forEach((i, k) => (pts[i] = p[k]));
+    }
+    return pts;
+  });
   const [responses, setResponses] = useState<ResponseValue[]>(() => questions.map(() => null));
   const [cur, setCur] = useState(0);
   const [started] = useState(Date.now());
@@ -281,6 +317,17 @@ export function ExamRun({ type, module }: { type: TestType; module?: string }) {
           );
         })}
       </div>
+      {type === 'ap1komplett' && (questions[cur] as Question & { block?: number }).block !== undefined && (() => {
+        const b = (questions[cur] as Question & { block?: number }).block!;
+        const idx = questions.filter((q) => (q as Question & { block?: number }).block === b);
+        const sub = idx.indexOf(questions[cur]);
+        return (
+          <div className="block explain mt" style={{ padding: '12px 16px' }}>
+            <b>Aufgabe {b + 1}: {AP1_BLOCKS[b].title}</b> <span className="small muted">· Teilaufgabe {String.fromCharCode(97 + sub)})</span>
+            <div className="small muted">{AP1_BLOCKS[b].scenario}</div>
+          </div>
+        );
+      })()}
       <div className="row small muted mt"><span>Aufgabe {cur + 1}/{questions.length}</span><span>·</span><b>{points[cur]} Punkte</b><span>·</span><span>{answeredCount} beantwortet</span></div>
       <div className="mt">
         <QuestionView
