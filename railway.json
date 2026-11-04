@@ -1,0 +1,9 @@
+{
+  "$schema": "https://railway.com/railway.schema.json",
+  "build": { "buildCommand": "npx vite build --base=./" },
+  "deploy": {
+    "startCommand": "node server/cloud.mjs",
+    "healthcheckPath": "/api/cloud/health",
+    "restartPolicyType": "ON_FAILURE"
+  }
+}

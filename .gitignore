@@ -13,3 +13,4 @@ Thumbs.db
 # Unterrichtsmaterial (urheberrechtlich geschützt, nicht öffentlich veröffentlichen)
 /material/
 .playwright-mcp/
+/data-cloud/

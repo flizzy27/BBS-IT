@@ -1,6 +1,7 @@
 import type { Question } from '../content/types';
 import type { SkillState } from '../core/learning';
 import { localBackend } from './localBackend';
+import { CLOUD_BASE, isCloud } from './cloud';
 
 async function j<T>(url: string, init?: RequestInit): Promise<T> {
   const res = await fetch(url, { ...init, headers: { 'Content-Type': 'application/json', ...(init?.headers ?? {}) } });
@@ -55,13 +56,14 @@ export interface AiStatus {
   staticMode?: boolean;
 }
 
-/** Erkennt, ob der lokale Server läuft (sonst: statisch gehostete Variante mit Browser-Speicher). */
-let modePromise: Promise<'server' | 'static'> | null = null;
-export function backendMode(): Promise<'server' | 'static'> {
-  if (import.meta.env.VITE_STATIC === '1') return Promise.resolve('static');
-  return (modePromise ??= fetch('/api/health')
-    .then((r) => (r.ok && (r.headers.get('content-type') ?? '').includes('json') ? 'server' : 'static'))
-    .catch(() => 'static' as const));
+/** Erkennt die Variante: Online mit Konto (cloud), lokaler Server (server) oder nur Browser-Speicher (static).
+ *  cloud und static arbeiten beide auf dem Browser-Speicher; cloud synchronisiert ihn mit dem Konto. */
+let modePromise: Promise<'server' | 'static' | 'cloud'> | null = null;
+export function backendMode(): Promise<'server' | 'static' | 'cloud'> {
+  if (import.meta.env.VITE_STATIC === '1' && !CLOUD_BASE) return Promise.resolve('static');
+  return (modePromise ??= isCloud().then((c) => c ? 'cloud' as const : fetch('/api/health')
+    .then((r) => (r.ok && (r.headers.get('content-type') ?? '').includes('json') ? 'server' as const : 'static' as const))
+    .catch(() => 'static' as const)));
 }
 
 /** Führt die Anfrage am Server oder – in der statischen Variante – im Browser-Speicher aus. */

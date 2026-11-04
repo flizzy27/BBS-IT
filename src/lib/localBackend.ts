@@ -7,9 +7,10 @@
 import type { SkillState } from '../core/learning';
 import type { Attempt, TestRecord } from './api';
 
-const KEY = 'network-academy-db-v1';
+const BASE_KEY = 'network-academy-db-v1';
+let KEY = BASE_KEY;
 
-interface LocalDb {
+export interface LocalDb {
   kv: Record<string, unknown>;
   skills: Record<string, SkillState>;
   attempts: Attempt[];
@@ -29,6 +30,28 @@ function load(): LocalDb {
 
 let cache: LocalDb | null = null;
 const db = () => (cache ??= load());
+let onSaved: (() => void) | null = null;
+
+/** Online-Version: eigener Zwischenspeicher je Benutzer, Stand vom Server übernehmen, nach jedem Speichern synchronisieren. */
+export const cloudHooks = {
+  useUser(name: string, data: LocalDb | null, sync: () => void) {
+    KEY = `${BASE_KEY}:user:${name.toLowerCase()}`;
+    cache = data ? { ...empty(), ...data } : load();
+    onSaved = sync;
+    save();
+  },
+  localSnapshot: (): LocalDb => db(),
+  /** Stand aus dem Zwischenspeicher dieses Browsers (ohne ihn zu aktivieren) */
+  peek(name: string): LocalDb | null {
+    try {
+      const raw = localStorage.getItem(`${BASE_KEY}:user:${name.toLowerCase()}`);
+      return raw ? JSON.parse(raw) : null;
+    } catch {
+      return null;
+    }
+  },
+};
+const empty = (): LocalDb => ({ kv: {}, skills: {}, attempts: [], tests: [], studyTime: {} });
 /** Speichert; ist der Browser-Speicher (~5 MB) voll, werden die ältesten Verlaufseinträge gekürzt,
  *  damit Kenntnisstand, Fragenstatus und Einstellungen nie verloren gehen. */
 export function save(store: Pick<Storage, 'setItem'> = localStorage) {
@@ -36,11 +59,15 @@ export function save(store: Pick<Storage, 'setItem'> = localStorage) {
   for (;;) {
     try {
       store.setItem(KEY, JSON.stringify(d));
+      onSaved?.();
       return;
     } catch (e) {
       if (d.attempts.length > 50) d.attempts.splice(0, Math.ceil(d.attempts.length / 4));
       else if (d.tests.length > 3) d.tests.splice(0, Math.ceil(d.tests.length / 4));
-      else return console.error('Speichern im Browser fehlgeschlagen', e);
+      else {
+        onSaved?.(); // Server bekommt den Stand trotzdem
+        return console.error('Speichern im Browser fehlgeschlagen', e);
+      }
     }
   }
 }

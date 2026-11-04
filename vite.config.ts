@@ -10,6 +10,6 @@ export default defineConfig({
   build: { outDir: 'dist', chunkSizeWarningLimit: 2000 },
   test: {
     globals: true,
-    include: ['tests/**/*.test.ts'],
+    include: ['tests/**/*.test.ts', 'tests/**/*.test.mjs'],
   },
 } as any);

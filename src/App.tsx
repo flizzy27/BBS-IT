@@ -13,6 +13,8 @@ import { CatalogHome, CatalogRound } from './pages/Catalog';
 import type { RoundFilter } from './core/catalog';
 import { ToolWindowLayer } from './components/ToolWindows';
 import { TOOL_META, openTool, useToolWindows } from './lib/toolWindows';
+import { AuthGate } from './pages/Login';
+import { currentUser, logout, syncStatus, type SyncStatus } from './lib/cloud';
 
 const ToolsPage = lazy(() => import('./pages/Tools').then((m) => ({ default: m.ToolsPage })));
 
@@ -148,6 +150,7 @@ function Shell() {
               <Icon name="GraduationCap" size={18} />KI-Tutor {tutorOpen ? 'ausblenden' : 'einblenden'}
             </button>
           )}
+          <UserBox />
           {settings.examDate && <div className="tiny dim" style={{ padding: '6px 12px' }}>Prüfung in {Math.max(0, Math.ceil((new Date(settings.examDate).getTime() - Date.now()) / 86400000))} Tagen</div>}
         </div>
       </aside>
@@ -165,10 +168,32 @@ function Shell() {
   );
 }
 
+/** Angemeldeter Benutzer und Speicherstatus (nur Online-Version) */
+function UserBox() {
+  const [s, setS] = useState<SyncStatus>(syncStatus.get());
+  useEffect(() => syncStatus.subscribe(setS), []);
+  const name = currentUser();
+  if (!name) return null;
+  const label = { gespeichert: 'gespeichert', speichert: 'speichert …', offline: 'offline – wird nachgeholt', konflikt: 'lädt neu …' }[s];
+  return (
+    <div className="user-box">
+      <Icon name="UserRound" size={16} />
+      <div style={{ minWidth: 0 }}>
+        <div className="ellipsis"><b>{name}</b></div>
+        <div className={`sync ${s}`}>{s === 'gespeichert' ? <Icon name="CloudCheck" size={11} /> : <Icon name="CloudUpload" size={11} />} {label}</div>
+      </div>
+      <span className="spacer" />
+      <button className="btn ghost sm" onClick={() => void logout()} title="Abmelden"><Icon name="LogOut" size={15} /></button>
+    </div>
+  );
+}
+
 export default function App() {
   return (
-    <StoreProvider>
-      <Shell />
-    </StoreProvider>
+    <AuthGate>
+      <StoreProvider>
+        <Shell />
+      </StoreProvider>
+    </AuthGate>
   );
 }

@@ -107,7 +107,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   const [aiEnabled, setAiEnabled] = useState(false);
   const [staticMode, setStaticMode] = useState(false);
   const refreshAi = useCallback(() => {
-    backendMode().then((m) => setStaticMode(m === 'static'));
+    backendMode().then((m) => setStaticMode(m !== 'server'));
     api.aiStatus().then((s) => setAiEnabled(!s.staticMode && s.provider !== 'none')).catch(() => setAiEnabled(false));
   }, []);
   useEffect(() => refreshAi(), [refreshAi]);
