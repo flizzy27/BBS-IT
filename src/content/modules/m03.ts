@@ -130,6 +130,137 @@ Alle vier Geräte liegen im Netz **192.168.10.0/24** und können direkt (über d
       ],
     },
     {
+      id: 'm03-l02b',
+      title: 'Was ist eine Subnetzmaske? 255.255.255.0 von Grund auf',
+      minutes: 25,
+      relevance: 'ap1',
+      skills: ['ipv4.mask', 'ipv4.netvshost'],
+      steps: [
+        {
+          type: 'explain',
+          title: 'Die Frage, die jeder PC ständig beantworten muss',
+          body: `Bevor ein PC ein Paket verschickt, muss er eine einzige Frage beantworten:
+
+> **„Ist der Empfänger in meinem eigenen Netz – oder muss ich das Paket an den Router geben?“**
+
+Die IP-Adresse allein beantwortet das nicht. \`192.168.10.51\` sagt nicht, wo „Netz“ aufhört und „Gerät“ anfängt. Genau dafür gibt es die **Subnetzmaske**.
+
+**Eine Analogie – Telefonnummern:** \`0261 12345\` – die Vorwahl \`0261\` steht für Koblenz (das „Netz“), \`12345\` für den einzelnen Anschluss (das „Gerät“). Alle Anschlüsse in Koblenz haben dieselbe Vorwahl. Bei Telefonnummern erkennst du die Grenze am Leerzeichen. Bei IP-Adressen gibt es kein Leerzeichen – stattdessen gibt es die Maske, die sagt: **„Die ersten X Stellen sind die Vorwahl.“**
+
+**Die Maske ist eine Schablone.** Sie hat dasselbe Format wie eine IP-Adresse (vier Zahlen mit Punkten), aber eine ganz andere Bedeutung. Lies sie Oktett für Oktett:
+
+| Maskenoktett | Bedeutung |
+|---|---|
+| **255** | „Dieses Oktett gehört komplett zum **Netz** (Vorwahl).“ |
+| **0** | „Dieses Oktett gehört komplett zum **Gerät** (Host).“ |
+
+Also bei **255.255.255.0**:
+
+| | 1. Oktett | 2. Oktett | 3. Oktett | 4. Oktett |
+|---|---|---|---|---|
+| IP-Adresse | 192 | 168 | 10 | 51 |
+| Maske | **255** | **255** | **255** | **0** |
+| bedeutet | Netz | Netz | Netz | Gerät |
+
+→ Netz: **192.168.10**, Gerät Nummer **51**. Jeder PC, dessen Adresse mit 192.168.10 beginnt, ist ein direkter Nachbar.`,
+        },
+        {
+          type: 'explain',
+          title: 'Warum ausgerechnet 255?',
+          body: `Hier kommt das Binärsystem ins Spiel (Modul „Binärsystem“). 255 ist die größte Zahl, die in ein Oktett passt – binär sind das **acht Einsen**:
+
+\`\`\`
+255 = 11111111
+  0 = 00000000
+\`\`\`
+
+Die Maske 255.255.255.0 sieht binär so aus:
+
+\`\`\`
+11111111.11111111.11111111.00000000
+|------- 24 Einsen = Netz -------||- 8 Nullen = Gerät -|
+\`\`\`
+
+Der Computer liest die Maske **Bit für Bit**: Eine **1** heißt „dieses Bit gehört zum Netz“, eine **0** heißt „dieses Bit gehört zum Gerät“. Die Einsen stehen immer **links und lückenlos**, danach kommen nur noch Nullen.
+
+Weil nur die Anzahl der Einsen zählt, gibt es eine Kurzschreibweise: **/24** („Slash 24“) = 24 Einsen = 255.255.255.0. Das nennt man **CIDR-Notation**.
+
+| Schreibweise | Maske | Einsen | Netz-Oktette |
+|---|---|---|---|
+| /8 | 255.0.0.0 | 8 | 1 |
+| /16 | 255.255.0.0 | 16 | 2 |
+| /24 | 255.255.255.0 | 24 | 3 |
+
+**Wie viele Geräte passen in ein /24?** Für Geräte bleiben 8 Bit (die Nullen). 8 Bit ergeben 2⁸ = **256** Kombinationen (0 bis 255). Zwei davon sind reserviert: die **.0** (bezeichnet das Netz selbst) und die **.255** (Broadcast = „an alle“). Bleiben **254** Geräte.
+
+**Und was ist mit Masken wie 255.255.255.192?** Dann ist auch das vierte Oktett *teilweise* Netz: 192 = \`11000000\` → zwei weitere Netz-Bits. Das ist der Kern von **Subnetting** – und genau dorthin führt dich der Weg Schritt für Schritt.`,
+        },
+        {
+          type: 'visual',
+          title: 'Sieh dir die Schablone an',
+          widget: { kind: 'ip-binary', data: { ip: '192.168.10.51', prefix: 24, editable: true } },
+          caption: 'Blau = Netzbits (Maske 1), Orange = Gerätebits (Maske 0). Stell den Regler auf /16 und auf /8: Die Grenze wandert jeweils um ein ganzes Oktett. Stell ihn danach auf /26 – jetzt liegt die Grenze mitten im letzten Oktett.',
+        },
+        {
+          type: 'example',
+          title: 'Sind diese zwei PCs Nachbarn?',
+          problem: 'PC A: 192.168.10.51, PC B: 192.168.10.200 – beide mit Maske 255.255.255.0. Können sie direkt (ohne Router) miteinander sprechen?',
+          steps: [
+            { label: 'Maske lesen', body: '255.255.255.0 → die ersten **drei** Oktette sind Netz.' },
+            { label: 'Netzteil von A', body: '192.168.10' },
+            { label: 'Netzteil von B', body: '192.168.10' },
+            { label: 'Vergleich', body: 'gleich → **dasselbe Netz**' },
+          ],
+          result: 'Ja – beide liegen im Netz 192.168.10.0/24 und erreichen sich direkt über den Switch. Wäre B 192.168.11.200, bräuchte es einen Router.',
+        },
+        {
+          type: 'check',
+          question: {
+            id: 'm03-c10', kind: 'single', skill: 'ipv4.netvshost', difficulty: 1,
+            prompt: 'Was sagt dir die Maske **255.255.0.0** bei der Adresse 172.16.5.20?',
+            options: ['172 ist das Netz, 16.5.20 das Gerät', '172.16 ist das Netz, 5.20 kennzeichnet das Gerät', '172.16.5 ist das Netz, 20 das Gerät', 'Die Maske ist ungültig'],
+            answer: 1,
+            distractors: {
+              '0': { why: 'Das wäre 255.0.0.0 (/8) – nur ein 255er-Oktett.', error: 'maske-lesen' },
+              '2': { why: 'Das wäre 255.255.255.0 (/24) – drei 255er-Oktette.', error: 'maske-lesen' },
+              '3': { why: '255.255.0.0 ist eine ganz normale Maske (/16).', error: 'maske-lesen' },
+            },
+            explanation: 'Zwei Oktette mit 255 → die ersten zwei Oktette (172.16) sind Netz, die letzten zwei (5.20) Gerät. Das ist /16.',
+          },
+        },
+        {
+          type: 'check',
+          question: {
+            id: 'm03-c11', kind: 'number', skill: 'ipv4.mask', difficulty: 1,
+            prompt: 'Wie viele **Einsen** hat die Maske 255.255.255.0 in Binärdarstellung?',
+            answer: 24,
+            hints: ['Jedes 255 = 8 Einsen.'],
+            explanation: '3 × 8 = **24** → deshalb schreibt man /24.',
+          },
+        },
+        {
+          type: 'check',
+          question: {
+            id: 'm03-c12', kind: 'number', skill: 'ipv4.hostrange', difficulty: 1,
+            prompt: 'Wie viele Geräte kannst du im Netz 192.168.10.0 mit Maske 255.255.255.0 adressieren?',
+            answer: 254,
+            misconceptions: [{ answer: '256', error: 'reservierte-vergessen', why: '256 Adressen gibt es, aber .0 (Netz) und .255 (Broadcast) sind reserviert.' }, { answer: '255', error: 'reservierte-vergessen', why: 'Es sind zwei reservierte Adressen: .0 und .255.' }],
+            explanation: '8 Gerätebits → 256 Adressen − 2 reservierte = **254**.',
+          },
+        },
+        {
+          type: 'summary',
+          points: [
+            'Die Subnetzmaske ist eine Schablone: sie trennt Netzanteil (Vorwahl) und Geräteanteil.',
+            '255 = 11111111 = „ganzes Oktett ist Netz“, 0 = „ganzes Oktett ist Gerät“.',
+            'Einsen stehen immer links und lückenlos; /24 = 24 Einsen = 255.255.255.0.',
+            'Gleicher Netzanteil ⇒ direkte Nachbarn; sonst über den Router (Gateway).',
+            '/24: 256 Adressen, davon 254 für Geräte (.0 = Netz, .255 = Broadcast).',
+          ],
+        },
+      ],
+    },
+    {
       id: 'm03-l03',
       title: 'Subnetzmaske und CIDR-Notation',
       minutes: 20,

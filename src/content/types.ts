@@ -25,9 +25,24 @@ export interface Skill {
   requires?: string[];
 }
 
+/**
+ * Fachbereich (z. B. Netzwerktechnik, IT-Sicherheit, Wirtschaft). Die App ist so aufgebaut,
+ * dass später weitere Fachbereiche für AP1 und AP2 ergänzt werden können.
+ */
+export interface Area {
+  id: string;
+  title: string;
+  short: string;
+  icon: string;
+  /** Prüfungsteile, für die der Bereich relevant ist */
+  exams: ('AP1' | 'AP2')[];
+}
+
 export interface Module {
-  id: string; // "m01" … "m17"
+  id: string; // "m01" … "m17"; neue Fachbereiche verwenden eigene Präfixe, z. B. "sec01"
   nr: number;
+  /** Fachbereich-ID (Standard: "netzwerk") */
+  area?: string;
   title: string;
   /** 1 Satz Kurzbeschreibung */
   short: string;
@@ -105,7 +120,7 @@ export type WidgetSpec =
 
 export type NodeType =
   | 'pc' | 'laptop' | 'server' | 'switch' | 'router' | 'firewall' | 'ap' | 'cloud'
-  | 'modem' | 'phone' | 'printer' | 'nas' | 'internet';
+  | 'modem' | 'phone' | 'printer' | 'nas' | 'internet' | 'hub' | 'camera';
 
 export interface TopologyData {
   /** Zeichenfläche: Koordinaten im Bereich 0..800 (x) und 0..420 (y) */

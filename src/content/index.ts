@@ -2,7 +2,7 @@
  * Zentrale Registrierung aller Lerninhalte.
  * Neue Module: Datei in ./modules anlegen und hier eintragen.
  */
-import type { Lesson, Module, Question, Skill } from './types';
+import type { Area, Lesson, Module, Question, Skill } from './types';
 import { m01 } from './modules/m01';
 import { m02 } from './modules/m02';
 import { m03 } from './modules/m03';
@@ -20,8 +20,18 @@ import { m14 } from './modules/m14';
 import { m15 } from './modules/m15';
 import { m16 } from './modules/m16';
 
+/**
+ * Fachbereiche. Neue Bereiche (z. B. IT-Sicherheit, Wirtschaft, Programmierung, AP2-Themen)
+ * hier eintragen und Module mit `area: '<id>'` anlegen – siehe docs/INHALTE-ERWEITERN.md.
+ */
+export const AREAS: Area[] = [
+  { id: 'netzwerk', title: 'Netzwerktechnik', short: 'Von Grundlagen bis Subnetting, VLSM, Protokolle und Diagnose.', icon: 'Network', exams: ['AP1', 'AP2'] },
+];
+
 /** Empfohlene Lernreihenfolge (Binär vor IPv4, IPv4 vor Subnetting …). */
 export const MODULES: Module[] = [m01, m02, m04, m03, m05, m06, m07, m08, m09, m10, m11, m12, m13, m14, m15, m16].filter(Boolean);
+
+export const moduleArea = (m: Module) => m.area ?? 'netzwerk';
 
 export const MODULE_MAP = new Map(MODULES.map((m) => [m.id, m]));
 

@@ -1,5 +1,6 @@
 import type { Question } from '../content/types';
 import type { SkillState } from '../core/learning';
+import { localBackend } from './localBackend';
 
 async function j<T>(url: string, init?: RequestInit): Promise<T> {
   const res = await fetch(url, { ...init, headers: { 'Content-Type': 'application/json', ...(init?.headers ?? {}) } });
@@ -50,28 +51,51 @@ export interface AiStatus {
   cli: string | false;
   models: { id: string; label: string; input: number; output: number }[];
   cliModel?: string;
+  /** statisch gehostete Variante ohne Server */
+  staticMode?: boolean;
 }
 
+/** Erkennt, ob der lokale Server läuft (sonst: statisch gehostete Variante mit Browser-Speicher). */
+let modePromise: Promise<'server' | 'static'> | null = null;
+export function backendMode(): Promise<'server' | 'static'> {
+  if (import.meta.env.VITE_STATIC === '1') return Promise.resolve('static');
+  return (modePromise ??= fetch('/api/health')
+    .then((r) => (r.ok && (r.headers.get('content-type') ?? '').includes('json') ? 'server' : 'static'))
+    .catch(() => 'static' as const));
+}
+
+/** Führt die Anfrage am Server oder – in der statischen Variante – im Browser-Speicher aus. */
+function either<A extends unknown[], R>(server: (...a: A) => Promise<R>, local: (...a: A) => Promise<R>) {
+  return async (...a: A): Promise<R> => ((await backendMode()) === 'server' ? server(...a) : local(...a));
+}
+const aiOnly = <A extends unknown[], R>(server: (...a: A) => Promise<R>) => either<A, R>(server, async () => localBackend.noAi());
+
 export const api = {
-  state: () => j<{ skills: Record<string, SkillState>; kv: Record<string, unknown>; studyTime: { day: string; seconds: number }[] }>('/api/state'),
-  setKv: (key: string, value: unknown) => j('/api/kv/' + encodeURIComponent(key), { method: 'PUT', body: JSON.stringify({ value }) }),
-  addAttempt: (attempt: Attempt, skillState?: SkillState) => j<{ id: number }>('/api/attempts', { method: 'POST', body: JSON.stringify({ attempt, skillState }) }),
-  putSkills: (states: SkillState[]) => j('/api/skills', { method: 'PUT', body: JSON.stringify({ states }) }),
-  attempts: (limit = 500, skill?: string) => j<Attempt[]>(`/api/attempts?limit=${limit}${skill ? '&skill=' + encodeURIComponent(skill) : ''}`),
-  saveTest: (test: TestRecord) => j('/api/tests', { method: 'POST', body: JSON.stringify({ test }) }),
-  tests: () => j<TestRecord[]>('/api/tests'),
-  addTime: (seconds: number) => j('/api/time', { method: 'POST', body: JSON.stringify({ seconds, day: localDay() }) }),
-  aiStatus: () => j<AiStatus>('/api/ai/status'),
-  aiConfig: (cfg: Partial<{ provider: string; model: string; effort: string; apiKey: string; cliModel: string }>) => j<AiStatus>('/api/ai/config', { method: 'PUT', body: JSON.stringify(cfg) }),
-  aiTest: () => j<{ ok: boolean; text: string }>('/api/ai/test', { method: 'POST', body: '{}' }),
-  aiGrade: (b: { prompt: string; modelAnswer: string; keywords?: string[]; answer: string }) => j<{ score: number; feedback: string; missing: string[] }>('/api/ai/grade', { method: 'POST', body: JSON.stringify(b) }),
-  visionVlsm: (image: string) => j<{ base: string; wanPrefix: number; demands: { name: string; hosts: number; kind: 'lan' | 'wan' }[]; notes: string }>('/api/ai/vision-vlsm', { method: 'POST', body: JSON.stringify({ image }) }),
-  threads: () => j<{ id: string; title: string; created: number; updated: number }[]>('/api/threads'),
-  thread: (id: string) => j<{ thread: { id: string; title: string } | null; messages: { id: number; ts: number; role: 'user' | 'assistant'; content: string }[] }>('/api/threads/' + id),
-  deleteThread: (id: string) => j('/api/threads/' + id, { method: 'DELETE' }),
-  exportAll: () => j<unknown>('/api/export'),
-  importAll: (data: unknown) => j('/api/import', { method: 'POST', body: JSON.stringify(data) }),
-  reset: () => j('/api/reset', { method: 'POST', body: JSON.stringify({ confirm: 'ZURÜCKSETZEN' }) }),
+  state: either(
+    () => j<{ skills: Record<string, SkillState>; kv: Record<string, unknown>; studyTime: { day: string; seconds: number }[] }>('/api/state'),
+    () => localBackend.state(),
+  ),
+  setKv: either((key: string, value: unknown) => j('/api/kv/' + encodeURIComponent(key), { method: 'PUT', body: JSON.stringify({ value }) }), (k: string, v: unknown) => localBackend.setKv(k, v)),
+  addAttempt: either((attempt: Attempt, skillState?: SkillState) => j<{ id: number }>('/api/attempts', { method: 'POST', body: JSON.stringify({ attempt, skillState }) }), (a: Attempt, s?: SkillState) => localBackend.addAttempt(a, s)),
+  putSkills: either((states: SkillState[]) => j('/api/skills', { method: 'PUT', body: JSON.stringify({ states }) }), (s: SkillState[]) => localBackend.putSkills(s)),
+  attempts: either((limit = 500, skill?: string) => j<Attempt[]>(`/api/attempts?limit=${limit}${skill ? '&skill=' + encodeURIComponent(skill) : ''}`), (l?: number, s?: string) => localBackend.attempts(l, s)),
+  saveTest: either((test: TestRecord) => j('/api/tests', { method: 'POST', body: JSON.stringify({ test }) }), (t: TestRecord) => localBackend.saveTest(t)),
+  tests: either(() => j<TestRecord[]>('/api/tests'), () => localBackend.tests()),
+  addTime: either((seconds: number) => j('/api/time', { method: 'POST', body: JSON.stringify({ seconds, day: localDay() }) }), (s: number) => localBackend.addTime(s, localDay())),
+  aiStatus: either(
+    () => j<AiStatus>('/api/ai/status'),
+    async (): Promise<AiStatus> => ({ provider: 'none', model: '', effort: '', apiKeySet: false, apiKeySource: null, apiKeyMasked: null, cli: false, models: [], staticMode: true }),
+  ),
+  aiConfig: aiOnly((cfg: Partial<{ provider: string; model: string; effort: string; apiKey: string; cliModel: string }>) => j<AiStatus>('/api/ai/config', { method: 'PUT', body: JSON.stringify(cfg) })),
+  aiTest: aiOnly(() => j<{ ok: boolean; text: string }>('/api/ai/test', { method: 'POST', body: '{}' })),
+  aiGrade: aiOnly((b: { prompt: string; modelAnswer: string; keywords?: string[]; answer: string }) => j<{ score: number; feedback: string; missing: string[] }>('/api/ai/grade', { method: 'POST', body: JSON.stringify(b) })),
+  visionVlsm: aiOnly((image: string) => j<{ base: string; wanPrefix: number; demands: { name: string; hosts: number; kind: 'lan' | 'wan' }[]; notes: string }>('/api/ai/vision-vlsm', { method: 'POST', body: JSON.stringify({ image }) })),
+  threads: either(() => j<{ id: string; title: string; created: number; updated: number }[]>('/api/threads'), async () => []),
+  thread: aiOnly((id: string) => j<{ thread: { id: string; title: string } | null; messages: { id: number; ts: number; role: 'user' | 'assistant'; content: string }[] }>('/api/threads/' + id)),
+  deleteThread: aiOnly((id: string) => j('/api/threads/' + id, { method: 'DELETE' })),
+  exportAll: either(() => j<unknown>('/api/export'), () => localBackend.exportAll()),
+  importAll: either((data: unknown) => j('/api/import', { method: 'POST', body: JSON.stringify(data) }), (d: unknown) => localBackend.importAll(d)),
+  reset: either(() => j('/api/reset', { method: 'POST', body: JSON.stringify({ confirm: 'ZURÜCKSETZEN' }) }), () => localBackend.reset()),
 };
 
 export function localDay(t = Date.now()): string {
@@ -85,6 +109,7 @@ export async function streamChat(
   on: { thread?: (id: string) => void; text: (t: string) => void; error: (m: string) => void; done: () => void },
   signal?: AbortSignal,
 ) {
+  if ((await backendMode()) === 'static') return on.error(localBackend.NO_AI);
   let res: Response;
   try {
     res = await fetch('/api/chat', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body), signal });
