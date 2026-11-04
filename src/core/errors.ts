@@ -167,6 +167,16 @@ export const ERROR_CATALOG: Record<string, ErrorInfo> = {
   'einheit-1000-1024': { title: 'Dezimal- und Binärpräfixe verwechselt', cause: 'k/M/G = 1000er-Schritte (SI), Ki/Mi/Gi = 1024er-Schritte (IEC).', skill: 'calc.units' },
   'routing-nicht-laengster-praefix': { title: 'Nicht den längsten Präfix-Treffer gewählt', cause: 'Passen mehrere Routen, gewinnt die spezifischste (längstes Präfix).', skill: 'routing.lpm' },
   'routing-netz-falsch': { title: 'Ziel liegt nicht im gewählten Netz', cause: 'Prüfe mit der Maske, ob die Zieladresse im Zielnetz des Eintrags liegt.', skill: 'routing.lpm' },
+  'en-false-friend': { title: 'False Friend falsch übersetzt', cause: 'Das englische Wort klingt wie ein deutsches, bedeutet aber etwas anderes (eventually = schließlich, actual = tatsächlich, become = werden, billion = Milliarde).', skill: 'en.vocab', lesson: 'e01-l02' },
+  'en-must-not': { title: '„must not“ als „muss nicht“ übersetzt', cause: '„must not“ ist ein **Verbot** (darf nicht). „muss nicht“ heißt auf Englisch „need not / do not have to“.', skill: 'en.manual', lesson: 'e01-l05' },
+  'en-zahlformat': { title: 'Englisches Zahl- oder Zeitformat falsch gelesen', cause: 'Im Englischen ist der Punkt das Dezimalzeichen und das Komma trennt Tausender (1,500.5 = 1.500,5). a.m. = vormittags, p.m. = nachmittags.', skill: 'en.datasheet', lesson: 'e01-l03' },
+  'en-va-statt-w': { title: 'VA statt W abgelesen', cause: 'VA ist die Scheinleistung, W die Wirkleistung. Für die Last einer USV zählt meist der Wert in W.', skill: 'en.datasheet', lesson: 'e01-l03' },
+  'en-datenblatt-zeile': { title: 'Falscher Wert im Datenblatt', cause: 'Genau lesen, zu welcher Bedingung der Wert gehört: typ. (typisch) oder max., read oder write, halbe oder volle Last.', skill: 'en.datasheet', lesson: 'e01-l03' },
+  'en-fehlermeldung': { title: 'Fehlermeldung falsch gedeutet', cause: 'Schlüsselwörter beachten: refused = aktiv abgelehnt, timed out = keine Antwort, could not resolve = DNS-Problem.', skill: 'en.errors', lesson: 'e01-l04' },
+  'en-signalwort': { title: 'Signalwörter verwechselt', cause: 'DANGER = Lebensgefahr, WARNING = mögliche schwere Verletzung, CAUTION = leichte Verletzung, NOTICE = nur Sachschaden.', skill: 'en.manual', lesson: 'e01-l05' },
+  'en-datum-us': { title: 'US-Datum falsch gelesen', cause: 'In den USA steht der Monat vorn: 03/04/2027 = 4. März 2027.', skill: 'en.datasheet', lesson: 'e01-l03' },
+  'en-wort-fuer-wort': { title: 'Wort für Wort übersetzt', cause: 'Feste Wendungen sinngemäß übersetzen: „make sure“ = „stellen Sie sicher“, „please find attached“ = „anbei erhalten Sie“.', skill: 'en.strategy', lesson: 'e01-l01' },
+  'en-geschaeftszeiten': { title: 'Kalender- statt Geschäftsstunden gerechnet', cause: '„business hours“ zählen nur innerhalb der Servicezeiten (z. B. Mo–Fr 8–17 Uhr). Nachts und am Wochenende läuft die Frist nicht.', skill: 'en.support', lesson: 'e01-l06' },
   eingabeformat: { title: 'Eingabeformat', cause: 'Die Eingabe hatte nicht das erwartete Format.' },
 };
 

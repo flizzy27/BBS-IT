@@ -48,6 +48,7 @@ import { p02 } from './modules/p02';
 import { p03 } from './modules/p03';
 import { p04 } from './modules/p04';
 import { p05 } from './modules/p05';
+import { e01 } from './modules/e01';
 
 /**
  * Fachbereiche. Neue Bereiche (z. B. IT-Sicherheit, Wirtschaft, Programmierung, AP2-Themen)
@@ -60,11 +61,12 @@ export const AREAS: Area[] = [
   { id: 'sicherheit', title: 'IT-Sicherheit & Datenschutz', short: 'Schutzziele, BSI-Grundschutz, DSGVO, Datensicherung, Zugriffsschutz.', icon: 'ShieldCheck', color: '#ff6b9a', exams: ['AP1', 'AP2'] },
   { id: 'programmierung', title: 'Programmierung & Softwareentwicklung', short: 'Pseudocode, Kontrollstrukturen, Algorithmen, UML, Testen.', icon: 'Code', color: '#a77bff', exams: ['AP1'] },
   { id: 'daten', title: 'Datenbanken', short: 'Relationale Grundlagen, ER-Modell, Normalisierung, SQL.', icon: 'Database', color: '#ff9f43', exams: ['AP1', 'AP2'] },
+  { id: 'englisch', title: 'Englisch im IT-Alltag', short: 'Datenblätter, Fehlermeldungen, Anleitungen und Support-E-Mails verstehen und übersetzen.', icon: 'Languages', color: '#4fc3a1', exams: ['AP1', 'AP2'] },
   { id: 'wirtschaft', title: 'Kundenberatung, Wirtschaft & Recht', short: 'Kundengespräch, Angebotsvergleich, Nutzwertanalyse, Kalkulation, Verträge, Projekt.', icon: 'Briefcase', color: '#f5b942', exams: ['AP1', 'AP2'] },
 ];
 
 /** Empfohlene Lernreihenfolge (Binär vor IPv4, IPv4 vor Subnetting …). */
-export const MODULES: Module[] = [m01, m02, m04, m03, m05, m06, m07, m08, m09, m10, m11, m12, m13, m14, m15, m16, h01, h02, h03, h04, h05, w01, w02, w03, w04, w05, d01, d02, d03, s01, s02, s03, s04, s05, b01, b02, b03, b04, b05, b06, p01, p02, p03, p04, p05].filter(Boolean);
+export const MODULES: Module[] = [m01, m02, m04, m03, m05, m06, m07, m08, m09, m10, m11, m12, m13, m14, m15, m16, h01, h02, h03, h04, h05, w01, w02, w03, w04, w05, d01, d02, d03, s01, s02, s03, s04, s05, b01, b02, b03, b04, b05, b06, p01, p02, p03, p04, p05, e01].filter(Boolean);
 
 export const moduleArea = (m: Module) => m.area ?? 'netzwerk';
 
