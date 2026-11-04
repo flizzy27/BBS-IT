@@ -191,6 +191,8 @@ export interface NumberQuestion extends QuestionBase {
   answer: number;
   /** absolute Toleranz (Standard 0) */
   tolerance?: number;
+  /** weitere richtige Werte (andere zulässige Schreibweise, z. B. Nutzwert 7,25 oder 725) */
+  accept?: number[];
   unit?: string;
 }
 

@@ -302,7 +302,7 @@ Um beides **objektiv** zusammenzubringen, nutzt man die **Nutzwertanalyse** (auc
 **Vorteile:** nachvollziehbar, bezieht qualitative Kriterien ein, Entscheidung lässt sich begründen und dokumentieren.
 **Nachteile:** Gewichte und Punkte sind **subjektiv**; kleine Änderungen können das Ergebnis drehen. Deshalb Kriterien und Gewichte **vor** dem Ansehen der Angebote festlegen und mit dem Kunden abstimmen.
 
-**Rechenkonvention in dieser App:** Gewichte als Dezimalfaktor (40 % = 0,40) – der Nutzwert liegt dann auf derselben Skala wie die Punkte (hier 1–10). Manche Lehrbücher rechnen mit ganzen Prozentzahlen (Ergebnis 100-fach größer) – das ändert die Rangfolge nicht. In der Prüfung gilt die Angabe der Aufgabe.`,
+**Zwei Schreibweisen – beide richtig:** Du kannst das Gewicht als Dezimalfaktor (40 % = 0,40) einsetzen, dann liegt der Nutzwert auf derselben Skala wie die Punkte (z. B. 7,25). Oder du rechnest mit der ganzen Prozentzahl (40), wie in vielen Prüfungsbüchern – dann ist das Ergebnis 100-mal so groß (725). Die **Rangfolge ist in beiden Fällen gleich**. Die App akzeptiert beide. Steht in einer Prüfungsaufgabe eine Vorgabe, halte dich daran.`,
         },
         {
           type: 'visual',
@@ -346,7 +346,7 @@ Berechne die Nutzwerte und bilde die Rangfolge.`,
           type: 'check',
           question: {
             id: 'w02-c04', kind: 'number', skill: 'w.nutzwertanalyse', difficulty: 2,
-            prompt: `Berechne den Nutzwert von **Angebot B** (Gewichte als Dezimalfaktor, zwei Nachkommastellen).
+            prompt: `Berechne den Nutzwert von **Angebot B**.
 
 | Kriterium | Gewicht | Angebot B |
 |---|---|---|
@@ -354,10 +354,9 @@ Berechne die Nutzwerte und bilde die Rangfolge.`,
 | Leistung | 30 % | 6 |
 | Service | 20 % | 7 |
 | Lieferzeit | 15 % | 5 |`,
-            answer: 7.1, tolerance: 0.005,
+            answer: 7.1, tolerance: 0.005, accept: [710],
             misconceptions: [
               { answer: '27', error: 'w-nutzwert-ungewichtet', why: 'Nur Punkte addiert – jede Punktzahl muss mit dem Gewicht multipliziert werden.' },
-              { answer: '710', error: 'w-nutzwert-prozent', why: 'Mit Prozentzahlen statt Dezimalfaktoren gerechnet (35 statt 0,35).' },
             ],
             hints: ['Teilnutzwert = Gewicht · Punkte.'],
             explanation: '0,35 · 9 + 0,30 · 6 + 0,20 · 7 + 0,15 · 5 = 3,15 + 1,80 + 1,40 + 0,75 = **7,10**',
@@ -478,14 +477,14 @@ Berechne beide Bezugspreise (Skonto wird genutzt, auf Cent runden) und gib das g
     { id: 'w02-q013', kind: 'single', skill: 'w.bezugskalkulation', difficulty: 2, prompt: 'Wovon wird der **Liefererskonto** berechnet?', options: ['vom Listeneinkaufspreis', 'vom Zieleinkaufspreis', 'vom Bezugspreis', 'vom Bruttopreis inkl. Versand'], answer: 1, distractors: { '0': { why: 'Vom Listeneinkaufspreis wird nur der Rabatt berechnet.', error: 'w-skonto-basis' }, '2': { why: 'Der Bezugspreis enthält Bezugskosten – darauf gibt es keinen Skonto.', error: 'w-skonto-auf-bezugskosten' }, '3': { why: 'Im Vergleich wird netto gerechnet, und auf Versandkosten gibt es keinen Skonto.', error: 'w-skonto-auf-bezugskosten' } }, explanation: 'Skonto bezieht sich auf den Zieleinkaufspreis (Listenpreis nach Rabatt).' },
     { id: 'w02-q014', kind: 'free', skill: 'w.bezugskalkulation', difficulty: 2, prompt: 'Warum vergleicht ein vorsteuerabzugsberechtigtes Unternehmen Angebote anhand der **Nettopreise**?', modelAnswer: 'Die beim Einkauf gezahlte Umsatzsteuer ist für das Unternehmen Vorsteuer und wird mit der eigenen Umsatzsteuerschuld verrechnet bzw. vom Finanzamt erstattet. Sie ist damit kein Kostenbestandteil. Kosten sind nur die Nettobeträge.', keywords: ['Vorsteuer', 'Finanzamt', 'verrechnet', 'kein Kostenbestandteil'], explanation: 'Für Privatkunden (nicht vorsteuerabzugsberechtigt) zählt dagegen der Bruttopreis.' },
     { id: 'w02-q015', kind: 'number', skill: 'w.bezugskalkulation', difficulty: 1, prompt: 'Ein Switch kostet laut Liste **460,00 €** netto. Der Lieferer gewährt **10 % Rabatt**, die Lieferung ist frei Haus, Skonto wird nicht gewährt. Wie hoch ist der Bezugspreis?', answer: 414, tolerance: 0.01, unit: '€', misconceptions: [{ answer: '460', error: 'w-rabatt-vergessen', why: 'Der Rabatt muss abgezogen werden.' }, { answer: '46', error: 'w-rabatt-statt-preis', why: 'Das ist nur der Rabattbetrag.' }], explanation: '460,00 € − 10 % (46,00 €) = **414,00 €**; frei Haus → keine Bezugskosten.' },
-    { id: 'w02-q016', kind: 'number', skill: 'w.nutzwertanalyse', difficulty: 2, prompt: `Berechne den Nutzwert von **Angebot A** (Gewichte als Dezimalfaktor, zwei Nachkommastellen).
+    { id: 'w02-q016', kind: 'number', skill: 'w.nutzwertanalyse', difficulty: 2, prompt: `Berechne den Nutzwert von **Angebot A** (zwei Nachkommastellen).
 
 | Kriterium | Gewicht | A |
 |---|---|---|
 | Preis | 50 % | 6 |
 | Leistung | 30 % | 8 |
-| Service | 20 % | 9 |`, answer: 7.2, tolerance: 0.005, misconceptions: [{ answer: '23', error: 'w-nutzwert-ungewichtet', why: 'Nur die Punkte addiert – Gewichtung fehlt.' }, { answer: '720', error: 'w-nutzwert-prozent', why: 'Mit Prozentzahlen statt Dezimalfaktoren gerechnet.' }], explanation: '0,50 · 6 + 0,30 · 8 + 0,20 · 9 = 3,00 + 2,40 + 1,80 = **7,20**' },
-    { id: 'w02-q017', kind: 'table', skill: 'w.nutzwertanalyse', difficulty: 2, prompt: `Werte die Nutzwertanalyse aus (Gewichte als Dezimalfaktor, zwei Nachkommastellen).
+| Service | 20 % | 9 |`, answer: 7.2, tolerance: 0.005, accept: [720], misconceptions: [{ answer: '23', error: 'w-nutzwert-ungewichtet', why: 'Nur die Punkte addiert – Gewichtung fehlt.' }], explanation: '0,50 · 6 + 0,30 · 8 + 0,20 · 9 = 3,00 + 2,40 + 1,80 = **7,20**' },
+    { id: 'w02-q017', kind: 'table', skill: 'w.nutzwertanalyse', difficulty: 2, prompt: `Werte die Nutzwertanalyse aus (zwei Nachkommastellen).
 
 | Kriterium | Gewicht | A | B | C |
 |---|---|---|---|---|
@@ -495,9 +494,9 @@ Berechne beide Bezugspreise (Skonto wird genutzt, auf Cent runden) und gib das g
 | Lieferzeit | 15 % | 9 | 5 | 7 |
 
 Trage Nutzwert und Rang ein.`, columns: [{ key: 'nw', label: 'Nutzwert', type: 'number' }, { key: 'r', label: 'Rang', type: 'number' }], rows: [
-      { label: 'Angebot A', cells: { nw: { answer: '7.4' }, r: { answer: '2' } } },
-      { label: 'Angebot B', cells: { nw: { answer: '7.1' }, r: { answer: '3' } } },
-      { label: 'Angebot C', cells: { nw: { answer: '7.65' }, r: { answer: '1' } } },
+      { label: 'Angebot A', cells: { nw: { answer: '7.4', accept: ['740'] }, r: { answer: '2' } } },
+      { label: 'Angebot B', cells: { nw: { answer: '7.1', accept: ['710'] }, r: { answer: '3' } } },
+      { label: 'Angebot C', cells: { nw: { answer: '7.65', accept: ['765'] }, r: { answer: '1' } } },
     ], misconceptions: [{ cell: '0:nw', answer: '30', error: 'w-nutzwert-ungewichtet', why: 'Ungewichtete Punktsumme – Gewichte fehlen.' }, { cell: '2:nw', answer: '31', error: 'w-nutzwert-ungewichtet', why: 'Ungewichtete Punktsumme – Gewichte fehlen.' }], explanation: 'A: 2,45 + 2,40 + 1,20 + 1,35 = **7,40** · B: 3,15 + 1,80 + 1,40 + 0,75 = **7,10** · C: 2,10 + 2,70 + 1,80 + 1,05 = **7,65** → Rang 1: C, 2: A, 3: B.' },
     { id: 'w02-q018', kind: 'order', skill: 'w.nutzwertanalyse', difficulty: 1, prompt: 'Bringe die Schritte der Nutzwertanalyse in die richtige Reihenfolge.', items: ['K.-o.-Kriterien prüfen', 'Bewertungskriterien festlegen', 'Kriterien gewichten (Summe 100 %)', 'Punkte je Angebot und Kriterium vergeben', 'Teilnutzwerte berechnen (Gewicht × Punkte)', 'Nutzwerte summieren und Rangfolge bilden'], explanation: 'Kriterien und Gewichte werden festgelegt, **bevor** bewertet wird – sonst besteht die Gefahr, das Ergebnis „passend“ zu machen.' },
     { id: 'w02-q019', kind: 'free', skill: 'w.nutzwertanalyse', difficulty: 2, prompt: 'Nenne **zwei Vorteile** und **zwei Nachteile** der Nutzwertanalyse.', modelAnswer: 'Vorteile: Qualitative Kriterien werden berücksichtigt und in eine Zahl übersetzt; die Entscheidung wird nachvollziehbar, dokumentiert und lässt sich begründen; mehrere Kriterien und Angebote lassen sich systematisch vergleichen. Nachteile: Gewichtung und Punktvergabe sind subjektiv; das Ergebnis kann durch kleine Änderungen der Gewichte kippen; Aufwand für Kriterienfindung; Scheingenauigkeit durch Zahlen.', keywords: ['nachvollziehbar', 'qualitativ', 'subjektiv', 'Gewichtung', 'Scheingenauigkeit'], explanation: 'Abhilfe: Gewichte vorab mit dem Kunden festlegen, ggf. mehrere Personen bewerten lassen.' },
@@ -511,7 +510,7 @@ Trage Nutzwert und Rang ein.`, columns: [{ key: 'nw', label: 'Nutzwert', type: '
 | Leistung | 35 % | 8 |
 | Service | ? | 4 |
 
-Berechne den Nutzwert von Angebot A (Gewichte als Dezimalfaktor, zwei Nachkommastellen).`, answer: 6.6, tolerance: 0.005, misconceptions: [{ answer: '5.6', error: 'w-nutzwert-gewicht-fehlt', why: 'Das Kriterium Service wurde nicht berücksichtigt. Sein Gewicht beträgt 100 % − 40 % − 35 % = 25 %.' }], hints: ['Service-Gewicht = 100 % − 40 % − 35 %.'], explanation: 'Service-Gewicht: 100 % − 40 % − 35 % = 25 %. Nutzwert: 0,40 · 7 + 0,35 · 8 + 0,25 · 4 = 2,80 + 2,80 + 1,00 = **6,60**.' },
+Berechne den Nutzwert von Angebot A.`, answer: 6.6, tolerance: 0.005, accept: [660], misconceptions: [{ answer: '5.6', error: 'w-nutzwert-gewicht-fehlt', why: 'Das Kriterium Service wurde nicht berücksichtigt. Sein Gewicht beträgt 100 % − 40 % − 35 % = 25 %.' }], hints: ['Service-Gewicht = 100 % − 40 % − 35 %.'], explanation: 'Service-Gewicht: 100 % − 40 % − 35 % = 25 %. Nutzwert: 0,40 · 7 + 0,35 · 8 + 0,25 · 4 = 2,80 + 2,80 + 1,00 = **6,60**.' },
     { id: 'w02-q023', kind: 'free', skill: 'w.nutzwertanalyse', difficulty: 2, prompt: 'Wie kann man den **Preis** in einer Nutzwertanalyse in Punkte übersetzen? Beschreibe ein Verfahren.', modelAnswer: 'Das günstigste Angebot erhält die Höchstpunktzahl (z. B. 10 Punkte). Die übrigen Angebote erhalten Punkte im Verhältnis: Punkte = 10 × günstigster Preis ÷ eigener Preis (gerundet). Alternativ werden Preisklassen festgelegt (z. B. bis 900 € = 10 Punkte, bis 1.000 € = 8 Punkte usw.). Wichtig ist, dass die Regel vorher festgelegt und für alle Angebote gleich angewendet wird.', keywords: ['günstigstes', 'Höchstpunktzahl', 'Verhältnis', 'Preisklassen', 'vorher festlegen'], explanation: 'Der Preis ist meist das wichtigste Kriterium – die Umrechnung in Punkte muss nachvollziehbar sein.' },
     { id: 'w02-q024', kind: 'number', skill: 'w.entscheidung', difficulty: 1, prompt: 'Eine Rechnung über **4.760,00 €** wird innerhalb der Skontofrist mit **2 % Skonto** bezahlt. Wie hoch ist der **Skontobetrag**?', answer: 95.2, tolerance: 0.01, unit: '€', misconceptions: [{ answer: '4664.8', error: 'w-skonto-zahlbetrag', why: 'Das ist der Zahlbetrag. Gefragt ist nur der Skontobetrag.' }], explanation: '4.760,00 € × 2 % = **95,20 €** (Zahlbetrag 4.664,80 €).' },
     { id: 'w02-q025', kind: 'number', skill: 'w.entscheidung', difficulty: 2, prompt: 'Zahlungsbedingung: **2 % Skonto** bei Zahlung innerhalb von **8 Tagen**, sonst **30 Tage netto**. Welchem Jahreszinssatz entspricht der Lieferantenkredit ungefähr? (Faustformel, 360 Tage, auf zwei Nachkommastellen in Prozent)', answer: 32.73, tolerance: 0.01, unit: '%', misconceptions: [{ answer: '24', error: 'w-skonto-zins', why: 'Durch die **Differenz** (30 − 8 = 22 Tage) teilen, nicht durch 30.' }, { answer: '90', error: 'w-skonto-zins', why: 'Durch die Differenz aus Zahlungsziel und Skontofrist (22 Tage) teilen, nicht durch die Skontofrist.' }], explanation: '2 × 360 ÷ (30 − 8) = 720 ÷ 22 = 32,727… ≈ **32,73 %**.' },

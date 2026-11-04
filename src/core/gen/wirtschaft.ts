@@ -196,7 +196,7 @@ const nutzwert: GeneratorMeta = {
     const names = VENDORS.slice(0, nOff);
     const tbl = `| Kriterium | Gewichtung | ${names.map((n) => 'Angebot ' + n.split(' – ')[0]).join(' | ')} |\n|---|---|${names.map(() => '---').join('|')}|\n` +
       crit.map((c, i) => `| ${c} | ${w[i]} % | ${pts.map((p) => p[i]).join(' | ')} |`).join('\n');
-    const rule = 'Punkte: 1 (schlecht) bis 10 (sehr gut). Rechne mit den Gewichten als Dezimalfaktor (z. B. 40 % = 0,40): Teilnutzwert = Gewicht · Punkte; Nutzwert = Summe der Teilnutzwerte.';
+    const rule = 'Punkte: 1 (schlecht) bis 10 (sehr gut). Teilnutzwert = Gewicht · Punkte; Nutzwert = Summe der Teilnutzwerte. Du kannst das Gewicht als Dezimalfaktor (40 % = 0,40) oder als ganze Prozentzahl (40) einsetzen – beide Schreibweisen sind richtig.';
     const expl =
       names.map((n, o) => `**Angebot ${n}:** ${crit.map((_, i) => `${deN(w[i] / 100)} · ${pts[o][i]}`).join(' + ')} = ${crit.map((_, i) => deN((w[i] * pts[o][i]) / 100)).join(' + ')} = **${de2(nw[o])}**`).join('\n\n') +
       `\n\n**Rangfolge:** ${rank.map((r, o) => ({ r, o })).sort((x, y) => x.r - y.r).map(({ r, o }) => `${r}. Angebot ${names[o]} (${de2(nw[o])})`).join(' · ')}\n\nDas Angebot mit dem **höchsten** Nutzwert wird empfohlen: **Angebot ${names[winner]}**.`;
@@ -209,10 +209,9 @@ const nutzwert: GeneratorMeta = {
       return {
         id: gid('w.nutzwert'), generated: true, kind: 'number', skill: 'w.nutzwertanalyse', difficulty: d,
         prompt: `Für die Auswahl neuer Arbeitsplatzrechner wurde folgende Bewertung erstellt. ${rule}\n\n${tbl}\n\nBerechne den **Nutzwert von Angebot ${names[o].split(' – ')[0]}** (zwei Nachkommastellen).`,
-        answer, tolerance: 0.005,
+        answer, tolerance: 0.005, accept: [sums[o]],
         misconceptions: cleanMc(answer, 0.005, [
           { answer: String(raw), error: 'w-nutzwert-ungewichtet', why: 'Du hast nur die Punkte addiert. Jede Punktzahl muss vorher mit dem **Gewicht** des Kriteriums multipliziert werden.' },
-          { answer: String(sums[o]), error: 'w-nutzwert-prozent', why: 'Du hast mit den Prozentzahlen statt mit Dezimalfaktoren gerechnet (40 statt 0,40). Laut Aufgabe ist das Ergebnis durch 100 zu teilen.' },
           { answer: String(Math.round((raw / k) * 100) / 100), error: 'w-nutzwert-ungewichtet', why: 'Das ist der ungewichtete Durchschnitt der Punkte – die Gewichtung fehlt.' },
         ]),
         hints,
@@ -229,10 +228,9 @@ const nutzwert: GeneratorMeta = {
           { key: 'nw', label: 'Nutzwert', type: 'number' },
           { key: 'rang', label: 'Rang', type: 'number' },
         ],
-        rows: names.map((n, o) => ({ label: `Angebot ${n}`, cells: { nw: { answer: String(nw[o]) }, rang: { answer: String(rank[o]) } } })),
+        rows: names.map((n, o) => ({ label: `Angebot ${n}`, cells: { nw: { answer: String(nw[o]), accept: [String(sums[o])] }, rang: { answer: String(rank[o]) } } })),
         misconceptions: names.flatMap((_, o) => [
           { cell: `${o}:nw`, answer: String(raws[o]), error: 'w-nutzwert-ungewichtet', why: 'Nur Punkte addiert – die Gewichtung fehlt.' },
-          { cell: `${o}:nw`, answer: String(sums[o]), error: 'w-nutzwert-prozent', why: 'Mit Prozentzahlen statt Dezimalfaktoren gerechnet (Ergebnis 100-fach zu groß).' },
         ]).filter((m) => Number(m.answer) !== nw[Number(m.cell.split(':')[0])]),
         hints,
         explanation: expl,
@@ -246,11 +244,10 @@ const nutzwert: GeneratorMeta = {
       prompt: `Für einen Kunden des IT-Systemhauses sollen drei Angebote für Arbeitsplatzrechner per **Nutzwertanalyse** verglichen werden. ${rule}\n\n${tbl}\n\nErgänze die **Teilnutzwerte**, die **Nutzwerte** (Summe) und den **Rang** (1 = beste Wahl).`,
       columns: names.map((n, o) => ({ key: `o${o}`, label: `Angebot ${n.split(' – ')[0]}`, type: 'number' as const })),
       rows: [
-        ...crit.map((c, i) => ({ label: `${c} (${w[i]} %)`, cells: Object.fromEntries(names.map((_, o) => [`o${o}`, { answer: String((w[i] * pts[o][i]) / 100) }])) })),
-        { label: 'Nutzwert (Summe)', cells: Object.fromEntries(names.map((_, o) => [`o${o}`, { answer: String(nw[o]) }])) },
+        ...crit.map((c, i) => ({ label: `${c} (${w[i]} %)`, cells: Object.fromEntries(names.map((_, o) => [`o${o}`, { answer: String((w[i] * pts[o][i]) / 100), accept: [String(w[i] * pts[o][i])] }])) })),
+        { label: 'Nutzwert (Summe)', cells: Object.fromEntries(names.map((_, o) => [`o${o}`, { answer: String(nw[o]), accept: [String(sums[o])] }])) },
         { label: 'Rang', cells: Object.fromEntries(names.map((_, o) => [`o${o}`, { answer: String(rank[o]) }])) },
       ],
-      misconceptions: crit.flatMap((_, i) => names.map((__, o) => ({ cell: `${i}:o${o}`, answer: String(w[i] * pts[o][i]), error: 'w-nutzwert-prozent', why: 'Gewicht als Dezimalfaktor verwenden (z. B. 0,30 statt 30).' }))),
       hints,
       explanation: expl,
     };

@@ -176,7 +176,7 @@ export function grade(q: Question, response: ResponseValue): GradeResult {
       const cands = typeof response === 'string' ? parseNumberCandidates(response) : [];
       if (!cands.length) return { ...base, correct: false, score: 0, feedback: 'Bitte eine Zahl eingeben.', errorTags: ['eingabeformat'] };
       const tol = q.tolerance ?? 0;
-      if (cands.some((c) => Math.abs(c - q.answer) <= tol + 1e-9)) return { ...base, correct: true, score: 1, feedback: 'Richtig!', errorTags: [] };
+      if (cands.some((c) => [q.answer, ...(q.accept ?? [])].some((a) => Math.abs(c - a) <= tol + 1e-9))) return { ...base, correct: true, score: 1, feedback: 'Richtig!', errorTags: [] };
       const n = cands[0];
       const mc = findMisconception(q, String(n)) ?? findMisconception(q, response as string);
       return {
