@@ -28,6 +28,9 @@ export const p03: Module = {
       minutes: 20,
       relevance: 'ap1',
       skills: ['prog.array'],
+      simple: `Ein Array (Feld) ist wie ein Tablettenspender mit nummerierten Fächern: Viele Werte gleicher Art liegen unter einem Namen, und jedes Fach hat eine Nummer (Index). Die Zählung beginnt bei 0 – das erste Element ist werte[0]. Ein Array mit 7 Fächern hat also die Indizes 0 bis 6. Willst du alle Werte bearbeiten, läufst du mit einer Zählschleife von 0 bis Länge − 1 durch.
+
+**Merke:** Erster Index 0, letzter Index Länge − 1.`,
       steps: [
         {
           type: 'explain',
@@ -108,6 +111,9 @@ ${F}
       minutes: 20,
       relevance: 'ap1',
       skills: ['prog.aggregate'],
+      simple: `Eine Summe bildest du wie eine Supermarktkasse: Die Kasse startet bei 0, und jeder Artikel wird zum Zwischenstand dazugezählt. Diese „mitlaufende“ Variable heißt Akkumulator (Sammelvariable). Den Durchschnitt erhältst du, wenn du am Ende die Summe durch die Anzahl teilst. Beim Zählen machst du es ähnlich, nur erhöhst du den Zähler um 1, wenn eine Bedingung zutrifft.
+
+**Merke:** summe ← 0 vor der Schleife, summe ← summe + wert in der Schleife, Durchschnitt erst nach der Schleife.`,
       steps: [
         {
           type: 'explain',
@@ -200,6 +206,9 @@ ${F}
       minutes: 15,
       relevance: 'ap1',
       skills: ['prog.aggregate'],
+      simple: `Das Maximum findest du wie beim Hochsprung-Rekord: Der erste Sprung ist automatisch der Rekord, und jeder bessere Sprung ersetzt ihn. Im Programm startest du deshalb mit dem ersten Element des Arrays als bisherigem Maximum. Dann vergleichst du jedes weitere Element damit und tauschst den Rekord aus, wenn ein größeres kommt. Starte nicht mit 0 – bei lauter negativen Werten (z. B. Temperaturen im Winter) wäre das Ergebnis sonst falsch.
+
+**Merke:** max ← werte[0], dann WENN werte[i] > max DANN max ← werte[i].`,
       steps: [
         {
           type: 'explain',
@@ -280,6 +289,9 @@ ${F}
       minutes: 20,
       relevance: 'ap1',
       skills: ['prog.search'],
+      simple: `Die lineare Suche ist wie das Durchgehen einer Gästeliste von oben nach unten, bis du den Namen findest – das klappt immer, dauert aber bei langen Listen. Die binäre Suche ist wie das Aufschlagen eines Wörterbuchs: Du öffnest in der Mitte und weißt sofort, in welcher Hälfte du weitersuchen musst. Sie funktioniert nur, wenn die Daten sortiert sind. Weil sich der Suchbereich jedes Mal halbiert, reichen bei 1000 Einträgen höchstens 10 Vergleiche.
+
+**Merke:** Linear = Schritt für Schritt, beliebige Daten; binär = halbieren, nur sortierte Daten.`,
       steps: [
         {
           type: 'explain',
@@ -361,6 +373,9 @@ ${F}
       minutes: 25,
       relevance: 'ap1',
       skills: ['prog.sort'],
+      simple: `Bubble Sort ist wie Kinder, die sich in einer Reihe nach Größe ordnen: Immer zwei Nachbarn vergleichen sich und tauschen, wenn der linke größer ist. Nach dem ersten Durchgang steht der Größte ganz hinten – er ist wie eine Blase nach oben gestiegen. Zum Tauschen brauchst du eine Hilfsvariable (Zwischenspeicher), so wie du ein drittes Glas brauchst, um den Inhalt zweier Gläser zu tauschen. Bei n Elementen genügen höchstens n − 1 Durchgänge.
+
+**Merke:** Nachbarn vergleichen, bei Bedarf über eine Hilfsvariable tauschen, so oft wiederholen, bis nichts mehr getauscht wird.`,
       steps: [
         {
           type: 'explain',
@@ -440,6 +455,9 @@ ${F}
       minutes: 25,
       relevance: 'ap1',
       skills: ['prog.functions'],
+      simple: `Eine Funktion ist wie eine Kaffeemaschine: Du gibst etwas hinein (Parameter, z. B. Bohnen und Wasser), sie arbeitet, und es kommt etwas heraus (Rückgabewert, der Kaffee). Du kannst sie immer wieder benutzen, ohne zu wissen, wie sie innen genau funktioniert. Eine Prozedur erledigt ebenfalls eine Aufgabe, gibt aber keinen Wert zurück – wie ein Drucker, der nur druckt. Mit Funktionen vermeidest du doppelten Code und machst Programme übersichtlicher.
+
+**Merke:** Funktion = Parameter rein, RÜCKGABE raus; Prozedur = erledigt etwas ohne Rückgabewert.`,
       steps: [
         {
           type: 'explain',

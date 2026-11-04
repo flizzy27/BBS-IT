@@ -23,6 +23,13 @@ export const m04: Module = {
       minutes: 15,
       relevance: 'ap1',
       skills: ['bin.placevalue', 'bin.bin2dec'],
+      simple: `Ein **Bit** ist wie ein Lichtschalter: Es kennt nur aus (0) oder an (1).
+Stell dir acht Schalter nebeneinander vor. Jeder Schalter steht für eine Zahl: 128, 64, 32, 16, 8, 4, 2, 1 – jeder ist doppelt so viel wert wie sein rechter Nachbar.
+Um den Wert zu lesen, addierst du die Zahlen aller eingeschalteten Schalter.
+Beispiel 11000000: Die Schalter 128 und 64 sind an, also 128 + 64 = 192.
+Sind alle acht an, ergibt das 255 – die größte Zahl in einem Oktett (8 Bit).
+
+**Merke:** Die Stellenwerte 128 · 64 · 32 · 16 · 8 · 4 · 2 · 1 auswendig können und die Werte der Einsen addieren.`,
       steps: [
         {
           type: 'explain',
@@ -104,6 +111,12 @@ Acht Bits bilden ein **Byte** bzw. – bei IP-Adressen – ein **Oktett**. Diese
       minutes: 15,
       relevance: 'ap1',
       skills: ['bin.dec2bin'],
+      simple: `Dezimal in binär umrechnen ist wie Bezahlen mit Geldscheinen: Du nimmst immer zuerst den größten Schein, der noch passt.
+Deine „Scheine“ sind 128, 64, 32, 16, 8, 4, 2 und 1.
+Passt ein Schein in den Restbetrag, schreibst du eine 1 und ziehst ihn ab. Passt er nicht, schreibst du eine 0.
+Beispiel 172: 128 passt (Rest 44), 64 nicht, 32 passt (Rest 12), 16 nicht, 8 passt (Rest 4), 4 passt (Rest 0), 2 und 1 nicht → 10101100.
+
+**Merke:** Von links prüfen: passt → 1 und abziehen, passt nicht → 0; immer 8 Stellen schreiben.`,
       steps: [
         {
           type: 'explain',
@@ -157,6 +170,12 @@ Das ist die **Subtraktionsmethode**. Sie ist für IP-Adressen meist schneller al
       minutes: 12,
       relevance: 'ap1',
       skills: ['bin.powers'],
+      simple: `Jedes zusätzliche Bit verdoppelt die Möglichkeiten – wie eine Weggabelung, an der sich jeder Weg noch einmal in zwei teilt.
+Mit 1 Bit gibt es 2 Werte, mit 2 Bit 4, mit 3 Bit 8 und mit 8 Bit schon 256. Man schreibt das 2 hoch n (2ⁿ).
+Eine Subnetzmaske besteht immer zuerst aus Einsen und dann aus Nullen.
+Deshalb gibt es in einem Oktett nur neun mögliche Maskenwerte: 0, 128, 192, 224, 240, 248, 252, 254, 255.
+
+**Merke:** n Bits → 2ⁿ Möglichkeiten; die Maskenwerte 128 bis 255 auswendig lernen.`,
       steps: [
         {
           type: 'explain',
@@ -222,6 +241,13 @@ Wenn du diese Tabelle kennst, kannst du jede Maske sofort in ein Präfix umrechn
       minutes: 15,
       relevance: 'ap1',
       skills: ['bin.and'],
+      simple: `Das **bitweise UND** ist wie eine Schablone mit Löchern: Nur wo die Schablone ein Loch hat (Maske = 1), scheint die IP-Adresse durch.
+Wo die Schablone geschlossen ist (Maske = 0), bleibt eine 0 übrig.
+Das Ergebnis ist also nur dann 1, wenn **beide** Bits 1 sind.
+So rechnet jeder PC aus seiner IP-Adresse und der Maske die Netzadresse aus.
+Vergleicht er sie mit der Netzadresse des Ziels, weiß er: gleich → direkt senden, verschieden → ans Gateway (Router) geben.
+
+**Merke:** IP UND Maske = Netzadresse; 1 UND 1 = 1, alle anderen Kombinationen ergeben 0.`,
       steps: [
         {
           type: 'explain',
@@ -282,5 +308,47 @@ Mit dem gleichen Verfahren prüft ein PC vor jedem Senden: *Liegt das Ziel in me
     { id: 'm04-q010', kind: 'free', skill: 'bin.and', difficulty: 2, prompt: 'Erläutere, wie ein PC mit Hilfe seiner Subnetzmaske entscheidet, ob er ein Paket direkt zustellt oder an das Standardgateway schickt.', modelAnswer: 'Der PC verknüpft seine eigene IP-Adresse und die Ziel-IP jeweils bitweise per UND mit seiner Subnetzmaske. Sind beide Ergebnisse (Netzadressen) gleich, liegt das Ziel im eigenen Netz und wird direkt (MAC per ARP) zugestellt. Sind sie verschieden, wird das Paket an die MAC-Adresse des Standardgateways gesendet, das es weiterleitet.', keywords: ['UND', 'Netzadresse', 'gleich', 'Standardgateway', 'ARP'], explanation: 'Kern: UND-Verknüpfung beider Adressen mit der eigenen Maske → Vergleich der Netzanteile.' },
     { id: 'm04-q011', kind: 'order', skill: 'bin.placevalue', difficulty: 1, prompt: 'Ordne die Stellenwerte eines Oktetts von **links nach rechts**.', items: ['128', '64', '32', '16', '8', '4', '2', '1'], explanation: 'Höchstwertiges Bit links (2⁷ = 128), niederwertigstes rechts (2⁰ = 1).' },
     { id: 'm04-q012', kind: 'table', skill: 'bin.dec2bin', difficulty: 2, prompt: 'Fülle die Tabelle aus.', columns: [{ key: 'bin', label: 'Binär', type: 'text' }], rows: [{ label: '192', cells: { bin: { answer: '11000000' } } }, { label: '224', cells: { bin: { answer: '11100000' } } }, { label: '127', cells: { bin: { answer: '01111111' } } }, { label: '64', cells: { bin: { answer: '01000000' } } }], explanation: '192 = 128+64, 224 = 128+64+32, 127 = 64+32+16+8+4+2+1, 64 = 64.' },
+    { id: 'm04-q013', kind: 'number', skill: 'bin.bin2dec', difficulty: 1, prompt: 'Welchen Dezimalwert hat `10101010`?', answer: 170, misconceptions: [{ answer: '85', error: 'bin-reihenfolge', why: 'Du hast von rechts gelesen. Das linke Bit hat den Wert 128.' }], hints: ['Einsen stehen bei 128, 32, 8 und 2.'], explanation: '128 + 32 + 8 + 2 = **170**.' },
+    { id: 'm04-q014', kind: 'number', skill: 'bin.bin2dec', difficulty: 1, prompt: 'Welchen Dezimalwert hat `01111111`?', answer: 127, misconceptions: [{ answer: '254', error: 'bin-reihenfolge', why: 'Das linke Bit (128) ist 0. Du hast die Reihenfolge vertauscht.' }], hints: ['Alle Bits außer dem 128er sind gesetzt.'], explanation: '64 + 32 + 16 + 8 + 4 + 2 + 1 = **127** (oder schneller: 255 − 128 = 127).' },
+    { id: 'm04-q015', kind: 'text', skill: 'bin.dec2bin', difficulty: 1, prompt: 'Wandle **192** in eine 8-stellige Binärzahl um.', accept: ['11000000'], hints: ['192 = 128 + 64'], explanation: '192 − 128 = 64 → 64 − 64 = 0 → **11000000** (Maskenoktett von /26).' },
+    { id: 'm04-q016', kind: 'text', skill: 'bin.dec2bin', difficulty: 2, prompt: 'Wandle **100** in eine 8-stellige Binärzahl um.', accept: ['01100100'], misconceptions: [{ answer: '1100100', error: 'bin-fuehrende-nullen', why: 'Wert richtig, aber ein Oktett hat 8 Stellen: 01100100.' }, { answer: '00100110', error: 'bin-reihenfolge', why: 'Die Bits stehen rückwärts. Das höchstwertige Bit (128) steht links.' }], hints: ['128 passt nicht in 100 → erste Stelle 0.', 'Rest-Kette: 100 − 64 = 36, 36 − 32 = 4.'], explanation: `**Subtraktionsmethode:**
+- 128 passt nicht → 0
+- 64 passt → 1, Rest 36
+- 32 passt → 1, Rest 4
+- 16 → 0, 8 → 0
+- 4 passt → 1, Rest 0
+- 2 → 0, 1 → 0
+
+→ **01100100** (Probe: 64 + 32 + 4 = 100)` },
+    { id: 'm04-q017', kind: 'text', skill: 'bin.dec2bin', difficulty: 2, prompt: 'Wandle **37** in eine 8-stellige Binärzahl um.', accept: ['00100101'], misconceptions: [{ answer: '100101', error: 'bin-fuehrende-nullen', why: 'Wert richtig, aber auf 8 Stellen auffüllen: 00100101.' }, { answer: '10100100', error: 'bin-reihenfolge', why: 'Die Bits stehen rückwärts. Das höchstwertige Bit steht links.' }], hints: ['37 = 32 + 4 + 1'], explanation: '37 − 32 = 5 → 5 − 4 = 1 → 1 − 1 = 0. Einsen bei 32, 4 und 1 → **00100101**.' },
+    { id: 'm04-q018', kind: 'number', skill: 'bin.powers', difficulty: 1, prompt: 'Wie viel ist **2¹⁰**?', answer: 1024, misconceptions: [{ answer: '20', error: 'bin-potenz', why: '2¹⁰ heißt 2 zehnmal mit sich selbst multipliziert, nicht 2 · 10.' }, { answer: '1000', error: 'einheit-1000-1024', why: '1000 ist 10³. 2¹⁰ ist 1024 – deshalb ist 1 KiB = 1024 Byte.' }], hints: ['2⁸ = 256 → zweimal verdoppeln.'], explanation: '2⁸ = 256 → 2⁹ = 512 → 2¹⁰ = **1024**.' },
+    { id: 'm04-q019', kind: 'number', skill: 'bin.powers', difficulty: 1, prompt: 'Welches ist die **größte Zahl**, die sich mit **6 Bit** darstellen lässt?', answer: 63, misconceptions: [{ answer: '64', error: 'bin-potenz', why: 'Mit 6 Bit gibt es 64 **Werte** – sie reichen aber von 0 bis 63.' }], hints: ['Alle sechs Bits auf 1: 32 + 16 + 8 + 4 + 2 + 1.'], explanation: '2⁶ = 64 Werte, gezählt ab 0 → größter Wert **63** (= 111111).' },
+    { id: 'm04-q020', kind: 'ip', skill: 'bin.bin2dec', difficulty: 2, prompt: 'Welche Subnetzmaske steht hier in Punktnotation? `11111111.11111111.11111000.00000000`', answer: '255.255.248.0', hints: ['11111000 = 128 + 64 + 32 + 16 + 8'], explanation: 'Oktett 3: 11111000 = 248 → **255.255.248.0** (8 + 8 + 5 = /21).' },
+    { id: 'm04-q021', kind: 'number', skill: 'bin.powers', difficulty: 2, prompt: 'Wie viele **Einsen** hat die Maske 255.255.255.240 in Binärdarstellung?', answer: 28, hints: ['240 = 11110000'], explanation: '3 × 8 + 4 = **28** → /28.' },
+    {
+      id: 'm04-q022', kind: 'table', skill: 'bin.and', difficulty: 2,
+      prompt: 'Berechne jeweils das **bitweise UND** (Ergebnis dezimal).',
+      columns: [{ key: 'r', label: 'Ergebnis', type: 'number' }],
+      rows: [
+        { label: '77 UND 224', cells: { r: { answer: '64' } } },
+        { label: '200 UND 192', cells: { r: { answer: '192' } } },
+        { label: '15 UND 240', cells: { r: { answer: '0' } } },
+        { label: '255 UND 248', cells: { r: { answer: '248' } } },
+      ],
+      hints: ['Beide Zahlen binär untereinanderschreiben; 1 nur dort, wo beide 1 sind.'],
+      explanation: `\`\`\`
+ 77 = 01001101    200 = 11001000    15 = 00001111    255 = 11111111
+224 = 11100000    192 = 11000000   240 = 11110000    248 = 11111000
+UND = 01000000    UND = 11000000   UND = 00000000    UND = 11111000
+    = 64              = 192            = 0               = 248
+\`\`\`
+Merke: UND mit 255 lässt einen Wert unverändert, UND mit 0 macht ihn zu 0.`,
+    },
+    { id: 'm04-q023', kind: 'free', skill: 'bin.placevalue', difficulty: 1, prompt: 'Erkläre, warum ein Oktett einer IPv4-Adresse höchstens den Wert **255** haben kann.', modelAnswer: 'Ein Oktett besteht aus 8 Bit. Jedes Bit kann 0 oder 1 sein, das ergibt 2⁸ = 256 verschiedene Kombinationen. Weil man bei 0 zu zählen beginnt (00000000 = 0), ist der größte Wert 11111111 = 128 + 64 + 32 + 16 + 8 + 4 + 2 + 1 = 255.', keywords: ['8 Bit', '256', 'ab 0', '11111111'], hints: ['Wie viele Kombinationen gibt es mit 8 Bit, und womit beginnt man zu zählen?'], explanation: '256 Werte, beginnend bei 0 → höchster Wert 255.' },
+    { id: 'm04-q024', kind: 'single', skill: 'bin.and', difficulty: 1, prompt: 'Wann ist das Ergebnis eines bitweisen UND an einer Stelle **1**?', options: ['Wenn mindestens eines der beiden Bits 1 ist', 'Wenn beide Bits 1 sind', 'Wenn beide Bits gleich sind', 'Wenn genau eines der beiden Bits 1 ist'], answer: 1, distractors: { '0': { why: 'Das ist das ODER (OR).', error: 'logik-und-oder' }, '2': { why: 'Bei 0 und 0 ist das UND-Ergebnis 0.', error: 'logik-und-oder' }, '3': { why: 'Das ist das exklusive ODER (XOR).', error: 'logik-und-oder' } }, explanation: 'UND (AND): nur **1 und 1 ergibt 1**, alle anderen Kombinationen ergeben 0.' },
+    { id: 'm04-q025', kind: 'text', skill: 'bin.dec2bin', difficulty: 2, prompt: 'Schreibe die IPv4-Adresse **10.1.2.3** in binärer Punktnotation (4 × 8 Bit, durch Punkte getrennt).', accept: ['00001010.00000001.00000010.00000011', '00001010 00000001 00000010 00000011', '00001010000000010000001000000011'], misconceptions: [{ answer: '1010.1.10.11', error: 'bin-fuehrende-nullen', why: 'Jedes Oktett hat 8 Stellen – fülle mit führenden Nullen auf.' }], hints: ['10 = 8 + 2, 3 = 2 + 1.'], explanation: '10 = 00001010, 1 = 00000001, 2 = 00000010, 3 = 00000011 → **00001010.00000001.00000010.00000011**.' },
+    { id: 'm04-q026', kind: 'match', skill: 'bin.bin2dec', difficulty: 1, prompt: 'Ordne die Binärzahlen ihrem Dezimalwert zu.', left: ['00001111', '11110000', '10000001', '01000000'], right: ['15', '240', '129', '64'], answer: [0, 1, 2, 3], explanation: '00001111 = 8+4+2+1 = 15 · 11110000 = 128+64+32+16 = 240 · 10000001 = 128+1 = 129 · 01000000 = 64.' },
+    { id: 'm04-q027', kind: 'number', skill: 'bin.powers', difficulty: 2, prompt: 'Wie viele Bits braucht man mindestens, um **1000** verschiedene Werte darzustellen?', answer: 10, misconceptions: [{ answer: '9', error: 'bin-potenz', why: '2⁹ = 512 < 1000 – das reicht nicht.' }], hints: ['Suche das kleinste n mit 2ⁿ ≥ 1000.'], explanation: '2⁹ = 512 < 1000 ≤ 1024 = 2¹⁰ → **10 Bits**.' },
+    { id: 'm04-q028', kind: 'order', skill: 'bin.bin2dec', difficulty: 1, prompt: 'Sortiere die Binärzahlen **aufsteigend** nach ihrem Wert (kleinste zuerst).', items: ['00011111', '00100000', '01000001', '10000000'], hints: ['Rechne alle vier in Dezimal um.'], explanation: '00011111 = 31 < 00100000 = 32 < 01000001 = 65 < 10000000 = 128. Trick: Die Zahl mit der am weitesten links stehenden 1 ist die größte.' },
   ],
 };

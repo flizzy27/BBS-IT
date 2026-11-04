@@ -373,6 +373,354 @@ const usv: GeneratorMeta = {
   },
 };
 
+/** 80 PLUS, 230 V EU Internal: Mindestwirkungsgrad in % je Lastpunkt (10/20/50/100 %). */
+const PLUS_EU: { n: string; e: Record<number, number> }[] = [
+  { n: '80 PLUS', e: { 20: 82, 50: 85, 100: 82 } },
+  { n: 'Bronze', e: { 20: 85, 50: 88, 100: 85 } },
+  { n: 'Silver', e: { 20: 87, 50: 90, 100: 87 } },
+  { n: 'Gold', e: { 20: 90, 50: 92, 100: 89 } },
+  { n: 'Platinum', e: { 20: 92, 50: 94, 100: 90 } },
+  { n: 'Titanium', e: { 10: 90, 20: 94, 50: 96, 100: 94 } },
+];
+/** dieselben Stufen für 115 V (nur für das Fehlbild „falsche Tabelle“) */
+const PLUS_115: Record<string, Record<number, number>> = {
+  '80 PLUS': { 20: 80, 50: 80, 100: 80 },
+  Bronze: { 20: 82, 50: 85, 100: 82 },
+  Silver: { 20: 85, 50: 88, 100: 85 },
+  Gold: { 20: 87, 50: 90, 100: 87 },
+  Platinum: { 20: 90, 50: 92, 100: 89 },
+  Titanium: { 10: 90, 20: 92, 50: 94, 100: 90 },
+};
+const plusTable = () =>
+  `**Beleg: 80 PLUS – Mindestwirkungsgrade (230 V EU, interne Netzteile)**\n\n| Stufe | 10 % Last | 20 % Last | 50 % Last | 100 % Last |\n|---|---|---|---|---|\n` +
+  PLUS_EU.map((s) => `| ${s.n} | ${s.e[10] ? s.e[10] + ' %' : '–'} | ${s.e[20]} % | ${s.e[50]} % | ${s.e[100]} % |`).join('\n');
+
+const achtzigPlus: GeneratorMeta = {
+  id: 'hw.80plus',
+  title: '80 PLUS (230 V EU): aufgenommene Leistung aus Tabelle',
+  skill: 'hw.energy.efficiency',
+  module: 'h04',
+  make(rng, d) {
+    const nenn = rng.pick([400, 500, 550, 650, 750, 850, 1000]);
+    if (d === 1 || d === 2) {
+      const lvl = rng.pick(PLUS_EU);
+      const load = rng.pick([20, 50, 100]);
+      const eta = lvl.e[load];
+      const pab = (nenn * load) / 100;
+      const pzu = round(pab / (eta / 100), 1);
+      const eta115 = PLUS_115[lvl.n][load];
+      return numQ('hw.80plus', 'hw.energy.efficiency', d, {
+        prompt:
+          `${plusTable()}\n\nEin PC-Netzteil mit **${f(nenn, 0)} W** Nennleistung ist nach **80 PLUS ${lvl.n}** (230 V EU) zertifiziert. ` +
+          (d === 1
+            ? `Es arbeitet bei **${load} % Last** und gibt dabei **${f(pab)} W** an die Komponenten ab.`
+            : `Die Komponenten des PCs benötigen gerade **${f(pab)} W**.`) +
+          `\n\nWelche Leistung nimmt das Netzteil **höchstens** aus dem Stromnetz auf, wenn es genau den Mindestwirkungsgrad der Tabelle erreicht? (in W, auf eine Nachkommastelle runden)`,
+        answer: pzu,
+        tolerance: 0.1,
+        unit: 'W',
+        hints: [
+          ...(d === 2 ? [`Erst die Auslastung bestimmen: Abgabe ÷ Nennleistung = ${f(pab)} W ÷ ${f(nenn, 0)} W.`] : []),
+          `In der Tabelle die Zeile „${lvl.n}“ und die Spalte „${load} % Last“ ablesen.`,
+          'Aufgenommene Leistung = abgegebene Leistung ÷ Wirkungsgrad (η als Dezimalzahl).',
+        ],
+        mcs: [
+          { answer: round(pab * (eta / 100), 1), error: 'wirkungsgrad-multipliziert', why: 'Mit η **multipliziert** statt geteilt. Das Netzteil nimmt **mehr** auf, als es abgibt: P_zu = P_ab ÷ η.' },
+          { answer: round(pab * (1 + (100 - eta) / 100), 1), error: 'wirkungsgrad-prozent-aufschlag', why: `${100 - eta} % Aufschlag auf P_ab ist nicht dasselbe wie die Division durch η. Rechne P_zu = P_ab ÷ η.` },
+          { answer: round(pab / (eta115 / 100), 1), error: '80plus-tabelle-115v', why: 'Du hast die Werte der **115-V-Tabelle** (USA) verwendet. Für Deutschland gilt die Tabelle „230 V EU“ aus dem Beleg.' },
+          { answer: round(nenn / (eta / 100), 1), error: '80plus-nennleistung', why: 'Du hast mit der **Nennleistung** gerechnet. Entscheidend ist die tatsächlich abgegebene Leistung.' },
+        ],
+        explanation:
+          (d === 2 ? `**1. Auslastung:** ${f(pab)} W ÷ ${f(nenn, 0)} W = ${f(load / 100)} = **${load} %**\n\n` : '') +
+          `**${d === 2 ? 2 : 1}. Wirkungsgrad aus der Tabelle:** 80 PLUS ${lvl.n}, ${load} % Last → **η = ${eta} % = ${f(eta / 100)}**\n\n` +
+          `**${d === 2 ? 3 : 2}. Aufgenommene Leistung:** P_zu = P_ab ÷ η = ${f(pab)} W ÷ ${f(eta / 100)} = **${f(pzu, 1)} W**\n\n` +
+          `Verlustleistung (Wärme): ${f(pzu, 1)} W − ${f(pab)} W ≈ ${f(pzu - pab, 1)} W.\n\nHäufiger Fehler: mit η multiplizieren – dann käme weniger heraus, als das Netzteil abgibt. Das ist unmöglich.`,
+      });
+    }
+    // d === 3: zwei Netzteile gleicher Nennleistung im Dauerbetrieb bei 50 % Last vergleichen
+    const [a, b] = rng.pick([
+      [PLUS_EU[1], PLUS_EU[3]],
+      [PLUS_EU[1], PLUS_EU[4]],
+      [PLUS_EU[0], PLUS_EU[3]],
+      [PLUS_EU[3], PLUS_EU[5]],
+      [PLUS_EU[2], PLUS_EU[4]],
+    ]);
+    const pab = nenn / 2;
+    const pa = pab / (a.e[50] / 100);
+    const pb = pab / (b.e[50] / 100);
+    const kwh = round(((pa - pb) * 8760) / 1000, 1);
+    return numQ('hw.80plus', 'hw.energy.efficiency', d, {
+      prompt:
+        `${plusTable()}\n\nFür einen Server im Dauerbetrieb (24/7, 8.760 h im Jahr) stehen zwei Netzteile mit je **${f(nenn, 0)} W** Nennleistung zur Auswahl: **80 PLUS ${a.n}** und **80 PLUS ${b.n}** (230 V EU). Der Server benötigt dauerhaft **${f(pab)} W**. Beide Netzteile erreichen genau ihren Mindestwirkungsgrad.\n\n` +
+        `Wie viele **kWh pro Jahr** spart das ${b.n}-Netzteil gegenüber dem ${a.n}-Netzteil? (auf eine Nachkommastelle runden, Zwischenergebnisse nicht runden)`,
+      answer: kwh,
+      tolerance: 0.2,
+      unit: 'kWh',
+      hints: [`Auslastung: ${f(pab)} W ÷ ${f(nenn, 0)} W = 50 % → Spalte „50 % Last“.`, 'Für jedes Netzteil P_zu = P_ab ÷ η, dann die Differenz · 8.760 h ÷ 1.000.'],
+      mcs: [
+        { answer: round((pab * ((b.e[50] - a.e[50]) / 100) * 8760) / 1000, 1), error: 'wirkungsgrad-prozent-aufschlag', why: 'Die Differenz der Wirkungsgrade (Prozentpunkte) darf man nicht einfach auf P_ab anwenden. Berechne beide Aufnahmeleistungen mit P_zu = P_ab ÷ η.' },
+        { answer: round((pa - pb) * 8760, 1), error: 'energie-wh-kwh', why: 'Das Ergebnis ist in **Wh**. Für kWh durch 1.000 teilen.' },
+        { answer: round(((nenn / (a.e[50] / 100) - nenn / (b.e[50] / 100)) * 8760) / 1000, 1), error: '80plus-nennleistung', why: 'Du hast mit der **Nennleistung** gerechnet. Der Server braucht nur die Hälfte davon.' },
+      ],
+      explanation:
+        `**1. Auslastung:** ${f(pab)} W ÷ ${f(nenn, 0)} W = 50 % → ${a.n}: η = ${a.e[50]} %, ${b.n}: η = ${b.e[50]} %\n\n` +
+        `**2. ${a.n}:** ${f(pab)} W ÷ ${f(a.e[50] / 100)} = ${f(pa, 2)} W\n\n` +
+        `**3. ${b.n}:** ${f(pab)} W ÷ ${f(b.e[50] / 100)} = ${f(pb, 2)} W\n\n` +
+        `**4. Ersparnis:** (${f(pa, 2)} − ${f(pb, 2)}) W · 8.760 h = ${f((pa - pb) * 8760, 0)} Wh ≈ **${f(kwh, 1)} kWh** pro Jahr\n\n` +
+        `Dazu kommt weniger Abwärme, die die Klimaanlage abführen muss.`,
+    });
+  },
+};
+
+const PROFILE = [
+  { n: 'Montag bis Freitag', days: 5 },
+  { n: 'Montag bis Samstag', days: 6 },
+];
+
+const betriebsprofil: GeneratorMeta = {
+  id: 'hw.betriebsprofil',
+  title: 'Energie mit Betriebsprofil (Tage × Stunden × Leistung, Standby)',
+  skill: 'hw.energy.cost',
+  module: 'h04',
+  make(rng, d) {
+    if (d === 1) {
+      const n = rng.pick([20, 30, 40, 50, 75, 80, 120]);
+      const w = rng.pick([60, 80, 120, 150, 200, 250]);
+      const h = rng.pick([8, 9, 10, 12]);
+      const kwh = round((n * w * h) / 1000, 2);
+      return numQ('hw.betriebsprofil', 'hw.energy.cost', d, {
+        prompt: `In der Verwaltung der Elektro Krämer GmbH laufen **${n} PCs** mit je **${w} W** Leistungsaufnahme an einem Arbeitstag **${h} Stunden** lang.\n\nWie viel elektrische Energie verbrauchen alle PCs zusammen an **einem Tag**? (in kWh, auf zwei Nachkommastellen runden)`,
+        answer: kwh,
+        tolerance: 0.01,
+        unit: 'kWh',
+        hints: ['W = P · t · Anzahl der Geräte.', 'Ergebnis in Wh durch 1.000 teilen → kWh.'],
+        mcs: [
+          { answer: n * w * h, error: 'energie-wh-kwh', why: 'Das Ergebnis ist in **Wh**. Für kWh durch 1.000 teilen.' },
+          { answer: round((w * h) / 1000, 2), error: 'energie-anzahl-vergessen', why: `Das ist **ein** PC. Es laufen ${n} PCs.` },
+          { answer: round((n * w * 24) / 1000, 2), error: 'energie-zeitraum', why: `Die PCs laufen nicht 24 h, sondern ${h} h pro Tag.` },
+        ],
+        explanation: `W = Anzahl · P · t = ${n} · ${w} W · ${h} h = ${f(n * w * h, 0)} Wh = **${f(kwh)} kWh** pro Tag`,
+      });
+    }
+    const prof = rng.pick(PROFILE);
+    const h = rng.pick([8, 10, 12]);
+    const on = d === 2 ? rng.pick([40, 55, 65, 80, 120]) : rng.pick([35, 45, 60, 90]);
+    const sb = rng.pick([0.5, 1, 2, 3, 5]);
+    const onWeek = prof.days * h;
+    const sbWeek = 168 - onWeek;
+    const onYear = onWeek * 52;
+    const sbYear = sbWeek * 52;
+    const kwhOn = (on * onYear) / 1000;
+    const kwhSb = (sb * sbYear) / 1000;
+    if (d === 2) {
+      const kwh = round(kwhOn + kwhSb, 2);
+      return numQ('hw.betriebsprofil', 'hw.energy.cost', d, {
+        prompt:
+          `**Betriebsprofil** eines Thin-Client-Arbeitsplatzes (Rechner + Monitor):\n\n| Zustand | Zeit | Leistung |\n|---|---|---|\n| Betrieb | ${prof.n}, je ${h} h | ${f(on)} W |\n| Standby | restliche Stunden der Woche | ${f(sb)} W |\n\n` +
+          `Rechne mit **52 Wochen** pro Jahr (eine Woche = 168 h).\n\nWie viel Energie verbraucht der Arbeitsplatz **pro Jahr**? (in kWh, auf zwei Nachkommastellen runden)`,
+        answer: kwh,
+        tolerance: 0.02,
+        unit: 'kWh',
+        hints: [`Betrieb pro Woche: ${prof.days} · ${h} h. Standby pro Woche: 168 h minus Betriebsstunden.`, 'Beide Zustände getrennt rechnen (P · t), mit 52 Wochen multiplizieren, addieren, durch 1.000 teilen.'],
+        mcs: [
+          { answer: round(kwhOn, 2), error: 'energie-standby-vergessen', why: 'Der **Standby** fehlt. Auch wenige Watt summieren sich über viele Stunden.' },
+          { answer: round((on * 8760) / 1000, 2), error: 'energie-zeitraum', why: 'Der Arbeitsplatz läuft nicht 8.760 h unter Last. Nutze das Betriebsprofil.' },
+          { answer: round(kwhOn + kwhSb, 2) * 1000, error: 'energie-wh-kwh', why: 'Das sind Wh – für kWh durch 1.000 teilen.' },
+        ],
+        explanation:
+          `**1. Stunden pro Woche:** Betrieb ${prof.days} · ${h} h = **${onWeek} h**; Standby 168 h − ${onWeek} h = **${sbWeek} h**\n\n` +
+          `**2. Stunden pro Jahr (· 52):** Betrieb ${f(onYear, 0)} h; Standby ${f(sbYear, 0)} h\n\n` +
+          `**3. Energie Betrieb:** ${f(on)} W · ${f(onYear, 0)} h = ${f(on * onYear, 0)} Wh = ${f(kwhOn, 3)} kWh\n\n` +
+          `**4. Energie Standby:** ${f(sb)} W · ${f(sbYear, 0)} h = ${f(sb * sbYear, 0)} Wh = ${f(kwhSb, 3)} kWh\n\n` +
+          `**5. Summe:** **${f(kwh)} kWh** pro Jahr\n\nHäufiger Fehler: Standby vergessen oder mit 8.760 h Volllast rechnen.`,
+      });
+    }
+    // d === 3: Kosten für n Arbeitsplätze mit Profil und Standby
+    const n = rng.pick([12, 15, 20, 25, 40]);
+    const priceCt = rng.pick([28, 30, 32, 35, 38]);
+    const cost = round((n * (kwhOn + kwhSb) * priceCt) / 100, 2);
+    return numQ('hw.betriebsprofil', 'hw.energy.cost', d, {
+      prompt:
+        `Im Vertrieb in Berlin stehen **${n} gleiche Arbeitsplätze** mit diesem Betriebsprofil:\n\n| Zustand | Zeit | Leistung je Arbeitsplatz |\n|---|---|---|\n| Betrieb | ${prof.n}, je ${h} h | ${f(on)} W |\n| Standby | restliche Stunden der Woche | ${f(sb)} W |\n\n` +
+        `Strompreis: **${priceCt} ct/kWh**, **52 Wochen** pro Jahr (1 Woche = 168 h).\n\nWie hoch sind die Stromkosten **aller Arbeitsplätze pro Jahr**? (in €, nur das Endergebnis auf Cent runden)`,
+      answer: cost,
+      tolerance: 0.05,
+      unit: '€',
+      hints: ['Erst die Jahresenergie **eines** Arbeitsplatzes (Betrieb + Standby) bestimmen.', `Dann · ${n} Arbeitsplätze · ${f(priceCt / 100)} €/kWh.`],
+      mcs: [
+        { answer: round((kwhOn + kwhSb) * priceCt / 100, 2), error: 'energie-anzahl-vergessen', why: `Das ist **ein** Arbeitsplatz. Es sind ${n}.` },
+        { answer: round((n * kwhOn * priceCt) / 100, 2), error: 'energie-standby-vergessen', why: 'Der **Standby** fehlt in deiner Rechnung.' },
+        { answer: round(n * (kwhOn + kwhSb) * priceCt, 2), error: 'energie-cent-euro', why: 'Der Preis ist in **Cent** – durch 100 teilen.' },
+      ],
+      explanation:
+        `**1. Stunden pro Jahr:** Betrieb ${prof.days} · ${h} h · 52 = **${f(onYear, 0)} h**; Standby (168 h − ${onWeek} h) · 52 = **${f(sbYear, 0)} h**\n\n` +
+        `**2. Energie je Arbeitsplatz:** ${f(on)} W · ${f(onYear, 0)} h + ${f(sb)} W · ${f(sbYear, 0)} h = ${f(on * onYear + sb * sbYear, 0)} Wh = **${f(kwhOn + kwhSb, 3)} kWh**\n\n` +
+        `**3. Alle Arbeitsplätze:** ${f(kwhOn + kwhSb, 3)} kWh · ${n} = ${f(n * (kwhOn + kwhSb), 3)} kWh\n\n` +
+        `**4. Kosten:** ${f(n * (kwhOn + kwhSb), 3)} kWh · ${fx(priceCt / 100)} €/kWh = **${fx(cost)} €** pro Jahr`,
+    });
+  },
+};
+
+const co2: GeneratorMeta = {
+  id: 'hw.co2',
+  title: 'Energieeinsparung und CO₂-Einsparung berechnen',
+  skill: 'hw.green.it',
+  module: 'h04',
+  make(rng, d) {
+    const fac = rng.pick([350, 380, 400, 420, 450]);
+    const facTxt = `Rechne mit einem **angenommenen Emissionsfaktor von ${fac} g CO₂ pro kWh** (der echte Wert des deutschen Strommixes ändert sich jedes Jahr).`;
+    if (d === 1) {
+      const kwh = rng.pick([850, 1200, 2400, 3650, 5200, 8760, 12500]);
+      const kg = round((kwh * fac) / 1000, 1);
+      return numQ('hw.co2', 'hw.green.it', d, {
+        prompt: `Der Serverraum am Standort Hamburg hat im letzten Jahr **${f(kwh, 0)} kWh** Strom verbraucht. ${facTxt}\n\nWie viel **kg CO₂** entsprechen diesem Verbrauch? (auf eine Nachkommastelle runden)`,
+        answer: kg,
+        tolerance: 0.1,
+        unit: 'kg',
+        hints: ['CO₂ = Energie in kWh · Emissionsfaktor.', 'g durch 1.000 teilen → kg.'],
+        mcs: [{ answer: kwh * fac, error: 'co2-g-kg', why: 'Das Ergebnis ist in **Gramm**. Für kg durch 1.000 teilen.' }],
+        explanation: `${f(kwh, 0)} kWh · ${fac} g/kWh = ${f(kwh * fac, 0)} g = **${f(kg, 1)} kg CO₂**`,
+      });
+    }
+    const pOld = rng.pick([1500, 2000, 2400, 3000]);
+    const pNew = rng.pick([600, 800, 1000, 1200]);
+    const prof = rng.pick([
+      { n: 'Montag bis Freitag je 12 h', h: 5 * 12 * 52 },
+      { n: 'Montag bis Freitag je 10 h', h: 5 * 10 * 52 },
+      { n: 'Montag bis Samstag je 14 h', h: 6 * 14 * 52 },
+    ]);
+    const priceCt = rng.pick([30, 32, 35, 40]);
+    if (d === 2) {
+      const kwhSave = ((pOld - pNew) * 8760) / 1000;
+      const kg = round((kwhSave * fac) / 1000, 1);
+      return numQ('hw.co2', 'hw.green.it', d, {
+        prompt: `Die Server im Rechnerraum der Elektro Krämer GmbH nehmen zusammen **${f(pOld, 0)} W** auf und laufen rund um die Uhr (8.760 h im Jahr). Nach der Virtualisierung sind es nur noch **${f(pNew, 0)} W**. ${facTxt}\n\nWie viel **kg CO₂** spart das Unternehmen dadurch **pro Jahr**? (auf eine Nachkommastelle runden)`,
+        answer: kg,
+        tolerance: 0.2,
+        unit: 'kg',
+        hints: ['Leistungsdifferenz ΔP = alt − neu.', 'ΔE = ΔP · 8.760 h → kWh; CO₂ = ΔE · Faktor → g → kg.'],
+        mcs: [
+          { answer: round((((pNew * 8760) / 1000) * fac) / 1000, 1), error: 'energie-differenz', why: 'Das ist der CO₂-Ausstoß der **neuen** Server, nicht die Einsparung (alt − neu).' },
+          { answer: round(kwhSave * fac, 1), error: 'co2-g-kg', why: 'Das Ergebnis ist in **Gramm** – durch 1.000 teilen.' },
+          { answer: round(kwhSave, 1), error: 'co2-faktor-vergessen', why: 'Das ist die eingesparte **Energie in kWh**. Gefragt ist CO₂: noch mit dem Emissionsfaktor multiplizieren.' },
+        ],
+        explanation:
+          `**1. Leistungsdifferenz:** ${f(pOld, 0)} W − ${f(pNew, 0)} W = **${f(pOld - pNew, 0)} W**\n\n` +
+          `**2. Eingesparte Energie:** ${f(pOld - pNew, 0)} W · 8.760 h = ${f((pOld - pNew) * 8760, 0)} Wh = **${f(kwhSave, 1)} kWh**\n\n` +
+          `**3. CO₂:** ${f(kwhSave, 1)} kWh · ${fac} g/kWh = ${f(kwhSave * fac, 0)} g = **${f(kg, 1)} kg CO₂**\n\n` +
+          `(In Euro bei ${priceCt} ct/kWh: ${fx((kwhSave * priceCt) / 100)} €.)`,
+      });
+    }
+    // d === 3: zweistufig – erst weniger Leistung, dann zusätzlich kürzere Laufzeit
+    const kwh1 = ((pOld - pNew) * 8760) / 1000;
+    const kwh2 = (pNew * (8760 - prof.h)) / 1000;
+    const kg = round(((kwh1 + kwh2) * fac) / 1000, 0);
+    return numQ('hw.co2', 'hw.green.it', d, {
+      prompt:
+        `Eine Testumgebung (Server, Storage, Switches) nimmt bisher **${f(pOld, 0)} W** auf und läuft **24/7** (8.760 h). Zwei Maßnahmen sind geplant:\n\n` +
+        `1. Austausch gegen sparsamere Hardware mit **${f(pNew, 0)} W**.\n2. Zusätzlich läuft die neue Umgebung nur noch **${prof.n}** (52 Wochen); in der übrigen Zeit ist sie ausgeschaltet (0 W).\n\n` +
+        `${facTxt}\n\nWie viel **kg CO₂** sparen **beide Maßnahmen zusammen** pro Jahr gegenüber dem bisherigen Zustand? (auf ganze kg runden)`,
+      answer: kg,
+      tolerance: 1,
+      unit: 'kg',
+      hints: [
+        'Maßnahme 1: (alt − neu) · 8.760 h.',
+        `Maßnahme 2 bezieht sich auf die **neue** Leistung: ${f(pNew, 0)} W · (8.760 h − Betriebsstunden).`,
+        'Beide kWh addieren, mit dem Faktor multiplizieren, g → kg.',
+      ],
+      mcs: [
+        { answer: round(((kwh1 + (pOld * (8760 - prof.h)) / 1000) * fac) / 1000, 0), error: 'einsparung-bezugsgroesse', why: 'Die Laufzeitverkürzung musst du mit der **neuen** Leistung rechnen – die alte Hardware gibt es dann nicht mehr.' },
+        { answer: round((kwh1 * fac) / 1000, 0), error: 'einsparung-stufe-vergessen', why: 'Du hast nur Maßnahme 1 gerechnet. Die kürzere Laufzeit spart zusätzlich.' },
+        { answer: round((kwh1 + kwh2) * fac, 0), error: 'co2-g-kg', why: 'Das Ergebnis ist in **Gramm** – durch 1.000 teilen.' },
+      ],
+      explanation:
+        `**1. Betriebsstunden neu:** ${prof.n} · 52 Wochen = **${f(prof.h, 0)} h** → aus: 8.760 h − ${f(prof.h, 0)} h = **${f(8760 - prof.h, 0)} h**\n\n` +
+        `**2. Maßnahme 1:** (${f(pOld, 0)} W − ${f(pNew, 0)} W) · 8.760 h = ${f((pOld - pNew) * 8760, 0)} Wh = **${f(kwh1, 1)} kWh**\n\n` +
+        `**3. Maßnahme 2:** ${f(pNew, 0)} W · ${f(8760 - prof.h, 0)} h = ${f(pNew * (8760 - prof.h), 0)} Wh = **${f(kwh2, 1)} kWh**\n\n` +
+        `**4. Summe:** ${f(kwh1 + kwh2, 1)} kWh · ${fac} g/kWh = ${f((kwh1 + kwh2) * fac, 0)} g ≈ **${f(kg, 0)} kg CO₂** (≈ ${f(kg / 1000, 2)} t)\n\n` +
+        `Häufiger Fehler: Maßnahme 2 mit der alten Leistung rechnen – dann würde die Einsparung doppelt gezählt.`,
+    });
+  },
+};
+
+const usvCheck: GeneratorMeta = {
+  id: 'hw.usvcheck',
+  title: 'USV prüfen: reichen VA- und W-Grenze?',
+  skill: 'hw.ups.sizing',
+  module: 'h04',
+  make(rng, d) {
+    const ups = rng.pick([
+      { va: 1000, w: 600 },
+      { va: 1500, w: 900 },
+      { va: 1500, w: 1350 },
+      { va: 2200, w: 1980 },
+      { va: 3000, w: 2700 },
+      { va: 2000, w: 1200 },
+    ]);
+    const pfLoad = rng.pick([0.7, 0.75, 0.8, 0.9, 0.95]);
+    const share = rng.pick([0.4, 0.5, 0.6, 0.7]);
+    const pLoad = Math.round((Math.min(ups.w, ups.va * pfLoad) * share) / 10) * 10;
+    const sLoad = pLoad / pfLoad;
+    const beleg = `**Beleg – Datenblatt USV:** Ausgangsleistung **${f(ups.va, 0)} VA / ${f(ups.w, 0)} W**\n\n**Last:** angeschlossene Geräte zusammen **${f(pLoad, 0)} W**, Leistungsfaktor der Last **cos φ = ${f(pfLoad)}**`;
+    if (d === 1) {
+      const ans = round(sLoad, 1);
+      return numQ('hw.usvcheck', 'hw.ups.sizing', d, {
+        prompt: `${beleg}\n\nWelche **Scheinleistung in VA** zieht die Last aus der USV? (auf eine Nachkommastelle runden)`,
+        answer: ans,
+        tolerance: 0.1,
+        unit: 'VA',
+        hints: ['cos φ = P ÷ S', 'S = P ÷ cos φ'],
+        mcs: [
+          { answer: round(pLoad * pfLoad, 1), error: 'usv-pf-multipliziert', why: 'Mit cos φ multipliziert. Die Scheinleistung ist immer **größer oder gleich** der Wirkleistung: S = P ÷ cos φ.' },
+          { answer: pLoad, error: 'usv-va-gleich-w', why: 'VA und W sind nur bei cos φ = 1 gleich.' },
+        ],
+        explanation: `S = P ÷ cos φ = ${f(pLoad, 0)} W ÷ ${f(pfLoad)} = **${f(ans, 1)} VA**`,
+      });
+    }
+    const loadW = (pLoad / ups.w) * 100;
+    const loadVA = (sLoad / ups.va) * 100;
+    if (d === 2) {
+      const ans = round(Math.max(loadW, loadVA), 1);
+      const wDecides = loadW >= loadVA;
+      return numQ('hw.usvcheck', 'hw.ups.sizing', d, {
+        prompt: `${beleg}\n\nPrüfe **beide** Grenzen der USV (W und VA). Wie hoch ist die Auslastung in **Prozent** bei der Grenze, die **stärker** ausgelastet ist (= maßgebliche Auslastung)? (auf eine Nachkommastelle runden)`,
+        answer: ans,
+        tolerance: 0.1,
+        unit: '%',
+        hints: ['Auslastung W = Last in W ÷ USV-Wattangabe · 100 %.', 'Auslastung VA: erst S = P ÷ cos φ, dann ÷ USV-VA-Angabe · 100 %. Der größere Wert zählt.'],
+        mcs: [
+          { answer: round(Math.min(loadW, loadVA), 1), error: 'usv-grenze-falsch', why: 'Das ist die **weniger** ausgelastete Grenze. Maßgeblich ist die Grenze, die zuerst erreicht wird – also der größere Prozentwert.' },
+          { answer: round((pLoad / ups.va) * 100, 1), error: 'usv-va-gleich-w', why: 'Du hast Watt durch VA geteilt. Vergleiche W mit W und VA mit VA.' },
+        ],
+        explanation:
+          `**1. Auslastung Wirkleistung:** ${f(pLoad, 0)} W ÷ ${f(ups.w, 0)} W = **${f(loadW, 1)} %**\n\n` +
+          `**2. Scheinleistung der Last:** ${f(pLoad, 0)} W ÷ ${f(pfLoad)} = ${f(sLoad, 1)} VA → ÷ ${f(ups.va, 0)} VA = **${f(loadVA, 1)} %**\n\n` +
+          `**3. Maßgeblich:** die ${wDecides ? 'W-Grenze' : 'VA-Grenze'} mit **${f(ans, 1)} %**. Beide Werte liegen unter 100 % → die USV reicht.`,
+      });
+    }
+    // d === 3: maximal zusätzlich anschließbare Wirkleistung bei gleichem cos φ
+    const maxP = Math.min(ups.w, ups.va * pfLoad);
+    const ans = round(maxP - pLoad, 1);
+    return numQ('hw.usvcheck', 'hw.ups.sizing', d, {
+      prompt: `${beleg}\n\nWie viel **Wirkleistung in W** darfst du **zusätzlich** anschließen, wenn die neuen Geräte denselben Leistungsfaktor haben (ohne Reserve)? Beachte **beide** Grenzen der USV. (auf eine Nachkommastelle runden)`,
+      answer: ans,
+      tolerance: 0.1,
+      unit: 'W',
+      hints: ['Die VA-Grenze erlaubt höchstens P = S_USV · cos φ der Last.', 'Die W-Grenze erlaubt höchstens die Wattangabe. Die kleinere Grenze zählt – davon die vorhandene Last abziehen.'],
+      mcs: [
+        { answer: round(ups.w - pLoad, 1), error: 'usv-grenze-falsch', why: 'Du hast nur die **W-Grenze** geprüft. Bei diesem cos φ ist die VA-Grenze strenger.' },
+        { answer: round(ups.va * pfLoad - pLoad, 1), error: 'usv-grenze-falsch', why: 'Du hast nur die **VA-Grenze** geprüft. Die Wattangabe der USV ist hier strenger.' },
+        { answer: round(ups.va - pLoad, 1), error: 'usv-va-gleich-w', why: 'VA und W gleichgesetzt. Die VA-Grenze erlaubt nur S · cos φ Watt.' },
+      ],
+      explanation:
+        `**1. Grenze aus VA:** ${f(ups.va, 0)} VA · ${f(pfLoad)} = **${f(ups.va * pfLoad, 1)} W**\n\n` +
+        `**2. Grenze aus W:** **${f(ups.w, 0)} W**\n\n` +
+        `**3. Maßgeblich ist die kleinere:** **${f(maxP, 1)} W** (${ups.w <= ups.va * pfLoad ? 'W-Grenze' : 'VA-Grenze'})\n\n` +
+        `**4. Zusätzlich möglich:** ${f(maxP, 1)} W − ${f(pLoad, 0)} W = **${f(ans, 1)} W**\n\nIn der Praxis plant man davon noch 20–30 % Reserve ab.`,
+    });
+  },
+};
+
 /* ------------------------------------------------------------------ */
 /* h03 – Monitore                                                      */
 /* ------------------------------------------------------------------ */
@@ -690,10 +1038,31 @@ const ramBandbreite: GeneratorMeta = {
   module: 'h01',
   make(rng, d) {
     const gen = rng.pick([
-      { t: 'DDR4', pc: 'PC4', mts: rng.pick([2400, 2666, 2933, 3200]) },
+      { t: 'DDR4', pc: 'PC4', mts: rng.pick([2400, 3200]) } /* 2666/2933 haben krumme PC-Namen (PC4-21333/-23466) */,
       { t: 'DDR5', pc: 'PC5', mts: rng.pick([4800, 5200, 5600, 6000, 6400]) },
     ]);
     const perModule = gen.mts * 8; // MB/s
+    const prefetch = gen.t === 'DDR4' ? 8 : 16;
+    const takt = gen.mts / prefetch;
+    if (d === 3 && Number.isInteger(takt) && rng.bool(0.5)) {
+      // Rechenweg über Speichertakt × Prefetch × Busbreite (Schreibweise vieler Schulbücher)
+      return numQ('hw.ram', 'hw.pc.ram', d, {
+        prompt: `Datenblatt-Auszug eines Speichermoduls: **${gen.t}**, interner Speichertakt **${f(takt)} MHz**, Prefetch **${prefetch}n** (${prefetch} Datenwörter je Takt), Busbreite **64 Bit**.\n\nWie hoch ist die **theoretische Datenrate des Moduls in MB/s**? (1 MB = 10⁶ Byte; ganzzahlig)`,
+        answer: perModule,
+        tolerance: 0,
+        unit: 'MB/s',
+        hints: ['Transfers pro Sekunde = Speichertakt · Prefetch (Ergebnis in MT/s).', 'MB/s = MT/s · 64 Bit ÷ 8 = MT/s · 8 Byte.'],
+        mcs: [
+          { answer: gen.mts * 64, error: 'ram-bit-byte', why: '64 Bit sind 8 **Byte**. Für MB/s durch 8 teilen.' },
+          { answer: takt * 8, error: 'ram-prefetch', why: 'Der Prefetch fehlt: Pro Takt werden mehrere Datenwörter übertragen (Takt · Prefetch = MT/s).' },
+          { answer: gen.mts, error: 'ram-busbreite', why: 'Das sind die **Transfers** pro Sekunde (MT/s). Pro Transfer werden 8 Byte übertragen.' },
+        ],
+        explanation:
+          `**1. Transfers:** ${f(takt)} MHz · ${prefetch} = **${gen.mts} MT/s** (deshalb heißt das Modul ${gen.t}-${gen.mts})\n\n` +
+          `**2. Datenrate:** ${gen.mts} MT/s · 64 Bit ÷ 8 = ${gen.mts} · 8 Byte = **${f(perModule, 0)} MB/s** (= ${gen.pc}-${perModule})\n\n` +
+          `Hinweis: „Double Data Rate“ heißt, dass auf der Datenleitung bei **beiden Taktflanken** übertragen wird. Datenblätter nennen deshalb meist direkt die MT/s.`,
+      });
+    }
     if (d === 3) {
       const pcName = `${gen.pc}-${perModule}`;
       return numQ('hw.ram', 'hw.pc.ram', d, {
@@ -726,8 +1095,96 @@ const ramBandbreite: GeneratorMeta = {
   },
 };
 
+/** Übliche Nennleistungen von PC-Netzteilen in W (Auswahlliste im Aufgabentext). */
+const PSU_SIZES = [300, 350, 400, 450, 500, 550, 650, 750, 850, 1000, 1200];
+
+const netzteil: GeneratorMeta = {
+  id: 'hw.netzteil',
+  title: 'Netzteil mit Reserve dimensionieren (Datenblatt)',
+  skill: 'hw.pc.psu',
+  module: 'h01',
+  make(rng, d) {
+    const cpu = rng.pick([65, 88, 125, 142, 170]);
+    const gpu = rng.pick([0, 115, 165, 220, 285]);
+    const board = rng.pick([35, 40, 50, 60]);
+    const nRam = rng.pick([2, 4]);
+    const wRam = rng.pick([4, 5, 6]);
+    const nSsd = d === 1 ? 1 : rng.pick([1, 2, 3]);
+    const wSsd = rng.pick([6, 7, 8]);
+    const nFan = d === 1 ? 2 : rng.pick([2, 3, 4]);
+    const wFan = rng.pick([2, 3]);
+    const res = rng.pick([1.2, 1.25, 1.3]);
+    const rows: [string, number, number][] = [
+      ['Prozessor (max. Leistungsaufnahme)', 1, cpu],
+      ...(gpu ? [['Grafikkarte (Total Board Power)', 1, gpu] as [string, number, number]] : []),
+      ['Mainboard inkl. Chipsatz', 1, board],
+      ['DDR5-Speichermodul', nRam, wRam],
+      ['NVMe-SSD (PCIe 4.0)', nSsd, wSsd],
+      ['Gehäuselüfter', nFan, wFan],
+    ];
+    const sum = rows.reduce((s, [, n, w]) => s + n * w, 0);
+    const sumNoQty = rows.reduce((s, [, , w]) => s + w, 0);
+    const need = sum * res;
+    const pickSize = (p: number) => PSU_SIZES.find((s) => s >= p - 1e-9) ?? PSU_SIZES[PSU_SIZES.length - 1];
+    const size = pickSize(need);
+    const beleg =
+      `**Datenblatt-Auszug: Komponenten eines PCs**\n\n| Komponente | Anzahl | Leistung je Stück |\n|---|---|---|\n` +
+      rows.map(([n, a, w]) => `| ${n} | ${a} | ${w} W |`).join('\n') +
+      `\n\nEs soll eine Leistungsreserve mit dem **Faktor ${f(res)}** eingeplant werden (Summe · ${f(res)}).`;
+    const sizes = `Lieferbare Netzteile: ${PSU_SIZES.map((s) => f(s, 0)).join(' / ')} W.`;
+    const weg =
+      `**1. Summe:** ${rows.map(([, n, w]) => (n > 1 ? `${n} · ${w} W` : `${w} W`)).join(' + ')} = **${f(sum, 0)} W**\n\n` +
+      `**2. Reserve:** ${f(sum, 0)} W · ${f(res)} = **${f(need, 1)} W**`;
+    if (d === 1) {
+      return numQ('hw.netzteil', 'hw.pc.psu', d, {
+        prompt: `${beleg}\n\nWelche **Mindestleistung in W** muss das Netzteil haben? (auf eine Nachkommastelle runden)`,
+        answer: round(need, 1),
+        tolerance: 0.1,
+        unit: 'W',
+        hints: ['Erst alle Leistungen addieren – Anzahl beachten.', `Dann mit dem Reservefaktor ${f(res)} multiplizieren.`],
+        mcs: [
+          { answer: sum, error: 'netzteil-reserve', why: `Das ist nur die Summe der Komponenten. Die Reserve fehlt: · ${f(res)}.` },
+          { answer: round(sumNoQty * res, 1), error: 'netzteil-anzahl', why: 'Die Anzahl der Module/Lüfter wurde nicht berücksichtigt (Anzahl · Leistung je Stück).' },
+        ],
+        explanation: `**${f(need, 1)} W.**\n\n${weg}\n\nHäufiger Fehler: Reserve vergessen oder nur einen Speicherriegel/Lüfter zählen.`,
+      });
+    }
+    if (d === 2) {
+      return numQ('hw.netzteil', 'hw.pc.psu', d, {
+        prompt: `${beleg}\n\n${sizes}\n\nWelches **Netzteil (Nennleistung in W)** wählst du? Nimm das kleinste lieferbare Netzteil, das die Mindestleistung erreicht.`,
+        answer: size,
+        tolerance: 0,
+        unit: 'W',
+        hints: ['Summe aller Komponenten (Anzahl · Leistung) bilden.', `Mit ${f(res)} multiplizieren und das nächstgrößere lieferbare Netzteil wählen.`],
+        mcs: [
+          { answer: pickSize(sum), error: 'netzteil-reserve', why: `Ohne Reserve gewählt. Mindestleistung: ${f(sum, 0)} W · ${f(res)} = ${f(need, 1)} W.` },
+          { answer: pickSize(sumNoQty * res), error: 'netzteil-anzahl', why: 'Die Anzahl der Module/SSDs/Lüfter fehlt in der Summe.' },
+          { answer: [...PSU_SIZES].reverse().find((s) => s < need - 1e-9) ?? 0, error: 'netzteil-abgerundet', why: `Das Netzteil ist kleiner als die Mindestleistung von ${f(need, 1)} W – immer auf die nächste lieferbare Größe **aufrunden**.` },
+        ],
+        explanation: `**${f(size, 0)}-W-Netzteil.**\n\n${weg}\n\n**3. Auswahl:** kleinstes lieferbares Netzteil ≥ ${f(need, 1)} W → **${f(size, 0)} W**.\n\nHäufiger Fehler: auf die kleinere Größe abrunden – dann fehlt die Reserve für Lastspitzen.`,
+      });
+    }
+    const load = (sum / size) * 100;
+    return numQ('hw.netzteil', 'hw.pc.psu', d, {
+      prompt: `${beleg}\n\n${sizes}\n\nDu wählst das kleinste lieferbare Netzteil, das die Mindestleistung erreicht. Zu wie viel **Prozent** ist dieses Netzteil ausgelastet, wenn alle Komponenten gleichzeitig ihre volle Leistung abrufen (ohne Reserve)? (auf eine Nachkommastelle runden)`,
+      answer: round(load, 1),
+      tolerance: 0.1,
+      unit: '%',
+      hints: ['Mindestleistung = Summe · Reservefaktor → Netzteilgröße wählen.', 'Auslastung = Summe der Komponenten ÷ Nennleistung des Netzteils · 100.'],
+      mcs: [
+        { answer: round((need / size) * 100, 1), error: 'netzteil-reserve', why: 'Mit der Leistung **inklusive** Reserve gerechnet. Die Komponenten ziehen aber nur die tatsächliche Summe.' },
+        { answer: round((sum / need) * 100, 1), error: 'netzteil-abgerundet', why: 'Durch die Mindestleistung statt durch die Nennleistung des gewählten Netzteils geteilt.' },
+      ],
+      explanation:
+        `**${f(load, 1)} %.**\n\n${weg}\n\n**3. Auswahl:** ${f(size, 0)} W\n\n**4. Auslastung:** ${f(sum, 0)} W ÷ ${f(size, 0)} W · 100 = **${f(load, 1)} %**\n\n` +
+        `Bei Teillast (Büroalltag) liegt die Auslastung deutlich darunter; 80-PLUS-Netzteile sind um 50 % Last am effizientesten.`,
+    });
+  },
+};
+
 export const GENERATORS_HARDWARE: GeneratorMeta[] = [
   ramBandbreite,
+  netzteil,
   kapazitaet,
   tbw,
   ppiGen,
@@ -737,6 +1194,10 @@ export const GENERATORS_HARDWARE: GeneratorMeta[] = [
   stromkosten,
   wirkungsgrad,
   usv,
+  achtzigPlus,
+  betriebsprofil,
+  co2,
+  usvCheck,
 ];
 
 /** Typ-Hilfe: Generatorfunktionen erhalten einen deterministischen Rng (siehe ../rng). */

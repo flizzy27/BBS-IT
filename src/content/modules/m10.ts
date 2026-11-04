@@ -31,6 +31,9 @@ export const m10: Module = {
       minutes: 25,
       relevance: 'ap1',
       skills: ['proto.tcpudp'],
+      simple: `Die Transportschicht bringt Daten zur richtigen **Anwendung** auf dem Zielrechner. Dafür gibt es zwei Versandarten. **TCP** ist wie ein Einschreiben mit Rückschein: Erst wird die Verbindung vereinbart, jedes Paket wird bestätigt und fehlende Pakete werden neu geschickt. **UDP** ist wie eine Postkarte: einfach losschicken, ohne Bestätigung – dafür schnell und ohne Aufwand. TCP nimmt man, wenn nichts fehlen darf (Webseiten, Mails, Dateien), UDP, wenn Tempo wichtiger ist (Telefonie, Video, DNS-Anfragen).
+
+**Merke:** TCP = verbindungsorientiert und zuverlässig, UDP = verbindungslos und schnell.`,
       steps: [
         {
           type: 'explain',
@@ -119,6 +122,9 @@ Beide verwenden **Portnummern** (16 Bit, 0–65535), um Anwendungen zu adressier
       minutes: 20,
       relevance: 'ap1',
       skills: ['proto.tcp'],
+      simple: `Bevor TCP Daten schickt, wird die Verbindung mit einem **3-Wege-Handshake** vereinbart – wie ein Telefonat: „Hallo, hörst du mich?“ (SYN) – „Ja, und du mich?“ (SYN-ACK) – „Ja!“ (ACK). Danach nummeriert TCP alle Daten mit **Sequenznummern** (laufende Nummern), damit der Empfänger die Reihenfolge prüfen und Fehlendes nachfordern kann. Mit der **Bestätigungsnummer** (ACK) sagt der Empfänger: „Bis hierher ist alles angekommen, als Nächstes erwarte ich Byte Nummer …“. Am Ende wird die Verbindung mit FIN geordnet abgebaut.
+
+**Merke:** Aufbau SYN → SYN-ACK → ACK; die ACK-Nummer ist immer die Nummer des **nächsten** erwarteten Bytes.`,
       steps: [
         {
           type: 'explain',
@@ -228,6 +234,9 @@ Mit der **Bestätigungsnummer (ACK)** teilt der Empfänger mit, bis wohin er all
       minutes: 30,
       relevance: 'ap1',
       skills: ['proto.ports'],
+      simple: `Eine IP-Adresse führt zum richtigen Rechner, der **Port** zur richtigen Anwendung darauf – wie Hausnummer und Wohnungsnummer. Ein Webserver wartet z. B. an „Wohnung“ 443, der Mailserver an 25. **IP-Adresse + Port** zusammen heißen **Socket**. Die wichtigsten Portnummern musst du für die Prüfung auswendig kennen, denn mit ihnen schreibt man Firewall-Regeln.
+
+**Merke:** Ports 0–1023 sind die festen Standardports (z. B. SSH 22, DNS 53, HTTP 80, HTTPS 443, SMB 445, NFS 2049 als Linux-Gegenstück zu SMB).`,
       steps: [
         {
           type: 'explain',
@@ -269,13 +278,22 @@ Die Kombination **IP-Adresse + Port** (+ Protokoll TCP/UDP) heißt **Socket**, z
 | **443** | HTTPS | TCP (HTTP/3: UDP) | Web verschlüsselt (TLS) |
 | **445** | SMB | TCP | Windows-Dateifreigaben |
 | **465** | SMTPS | TCP | SMTP mit implizitem TLS |
+| **546 / 547** | DHCPv6 | UDP | 546 = Client, 547 = Server (DHCP für IPv6) |
 | **587** | SMTP Submission | TCP | Mailversand vom Client (mit STARTTLS) |
+| **631** | IPP | TCP | Drucken im Netz (Internet Printing Protocol, z. B. CUPS unter Linux/macOS) |
 | **636** | LDAPS | TCP | LDAP über TLS |
+| **853** | DNS over TLS (DoT) | TCP | verschlüsselte Namensauflösung |
 | **993** | IMAPS | TCP | IMAP über TLS |
 | **995** | POP3S | TCP | POP3 über TLS |
+| **1194** | OpenVPN | UDP (auch TCP) | VPN-Tunnel |
+| **2049** | NFS | TCP (auch UDP) | Dateifreigaben unter Linux/Unix (Network File System) – das Gegenstück zu SMB |
 | **3389** | RDP | TCP (und UDP) | Windows-Remotedesktop |
+| **5060 / 5061** | SIP | UDP/TCP (5061: TLS) | Signalisierung für Internettelefonie (VoIP): Anruf aufbauen und beenden |
+| **8080** | HTTP (alternativ) | TCP | Ausweichport für Web: Proxy, Testserver, Weboberflächen von Geräten |
 
-**Lerntipp:** Bilde Paare „unverschlüsselt → verschlüsselt“: HTTP 80 → HTTPS 443, IMAP 143 → IMAPS 993, POP3 110 → POP3S 995, LDAP 389 → LDAPS 636, Telnet 23 → SSH 22.`,
+**Lerntipp:** Bilde Paare „unverschlüsselt → verschlüsselt“: HTTP 80 → HTTPS 443, IMAP 143 → IMAPS 993, POP3 110 → POP3S 995, LDAP 389 → LDAPS 636, Telnet 23 → SSH 22, DNS 53 → DoT 853, SIP 5060 → SIP über TLS 5061.
+
+**Paar „Windows ↔ Linux“:** Dateifreigabe SMB 445 ↔ NFS 2049. **Paar „IPv4 ↔ IPv6“:** DHCP 67/68 ↔ DHCPv6 547/546 (Achtung: Bei DHCPv6 hat der **Client** die kleinere Nummer 546, der Server 547).`,
         },
         {
           type: 'visual',
@@ -287,12 +305,14 @@ Die Kombination **IP-Adresse + Port** (+ Protokoll TCP/UDP) heißt **Socket**, z
               items: [
                 { title: 'Web', text: 'HTTP 80, HTTPS 443', icon: 'Globe' },
                 { title: 'Fernzugriff', text: 'SSH 22, Telnet 23, RDP 3389', icon: 'Terminal' },
-                { title: 'Dateien', text: 'FTP 20/21, SFTP 22, SMB 445, TFTP 69', icon: 'FolderOpen' },
+                { title: 'Dateien', text: 'FTP 20/21, SFTP 22, SMB 445, NFS 2049, TFTP 69', icon: 'FolderOpen' },
                 { title: 'E-Mail', text: 'SMTP 25/587/465, IMAP 143/993, POP3 110/995', icon: 'Mail' },
-                { title: 'Namen & Adressen', text: 'DNS 53, DHCP 67/68', icon: 'Server' },
+                { title: 'Namen & Adressen', text: 'DNS 53 (DoT 853), DHCP 67/68, DHCPv6 546/547', icon: 'Server' },
                 { title: 'Zeit', text: 'NTP 123/UDP', icon: 'Clock' },
                 { title: 'Überwachung', text: 'SNMP 161/162 UDP', icon: 'Activity' },
                 { title: 'Verzeichnis', text: 'LDAP 389, LDAPS 636', icon: 'Key' },
+                { title: 'Drucken & Telefonie', text: 'IPP 631, SIP 5060 / 5061 (TLS)', icon: 'Printer' },
+                { title: 'Sonstige', text: 'HTTP-alternativ 8080, OpenVPN 1194/UDP, RDP 3389', icon: 'Plug' },
               ],
             },
           },
@@ -330,7 +350,7 @@ Die Kombination **IP-Adresse + Port** (+ Protokoll TCP/UDP) heißt **Socket**, z
         {
           type: 'practice',
           title: 'Port-Training',
-          questionIds: ['m10-q009', 'm10-q010', 'm10-q011', 'm10-q012', 'm10-q013', 'm10-q014', 'm10-q015', 'm10-q016', 'm10-q017', 'm10-q018', 'm10-q019', 'm10-q020', 'm10-q021', 'm10-q022'],
+          questionIds: ['m10-q009', 'm10-q010', 'm10-q011', 'm10-q012', 'm10-q013', 'm10-q014', 'm10-q015', 'm10-q016', 'm10-q017', 'm10-q018', 'm10-q019', 'm10-q020', 'm10-q021', 'm10-q022', 'm10-q057', 'm10-q058', 'm10-q059', 'm10-q060'],
           count: 8,
           difficulty: 1,
         },
@@ -342,6 +362,7 @@ Die Kombination **IP-Adresse + Port** (+ Protokoll TCP/UDP) heißt **Socket**, z
             'Wichtige Paare: HTTP 80/HTTPS 443, IMAP 143/993, POP3 110/995, LDAP 389/636, Telnet 23 → SSH 22.',
             'UDP-Dienste: DNS 53 (auch TCP), DHCP 67/68, NTP 123, SNMP 161/162, TFTP 69.',
             'Weitere: FTP 20/21, SMTP 25/587/465, SMB 445, RDP 3389.',
+            'Ergänzung: NFS 2049 (Linux-Dateifreigabe), IPP 631 (Drucken), SIP 5060/5061 (VoIP), DHCPv6 546/547, DoT 853, 8080 (HTTP-alternativ).',
           ],
         },
       ],
@@ -353,6 +374,9 @@ Die Kombination **IP-Adresse + Port** (+ Protokoll TCP/UDP) heißt **Socket**, z
       minutes: 25,
       relevance: 'ap1',
       skills: ['proto.arp', 'proto.icmp'],
+      simple: `**ARP** (Address Resolution Protocol) ist die Frage in die Runde: „Wer hat die IP-Adresse 192.168.10.1? Bitte sag mir deine MAC-Adresse (Hardwareadresse).“ Erst mit der MAC-Adresse kann ein Gerät im eigenen Netz etwas zustellen – wie wenn du den Namen kennst, aber noch die Zimmernummer brauchst. **ICMP** ist das Meldeprotokoll des Netzes: Es meldet Fehler („Ziel nicht erreichbar“) und wird von \`ping\` und \`tracert\` zum Testen benutzt.
+
+**Merke:** ARP übersetzt IP → MAC (nur im eigenen Netz), ICMP liefert Fehlermeldungen und Diagnose (ping = Echo Request/Echo Reply).`,
       steps: [
         {
           type: 'explain',
@@ -470,6 +494,9 @@ Achtung: Viele Firewalls (z. B. die Windows-Firewall) blocken **eingehende Echo 
       minutes: 30,
       relevance: 'ap1',
       skills: ['proto.dhcp', 'proto.dns'],
+      simple: `**DHCP** ist wie die Rezeption im Hotel: Ein neues Gerät meldet sich und bekommt automatisch Zimmer (IP-Adresse), Hausordnung (Subnetzmaske), Ausgang (Gateway) und Auskunft (DNS-Server) zugeteilt. Das läuft in vier Schritten ab: Discover, Offer, Request, Acknowledge (**DORA**). **DNS** ist das Telefonbuch des Netzes: Es übersetzt Namen wie www.elektro-kraemer.de in IP-Adressen, weil Computer nur mit Zahlen adressieren.
+
+**Merke:** DHCP verteilt die IP-Konfiguration (UDP 67/68, DORA), DNS löst Namen in IP-Adressen auf (Port 53).`,
       steps: [
         {
           type: 'explain',
@@ -631,6 +658,9 @@ Befehle: \`nslookup www.elektro-kraemer.de\`, \`ipconfig /displaydns\`, \`ipconf
       minutes: 30,
       relevance: 'ap1',
       skills: ['proto.web', 'proto.remote', 'proto.files'],
+      simple: `Für Web, Fernzugriff und Dateien gibt es jeweils eine unsichere „Postkarten“-Variante und eine sichere „Briefumschlag“-Variante. HTTP, Telnet und FTP schicken alles im **Klartext** – jeder, der mithört, kann Passwörter lesen. HTTPS, SSH und SFTP **verschlüsseln** die Verbindung. Für Windows-Dateifreigaben nutzt man SMB, für den Bildschirm eines entfernten Windows-PCs RDP.
+
+**Merke:** Im Firmennetz und im Internet immer die verschlüsselte Variante wählen: HTTPS 443 statt HTTP 80, SSH 22 statt Telnet 23, SFTP/FTPS statt FTP.`,
       steps: [
         {
           type: 'explain',
@@ -772,6 +802,9 @@ Für die Administration der Switches der Elektro Krämer GmbH gilt also: **Telne
       minutes: 25,
       relevance: 'ap1',
       skills: ['proto.mail', 'proto.services'],
+      simple: `E-Mail funktioniert wie die Briefpost: Dein Mailprogramm (**MUA**) gibt die Mail beim eigenen Mailserver ab, die Mailserver (**MTA**) transportieren sie per **SMTP** zum Server des Empfängers, und der legt sie ins Postfach (**MDA**). Abgeholt wird mit **IMAP** (Mails bleiben auf dem Server) oder **POP3** (Mails werden heruntergeladen). Daneben gibt es Hilfsdienste: **NTP** stellt alle Uhren gleich, **SNMP** überwacht Geräte, **LDAP** fragt Benutzer und Gruppen im Verzeichnisdienst ab.
+
+**Merke:** SMTP sendet (25 zwischen Servern, 587 vom Client), IMAP/POP3 holen ab, NTP 123 für die Zeit, SNMP 161/162 für die Überwachung.`,
       steps: [
         {
           type: 'explain',
@@ -801,8 +834,60 @@ Ablauf: Frau Yilmaz schreibt eine Mail an einen Kunden → ihr Client sendet per
         },
         {
           type: 'explain',
+          title: 'Der Weg einer E-Mail: MUA, MTA und MDA',
+          body: `Für den Mailweg gibt es feste Rollenbezeichnungen. Stell sie dir wie die Briefpost vor:
+
+| Rolle | Ausgeschrieben | Aufgabe | Vergleich Briefpost |
+|---|---|---|---|
+| **MUA** | Mail User Agent | Mailprogramm der Nutzerin: schreiben, senden, lesen (Outlook, Thunderbird, Webmail, Smartphone-App) | du selbst mit Stift und Briefkasten |
+| **MSA** | Mail Submission Agent | nimmt Mails vom MUA an (Port **587**/465, mit Anmeldung) – oft ein Teil des MTA | Postfiliale, die deinen Brief annimmt |
+| **MTA** | Mail Transfer Agent | Mailserver, der Mails **zwischen Servern** weiterleitet (SMTP, Port **25**) | Briefzentrum und Transport zwischen den Städten |
+| **MDA** | Mail Delivery Agent | legt die Mail ins **Postfach** des Empfängers (filtert ggf. Spam) | Briefträger, der in den Briefkasten einwirft |
+| **MUA** (Empfänger) | Mail User Agent | holt die Mail per **IMAP**/POP3 ab (993/995) | Empfänger leert seinen Briefkasten |
+
+**Ablauf Schritt für Schritt:**
+1. Frau Yilmaz schreibt im **MUA** eine Mail an kunde@beispiel.de.
+2. Der MUA übergibt sie per **SMTP Submission (587)** mit Anmeldung an den eigenen Mailserver (MSA/MTA).
+3. Der **MTA** fragt per **DNS** nach dem **MX-Record** von beispiel.de: „Welcher Server nimmt Mails für diese Domain an?“
+4. Der MTA liefert per **SMTP (25)** an den MTA des Kunden.
+5. Dort legt der **MDA** die Mail ins Postfach.
+6. Der Kunde ruft sie mit seinem **MUA** per **IMAPS (993)** ab.
+
+**Merksatz:** SMTP **sendet** (MUA → Server und Server → Server), IMAP/POP3 **holen ab**. IMAP und POP3 transportieren nie Mails zwischen Servern.`,
+        },
+        {
+          type: 'visual',
+          title: 'Mailweg mit MX-Abfrage',
+          widget: {
+            kind: 'sequence',
+            data: {
+              actors: ['MUA Absenderin', 'MTA Elektro Krämer', 'DNS-Server', 'MTA Kunde', 'MDA/Postfach', 'MUA Kunde'],
+              messages: [
+                { from: 0, to: 1, label: 'SMTP Submission (587)', note: 'mit Anmeldung, STARTTLS' },
+                { from: 1, to: 2, label: 'MX-Abfrage beispiel.de' },
+                { from: 2, to: 1, label: 'MX → mail.beispiel.de' },
+                { from: 1, to: 3, label: 'SMTP (25)', note: 'Server zu Server' },
+                { from: 3, to: 4, label: 'Zustellung ins Postfach' },
+                { from: 5, to: 4, label: 'IMAPS (993) abrufen' },
+              ],
+            },
+          },
+          caption: 'Senden und Weiterleiten immer per SMTP, Abrufen per IMAP oder POP3.',
+        },
+        {
+          type: 'explain',
           title: 'NTP, SNMP und LDAP',
-          body: `**NTP** (*Network Time Protocol*, **UDP 123**) synchronisiert die Uhrzeit. Klingt banal, ist aber kritisch: **Kerberos** (Active-Directory-Anmeldung) scheitert bei zu großer Zeitabweichung (Standard 5 Minuten), Logdateien verschiedener Geräte lassen sich sonst nicht vergleichen, Zertifikate werden falsch geprüft. NTP-Server sind hierarchisch in **Stratum**-Ebenen organisiert (Stratum 0 = Referenzuhr, z. B. GPS/Atomuhr; Stratum 1 = direkt daran angeschlossener Server; usw.).
+          body: `**NTP** (*Network Time Protocol*, **UDP 123**) synchronisiert die Uhrzeit. Klingt banal, ist aber kritisch: **Kerberos** (Active-Directory-Anmeldung) scheitert bei zu großer Zeitabweichung (Standard 5 Minuten), Logdateien verschiedener Geräte lassen sich sonst nicht vergleichen, Zertifikate werden falsch geprüft. NTP-Server sind hierarchisch in **Stratum**-Ebenen organisiert (*Stratum* = Schicht, also der Abstand zur Referenzuhr):
+
+| Stratum | Wer? |
+|---|---|
+| **0** | Referenzuhr selbst (GPS-Empfänger, Funkuhr DCF77, Atomuhr) – hängt nicht selbst im Netz |
+| **1** | Server, der **direkt** an eine Referenzuhr angeschlossen ist |
+| **2** | Server, der sich bei einem Stratum-1-Server synchronisiert |
+| **n + 1** | Wer sich bei einem Server mit Stratum n synchronisiert, hat Stratum **n + 1** |
+| **16** | gilt als **nicht synchronisiert** (höchster gültiger Wert ist 15) |
+
+Beispiel: Der Domänencontroller der Elektro Krämer GmbH holt die Zeit von einem öffentlichen Stratum-2-Server → er hat **Stratum 3**. Die Clients synchronisieren sich beim Domänencontroller → **Stratum 4**. Eine kleinere Zahl heißt „näher an der Referenzuhr“, aber nicht automatisch „genauer“ – auch die Netzverbindung zählt.
 
 **SNMP** (*Simple Network Management Protocol*, **UDP**) dient der **Überwachung** und Verwaltung von Netzwerkgeräten (Switches, Router, Drucker, USV):
 - **Port 161**: Der **Manager** (Monitoring-System) fragt den **Agenten** auf dem Gerät ab (\`GET\`) oder setzt Werte (\`SET\`).
@@ -859,7 +944,7 @@ Ablauf: Frau Yilmaz schreibt eine Mail an einen Kunden → ihr Client sendet per
         {
           type: 'practice',
           title: 'Übung: Mail und Infrastrukturdienste',
-          questionIds: ['m10-q042', 'm10-q043', 'm10-q044', 'm10-q045', 'm10-q046', 'm10-q047'],
+          questionIds: ['m10-q042', 'm10-q043', 'm10-q044', 'm10-q045', 'm10-q046', 'm10-q047', 'm10-q061', 'm10-q062', 'm10-q063', 'm10-q064', 'm10-q065'],
           count: 4,
           difficulty: 2,
         },
@@ -878,6 +963,8 @@ Ablauf: Frau Yilmaz schreibt eine Mail an einen Kunden → ihr Client sendet per
             'NTP UDP 123: einheitliche Zeit (wichtig für Kerberos, Logs, Zertifikate).',
             'SNMP UDP 161 (Abfrage) / 162 (Trap); SNMPv3 mit Verschlüsselung verwenden.',
             'LDAP 389 / LDAPS 636: Zugriff auf Verzeichnisdienste wie Active Directory.',
+            'Mailweg: MUA → (Submission 587) → MTA → MX-Abfrage per DNS → SMTP 25 → MTA → MDA ins Postfach → MUA holt per IMAP/POP3 ab.',
+            'NTP-Stratum: Referenzuhr = 0, wer sich bei Stratum n synchronisiert, hat n + 1; 16 = nicht synchronisiert.',
           ],
         },
       ],
@@ -1666,6 +1753,137 @@ Ablauf: Frau Yilmaz schreibt eine Mail an einen Kunden → ihr Client sendet per
       prompt: `Welchen Port nutzt **SMB** (Windows-Dateifreigaben)?`,
       answer: 445,
       explanation: `SMB = **TCP 445**.`,
+    },
+    // ---------- Ergänzung: weitere Ports, Mailweg, NTP-Stratum ----------
+    {
+      id: 'm10-q057',
+      kind: 'number',
+      skill: 'proto.ports',
+      difficulty: 1,
+      prompt: `Welchen Port nutzt **NFS** (Network File System, Dateifreigaben unter Linux/Unix)?`,
+      answer: 2049,
+      misconceptions: [{ answer: '445', error: 'port-verwechselt', why: '445 ist SMB – die Dateifreigabe unter Windows. NFS ist das Linux-Gegenstück und nutzt 2049.' }],
+      hints: ['Eine vierstellige Zahl, beginnt mit 20.'],
+      explanation: `NFS = **TCP 2049** (früher auch UDP). Merkpaar: Windows-Freigabe SMB 445 ↔ Linux-Freigabe NFS 2049.`,
+    },
+    {
+      id: 'm10-q058',
+      kind: 'table',
+      skill: 'proto.ports',
+      difficulty: 2,
+      prompt: `**Handlungssituation:** Für die neue Firewall der Elektro Krämer GmbH sollst du die Portliste ergänzen. Trage Zielport und Transportprotokoll ein.`,
+      columns: [
+        { key: 'svc', label: 'Dienst', type: 'text' },
+        { key: 'port', label: 'Port', type: 'text' },
+        { key: 'proto', label: 'TCP/UDP', type: 'text' },
+      ],
+      rows: [
+        { cells: { svc: { given: 'Netzwerkdrucker per IPP ansprechen' }, port: { answer: '631' }, proto: { answer: 'TCP' } } },
+        { cells: { svc: { given: 'DHCPv6-Server (Anfragen der Clients)' }, port: { answer: '547' }, proto: { answer: 'UDP' } } },
+        { cells: { svc: { given: 'Linux-Dateifreigabe (NFS)' }, port: { answer: '2049' }, proto: { answer: 'TCP', accept: ['TCP', 'TCP/UDP', 'UDP/TCP', 'TCP und UDP'] } } },
+        { cells: { svc: { given: 'IP-Telefone: Anrufsignalisierung SIP (unverschlüsselt)' }, port: { answer: '5060' }, proto: { answer: 'UDP', accept: ['UDP', 'UDP/TCP', 'TCP/UDP', 'UDP und TCP', 'TCP'] } } },
+        { cells: { svc: { given: 'DNS over TLS zum externen Resolver' }, port: { answer: '853' }, proto: { answer: 'TCP' } } },
+      ],
+      hints: ['IPP 631, DHCPv6: Client 546 / Server 547.', 'NFS 2049, SIP 5060, DoT 853.'],
+      explanation: `- IPP **631/TCP**\n- DHCPv6-Server **547/UDP** (Client 546)\n- NFS **2049/TCP** (ältere Versionen auch UDP)\n- SIP **5060** (UDP oder TCP; mit TLS 5061)\n- DNS over TLS **853/TCP**\n\nHäufiger Fehler: bei DHCPv6 Client und Server vertauschen – hier hat der **Server** die größere Nummer (547).`,
+    },
+    {
+      id: 'm10-q059',
+      kind: 'match',
+      skill: 'proto.ports',
+      difficulty: 2,
+      prompt: `Ordne jedem Port den passenden Dienst zu.`,
+      left: ['546', '631', '2049', '5061', '8080'],
+      right: ['NFS', 'HTTP-Ausweichport (Proxy, Testserver)', 'DHCPv6-Client', 'SIP über TLS', 'IPP (Drucken)'],
+      answer: [2, 4, 0, 3, 1],
+      explanation: `546 = DHCPv6-Client, 631 = IPP, 2049 = NFS, 5061 = SIP über TLS (unverschlüsselt 5060), 8080 = alternativer HTTP-Port.`,
+    },
+    {
+      id: 'm10-q060',
+      kind: 'single',
+      skill: 'proto.files',
+      difficulty: 2,
+      prompt: `Ein Linux-Server im Server-VLAN soll ein Verzeichnis für die Linux-Arbeitsplätze der Entwicklungsabteilung freigeben (NFSv4). Welchen Port musst du in der Firewall zwischen den VLANs freigeben?`,
+      options: ['TCP 445', 'TCP 2049', 'TCP 631', 'UDP 137–139'],
+      answer: 1,
+      distractors: {
+        '0': { why: '445 ist SMB, die Freigabe für Windows (unter Linux mit Samba nachgebaut). Gefragt ist NFS.', error: 'port-verwechselt' },
+        '2': { why: '631 ist IPP zum Drucken.', error: 'port-verwechselt' },
+        '3': { why: '137–139 gehören zu NetBIOS, dem Vorgänger der SMB-Freigaben.', error: 'port-verwechselt' },
+      },
+      explanation: `NFSv4 braucht nur **TCP 2049**. (Ältere NFS-Versionen benötigten zusätzlich weitere Ports, z. B. den Portmapper 111.)`,
+    },
+    {
+      id: 'm10-q061',
+      kind: 'order',
+      skill: 'proto.mail',
+      difficulty: 2,
+      prompt: `Bringe den Weg einer E-Mail von Frau Yilmaz (Elektro Krämer GmbH) zu einem Kunden in die richtige Reihenfolge.`,
+      items: [
+        'Der MUA von Frau Yilmaz übergibt die Mail per SMTP Submission (587) an den Firmen-Mailserver.',
+        'Der MTA der Firma fragt per DNS den MX-Record der Empfängerdomain ab.',
+        'Der MTA liefert die Mail per SMTP (25) an den MTA des Kunden.',
+        'Der MDA legt die Mail im Postfach des Kunden ab.',
+        'Der MUA des Kunden ruft die Mail per IMAPS (993) ab.',
+      ],
+      hints: ['Erst senden, dann Ziel suchen, dann zustellen, dann abholen.'],
+      explanation: `MUA → (587) → MTA → **MX-Abfrage** → (25) → MTA Kunde → **MDA** ins Postfach → MUA holt ab (993).\n\nHäufiger Fehler: Die MX-Abfrage kommt erst nach dem Absenden – der Mailserver, nicht der Client, sucht den Zielserver.`,
+    },
+    {
+      id: 'm10-q062',
+      kind: 'match',
+      skill: 'proto.mail',
+      difficulty: 1,
+      prompt: `Ordne jeder Komponente ihre Aufgabe zu.`,
+      left: ['MUA', 'MTA', 'MDA', 'MX-Record'],
+      right: ['legt eingehende Mails im Postfach des Empfängers ab', 'DNS-Eintrag: welcher Server Mails für eine Domain annimmt', 'Mailprogramm zum Schreiben, Senden und Lesen', 'Mailserver, der Mails per SMTP zwischen Servern weiterleitet'],
+      answer: [2, 3, 0, 1],
+      explanation: `MUA = Mail **User** Agent (Programm der Nutzerin), MTA = Mail **Transfer** Agent (Transport Server↔Server), MDA = Mail **Delivery** Agent (Zustellung ins Postfach), MX = **Mail Exchanger** im DNS.`,
+    },
+    {
+      id: 'm10-q063',
+      kind: 'number',
+      skill: 'proto.services',
+      difficulty: 2,
+      prompt: `Ein Zeitserver der Elektro Krämer GmbH ist direkt an einen GPS-Empfänger angeschlossen (**Stratum 1**). Der Domänencontroller synchronisiert sich bei diesem Zeitserver, die Arbeitsplatz-PCs synchronisieren sich beim Domänencontroller. Welches **Stratum** haben die Arbeitsplatz-PCs?`,
+      answer: 3,
+      misconceptions: [
+        { answer: '2', error: 'stratum-zaehlung', why: 'Stratum 2 hat der Domänencontroller. Die PCs synchronisieren sich bei ihm → eine Stufe mehr.' },
+        { answer: '1', error: 'stratum-zaehlung', why: 'Stratum 1 hat nur der Server direkt an der Referenzuhr.' },
+      ],
+      hints: ['Jede Weitergabe erhöht das Stratum um 1.'],
+      explanation: `GPS-Empfänger = Stratum 0 → Zeitserver **1** → Domänencontroller **2** → PCs **3**.\n\nRegel: Wer sich bei einem Server mit Stratum n synchronisiert, hat Stratum n + 1.`,
+    },
+    {
+      id: 'm10-q064',
+      kind: 'single',
+      skill: 'proto.services',
+      difficulty: 2,
+      prompt: `Bei der Kontrolle eines Servers zeigt \`w32tm /query /status\` den Wert **Stratum: 16**. Was bedeutet das?`,
+      options: [
+        'Der Server ist 16 Hops von der Referenzuhr entfernt und sehr genau.',
+        'Der Server ist nicht synchronisiert – er hat keine gültige Zeitquelle.',
+        'Der Server ist selbst eine Referenzuhr.',
+        'Die Zeit weicht um 16 Sekunden ab.',
+      ],
+      answer: 1,
+      distractors: {
+        '0': { why: 'Der höchste gültige Wert ist 15. 16 ist ein Sonderwert.', error: 'stratum-zaehlung' },
+        '2': { why: 'Eine Referenzuhr hat Stratum 0, ein direkt angeschlossener Server Stratum 1.', error: 'stratum-zaehlung' },
+        '3': { why: 'Das Stratum beschreibt die Ebene in der Hierarchie, keine Zeitabweichung.', error: 'begriff-verwechselt' },
+      },
+      explanation: `**Stratum 16 = nicht synchronisiert.** Ursachen: kein erreichbarer Zeitserver (Firewall blockiert UDP 123), falsche Konfiguration oder der Dienst läuft nicht. Folge: Uhrzeit driftet, Kerberos-Anmeldungen können scheitern.`,
+    },
+    {
+      id: 'm10-q065',
+      kind: 'free',
+      skill: 'proto.mail',
+      difficulty: 3,
+      prompt: `Ein Kunde fragt, warum sein Mailprogramm für den Versand **Port 587** verwendet, die Mailserver untereinander aber **Port 25**. Erläutern Sie den Weg einer E-Mail mit den Rollen MUA, MTA und MDA und beantworten Sie die Frage.`,
+      modelAnswer: `Der MUA (Mailprogramm) übergibt die Mail per SMTP an den eigenen Mailserver. Dafür ist Port 587 (Submission) vorgesehen: Der Nutzer muss sich anmelden, und die Verbindung wird per STARTTLS verschlüsselt (alternativ 465 mit implizitem TLS). So kann nur ein berechtigter Nutzer über den Server versenden – ein offener Versand über Port 25 würde Spammer anlocken, deshalb sperren viele Provider Port 25 für Endkunden. Der Mailserver (MTA) ermittelt per DNS den MX-Record der Empfängerdomain und liefert die Mail per SMTP über Port 25 an den MTA des Empfängers aus; dort wird keine Benutzeranmeldung verlangt, weil fremde Server Mails für die eigene Domain einliefern dürfen. Beim Empfänger legt der MDA die Mail ins Postfach, und der MUA des Empfängers ruft sie per IMAP (993) oder POP3 (995) ab.`,
+      keywords: ['MUA', 'Submission 587', 'Anmeldung', 'STARTTLS', 'MTA', 'MX-Record', 'Port 25', 'MDA', 'IMAP'],
+      hints: ['Wer muss sich beim Versenden anmelden, wer nicht?', 'Wie findet der Server den Zielserver?'],
+      explanation: `Eine gute Antwort beschreibt alle Stationen (MUA → MTA → MTA → MDA → MUA) mit Protokollen und erklärt 587 = Einlieferung mit Anmeldung/Verschlüsselung, 25 = Transport zwischen Servern.`,
     },
   ],
 };

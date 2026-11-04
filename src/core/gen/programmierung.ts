@@ -1,5 +1,5 @@
 /**
- * Aufgaben-Generatoren für den Fachbereich „Programmierung & Softwareentwicklung“ (Module p01–p05).
+ * Aufgaben-Generatoren für den Fachbereich „Programmierung & Softwareentwicklung“ (Module p01–p06).
  *
  * Jede Aufgabe enthält ein kleines Pseudocode-Programm im Stil der Module (deutsche Schlüsselwörter,
  * Zuweisung mit ←, Arrays 0-basiert). Das Ergebnis wird hier direkt in JavaScript simuliert;
@@ -1033,11 +1033,393 @@ const testcaseGen: GeneratorMeta = {
 
 /* ------------------------------------------------------------------ */
 
-export const GENERATORS_PROGRAMMIERUNG: GeneratorMeta[] = [arith, logicGen, traceLoop, traceBranch, arrayAggregate, arraySearch, arraySort, funcGen, testcaseGen];
+/* ------------------------------------------------------------------ */
+/* p02: Entscheidungstabellen                                           */
+/* ------------------------------------------------------------------ */
+
+type DtTpl = { thema: string; regeln: string; b: string[]; a: { text: string; f: (x: boolean[]) => boolean }[] };
+
+const DT2: DtTpl[] = [
+  {
+    thema: 'Webshop der Elektro Krämer GmbH',
+    regeln: 'Ab einem Bestellwert von 100 € ist der Versand kostenlos. Stammkunden dürfen auf Rechnung kaufen. Stammkunden mit einem Bestellwert ab 100 € bekommen zusätzlich einen 5-€-Gutschein.',
+    b: ['Bestellwert ≥ 100 €', 'Stammkunde'],
+    a: [
+      { text: 'versandkostenfrei liefern', f: (x) => x[0] },
+      { text: 'Kauf auf Rechnung anbieten', f: (x) => x[1] },
+      { text: '5-€-Gutschein beilegen', f: (x) => x[0] && x[1] },
+    ],
+  },
+  {
+    thema: 'Störungsannahme des IT-Systemhauses',
+    regeln: 'Steht beim Kunden die Produktion still, bekommt das Ticket Priorität 1. Hat ein solcher Kunde einen Premium-Wartungsvertrag, wird zusätzlich sofort ein Techniker geschickt. Premium-Kunden ohne Produktionsstillstand erhalten einen Rückruf innerhalb von 4 Stunden.',
+    b: ['Produktion steht still', 'Premium-Wartungsvertrag'],
+    a: [
+      { text: 'Priorität 1 vergeben', f: (x) => x[0] },
+      { text: 'Techniker sofort schicken', f: (x) => x[0] && x[1] },
+      { text: 'Rückruf innerhalb von 4 h', f: (x) => !x[0] && x[1] },
+    ],
+  },
+  {
+    thema: 'Passwort-Hotline der Elektro Krämer GmbH',
+    regeln: 'Ein Passwort wird nur zurückgesetzt, wenn die Identität des Anrufers bestätigt ist (Rückruf an die hinterlegte Nummer). Ist das Konto außerdem gesperrt, wird es dabei entsperrt. Ist die Identität nicht bestätigt, wird die Anfrage abgelehnt und protokolliert.',
+    b: ['Identität bestätigt', 'Konto gesperrt'],
+    a: [
+      { text: 'Passwort zurücksetzen', f: (x) => x[0] },
+      { text: 'Konto entsperren', f: (x) => x[0] && x[1] },
+      { text: 'Anfrage ablehnen und protokollieren', f: (x) => !x[0] },
+    ],
+  },
+];
+
+const DT3: DtTpl[] = [
+  {
+    thema: 'Konditionen im Großhandel der Elektro Krämer GmbH',
+    regeln: 'Ab einem Bestellwert von 500 € gibt es 5 % Mengenrabatt. Wer per Vorkasse zahlt, bekommt 2 % Skonto. Versandkostenfrei liefern wir ab 500 € Bestellwert und an alle Stammkunden.',
+    b: ['Bestellwert ≥ 500 €', 'Stammkunde', 'Zahlung per Vorkasse'],
+    a: [
+      { text: '5 % Mengenrabatt', f: (x) => x[0] },
+      { text: '2 % Skonto', f: (x) => x[2] },
+      { text: 'versandkostenfrei', f: (x) => x[0] || x[1] },
+    ],
+  },
+  {
+    thema: 'Zutritt zum Serverraum',
+    regeln: 'Die Tür öffnet nur, wenn der Mitarbeiterausweis gültig ist **und** die Person zur Gruppe „IT“ gehört. Geschieht ein solcher Zutritt außerhalb der Arbeitszeit, wird zusätzlich die IT-Leitung benachrichtigt. In allen anderen Fällen wird der Zutritt verweigert.',
+    b: ['Ausweis gültig', 'Gruppe „IT“', 'außerhalb der Arbeitszeit'],
+    a: [
+      { text: 'Tür öffnen', f: (x) => x[0] && x[1] },
+      { text: 'IT-Leitung benachrichtigen', f: (x) => x[0] && x[1] && x[2] },
+      { text: 'Zutritt verweigern', f: (x) => !(x[0] && x[1]) },
+    ],
+  },
+  {
+    thema: 'Ticket-Einstufung im Service-Desk',
+    regeln: 'Bei einem Produktionsausfall erhält das Ticket Priorität 1. An den 2nd-Level-Support geht ein Ticket bei Produktionsausfall oder wenn mehr als 10 Benutzer betroffen sind. Einen Techniker vor Ort gibt es nur bei Produktionsausfall mit Premium-Vertrag.',
+    b: ['Produktionsausfall', 'mehr als 10 Benutzer betroffen', 'Premium-Vertrag'],
+    a: [
+      { text: 'Priorität 1 vergeben', f: (x) => x[0] },
+      { text: 'an 2nd-Level weiterleiten', f: (x) => x[0] || x[1] },
+      { text: 'Techniker vor Ort', f: (x) => x[0] && x[2] },
+    ],
+  },
+];
+
+/** Regel r (0-basiert) in Standardreihenfolge: die erste Bedingung wechselt am langsamsten, J vor N. */
+const dtCond = (n: number, r: number): boolean[] => Array.from({ length: n }, (_, i) => ((r >> (n - 1 - i)) & 1) === 0);
+const dtRuleOf = (x: boolean[]) => x.reduce((acc, v, i) => acc + (v ? 0 : 1 << (x.length - 1 - i)), 0);
+const JN = (v: boolean) => (v ? 'J' : 'N');
+const X_ACC = ['x', 'ja', 'j', '1', '✓'];
+const NO_ACC = ['-', '—', '−', 'nein', '0', '/'];
+
+function dtMarkdown(t: DtTpl, actions: DtTpl['a'], withActions: boolean): string {
+  const n = t.b.length;
+  const R = 2 ** n;
+  const head = ['', ...Array.from({ length: R }, (_, r) => `R${r + 1}`)];
+  const rows: string[][] = t.b.map((b, i) => [`**B${i + 1}:** ${b}`, ...Array.from({ length: R }, (_, r) => JN(dtCond(n, r)[i]))]);
+  actions.forEach((a, k) => rows.push([`**A${k + 1}:** ${a.text}`, ...Array.from({ length: R }, (_, r) => (withActions ? (a.f(dtCond(n, r)) ? 'X' : '–') : '?'))]));
+  return table(head, rows);
+}
+
+function dtTable(t: DtTpl, actions: DtTpl['a'], d: Difficulty): TableQuestion {
+  const n = t.b.length;
+  const R = 2 ** n;
+  const cols = Array.from({ length: R }, (_, r) => ({ key: `r${r + 1}`, label: `R${r + 1}`, type: 'text' as const }));
+  const rows: TableQuestion['rows'] = [
+    ...t.b.map((b, i) => ({ label: `B${i + 1}: ${b}`, cells: Object.fromEntries(cols.map((c, r) => [c.key, { given: JN(dtCond(n, r)[i]) }])) })),
+    ...actions.map((a, k) => ({
+      label: `A${k + 1}: ${a.text}`,
+      cells: Object.fromEntries(cols.map((c, r) => [c.key, a.f(dtCond(n, r)) ? { answer: 'X', accept: X_ACC } : { answer: '–', accept: NO_ACC }])),
+    })),
+  ];
+  return {
+    id: gid('p.dectable'), generated: true, kind: 'table', skill: 'prog.dectable', difficulty: d,
+    prompt: `**${t.thema}** – Regeln laut Fachabteilung:\n\n> ${t.regeln}\n\nDie Bedingungsteile der vollständigen Entscheidungstabelle (${n} Bedingungen → 2^${n} = ${R} Regeln) sind vorgegeben. Trage im Aktionsteil für jede Regel **X** ein, wenn die Aktion ausgeführt wird, sonst **–**.`,
+    columns: cols,
+    rows,
+    hints: ['Nimm dir eine Spalte (Regel) nach der anderen vor: Welche Bedingungen sind J, welche N?', 'Prüfe dann jede Aktion gegen den Regeltext: Steht dort „und“, müssen beide Bedingungen J sein; bei „oder“ reicht eine.'],
+    explanation: `Vollständige Entscheidungstabelle:\n\n${dtMarkdown(t, actions, true)}\n\nVorgehen je Regel: Bedingungswerte ablesen, dann jede Aktion mit dem Regeltext vergleichen. Beispiel R${R}: alle Bedingungen N → ${actions.map((a, k) => `A${k + 1} ${a.f(dtCond(n, R - 1)) ? 'X' : '–'}`).join(', ')}.\n\nHäufiger Fehler: „und“ wie „oder“ behandeln – bei „und“ wird die Aktion nur ausgeführt, wenn **alle** genannten Bedingungen J sind.`,
+  };
+}
+
+const dectableGen: GeneratorMeta = {
+  id: 'p.dectable',
+  title: 'Entscheidungstabellen lesen und vervollständigen',
+  skill: 'prog.dectable',
+  module: 'p02',
+  make(rng, d) {
+    const base = { generated: true as const, skill: 'prog.dectable', difficulty: d };
+    const variant = rng.int(0, 1);
+    if (d === 1 && variant === 0) {
+      const t = rng.pick([...DT2, ...DT3]);
+      const extra = rng.bool();
+      const n = t.b.length + (extra ? 1 : 0);
+      const ans = 2 ** n;
+      return {
+        ...base, kind: 'number', id: gid('p.dectable'),
+        prompt: `Für die Regeln „${t.thema}“ wird eine **vollständige Entscheidungstabelle** mit den Bedingungen ${t.b.map((b) => `„${b}“`).join(', ')} erstellt${extra ? '. Die Fachabteilung ergänzt noch die Bedingung „Lieferung ins Ausland“' : ''}. Jede Bedingung kann nur J oder N sein. Wie viele **Regeln** (Spalten) hat die vollständige Tabelle?`,
+        answer: ans,
+        hints: ['Jede Bedingung verdoppelt die Anzahl der Kombinationen.', `Rechne 2 hoch Anzahl der Bedingungen.`],
+        misconceptions: mcFilter(ans, [
+          { answer: String(2 * n), error: 'dectable-regelanzahl', why: `2 · ${n} = ${2 * n} ist falsch: Jede weitere Bedingung **verdoppelt** die Kombinationen, also 2^${n}.` },
+          { answer: String(n * n), error: 'dectable-regelanzahl', why: `${n}² ist nicht gesucht. Es gibt je Bedingung 2 Möglichkeiten (J/N) → 2^${n}.` },
+          { answer: String(n), error: 'dectable-regelanzahl', why: 'Das ist die Zahl der Bedingungen, nicht der Regeln.' },
+          ...(extra ? [{ answer: String(2 ** (n - 1) + 1), error: 'dectable-regelanzahl', why: `Eine neue Bedingung fügt nicht nur eine Regel hinzu, sondern verdoppelt: 2 · ${2 ** (n - 1)} = ${ans}.` }] : []),
+        ]),
+        explanation: `${n} Bedingungen mit je 2 Werten (J/N) → 2 · 2 · … · 2 = 2^${n} = **${ans}** Regeln.\n\nSo entstehen alle Kombinationen genau einmal. Häufiger Fehler: 2 · n rechnen – das wächst viel zu langsam.`,
+      };
+    }
+    if (d === 1) {
+      // Fall einer Regel zuordnen (2 Bedingungen, Tabelle vollständig gegeben)
+      const t = rng.pick(DT2);
+      const x = [rng.bool(), rng.bool()];
+      const r = dtRuleOf(x);
+      return {
+        ...base, kind: 'number', id: gid('p.dectable'),
+        prompt: `**${t.thema}** – Entscheidungstabelle:\n\n${dtMarkdown(t, t.a, true)}\n\nEin Fall: ${t.b.map((b, i) => `„${b}“ ist ${x[i] ? '**erfüllt**' : '**nicht erfüllt**'}`).join(', ')}. Welche **Regel** (Nummer 1–4) gilt?`,
+        answer: r + 1,
+        hints: ['Übersetze den Fall in J/N: erfüllt = J, nicht erfüllt = N.', 'Suche die Spalte, in der genau diese J/N-Kombination steht.'],
+        misconceptions: mcFilter(r + 1, [
+          { answer: String(dtRuleOf([!x[0], !x[1]]) + 1), error: 'dectable-jn-vertauscht', why: 'Du hast J und N vertauscht: „erfüllt“ entspricht J.' },
+          { answer: String(dtRuleOf([x[1], x[0]]) + 1), error: 'dectable-bedingung-vertauscht', why: 'Du hast die Zeilen B1 und B2 vertauscht. Lies jede Bedingung in ihrer eigenen Zeile ab.' },
+        ]),
+        explanation: `Der Fall entspricht B1 = ${JN(x[0])}, B2 = ${JN(x[1])}. Diese Kombination steht in Spalte **R${r + 1}**. Dort werden ausgeführt: ${t.a.filter((a) => a.f(x)).map((a) => a.text).join(', ') || 'keine Aktion'}.`,
+      };
+  }
+    if (d === 2 && variant === 0) {
+      const t2 = rng.pick(DT2);
+      return dtTable(t2, t2.a, d);
+    }
+    // d === 2 (Variante 1) oder d === 3
+    const t = rng.pick(DT3);
+    if (d === 3 && variant === 0) {
+      const k = rng.int(0, 2);
+      const a = t.a[k];
+      const cnt = Array.from({ length: 8 }, (_, r) => a.f(dtCond(3, r))).filter(Boolean).length;
+      return {
+        ...base, kind: 'number', id: gid('p.dectable'),
+        prompt: `**${t.thema}** – Regeln laut Fachabteilung:\n\n> ${t.regeln}\n\nDie Regeln werden als **vollständige Entscheidungstabelle** mit den Bedingungen ${t.b.map((b, i) => `B${i + 1} „${b}“`).join(', ')} aufgestellt. In wie vielen der 2^3 = 8 Regeln wird die Aktion **„${a.text}“** ausgeführt?`,
+        answer: cnt,
+        hints: ['Schreibe die 8 J/N-Kombinationen auf (R1 = JJJ … R8 = NNN).', 'Bei „und“ müssen alle genannten Bedingungen J sein, bei „oder“ reicht eine.'],
+        misconceptions: mcFilter(cnt, [
+          { answer: String(8 - cnt), error: 'dectable-jn-vertauscht', why: 'Du hast die Regeln gezählt, in denen die Aktion **nicht** ausgeführt wird.' },
+          { answer: '1', error: 'dectable-regelanzahl', why: 'Nicht nur eine Spalte zählt: Bedingungen, die für die Aktion egal sind, können J oder N sein – jede Kombination ist eine eigene Regel.' },
+        ]),
+        explanation: `${dtMarkdown(t, [a], true)}\n\nDie Aktion steht in **${cnt}** von 8 Regeln. Bedingungen, die für „${a.text}“ keine Rolle spielen, verdoppeln jeweils die Zahl der passenden Regeln.`,
+      };
+    }
+    if (d === 2) {
+      // Fall einer Regel zuordnen (3 Bedingungen)
+      const x = [rng.bool(), rng.bool(), rng.bool()];
+      const r = dtRuleOf(x);
+      return {
+        ...base, kind: 'number', id: gid('p.dectable'),
+        prompt: `**${t.thema}** – Entscheidungstabelle:\n\n${dtMarkdown(t, t.a, true)}\n\nEin Fall: ${t.b.map((b, i) => `„${b}“ ${x[i] ? '**trifft zu**' : '**trifft nicht zu**'}`).join(', ')}. Welche **Regel** (Nummer 1–8) gilt?`,
+        answer: r + 1,
+        hints: ['Übersetze den Fall in J/N und suche die passende Spalte.', 'R1 = JJJ, R2 = JJN, R3 = JNJ, R4 = JNN, R5 = NJJ … R8 = NNN.'],
+        misconceptions: mcFilter(r + 1, [
+          { answer: String(dtRuleOf(x.map((v) => !v)) + 1), error: 'dectable-jn-vertauscht', why: 'J und N vertauscht: „trifft zu“ entspricht J.' },
+          { answer: String(dtRuleOf([...x].reverse()) + 1), error: 'dectable-bedingung-vertauscht', why: 'Du hast die Bedingungen in umgekehrter Reihenfolge gelesen. B1 steht oben.' },
+        ]),
+        explanation: `Fall = B1 ${JN(x[0])}, B2 ${JN(x[1])}, B3 ${JN(x[2])} → Spalte **R${r + 1}**. Ausgeführt werden: ${t.a.filter((a) => a.f(x)).map((a) => a.text).join(', ') || 'keine Aktion'}.`,
+      };
+    }
+    // d === 3, Tabelle mit zwei Aktionen ausfüllen
+    const pair = rng.shuffle([0, 1, 2]).slice(0, 2).sort();
+    return dtTable(t, pair.map((i) => t.a[i]), d);
+  },
+};
+
+/* ------------------------------------------------------------------ */
+/* p06: Testprotokoll mit Soll/Ist-Vergleich                            */
+/* ------------------------------------------------------------------ */
+
+type TpOut = number | string;
+type TpTpl = {
+  name: string;
+  /** Anforderung (Spezifikation) */
+  spec: string;
+  /** fehlerhafter Pseudocode */
+  code: string[];
+  eingabe: string;
+  ausgabe: string;
+  numeric: boolean;
+  inputs: number[];
+  soll: (x: number) => TpOut;
+  ist: (x: number) => TpOut;
+  fehler: string;
+  korrektur: string;
+};
+
+const TEXT_ACC: Record<string, string[]> = {
+  'gültig': ['gueltig', 'gültig'], 'ungültig': ['ungueltig', 'ungültig'], 'zulässig': ['zulaessig', 'zulässig'],
+  'kein Schaltjahr': ['keinschaltjahr', 'kein schaltjahr'],
+  'zu kurz': ['zukurz'],
+};
+const JA_ACC = ['j', 'bestanden', 'ok', 'yes', '✓', 'x'];
+const NEIN_ACC = ['n', 'nicht bestanden', 'fehlgeschlagen', 'no', '✗', 'fehler'];
+const eur = (v: number) => v.toFixed(2).replace('.', ',');
+const outStr = (v: TpOut) => (typeof v === 'number' ? de(v) : v);
+
+function tpTemplates(rng: Rng): Record<'grenze' | 'oben' | 'logik' | 'schaltjahr', () => TpTpl> {
+  return {
+    grenze: () =>
+      rng.pick<() => TpTpl>([
+        () => {
+          const g = rng.pick([50, 75, 100]);
+          const fee = rng.pick([4.9, 5.9, 6.9]);
+          return {
+            name: 'versandkosten(bestellwert)', eingabe: 'Bestellwert in €', ausgabe: 'Versandkosten in €', numeric: true,
+            spec: `Ab einem Bestellwert von ${g} € ist der Versand kostenlos, darunter kostet er ${de(fee)} €.`,
+            code: ['FUNKTION versandkosten(bestellwert)', `  WENN bestellwert > ${g} DANN`, '    RÜCKGABE 0', '  SONST', `    RÜCKGABE ${fee.toFixed(2)}`, '  ENDE WENN', 'ENDE FUNKTION'],
+            inputs: [rng.int(10, g - 10), g - 0.01, g, g + 0.01, g * 2],
+            soll: (x) => eur(x >= g ? 0 : fee), ist: (x) => eur(x > g ? 0 : fee),
+            fehler: `Der Code prüft \`bestellwert > ${g}\`. Laut Anforderung gilt „ab ${g} €“, also **≥ ${g}**. Genau bei ${g} € werden fälschlich Versandkosten berechnet.`,
+            korrektur: `WENN bestellwert ≥ ${g} DANN`,
+          };
+        },
+        () => {
+          const g = rng.pick([10, 20, 25]);
+          const r = rng.pick([5, 8, 10]);
+          return {
+            name: 'rabatt(menge)', eingabe: 'Menge in Stück', ausgabe: 'Rabatt in %', numeric: true,
+            spec: `Ab einer Bestellmenge von ${g} Stück gibt es ${r} % Rabatt, darunter keinen.`,
+            code: ['FUNKTION rabatt(menge)', `  WENN menge > ${g} DANN`, `    RÜCKGABE ${r}`, '  SONST', '    RÜCKGABE 0', '  ENDE WENN', 'ENDE FUNKTION'],
+            inputs: [rng.int(1, g - 3), g - 1, g, g + 1, g * 3],
+            soll: (x) => (x >= g ? r : 0), ist: (x) => (x > g ? r : 0),
+            fehler: `Der Code prüft \`menge > ${g}\`. „Ab ${g} Stück“ bedeutet aber **≥ ${g}** – bei genau ${g} Stück fehlt der Rabatt.`,
+            korrektur: `WENN menge ≥ ${g} DANN`,
+          };
+        },
+        () => {
+          const g = rng.pick([16, 18]);
+          return {
+            name: 'pruefeAlter(alter)', eingabe: 'Alter in Jahren', ausgabe: 'Ergebnis', numeric: false,
+            spec: `Software mit Altersfreigabe darf erst **ab ${g} Jahren** bestellt werden. Die Funktion liefert „erlaubt“ oder „abgelehnt“.`,
+            code: ['FUNKTION pruefeAlter(alter)', `  WENN alter > ${g} DANN`, '    RÜCKGABE "erlaubt"', '  SONST', '    RÜCKGABE "abgelehnt"', '  ENDE WENN', 'ENDE FUNKTION'],
+            inputs: [g - 4, g - 1, g, g + 1, rng.int(30, 60)],
+            soll: (x) => (x >= g ? 'erlaubt' : 'abgelehnt'), ist: (x) => (x > g ? 'erlaubt' : 'abgelehnt'),
+            fehler: `Der Code prüft \`alter > ${g}\`. Wer genau ${g} ist, wird fälschlich abgelehnt – „ab ${g}“ heißt **≥ ${g}**.`,
+            korrektur: `WENN alter ≥ ${g} DANN`,
+          };
+        },
+        () => {
+          const g = rng.pick([10, 12, 14]);
+          return {
+            name: 'pruefePasswort(laenge)', eingabe: 'Passwortlänge in Zeichen', ausgabe: 'Ergebnis', numeric: false,
+            spec: `Passwörter müssen **mindestens ${g} Zeichen** lang sein. Die Funktion liefert „ok“ oder „zu kurz“.`,
+            code: ['FUNKTION pruefePasswort(laenge)', `  WENN laenge > ${g} DANN`, '    RÜCKGABE "ok"', '  SONST', '    RÜCKGABE "zu kurz"', '  ENDE WENN', 'ENDE FUNKTION'],
+            inputs: [rng.int(4, g - 3), g - 1, g, g + 1, rng.int(g + 5, 40)],
+            soll: (x) => (x >= g ? 'ok' : 'zu kurz'), ist: (x) => (x > g ? 'ok' : 'zu kurz'),
+            fehler: `Der Code prüft \`laenge > ${g}\`. „Mindestens ${g}“ heißt **≥ ${g}** – ein Passwort mit genau ${g} Zeichen wird fälschlich abgelehnt.`,
+            korrektur: `WENN laenge ≥ ${g} DANN`,
+          };
+        },
+      ])(),
+    oben: () => {
+      const g = rng.pick([20, 25, 30]);
+      return {
+        name: 'pruefeAntrag(tage)', eingabe: 'Urlaubstage im Antrag', ausgabe: 'Ergebnis', numeric: false,
+        spec: `Ein Urlaubsantrag ist gültig, wenn er **1 bis ${g} Tage** (jeweils einschließlich) umfasst. Die Funktion liefert „gültig“ oder „ungültig“.`,
+        code: ['FUNKTION pruefeAntrag(tage)', `  WENN tage ≥ 1 UND tage < ${g} DANN`, '    RÜCKGABE "gültig"', '  SONST', '    RÜCKGABE "ungültig"', '  ENDE WENN', 'ENDE FUNKTION'],
+        inputs: [0, 1, rng.int(5, g - 5), g, g + 1],
+        soll: (x) => (x >= 1 && x <= g ? 'gültig' : 'ungültig'), ist: (x) => (x >= 1 && x < g ? 'gültig' : 'ungültig'),
+        fehler: `Die obere Grenze ist falsch: \`tage < ${g}\` schließt ${g} aus. Laut Anforderung ist ${g} noch gültig („einschließlich“) → **≤ ${g}**.`,
+        korrektur: `WENN tage ≥ 1 UND tage ≤ ${g} DANN`,
+      };
+    },
+    logik: () => {
+      const g = rng.pick([50, 99, 250]);
+      return {
+        name: 'pruefeMenge(menge)', eingabe: 'Bestellmenge in Stück', ausgabe: 'Ergebnis', numeric: false,
+        spec: `Zulässig sind Bestellmengen von **1 bis ${g} Stück** (einschließlich). Die Funktion liefert „zulässig“ oder „abgelehnt“.`,
+        code: ['FUNKTION pruefeMenge(menge)', `  WENN menge ≥ 1 ODER menge ≤ ${g} DANN`, '    RÜCKGABE "zulässig"', '  SONST', '    RÜCKGABE "abgelehnt"', '  ENDE WENN', 'ENDE FUNKTION'],
+        inputs: [0, 1, rng.int(10, g - 10), g, g + 1],
+        soll: (x) => (x >= 1 && x <= g ? 'zulässig' : 'abgelehnt'), ist: (x) => (x >= 1 || x <= g ? 'zulässig' : 'abgelehnt'),
+        fehler: `Die Bedingung ist mit **ODER** statt **UND** verknüpft. Jede Zahl ist ≥ 1 oder ≤ ${g} – die Bedingung ist also immer WAHR, auch für 0 und ${g + 1}.`,
+        korrektur: `WENN menge ≥ 1 UND menge ≤ ${g} DANN`,
+      };
+    },
+    schaltjahr: () => {
+      const pool = rng.shuffle([2023, 2025, 2026, 2024, 2028, 1996]).slice(0, 2);
+      const inputs = [...pool, rng.pick([1900, 2100, 2200]), rng.pick([2000, 2400]), rng.pick([1800, 2300])].sort((a, b) => a - b);
+      const leap = (j: number) => (j % 4 === 0 && j % 100 !== 0) || j % 400 === 0;
+      return {
+        name: 'istSchaltjahr(jahr)', eingabe: 'Jahr', ausgabe: 'Ergebnis', numeric: false,
+        spec: 'Ein Jahr ist ein Schaltjahr, wenn es durch 4 teilbar ist – außer es ist durch 100 teilbar; durch 400 teilbare Jahre sind aber wieder Schaltjahre. Die Funktion liefert „Schaltjahr“ oder „kein Schaltjahr“.',
+        code: ['FUNKTION istSchaltjahr(jahr)', '  WENN jahr MOD 4 = 0 DANN', '    RÜCKGABE "Schaltjahr"', '  SONST', '    RÜCKGABE "kein Schaltjahr"', '  ENDE WENN', 'ENDE FUNKTION'],
+        inputs,
+        soll: (x) => (leap(x) ? 'Schaltjahr' : 'kein Schaltjahr'), ist: (x) => (x % 4 === 0 ? 'Schaltjahr' : 'kein Schaltjahr'),
+        fehler: 'Der Code prüft nur die Teilbarkeit durch 4. Die Ausnahmen fehlen: Jahrhundertjahre wie 1900 oder 2100 sind **keine** Schaltjahre, durch 400 teilbare (2000) schon.',
+        korrektur: 'WENN (jahr MOD 4 = 0 UND jahr MOD 100 ≠ 0) ODER jahr MOD 400 = 0 DANN',
+      };
+    },
+  };
+}
+
+const testprotokollGen: GeneratorMeta = {
+  id: 'p.testprotokoll',
+  title: 'Testprotokoll: Soll und Ist vergleichen',
+  skill: 'qa.testprotocol',
+  module: 'p06',
+  make(rng, d) {
+    const T = tpTemplates(rng);
+    const t = d === 1 ? T.grenze() : d === 2 ? rng.pick([T.grenze, T.grenze, T.oben])() : rng.pick([T.oben, T.logik, T.schaltjahr])();
+    const outType = t.numeric ? ('number' as const) : ('text' as const);
+    const cols: TableQuestion['columns'] = [
+      { key: 'soll', label: `Soll: ${t.ausgabe}`, type: outType },
+      { key: 'ist', label: `Ist: ${t.ausgabe}`, type: outType },
+      { key: 'ok', label: 'bestanden? (ja/nein)', type: 'text' },
+    ];
+    const mcs: NonNullable<TableQuestion['misconceptions']> = [];
+    const rows: TableQuestion['rows'] = t.inputs.map((x, i) => {
+      const s = outStr(t.soll(x));
+      const v = outStr(t.ist(x));
+      const pass = s === v;
+      const cell = (val: string, ask: boolean) => (ask ? { answer: val, accept: TEXT_ACC[val] } : { given: val });
+      if (!pass) {
+        if (d >= 2) mcs.push({ cell: `${i}:ist`, answer: s, error: 'testprotokoll-soll-statt-ist', why: `Im Ist-Feld steht, was der **Code tatsächlich** liefert – nicht, was die Anforderung verlangt. Spiel den Code mit ${de(x)} durch: Ergebnis ${v}.` });
+        if (d === 3) mcs.push({ cell: `${i}:soll`, answer: v, error: 'testprotokoll-ist-statt-soll', why: `Das Soll kommt aus der **Anforderung**, nicht aus dem Code. Laut Anforderung ist für ${de(x)} „${s}“ richtig.` });
+        mcs.push({ cell: `${i}:ok`, answer: 'ja', error: 'testprotokoll-bewertung', why: `Soll (${s}) und Ist (${v}) weichen ab → **nicht bestanden**.` });
+      } else mcs.push({ cell: `${i}:ok`, answer: 'nein', error: 'testprotokoll-bewertung', why: `Soll und Ist stimmen überein (${s}) → **bestanden**.` });
+      return {
+        label: `TF${i + 1}: ${t.eingabe} = ${de(x)}`,
+        cells: {
+          soll: cell(s, d === 3),
+          ist: cell(v, d >= 2),
+          ok: pass ? { answer: 'ja', accept: JA_ACC } : { answer: 'nein', accept: NEIN_ACC },
+        },
+      };
+    });
+    const fails = t.inputs.filter((x) => outStr(t.soll(x)) !== outStr(t.ist(x)));
+    const aufgabe =
+      d === 1
+        ? 'Soll und Ist sind bereits eingetragen. Bewerte jeden Testfall mit **ja** (bestanden) oder **nein** (nicht bestanden).'
+        : d === 2
+          ? 'Das Soll ist aus der Anforderung eingetragen. Führe für jeden Testfall einen Schreibtischtest des Codes durch, trage das **Ist** ein und bewerte den Testfall (**ja**/**nein**).'
+          : 'Leite das **Soll** aus der Anforderung ab, ermittle das **Ist** per Schreibtischtest des Codes und bewerte jeden Testfall (**ja**/**nein**).';
+    return {
+      id: gid('p.testprotokoll'), generated: true, kind: 'table', skill: 'qa.testprotocol', difficulty: d,
+      prompt: `Die Elektro Krämer GmbH testet die Funktion \`${t.name}\`.\n\n**Anforderung (Pflichtenheft):** ${t.spec}\n\n**Implementierung:**\n\n${fence(t.code)}\n\n${aufgabe}${t.numeric ? ' Beträge mit Komma, z. B. 4,90.' : ''}`,
+      columns: cols,
+      rows,
+      misconceptions: mcs,
+      hints: ['Soll = was laut Anforderung herauskommen **muss**. Ist = was der Code **tatsächlich** liefert.', 'Bestanden nur, wenn Soll und Ist genau übereinstimmen. Besonders die Grenzwerte genau durchspielen.'],
+      explanation: `Ausgefülltes Testprotokoll:\n\n${table(['Testfall', t.eingabe, 'Soll', 'Ist', 'Ergebnis'], t.inputs.map((x, i) => { const s = outStr(t.soll(x)); const v = outStr(t.ist(x)); return [`TF${i + 1}`, de(x), s, v, s === v ? 'bestanden' : '**nicht bestanden**']; }))}\n\n**${fails.length} von ${t.inputs.length} Testfällen** ${fails.length === 1 ? 'schlägt' : 'schlagen'} fehl (${fails.map((x) => de(x)).join(', ')}).\n\n**Fehlerursache:** ${t.fehler}\n\n**Korrektur:** \`${t.korrektur}\` – danach **alle** Testfälle erneut ausführen (Regressionstest) und das Ergebnis im Testprotokoll mit Datum, Version und Tester dokumentieren.\n\nHäufiger Fehler: das Soll in die Ist-Spalte schreiben. Das Ist entsteht nur durch Ausführen bzw. Schreibtischtest des Codes.`,
+    };
+  },
+};
+
+/* ------------------------------------------------------------------ */
+
+export const GENERATORS_PROGRAMMIERUNG: GeneratorMeta[] = [arith, logicGen, traceLoop, traceBranch, arrayAggregate, arraySearch, arraySort, funcGen, testcaseGen, dectableGen];
+
+/** Generatoren für Modul p06 (separat exportiert, weil p06 erst nach Registrierung existiert). */
+export const GENERATORS_PROGRAMMIERUNG_P06: GeneratorMeta[] = [testprotokollGen];
 
 /** nur für Tests: erzeugt eine Aufgabe ohne Registrierung im zentralen Generator-Verzeichnis */
 export function makeProgrammierung(id: string, d: Difficulty, seed: number): Question {
-  const g = GENERATORS_PROGRAMMIERUNG.find((x) => x.id === id);
+  const g = [...GENERATORS_PROGRAMMIERUNG, ...GENERATORS_PROGRAMMIERUNG_P06].find((x) => x.id === id);
   if (!g) throw new Error(id);
   return g.make(new Rng(seed), d);
 }

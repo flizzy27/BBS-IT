@@ -9,7 +9,7 @@ export const s01: Module = {
   icon: 'ShieldCheck',
   relevance: 'ap1',
   prerequisites: [],
-  generators: ['sich.risiko', 'sich.maximum'],
+  generators: ['sich.risiko', 'sich.maximum', 'sich.schutzbedarf.beleg'],
   skills: [
     { id: 'sich.grundbegriffe', module: 's01', title: 'Informationssicherheit, IT-Sicherheit, Datensicherheit und Datenschutz abgrenzen' },
     { id: 'sich.schutzziele', module: 's01', title: 'Schutzziele (CIA, Authentizität, Verbindlichkeit) anwenden', requires: ['sich.grundbegriffe'] },
@@ -17,6 +17,8 @@ export const s01: Module = {
     { id: 'sich.angriffe', module: 's01', title: 'Social Engineering und Schadsoftware erkennen' },
     { id: 'sich.grundschutz', module: 's01', title: 'Vorgehen nach BSI IT-Grundschutz erklären', requires: ['sich.schutzziele'] },
     { id: 'sich.schutzbedarf', module: 's01', title: 'Schutzbedarf feststellen (Kategorien, Maximumprinzip, Kumulation, Verteilung)', requires: ['sich.schutzziele', 'sich.grundschutz'] },
+    { id: 'sich.prozess', module: 's01', title: 'Sicherheitsprozess, Leitlinie, Rollen, Informationsverbund, Governance und Compliance', requires: ['sich.grundschutz'] },
+    { id: 'sich.schutzbedarf.beleg', module: 's01', title: 'Schutzbedarfstabelle mit Begründung erstellen (Grenzwerte, Räume, Verbindungen, Clients, Datenträger)', requires: ['sich.schutzbedarf'] },
   ],
   lessons: [
     /* ---------------------------------------------------------------- */
@@ -26,6 +28,11 @@ export const s01: Module = {
       minutes: 20,
       relevance: 'ap1',
       skills: ['sich.grundbegriffe', 'sich.schutzziele'],
+      simple: `Stell dir dein Tagebuch vor. Lesen soll es nur, wer darf (**Vertraulichkeit**). Niemand soll heimlich etwas hineinschreiben oder Seiten herausreißen (**Integrität** = vollständig und unverändert). Und es soll da sein, wenn du es brauchst (**Verfügbarkeit**).
+Dazu kommen zwei Extras: Ein Brief stammt wirklich von deiner Freundin und ist nicht gefälscht (**Authentizität** = Echtheit), und wer etwas unterschrieben hat, kann es später nicht abstreiten (**Verbindlichkeit**).
+Datenschutz schützt dabei die **Menschen** hinter den Daten, Datensicherheit schützt die **Daten** selbst.
+
+**Merke:** Die drei Grundwerte sind Vertraulichkeit, Integrität und Verfügbarkeit – ordne jede Maßnahme genau zu (Backup = Verfügbarkeit, Verschlüsselung = Vertraulichkeit).`,
       steps: [
         {
           type: 'explain',
@@ -61,6 +68,10 @@ Informationssicherheit ist der **weiteste** Begriff. Das BSI spricht deshalb inz
 | **Authentizität** | Echtheit: Ein Kommunikationspartner oder eine Information ist **wirklich** der/die, für den sie sich ausgibt. | Anmeldung mit MFA, Zertifikate, Rückruf bei ungewöhnlichen Zahlungsanweisungen |
 | **Verbindlichkeit** (Nichtabstreitbarkeit) | Eine Handlung kann dem Urheber **nachgewiesen** werden – er kann sie später **nicht abstreiten**. | qualifizierte elektronische Signatur, revisionssichere Protokolle |
 | **Zurechenbarkeit** | Eine Aktion lässt sich eindeutig einer Person zuordnen. | persönliche Konten statt Sammelkonto „buchhaltung“ |
+
+**Authentizität – eigenes Schutzziel oder Teil der Integrität?** In vielen Lehrbüchern und Prüfungsaufgaben steht die Authentizität als **eigenes** Schutzziel. Das BSI zählt dagegen auch verfälschte Angaben zum Urheber einer Information zum **Integritätsverlust** – deshalb ordnen manche Bücher die Authentizität der **Integrität** zu. Beides ist vertretbar. So gehst du in der Prüfung vor:
+- Fragt die Aufgabe nach den **drei Grundwerten**, nennst du Vertraulichkeit, Integrität und Verfügbarkeit.
+- Geht es in einem Fall um die **Echtheit** eines Absenders oder einer Datei (falscher Anrufer, gefälschte Mail, manipulierter Download), nennst du **Authentizität** – gern mit dem Zusatz „(nach BSI ein Teilaspekt der Integrität)“.
 
 **Wichtig für die Prüfung:** Ordne Maßnahmen **genau** zu. Ein Backup verbessert die **Verfügbarkeit**, aber nicht die Vertraulichkeit – im Gegenteil: Eine unverschlüsselte Sicherungskopie ist ein zusätzliches Risiko für die Vertraulichkeit! Verschlüsselung schützt die Vertraulichkeit, aber ein verlorener Schlüssel gefährdet die Verfügbarkeit.`,
         },
@@ -129,13 +140,13 @@ Informationssicherheit ist der **weiteste** Begriff. Das BSI spricht deshalb inz
             explanation: '**Verbindlichkeit (Nichtabstreitbarkeit):** Eine digitale Signatur kann nur mit dem privaten Schlüssel des Absenders erzeugt werden – er kann die Handlung später nicht abstreiten.',
           },
         },
-        { type: 'practice', title: 'Übung: Begriffe und Schutzziele', questionIds: ['s01-q001', 's01-q002', 's01-q003', 's01-q004', 's01-q005', 's01-q006'], count: 4, difficulty: 1 },
+        { type: 'practice', title: 'Übung: Begriffe und Schutzziele', questionIds: ['s01-q001', 's01-q002', 's01-q003', 's01-q004', 's01-q005', 's01-q006', 's01-q051'], count: 4, difficulty: 1 },
         {
           type: 'summary',
           points: [
             'Informationssicherheit (alle Informationen) ⊃ IT-Sicherheit (IT-Systeme) – Datensicherheit schützt Daten, Datenschutz schützt Menschen.',
             'Grundwerte: Vertraulichkeit, Integrität, Verfügbarkeit (CIA).',
-            'Erweitert: Authentizität (Echtheit), Verbindlichkeit (nicht abstreitbar), Zurechenbarkeit.',
+            'Erweitert: Authentizität (Echtheit), Verbindlichkeit (nicht abstreitbar), Zurechenbarkeit. Manche Bücher ordnen die Authentizität (wie das BSI) der Integrität zu – beides ist vertretbar.',
             'Maßnahmen immer dem richtigen Schutzziel zuordnen – Backup = Verfügbarkeit, Verschlüsselung = Vertraulichkeit.',
           ],
         },
@@ -149,6 +160,11 @@ Informationssicherheit ist der **weiteste** Begriff. Das BSI spricht deshalb inz
       minutes: 25,
       relevance: 'ap1',
       skills: ['sich.risiko'],
+      simple: `Eine **Bedrohung** ist wie Regen: Er kann Schaden anrichten. Die **Schwachstelle** ist das Loch im Dach. Erst beides zusammen ergibt eine **Gefährdung** – es tropft auf deinen Laptop.
+Das **Risiko** sagt, wie schlimm das im Durchschnitt ist: wie oft es passiert mal wie teuer es dann wird.
+Danach entscheidest du: Dach flicken (**reduzieren**), den Laptop woanders hinstellen (**vermeiden**), eine Versicherung abschließen (**übertragen**) oder mit dem Rest leben (**akzeptieren**).
+
+**Merke:** Risiko = Eintrittswahrscheinlichkeit × Schadenshöhe – und ein Risiko akzeptieren darf nur die Geschäftsführung.`,
       steps: [
         {
           type: 'explain',
@@ -279,6 +295,11 @@ Berechne die Risiken, bilde eine Rangfolge und beurteile: Lohnt sich eine Offlin
       minutes: 25,
       relevance: 'ap1',
       skills: ['sich.angriffe'],
+      simple: `Angreifer knacken oft nicht die Technik, sondern den Menschen – wie ein Trickbetrüger am Telefon, der sich als Enkel ausgibt. Das nennt man **Social Engineering** (Menschen gezielt manipulieren).
+Die Tricks sind immer ähnlich: Zeitdruck („sofort!“), Autorität („Hier spricht der Chef“), Hilfsbereitschaft oder Neugier.
+**Schadsoftware** (Malware) ist der digitale Einbrecher: Ein Virus braucht eine Wirtsdatei, ein Wurm verbreitet sich allein über das Netz, ein Trojaner tarnt sich als nützliches Programm, Ransomware verschlüsselt Daten und fordert Lösegeld.
+
+**Merke:** Bei Druck, ungewöhnlichen Bitten oder seltsamen Links: nicht klicken, über einen bekannten Weg nachfragen und der IT melden.`,
       steps: [
         {
           type: 'explain',
@@ -396,7 +417,12 @@ Nenne die Merkmale, an denen du Phishing erkennst, und was Frau Yilmaz tun soll.
       title: 'BSI IT-Grundschutz: systematisch absichern',
       minutes: 25,
       relevance: 'ap1-teilweise',
-      skills: ['sich.grundschutz'],
+      skills: ['sich.grundschutz', 'sich.prozess'],
+      simple: `Informationssicherheit im Betrieb ist wie Brandschutz in einem Gebäude: Die Chefin muss ihn wollen und bezahlen, eine beauftragte Person plant ihn, und alle halten sich an die Regeln.
+Das BSI (Bundesamt für Sicherheit in der Informationstechnik) liefert dafür ein kostenloses „Rezeptbuch“: den **IT-Grundschutz**.
+Zuerst schreibt die Leitung in einer **Leitlinie** auf, warum Sicherheit wichtig ist und wer zuständig ist. Dann wird erfasst, was es überhaupt gibt (**Strukturanalyse**), wie schützenswert es ist (**Schutzbedarf**) und welche Maßnahmen noch fehlen.
+
+**Merke:** Die Gesamtverantwortung trägt immer die Leitung – der Informationssicherheitsbeauftragte berät und koordiniert.`,
       steps: [
         {
           type: 'explain',
@@ -450,6 +476,58 @@ Nenne die Merkmale, an denen du Phishing erkennst, und was Frau Yilmaz tun soll.
 Für dich als FISI ist vor allem wichtig: Du verstehst die Logik **„erst Struktur und Schutzbedarf, dann Maßnahmen“** und kannst einzelne Bausteine (z. B. für einen Client oder ein Datensicherungskonzept) als Checkliste nutzen.`,
         },
         {
+          type: 'explain',
+          title: 'Der Sicherheitsprozess: Phasen, Leitlinie, Rollen, Informationsverbund',
+          body: `Bevor irgendein Schutzbedarf bestimmt wird, muss der **Sicherheitsprozess** organisiert sein. Viele Lehrbücher stellen ihn nach BSI in **sechs Phasen** dar. Die acht Schritte von oben stecken dabei vor allem in Phase 4:
+
+| Phase | Was passiert? |
+|---|---|
+| 1. **Initiierung** | Die Leitung übernimmt die Verantwortung, stellt Geld und Personal bereit und legt den Geltungsbereich fest. |
+| 2. **Leitlinie erstellen** | Die Leitung beschließt ein kurzes Grundsatzdokument: Warum ist Sicherheit wichtig, welche Ziele gelten, wer ist zuständig? |
+| 3. **Organisation aufbauen** | Rollen besetzen (z. B. Informationssicherheitsbeauftragter), Zuständigkeiten und Meldewege festlegen. |
+| 4. **Sicherheitskonzeption** | Strukturanalyse → Schutzbedarfsfeststellung → Modellierung → IT-Grundschutz-Check → ggf. Risikoanalyse. |
+| 5. **Umsetzung** | Fehlende Maßnahmen planen und umsetzen, Beschäftigte schulen. |
+| 6. **Aufrechterhaltung und Verbesserung** | Regelmäßig prüfen, ob alles wirkt, und nachbessern (PDCA-Zyklus). |
+
+**Die Sicherheitsleitlinie** (Informationssicherheitsleitlinie) enthält typischerweise:
+- den **Stellenwert** der Informationssicherheit für das Unternehmen,
+- die **Sicherheitsziele** (z. B. „Kundendaten bleiben vertraulich, der Webshop ist hochverfügbar“),
+- den **Geltungsbereich** (welche Standorte und Prozesse),
+- die **Organisation und Verantwortlichkeiten**,
+- die **Verpflichtung der Leitung**, die Ziele durchzusetzen und laufend zu verbessern.
+
+Die Leitung **unterschreibt** sie, und alle Beschäftigten bekommen sie zu sehen. Verwechsle sie nicht mit dem Sicherheitskonzept: Die **Leitlinie** ist kurz und sagt **warum und wer**. Das **Sicherheitskonzept** ist ausführlich und sagt **was und wie** (Objekte, Schutzbedarf, Maßnahmen).
+
+**Wer ist wofür zuständig?**
+
+| Rolle | Aufgabe |
+|---|---|
+| **Leitung** (Geschäftsführung) | trägt die **Gesamtverantwortung**, setzt die Leitlinie in Kraft, stellt Ressourcen bereit, akzeptiert Restrisiken |
+| **Informationssicherheitsbeauftragter (ISB)** | koordiniert den Sicherheitsprozess, erstellt das Sicherheitskonzept, berät die Leitung und berichtet ihr direkt, wertet Sicherheitsvorfälle aus |
+| **Datenschutzbeauftragter (DSB)** | berät und überwacht beim **Datenschutz** (personenbezogene Daten); in Deutschland Pflicht ab in der Regel 20 Personen (§ 38 BDSG) |
+| **IT-Betrieb** (Administration) | setzt die technischen Maßnahmen um: Updates, Backups, Rechte, Firewall |
+| **alle Beschäftigten** | halten die Regeln ein und **melden** Vorfälle |
+
+**Prüfungsfalle:** „Der ISB ist an oberster Stelle verantwortlich“ ist **falsch**. Verantwortlich bleibt die Leitung – der ISB berät und koordiniert.
+
+**Informationsverbund:** So nennt das BSI den **Bereich, den man absichert**. Gemeint ist alles, was in diesem Bereich zusammenwirkt: Geschäftsprozesse, Anwendungen, IT-Systeme, Räume, Kommunikationsverbindungen – und auch die beteiligten Menschen und Regeln. Beispiel: „Standort Hamburg der Elektro Krämer GmbH mit Vertrieb, Buchhaltung und Serverraum“. Die **Strukturanalyse** erfasst genau diesen Informationsverbund (mit Netzplan). Gleichartige Objekte fasst man zu **Gruppen** zusammen, z. B. 40 gleich eingerichtete Büro-PCs als ein Objekt – das spart Arbeit.`,
+        },
+        {
+          type: 'explain',
+          title: 'Governance und Compliance',
+          body: `Zwei Begriffe, die in Unterricht und Unternehmen oft fallen:
+
+| Begriff | Bedeutung | Beispiel |
+|---|---|---|
+| **Governance** (IT-Governance) | der Rahmen aus **Regeln, Strukturen und Verantwortlichkeiten**, mit dem die Leitung die IT steuert und überwacht | Leitlinie, Rollen, Freigabeprozess für neue Software, monatlicher Sicherheitsbericht an die Geschäftsführung |
+| **Compliance** | die **Einhaltung** von Gesetzen, Verträgen, Normen und internen Richtlinien – und der **Nachweis** darüber | DSGVO-Löschfristen einhalten, Lizenzbedingungen beachten, SLA erfüllen, AV-Verträge abschließen |
+| **Risikomanagement** | Risiken erkennen, bewerten und behandeln (Lektion 2) | Risikoanalyse, Cyberversicherung |
+
+Zusammen spricht man von **GRC** (Governance, Risk & Compliance).
+
+**Merkhilfe:** Governance legt fest, **wer entscheidet und nach welchen Regeln**. Compliance prüft, **ob die Regeln eingehalten werden**. Ein Verstoß gegen Compliance kann Bußgelder, Schadensersatz und Imageschaden bringen – zum Beispiel ein fehlender AV-Vertrag mit einem Cloud-Anbieter.`,
+        },
+        {
           type: 'example',
           title: 'Welche Vorgehensweise passt?',
           problem: 'Die Elektro Krämer GmbH (120 Mitarbeitende, bisher kein Sicherheitskonzept) will „endlich etwas für die Sicherheit tun“. Die Geschäftsführung hat wenig Zeit und Budget, aber der Webshop und die Warenwirtschaft sind für das Geschäft lebenswichtig. Empfiehl ein Vorgehen.',
@@ -486,7 +564,17 @@ Für dich als FISI ist vor allem wichtig: Du verstehst die Logik **„erst Struk
             explanation: 'MUSS = verbindlich, SOLLTE = grundsätzlich umsetzen (Abweichung begründen und dokumentieren), KANN = optional.',
           },
         },
-        { type: 'practice', title: 'Übung: IT-Grundschutz', questionIds: ['s01-q021', 's01-q022', 's01-q023', 's01-q024', 's01-q025'], count: 4, difficulty: 2 },
+        {
+          type: 'check',
+          question: {
+            id: 's01-c12', kind: 'order', skill: 'sich.prozess', difficulty: 2,
+            prompt: 'Bringe die sechs Phasen des Sicherheitsprozesses in die richtige Reihenfolge.',
+            items: ['Initiierung: Leitung übernimmt Verantwortung', 'Sicherheitsleitlinie erstellen', 'Organisation aufbauen (Rollen, Zuständigkeiten)', 'Sicherheitskonzeption (Strukturanalyse, Schutzbedarf, Modellierung, Check)', 'Umsetzung der Maßnahmen', 'Aufrechterhaltung und kontinuierliche Verbesserung'],
+            hints: ['Ohne die Leitung passiert gar nichts – sie steht am Anfang.', 'Erst Ziele und Rollen, dann das Konzept, dann die Umsetzung.'],
+            explanation: 'Initiierung → Leitlinie → Organisation → Konzeption → Umsetzung → Aufrechterhaltung/Verbesserung. Häufiger Fehler: die Strukturanalyse an den Anfang setzen – sie gehört zur Konzeption, und dafür braucht es vorher Leitlinie und Zuständigkeiten.',
+          },
+        },
+        { type: 'practice', title: 'Übung: IT-Grundschutz und Sicherheitsprozess', questionIds: ['s01-q021', 's01-q022', 's01-q023', 's01-q024', 's01-q025', 's01-q044', 's01-q045', 's01-q046', 's01-q047', 's01-q048', 's01-q049', 's01-q050', 's01-q052'], count: 6, difficulty: 2 },
         {
           type: 'summary',
           points: [
@@ -495,6 +583,10 @@ Für dich als FISI ist vor allem wichtig: Du verstehst die Logik **„erst Struk
             'MUSS = verbindlich, SOLLTE = begründet abweichbar, KANN = optional; Basis- / Standard- / erhöhter Schutzbedarf.',
             'Vorgehen: Basis (breit, flach), Kern (schmal, tief), Standard (breit, tief).',
             'Ablauf: Struktur → Schutzbedarf → Modellierung → Check → Risikoanalyse → Umsetzung → Verbesserung.',
+            'Sicherheitsprozess: Initiierung → Leitlinie → Organisation → Konzeption → Umsetzung → Aufrechterhaltung.',
+            'Leitlinie (kurz: warum, wer) ≠ Sicherheitskonzept (ausführlich: was, wie). Gesamtverantwortung: Leitung, nicht ISB.',
+            'Informationsverbund = der abgesicherte Bereich mit allen Prozessen, Anwendungen, Systemen, Räumen, Verbindungen und Menschen.',
+            'Governance = Regeln und Verantwortlichkeiten; Compliance = Einhaltung und Nachweis.',
           ],
         },
       ],
@@ -504,9 +596,15 @@ Für dich als FISI ist vor allem wichtig: Du verstehst die Logik **„erst Struk
     {
       id: 's01-l05',
       title: 'Schutzbedarfsfeststellung: normal, hoch, sehr hoch',
-      minutes: 30,
+      minutes: 35,
       relevance: 'ap1',
       skills: ['sich.schutzbedarf'],
+      simple: `Nicht alles muss gleich gut geschützt werden: Dein Fahrrad schließt du ab, deinen Kugelschreiber nicht.
+Die **Schutzbedarfsfeststellung** fragt für jedes Objekt: Wie schlimm wäre ein Schaden – getrennt für Vertraulichkeit, Integrität und Verfügbarkeit? Die Antwort ist immer **normal**, **hoch** oder **sehr hoch**.
+Ein Server bekommt den höchsten Wert der Programme, die auf ihm laufen (**Maximumprinzip**) – so wie ein Tresor so gut sein muss wie das wertvollste Stück darin.
+Liegt sehr viel an einer Stelle, kann der Bedarf steigen (**Kumulationseffekt**, „Anhäufung“). Ist etwas doppelt vorhanden oder liegt dort nur Unwichtiges, kann er sinken (**Verteilungseffekt**).
+
+**Merke:** Je Grundwert getrennt einstufen, das Maximum vererben, Kumulation und Verteilung prüfen – und jede Einstufung begründen.`,
       steps: [
         {
           type: 'explain',
@@ -539,6 +637,24 @@ Jedes Unternehmen legt **selbst** fest, wo die Grenzen liegen. Beispiel Elektro 
         },
         {
           type: 'explain',
+          title: 'Vier Schadensstufen, drei Schutzbedarfskategorien',
+          body: `Manche Lehrbücher teilen die möglichen **Schäden** in **vier** Kategorien ein: **gering, mittel, hoch, sehr hoch**. Der **Schutzbedarf** kennt aber nur **drei** Kategorien. Das ist kein Widerspruch – die beiden unteren Schadensstufen landen zusammen bei „normal“:
+
+| Schadenskategorie (vierstufig) | Beispiel Elektro Krämer GmbH | Schutzbedarfskategorie |
+|---|---|---|
+| **gering** | Der Drucker im Flur fällt einen Tag aus. | **normal** |
+| **mittel** | Eine Abteilung arbeitet einen halben Tag mit Umwegen weiter. | **normal** |
+| **hoch** | beträchtlicher Schaden, z. B. 50.000 € Vertragsstrafe | **hoch** |
+| **sehr hoch** | existenzbedrohend, z. B. wochenlanger Stillstand des Webshops | **sehr hoch** |
+
+Warum? „Normal“ bedeutet laut BSI: Die Schäden sind **begrenzt und überschaubar** – das trifft auf geringe **und** mittlere Schäden zu.
+
+**Achtung, Verwechslungsgefahr:** Im BSI-Standard 200-3 (Risikoanalyse) heißen die vier Stufen der **Auswirkung** vernachlässigbar, begrenzt, beträchtlich, existenzbedrohend. Dort sind „gering, mittel, hoch, sehr hoch“ die Stufen des **Risikos** – also das Ergebnis der Risikomatrix aus Lektion 2. Lies in der Prüfung genau, ob nach dem **Schaden**, dem **Risiko** oder dem **Schutzbedarf** gefragt ist.
+
+Wo genau die Grenzen liegen, legt jedes Unternehmen in seiner **Grenzwerttabelle** fest (Beispiel oben). Die gängige Zuordnung lautet: gering und mittel → normal, hoch → hoch, sehr hoch → sehr hoch.`,
+        },
+        {
+          type: 'explain',
           title: 'Maximumprinzip, Kumulationseffekt, Verteilungseffekt',
           body: `**Maximumprinzip:** Ein System übernimmt **je Grundwert den höchsten** Schutzbedarf aller Anwendungen, die darauf laufen. Logisch: Fällt der Server aus, sind **alle** Anwendungen betroffen – also auch die wichtigste.
 
@@ -553,12 +669,12 @@ Achtung: Jeder Grundwert wird **getrennt** betrachtet!
 
 Das Ergebnis wird anschließend auf zwei Effekte geprüft:
 
-| Effekt | Wirkung | Beispiel |
-|---|---|---|
-| **Kumulationseffekt** | Viele einzelne kleine Schäden **summieren sich** zu einem größeren → Schutzbedarf **steigt** | Auf einem Virtualisierungshost laufen 15 Server mit je „normal“ – fällt der Host aus, sind alle 15 gleichzeitig weg → Verfügbarkeit „hoch“. |
-| **Verteilungseffekt** | Eine wichtige Anwendung ist auf **mehrere Systeme verteilt** (redundant) oder ein System trägt nur unwichtige Teile → Schutzbedarf des einzelnen Systems kann **sinken** | Der Webshop läuft auf zwei Servern im Cluster: Fällt einer aus, übernimmt der andere → Verfügbarkeit des einzelnen Servers nur „hoch“ statt „sehr hoch“. |
+| Effekt | Wirkung | Beispiel Verfügbarkeit | Beispiel Vertraulichkeit |
+|---|---|---|---|
+| **Kumulationseffekt** (Anhäufung) | Viele einzelne kleine Schäden **summieren sich** zu einem größeren → Schutzbedarf **steigt** | Auf einem Virtualisierungshost laufen 15 Server mit je „normal“ – fällt der Host aus, sind alle 15 gleichzeitig weg → Verfügbarkeit „hoch“. | Auf einem Dateiserver liegen viele Datenbestände, die **einzeln** nur „normal“ vertraulich sind (Preislisten, Lieferantenverträge, Kundenadressen, Projektpläne). Wer den Server knackt, bekommt **alles auf einmal** – ein Gesamtbild des Unternehmens → Vertraulichkeit „hoch“. |
+| **Verteilungseffekt** | Eine wichtige Anwendung ist auf **mehrere Systeme verteilt** (redundant), oder ein System trägt nur **unwichtige Teile** → Schutzbedarf des einzelnen Systems kann **sinken** | Der Webshop läuft auf zwei Servern im Cluster: Fällt einer aus, übernimmt der andere → Verfügbarkeit des einzelnen Servers nur „hoch“ statt „sehr hoch“. | Ein Auswerteserver erhält aus der Personaldatenbank nur **anonymisierte** Statistiken – die vertraulichen Einzeldaten liegen nicht darauf → Vertraulichkeit dort „normal“. |
 
-Der Verteilungseffekt betrifft meist die **Verfügbarkeit** – für die **Vertraulichkeit** hilft Redundanz nicht (eine Kopie vertraulicher Daten ist genauso vertraulich).
+Merke dir: Der Kumulationseffekt kann **bei jedem Grundwert** auftreten – nicht nur bei der Verfügbarkeit. Redundanz (doppelte Systeme) senkt dagegen nur den Schutzbedarf der **Verfügbarkeit**. Für die **Vertraulichkeit** hilft sie nicht: Eine Kopie vertraulicher Daten ist genauso vertraulich und vergrößert sogar die Angriffsfläche.
 
 **Kommunikationsverbindungen:** Kritisch sind laut BSI insbesondere
 - **Außenverbindungen** (Internet, Standortverbindung Hamburg–Berlin, Fernzugriff),
@@ -639,16 +755,176 @@ Jede Festlegung wird **schriftlich begründet** – nur so ist sie später nachv
             explanation: 'Viele kleine Schäden gleichzeitig ergeben einen großen Schaden → **Kumulationseffekt** → Verfügbarkeit des Hosts z. B. „hoch“ (Begründung dokumentieren).',
           },
         },
+        {
+          type: 'check',
+          question: {
+            id: 's01-c13', kind: 'single', skill: 'sich.schutzbedarf', difficulty: 2,
+            prompt: 'Auf dem Dateiserver **SRV-HH-03** liegen zwölf Datenbestände (Preislisten, Lieferantenverträge, Kundenadressen der Filialen, Projektpläne). **Jeder einzelne** hat bei der Vertraulichkeit den Schutzbedarf „normal“. Ein Angreifer, der den Server übernimmt, hätte aber alle zusammen. Was gilt für die Vertraulichkeit des Servers?',
+            options: [
+              'Wegen des Kumulationseffekts kann sie höher als „normal“ eingestuft werden – mit Begründung.',
+              'Sie bleibt nach dem Maximumprinzip zwingend „normal“.',
+              'Der Kumulationseffekt gilt nur für die Verfügbarkeit, deshalb „normal“.',
+              'Wegen des Verteilungseffekts sinkt sie unter „normal“.',
+            ],
+            answer: 0,
+            distractors: {
+              '1': { why: 'Das Maximumprinzip liefert nur den Startwert. Danach wird immer auf Kumulations- und Verteilungseffekt geprüft.', error: 'kumulation-verteilung' },
+              '2': { why: 'Der Kumulationseffekt kann bei jedem Grundwert auftreten. Viele Daten an einer Stelle ergeben bei einem Angriff einen größeren Gesamtschaden.', error: 'kumulation-verteilung' },
+              '3': { why: 'Unter „normal“ gibt es keine Kategorie, und verteilt ist hier nichts – im Gegenteil, alles liegt an einer Stelle.', error: 'kumulation-verteilung' },
+            },
+            explanation: '**Kumulationseffekt bei der Vertraulichkeit:** Viele einzeln unkritische Datenbestände ergeben zusammen ein Gesamtbild des Unternehmens. Wird der Server kompromittiert, ist der Schaden größer als bei jedem einzelnen Datenbestand → Vertraulichkeit z. B. „hoch“, Begründung dokumentieren.\n\nHäufiger Fehler: Kumulation nur mit dem Virtualisierungshost (Verfügbarkeit) verbinden.',
+          },
+        },
         { type: 'practice', title: 'Übung: Maximumprinzip anwenden', generator: 'sich.maximum', count: 3, difficulty: 2 },
+        { type: 'practice', title: 'Übung: Kategorien und Effekte', questionIds: ['s01-q026', 's01-q027', 's01-q035', 's01-q036', 's01-q037', 's01-q038', 's01-q039'], count: 4, difficulty: 2 },
         {
           type: 'summary',
           points: [
             'Kategorien: normal (begrenzt, überschaubar), hoch (beträchtlich), sehr hoch (existenzbedrohend).',
+            'Vierstufige Schadenseinteilung mancher Bücher: gering + mittel → normal, hoch → hoch, sehr hoch → sehr hoch.',
             'Sechs Schadensszenarien: Gesetze/Verträge, Selbstbestimmung, Unversehrtheit, Aufgabenerfüllung, Außenwirkung, Finanzen.',
             'Reihenfolge: Prozesse/Anwendungen → IT-Systeme → Räume → Kommunikationsverbindungen.',
             'Maximumprinzip: höchster Schutzbedarf je Grundwert wird vererbt.',
-            'Kumulationseffekt erhöht, Verteilungseffekt senkt (meist Verfügbarkeit) – immer begründen.',
+            'Kumulationseffekt erhöht (bei jedem Grundwert, auch Vertraulichkeit), Verteilungseffekt senkt (Redundanz nur bei Verfügbarkeit) – immer begründen.',
             'Kritische Verbindungen: Außenverbindungen, hochschutzbedürftige Daten, verbotene Übertragungswege.',
+          ],
+        },
+      ],
+    },
+
+    /* ---------------------------------------------------------------- */
+    {
+      id: 's01-l07',
+      title: 'Schutzbedarfstabelle mit Begründung: Räume, Verbindungen, Clients, Datenträger',
+      minutes: 30,
+      relevance: 'ap1',
+      skills: ['sich.schutzbedarf.beleg', 'sich.schutzbedarf'],
+      simple: `Stell dir einen Bewertungsbogen vor: Für jede Zeile (eine Anwendung, ein Raum, eine Leitung, ein Notebook, ein USB-Stick) und jede Spalte (Vertraulichkeit, Integrität, Verfügbarkeit) trägst du **normal**, **hoch** oder **sehr hoch** ein.
+Damit das nicht nach Bauchgefühl geht, gibt die Firma eine **Grenzwerttabelle** vor – wie die Notentabelle bei einer Klassenarbeit, in der steht, ab wie vielen Punkten es welche Note gibt.
+Du liest also ab: Wie teuer wäre der Schaden? Wie lange darf etwas ausfallen? Wie schlimm wäre es für die betroffenen Menschen?
+In die Spalte **Begründung** schreibst du, welcher Fakt dich zu der Stufe gebracht hat.
+
+**Merke:** „hoch“ allein bringt kaum Punkte – „hoch, weil …“ mit Bezug auf die Grenzwerttabelle bringt die volle Punktzahl.`,
+      steps: [
+        {
+          type: 'explain',
+          title: 'So sieht eine Schutzbedarfstabelle aus',
+          body: `In der Prüfung und in der Praxis wird der Schutzbedarf in einer **Tabelle** dokumentiert. Typische Spalten (angelehnt an das BSI-Vorgehen):
+
+| Spalte | Inhalt | Beispiel |
+|---|---|---|
+| **Kürzel** | eindeutige Nummer des Objekts | A1 (Anwendung), S1 (System), R1 (Raum), K1 (Kommunikationsverbindung) |
+| **Bezeichnung** | Was ist es? | Notebook Außendienst Berlin |
+| **Grundwert** | Vertraulichkeit, Integrität oder Verfügbarkeit – **je eine Zeile** | Vertraulichkeit |
+| **Schutzbedarf** | normal, hoch oder sehr hoch | hoch |
+| **Begründung** | Welches Schadensszenario, welcher Wert, welche Grenze, welcher Effekt? | Kundendaten und Konditionen; Abfluss ≈ 40.000 € → laut Grenzwerttabelle 10.000–250.000 € = hoch |
+
+**Eine gute Begründung hat drei Teile:**
+1. **Fakt** aus dem Beleg: „Die Fachabteilung kann höchstens 4 Stunden ohne das System arbeiten.“
+2. **Bezug zur Grenze:** „Laut Grenzwerttabelle liegen 2 bis 24 Stunden im Bereich hoch.“
+3. **Ergebnis**, ggf. mit Effekt: „→ hoch. Ein Ersatzgerät steht nicht bereit, deshalb kein Verteilungseffekt.“
+
+Für die Verfügbarkeit gilt dabei immer: **Je kürzer die tolerierbare Ausfallzeit, desto höher der Schutzbedarf.** Das wird gern verdreht.
+
+Gibt es für einen Grundwert **mehrere Schadensszenarien** (z. B. Vertraulichkeit: finanzieller Schaden **und** Datenschutz), zählt das **schwerste** – auch hier gilt das Maximumprinzip.`,
+        },
+        {
+          type: 'explain',
+          title: 'Besonderheiten je Objektart',
+          body: `| Objektart | Worauf achten? | Typisches Ergebnis |
+|---|---|---|
+| **Räume** (Serverraum, Büro, Archiv) | Ein Raum erbt das **Maximum** aller IT-Systeme **und** Papierakten darin. Stehen viele wichtige Systeme in einem Raum, ist an den **Kumulationseffekt** zu denken (Brand trifft alle). | Serverraum: Verfügbarkeit oft sehr hoch |
+| **Kommunikationsverbindungen** (LAN, WLAN, VPN, Internet) | Vertraulichkeit und Integrität richten sich nach den **übertragenen Daten**, die Verfügbarkeit nach den Anwendungen, die von der Leitung **abhängen**. Besonders kritisch: Außenverbindungen, Verbindungen mit hochschutzbedürftigen Daten und Verbindungen, über die bestimmte Daten **nicht** fließen dürfen. | Standortverbindung: oft hoch |
+| **Clients und Notebooks** | Ein Client ist mindestens so schutzbedürftig wie die Daten und Programme, die darauf genutzt werden (Maximumprinzip). Notebooks unterwegs: Diebstahl und Verlust erhöhen das Risiko für die Vertraulichkeit. Ersatzgerät und zentrale Datenhaltung senken die Verfügbarkeit (Verteilungseffekt). | Außendienst-Notebook: V hoch, A normal |
+| **Mobile Datenträger** (USB-Stick, externe Festplatte, Speicherkarte) | Die Vertraulichkeit richtet sich nach den Daten darauf – **Verlust** ist das Hauptproblem. Ist der Datenträger nur eine **Kopie** und liegt das Original zentral, ist die Verfügbarkeit meist normal. | USB-Stick mit Geheimnissen: V sehr hoch, A normal |
+
+Aus dem Schutzbedarf folgen dann die Maßnahmen: Ein USB-Stick mit V „sehr hoch“ braucht z. B. Hardwareverschlüsselung mit PIN, eine Ausgabeliste (wer hat welchen Stick?) und eine Regel zur sofortigen Verlustmeldung.`,
+        },
+        {
+          type: 'example',
+          title: 'Belegaufgabe: Vier Objekte mit Begründung',
+          problem: `Grenzwerttabelle der Elektro Krämer GmbH:
+
+| Schadensszenario | normal | hoch | sehr hoch |
+|---|---|---|---|
+| finanzieller Schaden | unter 10.000 € | 10.000 € bis 250.000 € | über 250.000 € |
+| tolerierbare Ausfallzeit | mehr als 24 Stunden | 2 bis 24 Stunden | weniger als 2 Stunden |
+
+Bestimme den Schutzbedarf mit Begründung für:
+- **R1 Serverraum Hamburg:** Darin stehen SRV-HH-01 (V sehr hoch, I hoch, A sehr hoch) und SRV-HH-02 (V, I, A normal).
+- **K1 VPN-Verbindung Hamburg–Berlin:** Die 35 Beschäftigten in Berlin arbeiten darüber mit der Warenwirtschaft. Ein Abfluss der übertragenen Kunden- und Auftragsdaten kostet ca. 80.000 €, manipulierte Aufträge ca. 30.000 €. Das Berliner Lager kann höchstens 4 Stunden ohne Warenwirtschaft arbeiten.
+- **C1 Notebook Außendienst:** Ein Bekanntwerden der Angebote und Kundendaten kostet ca. 40.000 €. Angebote werden vor dem Versand im ERP geprüft; Fehler auf dem Notebook kosten höchstens ca. 3.000 €. Ein Ersatzgerät steht am nächsten Tag bereit, alle Daten liegen zentral; 2 Tage Ausfall sind tragbar.
+- **D1 USB-Stick für die Messe:** enthält Zeichnungen eines noch geheimen Produkts (Bekanntwerden ca. 400.000 € Schaden). Der Stick wird vor jeder Messe frisch vom Fileserver bespielt; ein Fehler fällt sofort auf (unter 1.000 € Schaden). Das Original bleibt auf dem Fileserver.`,
+          steps: [
+            { label: 'R1 Serverraum', body: '**V sehr hoch, I hoch, A sehr hoch** – Maximum der beiden Server. Begründung: Wer in den Raum gelangt, hat physischen Zugriff auf SRV-HH-01 (V sehr hoch); ein Brand oder Wasserschaden legt beide Server gleichzeitig lahm (A sehr hoch).' },
+            { label: 'K1 VPN-Verbindung', body: '**V hoch** (80.000 € liegt zwischen 10.000 € und 250.000 €), **I hoch** (30.000 €), **A hoch** (4 Stunden liegen im Bereich 2 bis 24 Stunden). Zusätzlich: Außenverbindung über das Internet → kritische Verbindung.' },
+            { label: 'C1 Notebook', body: '**V hoch** (40.000 € → hoch; zusätzlich Diebstahlrisiko unterwegs), **I normal** (höchstens 3.000 € → unter 10.000 €), **A normal** (2 Tage tragbar → mehr als 24 Stunden; Ersatzgerät und zentrale Daten = Verteilungseffekt).' },
+            { label: 'D1 USB-Stick', body: '**V sehr hoch** (400.000 € → über 250.000 €), **I normal** (unter 1.000 €, Fehler fallen sofort auf), **A normal** (nur eine Kopie, das Original liegt auf dem Fileserver und kann jederzeit neu kopiert werden).' },
+            { label: 'Maßnahmen ableiten', body: 'R1: Zutrittskontrolle, Brandmelder, USV. K1: VPN mit starker Verschlüsselung, zweite Leitung (Redundanz). C1: BitLocker mit PIN, VPN mit MFA. D1: hardwareverschlüsselter Stick mit PIN, Ausgabeliste, sofortige Verlustmeldung.' },
+          ],
+          result: 'R1: sehr hoch / hoch / sehr hoch · K1: hoch / hoch / hoch · C1: hoch / normal / normal · D1: sehr hoch / normal / normal – jeweils mit Fakt, Grenze und Ergebnis begründet.',
+        },
+        {
+          type: 'check',
+          question: {
+            id: 's01-c14', kind: 'table', skill: 'sich.schutzbedarf.beleg', difficulty: 2,
+            prompt: `Es gilt die Grenzwerttabelle der Elektro Krämer GmbH:
+
+| Schadensszenario | normal | hoch | sehr hoch |
+|---|---|---|---|
+| finanzieller Schaden | unter 10.000 € | 10.000 € bis 250.000 € | über 250.000 € |
+| tolerierbare Ausfallzeit | mehr als 24 Stunden | 2 bis 24 Stunden | weniger als 2 Stunden |
+
+- **Druckernetz (VLAN 40):** Es transportiert nur Lieferscheine und Etiketten (Bekanntwerden: unter 2.000 € Schaden, Verfälschung: unter 2.000 €). Bei einem Ausfall wird 3 Tage lang über USB-Drucker gearbeitet.
+- **Externe Backup-Festplatte (wöchentlich, im Tresor):** Sie enthält alle Firmendaten (Bekanntwerden: ca. 1.000.000 € Schaden). Eine unbemerkt beschädigte Sicherung würde im Ernstfall die Wiederherstellung verhindern (ca. 150.000 € Schaden). Zusätzlich gibt es die tägliche Sicherung auf dem NAS; die Festplatte darf bis zu einer Woche ausfallen.
+- **Firewall am Internetanschluss:** Ihre Konfiguration enthält VPN-Zugangsdaten (Bekanntwerden ermöglicht einen Einbruch, ca. 300.000 € Schaden). Manipulierte Regeln verursachen ca. 120.000 € Schaden. Ohne Firewall ist der Webshop offline; tolerierbar ist höchstens 1 Stunde.
+
+Trage den Schutzbedarf ein (**normal**, **hoch** oder **sehr hoch**).`,
+            columns: [
+              { key: 'v', label: 'Vertraulichkeit', type: 'text' },
+              { key: 'i', label: 'Integrität', type: 'text' },
+              { key: 'a', label: 'Verfügbarkeit', type: 'text' },
+            ],
+            rows: [
+              { label: 'Druckernetz (VLAN 40)', cells: { v: { answer: 'normal' }, i: { answer: 'normal' }, a: { answer: 'normal' } } },
+              { label: 'Externe Backup-Festplatte', cells: { v: { answer: 'sehr hoch', accept: ['sehr-hoch', 'sehrhoch'] }, i: { answer: 'hoch' }, a: { answer: 'normal' } } },
+              { label: 'Firewall am Internetanschluss', cells: { v: { answer: 'sehr hoch', accept: ['sehr-hoch', 'sehrhoch'] }, i: { answer: 'hoch' }, a: { answer: 'sehr hoch', accept: ['sehr-hoch', 'sehrhoch'] } } },
+            ],
+            misconceptions: [
+              { cell: '0:a', answer: 'sehr hoch', error: 'ausfallzeit-umgekehrt', why: 'Eine **lange** tolerierbare Ausfallzeit (3 Tage) bedeutet **niedrigen** Schutzbedarf: mehr als 24 Stunden = normal.' },
+              { cell: '1:a', answer: 'sehr hoch', error: 'ausfallzeit-umgekehrt', why: 'Eine Woche Ausfall ist tragbar (es gibt die tägliche NAS-Sicherung) → mehr als 24 Stunden = normal.' },
+              { cell: '2:a', answer: 'normal', error: 'ausfallzeit-umgekehrt', why: 'Nur 1 Stunde ist tolerierbar → weniger als 2 Stunden = **sehr hoch**.' },
+            ],
+            hints: ['Jede Zahl mit der passenden Zeile der Grenzwerttabelle vergleichen.', 'Verfügbarkeit: kurze tolerierbare Ausfallzeit = hoher Schutzbedarf.'],
+            explanation: `| Objekt | V | I | A |
+|---|---|---|---|
+| Druckernetz | normal (unter 2.000 €) | normal (unter 2.000 €) | normal (3 Tage > 24 h) |
+| Backup-Festplatte | **sehr hoch** (1 Mio. € > 250.000 €) | **hoch** (150.000 €) | normal (1 Woche tragbar, NAS-Sicherung vorhanden) |
+| Firewall | **sehr hoch** (300.000 € > 250.000 €) | **hoch** (120.000 €) | **sehr hoch** (1 h < 2 h) |
+
+Häufiger Fehler: Bei der Verfügbarkeit die Skala umdrehen. Merke: Je kürzer der tragbare Ausfall, desto höher der Schutzbedarf. Und: Ein Backup-Medium hat oft eine **sehr hohe Vertraulichkeit**, weil alle Daten darauf liegen – deshalb Backups verschlüsseln.`,
+          },
+        },
+        {
+          type: 'check',
+          question: {
+            id: 's01-c15', kind: 'free', skill: 'sich.schutzbedarf.beleg', difficulty: 2,
+            prompt: 'Die VPN-Verbindung Hamburg–Berlin wurde bei der **Verfügbarkeit** mit „hoch“ eingestuft (das Berliner Lager kann höchstens 4 Stunden ohne Warenwirtschaft arbeiten; Grenzwerte: normal > 24 h, hoch 2–24 h, sehr hoch < 2 h). Formulieren Sie die Begründung so, wie sie in die Schutzbedarfstabelle gehört, und nennen Sie zwei passende Maßnahmen.',
+            modelAnswer: 'Begründung: Über die VPN-Verbindung arbeiten die Beschäftigten in Berlin mit der Warenwirtschaft. Fällt sie aus, kann das Berliner Lager höchstens 4 Stunden weiterarbeiten. Laut Grenzwerttabelle liegen 2 bis 24 Stunden tolerierbare Ausfallzeit im Bereich „hoch“ → Schutzbedarf Verfügbarkeit hoch. Es gibt keine zweite Leitung, daher kein Verteilungseffekt. Maßnahmen: 1. Zweite, unabhängige Internetleitung (z. B. anderer Provider oder Mobilfunk-Backup) mit automatischem Umschalten des VPN. 2. Überwachung der Verbindung (Monitoring mit Alarm) und ein Wartungsvertrag mit kurzer Reaktionszeit beim Provider; zusätzlich Notfallplan für das Lager (z. B. Papier-Lieferscheine).',
+            keywords: ['4 Stunden', '2 bis 24 Stunden', 'hoch', 'Grenzwerttabelle', 'zweite Leitung', 'Monitoring'],
+            explanation: 'Eine vollständige Begründung nennt den **Fakt** (4 Stunden), die **Grenze** (2–24 h = hoch) und das **Ergebnis**. Maßnahmen passend zum Grundwert Verfügbarkeit: Redundanz, Überwachung, Wartungsvertrag, Notfallplan. Verschlüsselung wäre hier falsch zugeordnet – sie schützt die Vertraulichkeit.',
+          },
+        },
+        { type: 'practice', title: 'Übung: Schutzbedarf aus der Grenzwerttabelle', generator: 'sich.schutzbedarf.beleg', count: 3, difficulty: 2 },
+        { type: 'practice', title: 'Übung: Belegaufgaben mit Begründung', questionIds: ['s01-q040', 's01-q041', 's01-q042', 's01-q043'], count: 3, difficulty: 2 },
+        {
+          type: 'summary',
+          points: [
+            'Tabelle: Kürzel, Bezeichnung, Grundwert, Schutzbedarf, Begründung – je Grundwert eine Zeile.',
+            'Begründung = Fakt aus dem Beleg + Bezug zur Grenzwerttabelle + Ergebnis (ggf. Effekt).',
+            'Verfügbarkeit: je kürzer die tolerierbare Ausfallzeit, desto höher der Schutzbedarf.',
+            'Mehrere Szenarien für einen Grundwert → das schwerste zählt.',
+            'Räume erben das Maximum ihrer Systeme; Verbindungen richten sich nach den übertragenen Daten und abhängigen Anwendungen; mobile Datenträger: V nach Inhalt, A meist normal, wenn nur Kopie.',
           ],
         },
       ],
@@ -661,6 +937,11 @@ Jede Festlegung wird **schriftlich begründet** – nur so ist sie später nachv
       minutes: 20,
       relevance: 'ap1',
       skills: ['sich.schutzbedarf', 'sich.schutzziele'],
+      simple: `Einen Arbeitsplatz abzusichern ist wie eine Wohnung einbruchsicher zu machen: Erst schaust du, was drin ist und wie wertvoll es ist – dann wählst du passende Schlösser.
+Für jedes Schutzziel gibt es **technische** Maßnahmen (durch Technik, z. B. Verschlüsselung oder Backup) und **organisatorische** Maßnahmen (durch Regeln, z. B. Clean Desk oder Vertretungsplan).
+Was danach noch an Gefahr übrig bleibt, heißt **Restrisiko**. Das muss die Leitung bewusst bestätigen.
+
+**Merke:** Schutzbedarf begründen → Maßnahmen je Schutzziel technisch **und** organisatorisch zuordnen → Restrisiko benennen.`,
       steps: [
         {
           type: 'explain',
@@ -1028,6 +1309,232 @@ Jede Festlegung wird **schriftlich begründet** – nur so ist sie später nachv
         '3': { why: 'Für die Verfügbarkeit kann Redundanz den Schutzbedarf eines Einzelsystems senken.', error: 'kumulation-verteilung' },
       },
       explanation: 'Redundanz verbessert die Verfügbarkeit, aber nicht die Vertraulichkeit – jede Kopie muss gleich gut geschützt werden.',
+    },
+    {
+      id: 's01-q036', kind: 'table', skill: 'sich.schutzbedarf', difficulty: 1,
+      prompt: 'Ein Lehrbuch teilt Schäden in **vier Schadenskategorien** ein. Ordne jeder Schadenskategorie die passende **Schutzbedarfskategorie** nach BSI zu (**normal**, **hoch** oder **sehr hoch**).',
+      columns: [{ key: 'k', label: 'Schutzbedarfskategorie', type: 'text' }],
+      rows: [
+        { label: 'gering', cells: { k: { answer: 'normal' } } },
+        { label: 'mittel', cells: { k: { answer: 'normal' } } },
+        { label: 'hoch', cells: { k: { answer: 'hoch' } } },
+        { label: 'sehr hoch', cells: { k: { answer: 'sehr hoch', accept: ['sehr-hoch', 'sehrhoch'] } } },
+      ],
+      misconceptions: [{ cell: '1:k', answer: 'hoch', error: 'schadenskategorie-schutzbedarf', why: 'Mittlere Schäden sind noch „begrenzt und überschaubar“ – das ist die Definition von **normal**. „Hoch“ beginnt erst bei beträchtlichen Schäden.' }],
+      hints: ['Der Schutzbedarf hat nur drei Stufen – zwei Schadensstufen müssen sich eine teilen.', '„normal“ = begrenzt und überschaubar.'],
+      explanation: '**gering → normal, mittel → normal, hoch → hoch, sehr hoch → sehr hoch.**\n\nDie beiden unteren Schadensstufen sind „begrenzt und überschaubar“ und gehören deshalb zusammen zur Kategorie normal. Häufiger Fehler: „mittel“ als „hoch“ einstufen.',
+    },
+    {
+      id: 's01-q037', kind: 'free', skill: 'sich.schutzbedarf', difficulty: 2,
+      prompt: 'Im Unterricht wurden **vier Schadenskategorien** (gering, mittel, hoch, sehr hoch) behandelt, die BSI-Schutzbedarfsfeststellung kennt aber nur **drei Schutzbedarfskategorien**. Erläutern Sie, wie beide Skalen zusammenhängen.',
+      modelAnswer: 'Die Schadenskategorien beschreiben, wie groß ein möglicher Schaden ist. Die Schutzbedarfskategorien beschreiben, wie stark ein Objekt deshalb geschützt werden muss. Der BSI-Standard 200-2 kennt drei Schutzbedarfskategorien: normal (Schäden begrenzt und überschaubar), hoch (beträchtlich) und sehr hoch (existenzbedrohend, katastrophal). Geringe und mittlere Schäden sind beide begrenzt und überschaubar und werden deshalb gemeinsam der Kategorie normal zugeordnet; hohe Schäden entsprechen „hoch“, sehr hohe „sehr hoch“. Wo die Grenzen genau liegen (z. B. Euro-Beträge, tolerierbare Ausfallzeiten), legt jedes Unternehmen in einer Grenzwerttabelle fest.',
+      keywords: ['begrenzt und überschaubar', 'gering und mittel', 'normal', 'beträchtlich', 'existenzbedrohend', 'Grenzwerttabelle'],
+      explanation: 'Kernpunkt: gering + mittel → normal. Pluspunkt: Hinweis, dass das Unternehmen die Grenzen selbst festlegt und dass im BSI-Standard 200-3 „gering … sehr hoch“ die Stufen des **Risikos** sind.',
+    },
+    {
+      id: 's01-q038', kind: 'free', skill: 'sich.schutzbedarf', difficulty: 3,
+      prompt: 'Erläutern Sie den **Kumulationseffekt** am Beispiel der **Vertraulichkeit** und grenzen Sie ihn vom **Verteilungseffekt** ab.',
+      modelAnswer: 'Kumulationseffekt: Liegen auf einem System viele Datenbestände, die einzeln nur einen normalen Schutzbedarf haben, kann der Gesamtschaden bei einer Verletzung deutlich größer sein. Beispiel: Auf einem Dateiserver liegen Preislisten, Lieferantenverträge, Kundenadressen und Projektpläne – jeweils Vertraulichkeit normal. Wer den Server übernimmt, erhält alles auf einmal und damit ein Gesamtbild des Unternehmens; der Schutzbedarf der Vertraulichkeit des Servers wird deshalb z. B. auf hoch angehoben. Verteilungseffekt: Ist eine Anwendung auf mehrere Systeme verteilt (Redundanz) oder liegen auf einem System nur unwichtige Teile, kann der Schutzbedarf des einzelnen Systems sinken. Bei der Vertraulichkeit hilft Redundanz dagegen nicht, weil jede Kopie gleich vertraulich ist. Beide Effekte werden nach dem Maximumprinzip geprüft und schriftlich begründet.',
+      keywords: ['viele Datenbestände', 'Gesamtschaden', 'steigt', 'Verteilungseffekt', 'sinkt', 'Begründung'],
+      explanation: 'Wichtig: Der Kumulationseffekt gilt für **jeden** Grundwert. Viele kennen nur das Beispiel Virtualisierungshost (Verfügbarkeit).',
+    },
+    {
+      id: 's01-q039', kind: 'single', skill: 'sich.schutzbedarf', difficulty: 2,
+      prompt: 'Welche Aussage zum **Kumulationseffekt** ist richtig?',
+      options: [
+        'Er kann bei jedem Grundwert auftreten, z. B. auch bei der Vertraulichkeit, wenn viele Datenbestände auf einem System liegen.',
+        'Er gilt ausschließlich für die Verfügbarkeit.',
+        'Er senkt den Schutzbedarf, weil Risiken auf mehrere Systeme verteilt werden.',
+        'Er ersetzt das Maximumprinzip.',
+      ],
+      answer: 0,
+      distractors: {
+        '1': { why: 'Die Verfügbarkeit ist nur das bekannteste Beispiel (Virtualisierungshost). Auch viele vertrauliche Datenbestände an einer Stelle erhöhen den möglichen Schaden.', error: 'kumulation-verteilung' },
+        '2': { why: 'Das beschreibt den Verteilungseffekt. Kumulation erhöht den Schutzbedarf.', error: 'kumulation-verteilung' },
+        '3': { why: 'Erst wird das Maximumprinzip angewendet, danach wird auf Kumulation und Verteilung geprüft.', error: 'kumulation-verteilung' },
+      },
+      explanation: 'Kumulation = Anhäufung: Viele kleine Schäden zusammen ergeben einen großen. Das kann bei Vertraulichkeit, Integrität und Verfügbarkeit passieren.',
+    },
+    {
+      id: 's01-q040', kind: 'table', skill: 'sich.schutzbedarf.beleg', difficulty: 2,
+      prompt: `Das IT-Systemhaus führt für die **Steuerkanzlei Albers** eine Schutzbedarfsfeststellung durch. Die Kanzlei hat diese Grenzwerte festgelegt:
+
+| Schadensszenario | normal | hoch | sehr hoch |
+|---|---|---|---|
+| finanzieller Schaden | unter 5.000 € | 5.000 € bis 100.000 € | über 100.000 € |
+| tolerierbare Ausfallzeit | mehr als 3 Tage | 8 Stunden bis 3 Tage | weniger als 8 Stunden |
+
+- **Archivraum mit Mandantenakten (Papier):** Bekanntwerden ca. 150.000 € Schaden, Verfälschung ca. 20.000 €. Die Akten werden selten gebraucht; eine Woche ohne Zugang ist tragbar.
+- **Gäste-WLAN im Besprechungsraum:** nur Internetzugang für Besucher, keine Kanzleidaten (Bekanntwerden und Verfälschung jeweils unter 1.000 €). Eine Woche Ausfall ist tragbar.
+- **PC der Lohnbuchhaltung:** Bekanntwerden der Lohndaten ca. 60.000 €; falsch überwiesene Löhne ca. 120.000 €. Zum Monatsende darf er höchstens 4 Stunden ausfallen.
+
+Trage den Schutzbedarf ein (**normal**, **hoch** oder **sehr hoch**).`,
+      columns: [
+        { key: 'v', label: 'Vertraulichkeit', type: 'text' },
+        { key: 'i', label: 'Integrität', type: 'text' },
+        { key: 'a', label: 'Verfügbarkeit', type: 'text' },
+      ],
+      rows: [
+        { label: 'Archivraum Mandantenakten', cells: { v: { answer: 'sehr hoch', accept: ['sehr-hoch', 'sehrhoch'] }, i: { answer: 'hoch' }, a: { answer: 'normal' } } },
+        { label: 'Gäste-WLAN', cells: { v: { answer: 'normal' }, i: { answer: 'normal' }, a: { answer: 'normal' } } },
+        { label: 'PC der Lohnbuchhaltung', cells: { v: { answer: 'hoch' }, i: { answer: 'sehr hoch', accept: ['sehr-hoch', 'sehrhoch'] }, a: { answer: 'sehr hoch', accept: ['sehr-hoch', 'sehrhoch'] } } },
+      ],
+      misconceptions: [
+        { cell: '0:a', answer: 'sehr hoch', error: 'ausfallzeit-umgekehrt', why: 'Eine Woche Ausfall ist tragbar – das ist mehr als 3 Tage, also **normal**.' },
+        { cell: '2:a', answer: 'normal', error: 'ausfallzeit-umgekehrt', why: 'Nur 4 Stunden sind tragbar → weniger als 8 Stunden = **sehr hoch**.' },
+      ],
+      hints: ['Achtung: Die Kanzlei hat andere Grenzwerte als die Elektro Krämer GmbH.', 'Verfügbarkeit: kurze tolerierbare Ausfallzeit = hoher Schutzbedarf.'],
+      explanation: `| Objekt | V | I | A |
+|---|---|---|---|
+| Archivraum | **sehr hoch** (150.000 € > 100.000 €) | **hoch** (20.000 €) | normal (1 Woche > 3 Tage) |
+| Gäste-WLAN | normal (< 1.000 €) | normal (< 1.000 €) | normal (1 Woche) |
+| PC Lohnbuchhaltung | **hoch** (60.000 €) | **sehr hoch** (120.000 € > 100.000 €) | **sehr hoch** (4 h < 8 h) |
+
+Beachte: Auch ein **Raum mit Papierakten** hat einen Schutzbedarf. Und die Grenzwerte gelten immer für das Unternehmen, um das es in der Aufgabe geht – nicht auswendig gelernte Zahlen verwenden.`,
+    },
+    {
+      id: 's01-q041', kind: 'free', skill: 'sich.schutzbedarf.beleg', difficulty: 3,
+      prompt: `Ein Kunde des IT-Systemhauses, die **Heizungsbau Kessler GmbH**, stattet ihre Monteure mit Tablets aus. Auf jedem Tablet sind gespeichert: Kundenadressen, **Schlüssel- und Alarmanlagencodes** der Kunden für Wartungen sowie die Arbeitsberichte, aus denen später Rechnungen erstellt werden. Im Büro liegt ein vorbereitetes Ersatz-Tablet, alle Daten werden laufend in den Firmenserver synchronisiert.
+
+Grenzwerte der Firma: finanzieller Schaden normal unter 10.000 €, hoch bis 250.000 €, sehr hoch darüber; tolerierbare Ausfallzeit normal über 24 Stunden, hoch 2–24 Stunden, sehr hoch unter 2 Stunden. Bekannt ist: Werden die Alarmcodes bekannt, drohen Einbrüche bei Kunden mit Schäden über 300.000 €. Falsche Arbeitsberichte führen zu Fehlrechnungen von ca. 15.000 €. Ein Monteur kann einen Tag lang mit Papierformularen arbeiten.
+
+Erstellen Sie die Schutzbedarfstabelle für ein Tablet (Grundwert, Schutzbedarf, Begründung) und nennen Sie je Grundwert eine Maßnahme.`,
+      modelAnswer: `| Grundwert | Schutzbedarf | Begründung |
+|---|---|---|
+| Vertraulichkeit | sehr hoch | Alarm- und Schlüsselcodes; Bekanntwerden ermöglicht Einbrüche mit über 300.000 € Schaden → laut Grenzwerten über 250.000 € = sehr hoch; Tablets werden unterwegs leicht gestohlen oder vergessen. |
+| Integrität | hoch | Verfälschte Arbeitsberichte führen zu Fehlrechnungen von ca. 15.000 € → 10.000–250.000 € = hoch. |
+| Verfügbarkeit | normal | Ein Tag mit Papierformularen ist tragbar (über 24 Stunden), Ersatz-Tablet vorhanden, Daten auf dem Server synchronisiert (Verteilungseffekt) → normal. |
+
+Maßnahmen: Vertraulichkeit – Geräteverschlüsselung mit starker PIN, Verwaltung per MDM mit Fernlöschung, Codes nur in einer verschlüsselten App, sofortige Verlustmeldung. Integrität – Arbeitsberichte vom Kunden digital unterschreiben lassen und im Büro vor der Rechnungsstellung prüfen (Vier-Augen-Prinzip). Verfügbarkeit – Ersatz-Tablet und Synchronisation beibehalten, Papierformulare als Notfallverfahren.`,
+      keywords: ['sehr hoch', 'Alarmcodes', '300.000', 'hoch', '15.000', 'normal', 'Ersatz-Tablet', 'MDM', 'Verschlüsselung'],
+      explanation: 'Punkte gibt es für jede Zeile mit **Fakt + Grenze + Ergebnis** und für passend zugeordnete Maßnahmen. Häufiger Fehler: Die Verfügbarkeit wegen der wichtigen Daten hoch einstufen – maßgeblich ist aber die tragbare Ausfallzeit (ein Tag) und das Ersatzgerät.',
+    },
+    {
+      id: 's01-q042', kind: 'table', skill: 'sich.schutzbedarf.beleg', difficulty: 3,
+      prompt: `Grenzwerttabelle der Elektro Krämer GmbH:
+
+| Schadensszenario | normal | hoch | sehr hoch |
+|---|---|---|---|
+| finanzieller Schaden | unter 10.000 € | 10.000 € bis 250.000 € | über 250.000 € |
+| tolerierbare Ausfallzeit | mehr als 24 Stunden | 2 bis 24 Stunden | weniger als 2 Stunden |
+| informationelle Selbstbestimmung | keine besonderen Auswirkungen | gesellschaftliche Stellung oder wirtschaftliche Lage erheblich beeinträchtigt | Gefahr für Leib, Leben oder Existenz |
+
+Bestimme den Schutzbedarf dieser **mobilen Datenträger**:
+- **USB-Stick mit Kalkulationen für einen Kundentermin:** Bekanntwerden ca. 30.000 €; Fehler werden vor dem Termin geprüft (höchstens 2.000 €). Das Original liegt auf dem Fileserver, der Stick kann jederzeit neu bespielt werden; eine Woche Ausfall ist tragbar.
+- **Externe Festplatte mit Schulungsvideos:** Die Videos sind auch öffentlich im Internet abrufbar (kein Schaden bei Bekanntwerden); Verfälschung höchstens 1.000 €; eine Woche Ausfall ist tragbar.
+- **Speicherkarte der Lagerkamera:** Bekanntwerden der Aufnahmen kostet das Unternehmen ca. 5.000 €; laut Datenschutzbeauftragtem würden die gefilmten Beschäftigten aber in ihrer gesellschaftlichen Stellung **erheblich beeinträchtigt**. Verfälschte Aufnahmen wären als Beweis wertlos (ca. 15.000 €). Fehlt die Karte länger als 12 Stunden, fehlen Aufnahmen – das ist nicht tragbar.`,
+      columns: [
+        { key: 'v', label: 'Vertraulichkeit', type: 'text' },
+        { key: 'i', label: 'Integrität', type: 'text' },
+        { key: 'a', label: 'Verfügbarkeit', type: 'text' },
+      ],
+      rows: [
+        { label: 'USB-Stick Kalkulationen', cells: { v: { answer: 'hoch' }, i: { answer: 'normal' }, a: { answer: 'normal' } } },
+        { label: 'Festplatte Schulungsvideos', cells: { v: { answer: 'normal' }, i: { answer: 'normal' }, a: { answer: 'normal' } } },
+        { label: 'Speicherkarte Lagerkamera', cells: { v: { answer: 'hoch' }, i: { answer: 'hoch' }, a: { answer: 'hoch' } } },
+      ],
+      misconceptions: [
+        { cell: '2:v', answer: 'normal', error: 'maximumprinzip', why: 'Finanziell wären es nur 5.000 € (normal), aber das Datenschutz-Szenario ergibt **hoch**. Je Grundwert zählt das schwerste Szenario.' },
+        { cell: '0:a', answer: 'hoch', error: 'ausfallzeit-umgekehrt', why: 'Der Stick ist nur eine Kopie, eine Woche Ausfall ist tragbar → normal.' },
+      ],
+      hints: ['Bei der Kamerakarte gibt es für die Vertraulichkeit zwei Szenarien – das schwerere zählt.', '„Länger als 12 Stunden nicht tragbar“ heißt: tolerierbar sind höchstens 12 Stunden.'],
+      explanation: `| Datenträger | V | I | A |
+|---|---|---|---|
+| USB-Stick | **hoch** (30.000 €) | normal (≤ 2.000 €) | normal (nur Kopie, 1 Woche tragbar) |
+| Festplatte Videos | normal (öffentlich) | normal (≤ 1.000 €) | normal |
+| Speicherkarte Kamera | **hoch** (finanziell normal, Datenschutz hoch → Maximum) | **hoch** (15.000 €) | **hoch** (12 h liegt zwischen 2 und 24 h) |
+
+Bei mobilen Datenträgern ist meist die **Vertraulichkeit** das Problem (Verlust, Diebstahl). Die Verfügbarkeit ist niedrig, solange es nur eine Kopie ist.`,
+    },
+    {
+      id: 's01-q043', kind: 'free', skill: 'sich.schutzbedarf.beleg', difficulty: 2,
+      prompt: 'Erläutern Sie, wie der Schutzbedarf eines **Raumes** (z. B. des Serverraums) bestimmt wird, und nennen Sie zwei Maßnahmen, die aus einer Verfügbarkeit „sehr hoch“ für den Serverraum folgen.',
+      modelAnswer: 'Ein Raum erbt nach dem Maximumprinzip je Grundwert den höchsten Schutzbedarf der IT-Systeme und Datenträger bzw. Papierakten, die sich darin befinden – denn ein Schaden am Raum (Brand, Wasser, Einbruch) trifft alles darin gleichzeitig. Stehen viele wichtige Systeme in einem Raum, ist zusätzlich der Kumulationseffekt zu prüfen. Die Einstufung wird schriftlich begründet. Maßnahmen bei Verfügbarkeit sehr hoch: Brandmeldeanlage bzw. Brandfrüherkennung und geeignete Löschtechnik, USV und ggf. Netzersatzanlage, Klimatisierung mit Überwachung, Zutrittskontrolle, keine Wasserleitungen über den Racks, zweiter Serverraum/Brandabschnitt für redundante Systeme.',
+      keywords: ['Maximumprinzip', 'Systeme im Raum', 'Kumulationseffekt', 'Brandschutz', 'USV', 'Klimatisierung'],
+      explanation: 'Raum = Maximum der Objekte darin (+ Kumulation prüfen). Maßnahmen müssen zum Grundwert **Verfügbarkeit** passen.',
+    },
+    {
+      id: 's01-q044', kind: 'match', skill: 'sich.prozess', difficulty: 2,
+      prompt: 'Ordne jede Tätigkeit der passenden Phase des Sicherheitsprozesses zu.',
+      left: ['Die Geschäftsführung beschließt, ein Sicherheitsmanagement aufzubauen, und stellt Budget bereit.', 'Die Leitung unterschreibt ein Dokument mit Sicherheitszielen und Geltungsbereich.', 'Ein Informationssicherheitsbeauftragter wird benannt, Meldewege werden festgelegt.', 'Netzplan erstellen, Schutzbedarf feststellen, Bausteine zuordnen.', 'Festplattenverschlüsselung wird ausgerollt, alle Beschäftigten werden geschult.', 'Jährliches internes Audit und Nachbesserung der Maßnahmen'],
+      right: ['Initiierung', 'Leitlinie erstellen', 'Organisation aufbauen', 'Sicherheitskonzeption', 'Umsetzung', 'Aufrechterhaltung und Verbesserung'],
+      answer: [0, 1, 2, 3, 4, 5],
+      explanation: 'Initiierung (Leitung entscheidet) → Leitlinie (Ziele, Geltungsbereich) → Organisation (Rollen) → Konzeption (Strukturanalyse, Schutzbedarf, Modellierung, Check) → Umsetzung → Aufrechterhaltung (prüfen und verbessern).',
+    },
+    {
+      id: 's01-q045', kind: 'match', skill: 'sich.prozess', difficulty: 3,
+      prompt: 'Ordne die Teilaufgaben der passenden Hauptaufgabe zu.',
+      left: ['Sicherheitsziele und Stellenwert der Informationssicherheit formulieren', 'Anwendungen, IT-Systeme, Räume und Verbindungen erfassen; gleichartige Clients zu Gruppen zusammenfassen', 'Je Anwendung Vertraulichkeit, Integrität und Verfügbarkeit einstufen und begründen', 'Den Zielobjekten passende Bausteine zuordnen und einen Soll-Ist-Vergleich durchführen'],
+      right: ['Leitlinie', 'Strukturanalyse', 'Schutzbedarfsfeststellung', 'Modellierung und IT-Grundschutz-Check'],
+      answer: [0, 1, 2, 3],
+      explanation: 'Leitlinie = Ziele und Grundsätze; Strukturanalyse = Bestandsaufnahme des Informationsverbunds (mit Gruppenbildung); Schutzbedarfsfeststellung = Einstufung mit Begründung; Modellierung/Check = Bausteine zuordnen und prüfen, was fehlt.',
+    },
+    {
+      id: 's01-q046', kind: 'single', skill: 'sich.prozess', difficulty: 1,
+      prompt: 'Wer trägt in einem Unternehmen die **Gesamtverantwortung** für die Informationssicherheit?',
+      options: ['Die Leitung (Geschäftsführung)', 'Der Informationssicherheitsbeauftragte', 'Der Datenschutzbeauftragte', 'Der IT-Leiter'],
+      answer: 0,
+      distractors: {
+        '1': { why: 'Der ISB koordiniert und berät – die Verantwortung bleibt bei der Leitung. Die Aussage „Der ISB ist an oberster Stelle verantwortlich“ ist eine bekannte Prüfungsfalle.', error: 'verantwortung-leitung' },
+        '2': { why: 'Der DSB berät und überwacht nur beim Datenschutz. Er ist weisungsfrei, aber nicht verantwortlich.', error: 'verantwortung-leitung' },
+        '3': { why: 'Die IT-Leitung setzt Maßnahmen um. Informationssicherheit betrifft aber das ganze Unternehmen, auch Papier und Prozesse – die Verantwortung liegt bei der Leitung.', error: 'verantwortung-leitung' },
+      },
+      explanation: 'Die **Leitung** trägt die Gesamtverantwortung: Sie setzt die Leitlinie in Kraft, stellt Ressourcen bereit und entscheidet über Restrisiken. Aufgaben kann sie delegieren, die Verantwortung nicht.',
+    },
+    {
+      id: 's01-q047', kind: 'text', skill: 'sich.prozess', difficulty: 1,
+      prompt: 'Wie nennt das BSI die Gesamtheit aller Geschäftsprozesse, Anwendungen, IT-Systeme, Räume, Kommunikationsverbindungen und beteiligten Personen in dem Bereich, der abgesichert werden soll? (ein Begriff)',
+      accept: ['Informationsverbund', 'Informations-Verbund', 'IT-Verbund', 'Informationsverbünde'],
+      hints: ['Das Wort setzt sich aus „Information“ und „Verbund“ zusammen.'],
+      misconceptions: [{ answer: 'Strukturanalyse', error: 'informationsverbund', why: 'Die Strukturanalyse ist der **Schritt**, in dem der Informationsverbund erfasst wird – nicht der Bereich selbst.' }],
+      explanation: '**Informationsverbund** (früher auch IT-Verbund): der festgelegte Geltungsbereich, z. B. „Standort Hamburg mit Vertrieb, Buchhaltung und Serverraum“. Die Strukturanalyse erfasst ihn.',
+    },
+    {
+      id: 's01-q048', kind: 'free', skill: 'sich.prozess', difficulty: 2,
+      prompt: 'Die Geschäftsführung der Elektro Krämer GmbH will eine **Sicherheitsleitlinie** verabschieden. Nennen Sie fünf Inhalte, die darin stehen sollten.',
+      modelAnswer: '1. Stellenwert der Informationssicherheit für das Unternehmen (warum ist sie wichtig, z. B. Abhängigkeit von Webshop und Warenwirtschaft). 2. Sicherheitsziele, z. B. Vertraulichkeit der Kunden- und Personaldaten, hohe Verfügbarkeit des Webshops. 3. Geltungsbereich (Standorte Hamburg und Berlin, alle Geschäftsprozesse). 4. Organisation und Verantwortlichkeiten: Gesamtverantwortung der Leitung, Benennung eines Informationssicherheitsbeauftragten, Pflichten aller Beschäftigten. 5. Verpflichtung der Leitung zur Durchsetzung und kontinuierlichen Verbesserung (regelmäßige Überprüfung). Zusätzlich: Unterschrift der Leitung und Bekanntgabe an alle Beschäftigten.',
+      keywords: ['Stellenwert', 'Sicherheitsziele', 'Geltungsbereich', 'Verantwortlichkeiten', 'Verbesserung', 'Unterschrift'],
+      explanation: 'Die Leitlinie ist **kurz und strategisch** (warum, wer). Technische Details (welche Firewall, welche Backup-Software) gehören ins Sicherheitskonzept.',
+    },
+    {
+      id: 's01-q049', kind: 'match', skill: 'sich.prozess', difficulty: 2,
+      prompt: 'Ordne die Beispiele dem passenden Begriff zu.',
+      left: ['Die Geschäftsführung legt fest, dass neue Software nur nach Freigabe durch die IT-Leitung eingeführt werden darf.', 'Ein Audit prüft, ob die gesetzlichen Löschfristen für Bewerberdaten eingehalten werden.', 'Die IT bewertet, wie wahrscheinlich ein Ransomware-Angriff ist und wie hoch der Schaden wäre.'],
+      right: ['Governance', 'Compliance', 'Risikomanagement'],
+      answer: [0, 1, 2],
+      explanation: '**Governance** = Regeln und Verantwortlichkeiten zur Steuerung der IT. **Compliance** = Einhaltung von Gesetzen, Verträgen und Richtlinien und deren Nachweis. **Risikomanagement** = Risiken erkennen, bewerten, behandeln. Zusammen: GRC.',
+    },
+    {
+      id: 's01-q050', kind: 'match', skill: 'sich.prozess', difficulty: 2,
+      prompt: 'Ordne jede Aufgabe der Rolle zu, die dafür zuständig ist.',
+      left: ['Entscheidet dokumentiert, ein Restrisiko zu akzeptieren', 'Koordiniert den Sicherheitsprozess und erstellt das Sicherheitskonzept', 'Überwacht die Einhaltung der DSGVO und berät bei der Datenschutz-Folgenabschätzung', 'Meldet eine verdächtige Mail über den Phishing-Knopf'],
+      right: ['Leitung (Geschäftsführung)', 'Informationssicherheitsbeauftragter (ISB)', 'Datenschutzbeauftragter (DSB)', 'jede/r Beschäftigte'],
+      answer: [0, 1, 2, 3],
+      explanation: 'Leitung = Verantwortung und Entscheidungen; ISB = Koordination der Informationssicherheit; DSB = Datenschutz (beraten, überwachen); alle Beschäftigten = Regeln einhalten und Vorfälle melden.',
+    },
+    {
+      id: 's01-q051', kind: 'single', skill: 'sich.schutzziele', difficulty: 2,
+      prompt: 'Dein Schulbuch ordnet die **Authentizität** als Teilziel der **Integrität** ein, die App führt sie als eigenes Schutzziel. Was stimmt?',
+      options: [
+        'Beides ist vertretbar: Das BSI zählt verfälschte Urheberangaben zum Integritätsverlust, viele Lehrbücher führen Authentizität separat.',
+        'Nur die Einordnung als eigenes Schutzziel ist richtig.',
+        'Authentizität gehört zur Vertraulichkeit.',
+        'Authentizität ist kein Schutzziel, sondern ein Verschlüsselungsverfahren.',
+      ],
+      answer: 0,
+      distractors: {
+        '1': { why: 'Die Einordnung als Teil der Integrität ist ebenfalls vertretbar – das BSI-Glossar zählt verfälschte Angaben zum Autor zum Integritätsverlust.', error: 'schutzziel-verwechselt' },
+        '2': { why: 'Vertraulichkeit betrifft, **wer lesen darf**. Authentizität betrifft die **Echtheit** von Absender oder Information.', error: 'schutzziel-verwechselt' },
+        '3': { why: 'Authentizität ist ein Schutzziel (Echtheit). Verfahren wie digitale Signaturen oder Zertifikate **sichern** sie.', error: 'schutzziel-verwechselt' },
+      },
+      explanation: 'Fragt die Prüfung nach den **drei Grundwerten**: Vertraulichkeit, Integrität, Verfügbarkeit. Geht es um die **Echtheit** eines Absenders oder einer Datei: Authentizität nennen, ggf. mit dem Zusatz „Teilaspekt der Integrität“.',
+    },
+    {
+      id: 's01-q052', kind: 'free', skill: 'sich.prozess', difficulty: 2,
+      prompt: 'Erläutern Sie den Unterschied zwischen einer **Sicherheitsleitlinie** und einem **Sicherheitskonzept**.',
+      modelAnswer: 'Die Sicherheitsleitlinie ist ein kurzes, strategisches Grundsatzdokument der Leitung. Sie beschreibt, warum Informationssicherheit wichtig ist, welche Ziele gelten, für welchen Bereich sie gilt und wer verantwortlich ist; die Leitung unterschreibt sie, und sie wird allen Beschäftigten bekannt gemacht. Das Sicherheitskonzept ist ein ausführliches, fachliches Dokument (meist vom Informationssicherheitsbeauftragten erstellt). Es enthält die Strukturanalyse, die Schutzbedarfsfeststellung, die ausgewählten Maßnahmen und den Umsetzungsplan, also was konkret wie geschützt wird. Die Leitlinie gibt den Rahmen vor, das Konzept setzt ihn um.',
+      keywords: ['kurz', 'Leitung', 'Ziele', 'Verantwortung', 'ausführlich', 'Maßnahmen', 'Schutzbedarf'],
+      explanation: 'Merkhilfe: Leitlinie = **warum und wer**, Sicherheitskonzept = **was und wie**.',
     },
   ],
 };

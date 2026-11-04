@@ -27,7 +27,10 @@ import { compressIpv6, expandIpv6, ipv6NthSubnet, ipv6Type, stripLeadingZeros } 
 import { Rng } from './rng';
 import { grade } from './grading';
 import { GENERATORS_HARDWARE } from './gen/hardware';
-import { GENERATORS_PROGRAMMIERUNG } from './gen/programmierung';
+import { GENERATORS_NETZWERK_DIENSTE } from './gen/netzwerk-dienste';
+import { GENERATORS_NETZWERK_LAN } from './gen/netzwerk-lan';
+import { GENERATORS_WIRTSCHAFT_MARKT } from './gen/wirtschaft-markt';
+import { GENERATORS_PROGRAMMIERUNG, GENERATORS_PROGRAMMIERUNG_P06 } from './gen/programmierung';
 import { GENERATORS_SYSTEME } from './gen/systeme';
 import { GENERATORS_SICHERHEIT } from './gen/sicherheit';
 import { GENERATORS_DATEN } from './gen/daten';
@@ -956,6 +959,10 @@ export const GENERATORS: GeneratorMeta[] = [
   unitsGen, transferTime, rateGen,
   lpmGen,
   ...GENERATORS_HARDWARE,
+  ...GENERATORS_PROGRAMMIERUNG_P06,
+  ...GENERATORS_NETZWERK_DIENSTE,
+  ...GENERATORS_NETZWERK_LAN,
+  ...GENERATORS_WIRTSCHAFT_MARKT,
   ...GENERATORS_PROGRAMMIERUNG,
   ...GENERATORS_SYSTEME,
   ...GENERATORS_SICHERHEIT,

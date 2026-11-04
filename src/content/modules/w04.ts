@@ -18,6 +18,8 @@ export const w04: Module = {
     { id: 'w.vertragsarten', module: 'w04', title: 'Vertragsarten für IT-Leistungen (Werk-, Dienst-, Miet-, Leasingvertrag)' },
     { id: 'w.lizenzen', module: 'w04', title: 'Urheberrecht und Softwarelizenzen' },
     { id: 'w.sla', module: 'w04', title: 'Service Level Agreements (SLA)', requires: ['w.vertragsarten'] },
+    { id: 'w.wareneingang', module: 'w04', title: 'Wareneingangsprüfung und Mängelrüge', requires: ['w.maengel'] },
+    { id: 'w.avvertrag', module: 'w04', title: 'OLA/UC, Auftragsverarbeitungsvertrag und Vertragsstrafe', requires: ['w.sla'] },
   ],
   lessons: [
     /* ------------------------------------------------------------ */
@@ -27,6 +29,9 @@ export const w04: Module = {
       minutes: 20,
       relevance: 'ap1-teilweise',
       skills: ['w.kaufvertrag'],
+      simple: `Ein Kaufvertrag entsteht, wenn zwei Seiten dasselbe wollen und es sich sagen – wie beim Bäcker: Du sagst „Ein Brötchen bitte“, die Verkäuferin gibt es dir. Juristisch heißt das **Antrag** und **Annahme** (zwei passende Willenserklärungen, also Aussagen, mit denen man sich binden will). Danach hat jede Seite **Pflichten**: Der Verkäufer muss die Ware ohne Fehler übergeben und sie dir als Eigentum überlassen, du musst bezahlen und die Ware abnehmen. **Besitz** heißt, du hast die Sache gerade in der Hand; **Eigentum** heißt, sie gehört dir rechtlich.
+
+**Merke:** Antrag + Annahme = Kaufvertrag; Verkäufer liefert mangelfrei und übereignet, Käufer zahlt und nimmt ab.`,
       steps: [
         {
           type: 'explain',
@@ -106,7 +111,10 @@ Kaufverträge sind grundsätzlich **formfrei** (mündlich, telefonisch, per E-Ma
       title: 'Mangelhafte Lieferung: Rechte des Käufers',
       minutes: 30,
       relevance: 'ap1-teilweise',
-      skills: ['w.maengel'],
+      skills: ['w.maengel', 'w.wareneingang'],
+      simple: `Wenn du online Schuhe bestellst und ein Schuh hat ein Loch, ist die Ware **mangelhaft** (fehlerhaft). Du darfst dann zuerst verlangen, dass der Händler den Fehler behebt oder dir ein neues Paar schickt – das heißt **Nacherfüllung**. Erst wenn das nicht klappt, kannst du dein Geld zurückverlangen (**Rücktritt**) oder weniger bezahlen (**Minderung**). Firmen müssen gelieferte Ware **sofort prüfen** – wie du beim Auspacken – und Fehler sofort schriftlich melden (**Mängelrüge**), sonst verlieren sie ihre Rechte.
+
+**Merke:** Wareneingang sofort prüfen, Mangel sofort rügen, zuerst Nacherfüllung verlangen, erst danach Rücktritt oder Minderung.`,
       steps: [
         {
           type: 'explain',
@@ -138,6 +146,39 @@ Kaufverträge sind grundsätzlich **formfrei** (mündlich, telefonisch, per E-Ma
    - **zusätzlich**: **Schadensersatz** (setzt Verschulden des Verkäufers voraus, §§ 280 ff.) oder Ersatz vergeblicher Aufwendungen (§ 284).
 
 *Verbraucher (§ 475d BGB):* Hier genügt es, dem Unternehmer den Mangel mitzuteilen; nach Ablauf einer angemessenen Frist sind Rücktritt bzw. Minderung auch ohne ausdrückliche Fristsetzung möglich.`,
+        },
+        {
+          type: 'explain',
+          title: 'Wareneingangsprüfung und Mängelrüge in der Praxis',
+          body: `Damit die Rechte aus § 377 HGB nicht verloren gehen, braucht jedes Unternehmen einen festen Ablauf beim **Wareneingang**.
+
+**1. Sofort bei Anlieferung (im Beisein des Fahrers)**
+- Stimmen **Anschrift** und **Anzahl der Packstücke** mit dem Lieferschein überein?
+- Sind **Verpackungen beschädigt** (eingedrückt, nass, Siegel geöffnet)?
+- Beschädigungen auf dem Frachtbrief/Lieferschein **vermerken** und vom Fahrer **gegenzeichnen** lassen, Fotos machen. Bei schweren Schäden die Annahme verweigern.
+
+**2. Unverzüglich danach (in der Regel am selben oder nächsten Arbeitstag)**
+- **Lieferschein mit Bestellung vergleichen:** Artikel, Modell, Menge, Ausstattung.
+- **Ware auspacken und prüfen:** Sichtprüfung, Funktionstest (Stichprobe bei großen Mengen), Seriennummern erfassen.
+- Ergebnis im **Wareneingangsprotokoll** festhalten.
+
+**Mangelarten beim Wareneingang**
+
+| Mangelart | Beispiel |
+|---|---|
+| **Mangel in der Art** (Falschlieferung) | 24-Zoll- statt 27-Zoll-Monitore geliefert |
+| **Mangel in der Menge** | 20 bestellt, 18 geliefert |
+| **Mangel in der Güte/Qualität** (Beschaffenheit) | Display mit Streifen, Gehäuse zerkratzt, Akku defekt |
+
+**Inhalt einer Mängelrüge (schriftlich, z. B. per E-Mail oder Brief)**
+1. Bezug: Bestell-, Lieferschein- bzw. Rechnungsnummer und Lieferdatum
+2. **genaue Beschreibung** des Mangels (welcher Artikel, welche Seriennummern, was genau ist defekt, wie viele Stück)
+3. Nachweis, falls vorhanden (Fotos, Protokoll)
+4. **gewünschtes Recht**: Nacherfüllung – Nachbesserung oder Ersatzlieferung
+5. **angemessene Frist** (z. B. 10 Tage)
+6. Hinweis, wie mit der mangelhaften Ware verfahren wird (Abholung, Rücksendung auf Kosten des Lieferanten)
+
+Die Mängelrüge ist ein **Geschäftsbrief** – Form nach DIN 5008, sachlicher Ton (siehe Modul w01).`,
         },
         {
           type: 'visual',
@@ -176,7 +217,42 @@ Kaufverträge sind grundsätzlich **formfrei** (mündlich, telefonisch, per E-Ma
             explanation: 'Untersuchen und rügen (§ 377 HGB) → Nacherfüllung mit Frist (§ 439 BGB) → nachrangige Rechte.',
           },
         },
+        {
+          type: 'example',
+          title: 'Belegaufgabe: Lieferschein gegen Bestellung prüfen',
+          problem: `Die Elektro Krämer GmbH hat beim IT-Systemhaus Nord bestellt (Bestellung B-4471 vom 02.11.2026). Am 09.11.2026 trifft die Lieferung ein.
+
+| Pos. | Bestellt | Menge bestellt | Geliefert laut Lieferschein L-9930 | Menge geliefert | Prüfergebnis |
+|---|---|---|---|---|---|
+| 1 | Notebook 14 Zoll, 16 GB RAM | 10 | Notebook 14 Zoll, 16 GB RAM | 10 | 1 Gerät: Tastatur ohne Funktion |
+| 2 | Monitor 27 Zoll | 12 | Monitor 24 Zoll | 12 | Geräte unbeschädigt |
+| 3 | Dockingstation USB-C | 10 | Dockingstation USB-C | 8 | unbeschädigt |
+
+Ermittle die Mängel und formuliere die Kernpunkte der Mängelrüge.`,
+          steps: [
+            { label: 'Pos. 1', body: 'Ein Notebook mit defekter Tastatur → **Mangel in der Güte/Qualität**.' },
+            { label: 'Pos. 2', body: '24 statt 27 Zoll → **Mangel in der Art** (Falschlieferung).' },
+            { label: 'Pos. 3', body: '8 statt 10 Stück → **Mangel in der Menge** (2 Stück fehlen).' },
+            { label: 'Mängelrüge (Kernpunkte)', body: 'Betreff: Mängelrüge zu Lieferschein L-9930 / Bestellung B-4471. Inhalt: Pos. 1 – Notebook Seriennummer … Tastatur ohne Funktion → Ersatzlieferung; Pos. 2 – 12 Monitore 24 statt 27 Zoll → Lieferung der bestellten 27-Zoll-Monitore, Abholung der Falschlieferung auf Ihre Kosten; Pos. 3 – 2 fehlende Dockingstations nachliefern. Frist: bis 19.11.2026. Versand noch am 09.11.2026.' },
+          ],
+          result: 'Drei Mängel: Qualität (Pos. 1), Art (Pos. 2), Menge (Pos. 3). Die Rüge geht **unverzüglich** raus, nennt Bezug, Mangel, gewünschte Nacherfüllung und eine Frist.',
+        },
+        {
+          type: 'check',
+          question: {
+            id: 'w04-c08', kind: 'table', skill: 'w.wareneingang', difficulty: 2,
+            prompt: 'Bestimme die **Mangelart**: **Art**, **Menge** oder **Qualität**.',
+            columns: [{ key: 'm', label: 'Mangelart', type: 'text' }],
+            rows: [
+              { label: '50 Patchkabel bestellt, 40 geliefert', cells: { m: { answer: 'Menge', accept: ['mangel in der menge', 'mindermenge', 'quantität'] } } },
+              { label: 'Statt Switches mit PoE wurden Switches ohne PoE geliefert', cells: { m: { answer: 'Art', accept: ['mangel in der art', 'falschlieferung', 'aliud'] } } },
+              { label: 'Ein Access Point startet nicht', cells: { m: { answer: 'Qualität', accept: ['qualitaet', 'güte', 'guete', 'beschaffenheit', 'mangel in der güte', 'mangel in der qualität'] } } },
+            ],
+            explanation: 'Zu wenig → Menge; anderes Produkt → Art; richtiges Produkt, aber fehlerhaft → Qualität (Güte).\n\nHäufiger Fehler: Falschlieferung als Qualitätsmangel einordnen – das Gerät kann einwandfrei sein, es ist nur das falsche.',
+          },
+        },
         { type: 'practice', title: 'Übung: Mängelrechte', questionIds: ['w04-q005', 'w04-q006', 'w04-q007', 'w04-q008', 'w04-q009', 'w04-q010'], count: 5, difficulty: 2 },
+        { type: 'practice', title: 'Übung: Wareneingang und Mängelrüge', questionIds: ['w04-q033', 'w04-q034', 'w04-q035', 'w04-q036'], count: 3, difficulty: 2 },
         { type: 'summary', points: ['Sachmangel: vereinbarte/übliche Beschaffenheit fehlt – auch Falschlieferung, Mindermenge, fehlende Kompatibilität, Montagefehler.', 'Rechtsmangel: Rechte Dritter (z. B. fehlende Lizenz).', 'Kaufleute: unverzüglich prüfen und rügen (§ 377 HGB).', 'Zuerst Nacherfüllung (Käufer wählt Reparatur oder Ersatz), dann Rücktritt oder Minderung, zusätzlich Schadensersatz bei Verschulden.', 'Verjährung 2 Jahre ab Ablieferung; Beweislastumkehr beim Verbraucher 1 Jahr.'] },
       ],
     },
@@ -187,6 +263,9 @@ Kaufverträge sind grundsätzlich **formfrei** (mündlich, telefonisch, per E-Ma
       minutes: 25,
       relevance: 'vertiefung',
       skills: ['w.verzug'],
+      simple: `**Verzug** heißt: Jemand ist zu spät, obwohl er schon hätte liefern oder zahlen müssen. Das kennst du vom geliehenen Geld: Ein Freund wollte es dir bis Freitag zurückgeben und tut es nicht. Ist der **Verkäufer** zu spät, ist das **Lieferverzug**; nimmt der **Käufer** die Ware nicht an, **Annahmeverzug**; zahlt er nicht, **Zahlungsverzug**. Meist muss man den anderen erst erinnern (**Mahnung**) und ihm eine zweite Chance (**Nachfrist**) geben, bevor man vom Vertrag zurücktreten kann. Bei Zahlungsverzug kommen **Verzugszinsen** dazu – eine Art Strafe fürs Zuspätzahlen.
+
+**Merke:** Fällig + gemahnt (oder fester Termin) = Verzug; erst Nachfrist, dann Rücktritt oder Schadensersatz; bei Zahlungsverzug Zinsen.`,
       steps: [
         {
           type: 'explain',
@@ -239,6 +318,9 @@ Kaufverträge sind grundsätzlich **formfrei** (mündlich, telefonisch, per E-Ma
       minutes: 15,
       relevance: 'ap1-teilweise',
       skills: ['w.garantie'],
+      simple: `Drei Wörter, die oft verwechselt werden: Die **Gewährleistung** ist Pflicht – das Gesetz verlangt, dass der Verkäufer 2 Jahre für Fehler geradesteht, die schon beim Kauf da waren. Eine **Garantie** ist ein freiwilliges Extra-Versprechen, meist vom Hersteller, z. B. „3 Jahre Vor-Ort-Service“ – was genau gilt, steht in den Garantiebedingungen. **Kulanz** ist reine Freundlichkeit: Der Händler hilft, obwohl er nicht muss, wie ein Café, das dir einen verschütteten Kaffee neu macht.
+
+**Merke:** Gewährleistung = Gesetz (Verkäufer, 2 Jahre); Garantie = freiwillig (meist Hersteller); Kulanz = Entgegenkommen ohne Anspruch.`,
       steps: [
         {
           type: 'explain',
@@ -281,6 +363,9 @@ Kaufverträge sind grundsätzlich **formfrei** (mündlich, telefonisch, per E-Ma
       minutes: 25,
       relevance: 'ap1-teilweise',
       skills: ['w.vertragsarten'],
+      simple: `Ob du beim Friseur einen bestimmten Haarschnitt bestellst oder einen Nachhilfelehrer für eine Stunde bezahlst, ist ein großer Unterschied. Beim Haarschnitt zählt das **Ergebnis** – das ist ein **Werkvertrag** (in der IT z. B. „Netzwerk funktionsfähig einrichten“). Beim Nachhilfelehrer bezahlst du die **Zeit**, auch wenn du die Arbeit trotzdem verhaust – das ist ein **Dienstvertrag** (z. B. Beratung oder Schulung). Kaufst du etwas, ist es ein **Kaufvertrag**; nutzt du es nur auf Zeit gegen Geld, ist es **Miete**. Werden Geräte extra für dich zusammengebaut und geliefert, gilt Kaufrecht (**Werklieferungsvertrag**).
+
+**Merke:** Werkvertrag = Erfolg und Abnahme; Dienstvertrag = Tätigkeit, kein Erfolg; Werklieferungsvertrag (§ 650 BGB) = Kaufrecht.`,
       steps: [
         {
           type: 'explain',
@@ -303,6 +388,12 @@ Kaufverträge sind grundsätzlich **formfrei** (mündlich, telefonisch, per E-Ma
 - Mängelrechte (§ 634): Nacherfüllung – hier wählt der **Unternehmer**, ob er nachbessert oder neu herstellt (§ 635) –, **Selbstvornahme** auf Kosten des Unternehmers (§ 637), Rücktritt, Minderung, Schadensersatz.
 
 **Dienstvertrag:** Die Vergütung ist für die geleistete Zeit geschuldet, auch wenn das Problem nicht gelöst wurde. Es gibt keine Abnahme und keine Mängelrechte wie beim Werkvertrag (aber Haftung bei Pflichtverletzung).
+
+**Werklieferungsvertrag oder Werkvertrag?** Entscheidend ist, was am Ende übergeben wird:
+- Wird eine **bewegliche Sache** hergestellt und **geliefert** (z. B. 15 nach Kundenwunsch zusammengebaute und vorinstallierte PCs), gilt nach **§ 650 BGB Kaufrecht** – also auch die Untersuchungs- und Rügepflicht nach § 377 HGB unter Kaufleuten, keine Abnahme.
+- Steht dagegen die **Arbeitsleistung beim Kunden** im Vordergrund (Netzwerk im Gebäude installieren, Server konfigurieren, Software individuell erstellen), ist es ein **Werkvertrag** mit Abnahme.
+
+*Achtung bei älteren Unterlagen:* Bis Ende 2017 stand der Werklieferungsvertrag in **§ 651 BGB**. Seit der Reform des Bauvertragsrechts (01.01.2018) ist es **§ 650 BGB** – manche Bücher und Prüfungsvorbereitungen nennen noch die alte Nummer. Inhaltlich hat sich nichts Wesentliches geändert.
 
 **Mischformen:** Ein **Wartungsvertrag** kann je nach Ausgestaltung Werkvertrag (Störungen beseitigen = Erfolg) oder Dienstvertrag (Bereitschaft, Inspektion) sein – im Vertrag klar beschreiben, was geschuldet ist!`,
         },
@@ -348,7 +439,7 @@ Kaufverträge sind grundsätzlich **formfrei** (mündlich, telefonisch, per E-Ma
             explanation: 'Schulung = Tätigkeit (Dienst); Reparatur mit Erfolg (Werk); Kauf; zeitweise Gebrauchsüberlassung gegen Entgelt (Miete).',
           },
         },
-        { type: 'practice', title: 'Übung: Vertragsarten', questionIds: ['w04-q019', 'w04-q020', 'w04-q021', 'w04-q022'], count: 4, difficulty: 2 },
+        { type: 'practice', title: 'Übung: Vertragsarten', questionIds: ['w04-q019', 'w04-q020', 'w04-q021', 'w04-q022', 'w04-q037', 'w04-q038'], count: 5, difficulty: 2 },
         { type: 'summary', points: ['Werkvertrag: Erfolg, Abnahme, Mängelrechte, Vergütung bei Abnahme.', 'Dienstvertrag: Tätigkeit, kein Erfolg, Vergütung nach Zeit.', 'Kauf: Übereignung; Miete/Leasing: Gebrauchsüberlassung auf Zeit.', 'Werklieferungsvertrag (herzustellende bewegliche Sachen) → Kaufrecht.', 'Leistungsbeschreibung im Vertrag entscheidet über die Einordnung.'] },
       ],
     },
@@ -359,6 +450,9 @@ Kaufverträge sind grundsätzlich **formfrei** (mündlich, telefonisch, per E-Ma
       minutes: 25,
       relevance: 'ap1',
       skills: ['w.lizenzen'],
+      simple: `Wenn du ein Computerspiel kaufst, gehört dir nicht das Spiel selbst, sondern nur das **Recht, es zu benutzen** – das ist eine **Lizenz**. Wie bei einer Kinokarte: Du darfst den Film sehen, aber nicht kopieren und verkaufen. Software ist durch das **Urheberrecht** geschützt (Schutz für geistige Werke). Lizenzen gibt es pro Gerät, pro Person, für eine bestimmte Zahl gleichzeitiger Nutzer oder als **Abo**. Wer mehr Geräte nutzt, als Lizenzen gekauft wurden, verstößt gegen das Gesetz.
+
+**Merke:** Man kauft ein Nutzungsrecht, keine Software; Lizenzmodell passend wählen und Lizenzen genau zählen.`,
       steps: [
         {
           type: 'explain',
@@ -437,10 +531,13 @@ Kaufverträge sind grundsätzlich **formfrei** (mündlich, telefonisch, per E-Ma
     /* ------------------------------------------------------------ */
     {
       id: 'w04-l07',
-      title: 'Service Level Agreements (SLA)',
-      minutes: 25,
+      title: 'Service Level Agreements (SLA), OLA/UC und AV-Vertrag',
+      minutes: 35,
       relevance: 'ap1-teilweise',
-      skills: ['w.sla'],
+      skills: ['w.sla', 'w.avvertrag'],
+      simple: `Ein **SLA** ist wie das Versprechen eines Pizzadienstes: „Lieferung in 30 Minuten, sonst ist die Pizza gratis.“ Es legt **messbar** fest, wie gut ein IT-Dienst sein muss, z. B. „Der Mailserver läuft 99,5 % der Zeit“ und „Bei Totalausfall melden wir uns in 30 Minuten“. Damit das klappt, braucht der Dienstleister selbst Absprachen: intern mit den eigenen Abteilungen (**OLA**) und mit Zulieferern wie dem Internetanbieter (**UC**). Verarbeitet der Dienstleister dabei personenbezogene Daten (Daten über Menschen) für dich, braucht ihr zusätzlich einen **Auftragsverarbeitungsvertrag** nach der DSGVO.
+
+**Merke:** SLA (Kunde) – OLA (intern) – UC (Zulieferer); erlaubter Ausfall = Zeit × (100 % − Verfügbarkeit); Auftragsverarbeitung nur mit AV-Vertrag (Art. 28 DSGVO).`,
       steps: [
         {
           type: 'explain',
@@ -477,6 +574,34 @@ Kaufverträge sind grundsätzlich **formfrei** (mündlich, telefonisch, per E-Ma
 Im IT-Service-Management (ITIL) unterscheidet man außerdem das **SLA** (mit dem Kunden), das **OLA** (Operational Level Agreement, intern zwischen Abteilungen) und den **UC** (Underpinning Contract, mit externen Zulieferern, z. B. dem Internetprovider). Ein SLA kann nur halten, wenn OLAs und UCs dazu passen.`,
         },
         {
+          type: 'explain',
+          title: 'SLA, OLA und UC zusammenbringen – und den Datenschutz regeln',
+          body: `**Die Vertragskette**
+
+| Vereinbarung | zwischen | Beispiel (Systemhaus betreibt den Mailserver der Elektro Krämer GmbH) |
+|---|---|---|
+| **SLA** – Service Level Agreement | IT-Dienstleister ↔ **Kunde** | Mail-Dienst 99,5 % verfügbar, Reaktionszeit P1: 30 min, Wiederherstellung P1: 4 h |
+| **OLA** – Operational Level Agreement | Abteilungen **innerhalb** des Dienstleisters | Netzwerkteam reagiert auf Meldungen des Serverteams innerhalb von 15 min |
+| **UC** – Underpinning Contract | Dienstleister ↔ **externer Zulieferer** | Rechenzentrumsbetreiber garantiert Strom und Kühlung 99,98 %; Hardwarehersteller tauscht defekte Teile innerhalb von 4 h |
+
+**Grundregel:** Die Zusagen in OLA und UC müssen **mindestens so gut** sein wie das, was im SLA versprochen wird. Sagt das Systemhaus dem Kunden 4 h Wiederherstellung zu, hat aber mit dem Hersteller nur „Teiletausch am nächsten Arbeitstag“ vereinbart, kann es das SLA bei einem Hardwaredefekt nicht halten.
+
+**Vertragsstrafe (Konventionalstrafe, §§ 339 ff. BGB):** Ein vorher vereinbarter Geldbetrag, den der Schuldner zahlen muss, wenn er seine Pflicht nicht oder nicht richtig erfüllt – z. B. 500 € je Tag Verspätung bei der Übergabe oder eine Gutschrift bei Unterschreitung der SLA-Verfügbarkeit. Vorteil für den Gläubiger: Er muss keinen konkreten Schaden nachweisen. In AGB darf sie nicht unangemessen hoch sein.
+
+**Auftragsverarbeitungsvertrag (AV-Vertrag, Art. 28 DSGVO)**
+
+Verarbeitet ein Dienstleister **personenbezogene Daten im Auftrag und nach Weisung** eines Unternehmens, ist ein schriftlicher Vertrag (auch elektronisch) vorgeschrieben. Typische Fälle: Cloud-Speicher, gehosteter Mailserver, externer Backup-Dienst, Fernwartung mit Zugriff auf Kundendaten, Entsorgung von Datenträgern.
+
+| Rolle | Wer? |
+|---|---|
+| **Verantwortlicher** | das Unternehmen, dem die Daten „gehören“ (Elektro Krämer GmbH) – entscheidet über Zweck und Mittel |
+| **Auftragsverarbeiter** | der Dienstleister (Systemhaus, Cloud-Anbieter) – verarbeitet nur nach Weisung |
+
+**Pflichtinhalte (Auswahl, Art. 28 Abs. 3 DSGVO):** Gegenstand, Dauer, Art und Zweck der Verarbeitung, Art der Daten und Kategorien betroffener Personen · Verarbeitung **nur auf dokumentierte Weisung** · **Vertraulichkeit** der eingesetzten Mitarbeitenden · **technische und organisatorische Maßnahmen** (TOM, Art. 32) · Einsatz von **Unterauftragnehmern** nur mit Genehmigung · Unterstützung bei Betroffenenrechten und Datenpannen · **Löschung oder Rückgabe** der Daten nach Vertragsende · **Kontroll- und Nachweisrechte** des Verantwortlichen.
+
+*Abgrenzung:* Ein Steuerberater oder eine Bank verarbeitet Daten **eigenverantwortlich** – dort liegt keine Auftragsverarbeitung vor. Ausführlich zum Datenschutz: Modul s02.`,
+        },
+        {
           type: 'example',
           title: 'Wurde das SLA eingehalten?',
           problem: 'Vereinbart sind **99,5 % Verfügbarkeit** des Dateiservers in der Servicezeit **Mo–Fr 8–18 Uhr**. Im März gab es **22 Arbeitstage**. Der Server fiel an einem Dienstag von **9:10 bis 11:40 Uhr** aus. Wurde das SLA eingehalten?',
@@ -500,7 +625,8 @@ Im IT-Service-Management (ITIL) unterscheidet man außerdem das **SLA** (mit dem
         },
         { type: 'practice', title: 'Übung: Verfügbarkeit berechnen', generator: 'w.sla', count: 3, difficulty: 2 },
         { type: 'practice', title: 'Prüfungsniveau: erreichte Verfügbarkeit', generator: 'w.sla', count: 2, difficulty: 3 },
-        { type: 'summary', points: ['SLA = messbare Vereinbarung über Servicequalität.', 'Kennzahlen: Servicezeit, Verfügbarkeit, Reaktionszeit, Wiederherstellungszeit.', 'Erlaubter Ausfall = Zeit × (100 % − Verfügbarkeit).', 'Wartungsfenster zählen meist nicht als Ausfall.', 'SLA (Kunde) – OLA (intern) – UC (Zulieferer).'] },
+        { type: 'practice', title: 'Übung: OLA/UC, AV-Vertrag, Vertragsstrafe', questionIds: ['w04-q039', 'w04-q040', 'w04-q041', 'w04-q042', 'w04-q043', 'w04-q044'], count: 5, difficulty: 2 },
+        { type: 'summary', points: ['SLA = messbare Vereinbarung über Servicequalität.', 'Kennzahlen: Servicezeit, Verfügbarkeit, Reaktionszeit, Wiederherstellungszeit.', 'Erlaubter Ausfall = Zeit × (100 % − Verfügbarkeit).', 'Wartungsfenster zählen meist nicht als Ausfall.', 'SLA (Kunde) – OLA (intern) – UC (Zulieferer); OLA und UC müssen das SLA tragen.', 'Vertragsstrafe (§ 339 BGB): vereinbarter Betrag ohne Schadensnachweis.', 'Auftragsverarbeitung personenbezogener Daten nur mit AV-Vertrag nach Art. 28 DSGVO (Weisung, TOM, Unterauftragnehmer, Löschung, Kontrollrechte).'] },
       ],
     },
   ],
@@ -552,5 +678,17 @@ Im IT-Service-Management (ITIL) unterscheidet man außerdem das **SLA** (mit dem
     { id: 'w04-q030', kind: 'match', skill: 'w.sla', difficulty: 2, prompt: 'Ordne die SLA-Kennzahlen zu.', left: ['Reaktionszeit', 'Wiederherstellungszeit', 'Servicezeit', 'Verfügbarkeit'], right: ['Zeit bis zur qualifizierten Rückmeldung bzw. Bearbeitungsbeginn', 'Zeit bis der Dienst wieder nutzbar ist', 'Zeitraum, in dem der Dienstleister die Leistung erbringt bzw. erreichbar ist', 'Anteil der Zeit, in dem der Dienst nutzbar ist'], answer: [0, 1, 2, 3], explanation: 'Reaktionszeit ≠ Lösungszeit: Ein schneller Rückruf löst das Problem noch nicht.' },
     { id: 'w04-q031', kind: 'free', skill: 'w.sla', difficulty: 2, prompt: 'Die Elektro Krämer GmbH lagert ihren Mailserver an einen Dienstleister aus. Nenne **fünf Inhalte**, die im SLA geregelt sein sollten.', modelAnswer: '1. Leistungsbeschreibung (Mailbetrieb, Spam-/Virenschutz, Backup). 2. Servicezeiten und Erreichbarkeit des Supports. 3. Verfügbarkeit in % und Messverfahren. 4. Reaktions- und Wiederherstellungszeiten je Priorität. 5. Wartungsfenster. 6. Eskalationsweg und Ansprechpartner. 7. Reporting. 8. Vertragsstrafen/Gutschriften bei Unterschreitung. 9. Datenschutz (Auftragsverarbeitungsvertrag, Serverstandort) und Datensicherung/Restore-Zeiten.', keywords: ['Verfügbarkeit', 'Reaktionszeit', 'Wiederherstellungszeit', 'Servicezeit', 'Wartungsfenster', 'Vertragsstrafe', 'Reporting'], explanation: 'Ein SLA muss messbare Werte enthalten – sonst lässt sich nicht prüfen, ob es eingehalten wurde.' },
     { id: 'w04-q032', kind: 'number', skill: 'w.sla', difficulty: 3, prompt: 'Im SLA sind **99,5 %** Verfügbarkeit in der Servicezeit Mo–Fr 8–18 Uhr vereinbart. Im Monat gab es **22 Arbeitstage**; der Dienst fiel insgesamt **150 Minuten** aus. Welche Verfügbarkeit wurde erreicht? (Prozent, zwei Nachkommastellen)', answer: 98.86, tolerance: 0.005, unit: '%', misconceptions: [{ answer: '99.65', error: 'w-sla-servicezeit', why: 'Die Verfügbarkeit bezieht sich auf die **Servicezeit** (22 × 10 h = 13.200 min), nicht auf 30 Tage 24/7.' }, { answer: '1.14', error: 'w-sla-ausfall-statt-verfuegbar', why: 'Das ist der Ausfallanteil. Verfügbarkeit = 100 % − Ausfallanteil.' }], explanation: 'Servicezeit: 22 × 10 h = 13.200 min · (13.200 − 150) ÷ 13.200 × 100 = 98,8636… ≈ **98,86 %** → SLA verfehlt.' },
+    { id: 'w04-q033', kind: 'single', skill: 'w.wareneingang', difficulty: 1, prompt: 'Bestellt wurden **20 Monitore**, laut Lieferschein und Zählung kommen nur **18** an. Welche Mangelart liegt vor?', options: ['Mangel in der Menge', 'Mangel in der Art (Falschlieferung)', 'Mangel in der Güte/Qualität', 'Kein Mangel, nur Lieferverzug'], answer: 0, distractors: { '1': { why: 'Die richtigen Monitore wurden geliefert – nur zu wenige.', error: 'w-mangelart' }, '2': { why: 'An der Qualität der gelieferten Geräte ist nichts auszusetzen.', error: 'w-mangelart' }, '3': { why: 'Weniger als bestellt zu liefern ist ein Mangel in der Menge.', error: 'w-mangelart' } }, explanation: '18 statt 20 Stück → **Mangel in der Menge**.' },
+    { id: 'w04-q034', kind: 'single', skill: 'w.wareneingang', difficulty: 1, prompt: 'Bestellt wurden **27-Zoll-Monitore**, geliefert werden **24-Zoll-Monitore** in der richtigen Stückzahl, alle funktionieren. Welche Mangelart liegt vor?', options: ['Mangel in der Art (Falschlieferung)', 'Mangel in der Menge', 'Mangel in der Güte/Qualität', 'Kein Mangel, weil die Geräte funktionieren'], answer: 0, distractors: { '1': { why: 'Die Stückzahl stimmt.', error: 'w-mangelart' }, '2': { why: 'Die Geräte sind nicht fehlerhaft – es ist das falsche Produkt.', error: 'w-mangelart' }, '3': { why: 'Wird etwas anderes geliefert als bestellt, ist das auch dann ein Mangel, wenn es funktioniert.', error: 'w-mangelart' } }, explanation: 'Anderes Produkt als bestellt → **Mangel in der Art** (Falschlieferung).' },
+    { id: 'w04-q035', kind: 'multi', skill: 'w.wareneingang', difficulty: 2, prompt: 'Was gehört in eine **Mängelrüge**?', options: ['Bezug auf Bestellung bzw. Lieferschein (Nummer, Datum)', 'Genaue Beschreibung des Mangels (Artikel, Seriennummern, Anzahl)', 'Das gewünschte Recht, z. B. Ersatzlieferung', 'Eine angemessene Frist', 'Die sofortige Rücktrittserklärung ohne Frist', 'Eine Kopie der eigenen AGB'], answer: [0, 1, 2, 3], explanation: 'Zuerst wird **Nacherfüllung** mit Frist verlangt. Rücktritt kommt erst in Frage, wenn die Nacherfüllung scheitert.' },
+    { id: 'w04-q036', kind: 'single', skill: 'w.wareneingang', difficulty: 2, prompt: 'Bei der Anlieferung ist ein Karton **sichtbar eingedrückt**. Der Fahrer wartet. Was tust du?', options: ['Den Schaden auf dem Lieferschein/Frachtbrief vermerken, vom Fahrer gegenzeichnen lassen und Fotos machen', 'Erst einmal annehmen und in ein paar Wochen auspacken', 'Ohne Vermerk unterschreiben, der Händler haftet ja sowieso', 'Den Karton öffnen und die Ware behalten, aber nichts melden'], answer: 0, distractors: { '1': { why: 'Die Ware muss unverzüglich geprüft werden, sonst können Rechte verloren gehen (§ 377 HGB).', error: 'w-ruegefrist' }, '2': { why: 'Ohne Vermerk ist später schwer zu beweisen, dass der Schaden schon bei Lieferung da war.', error: 'w-ruegefrist' }, '3': { why: 'Wer einen erkennbaren Mangel nicht meldet, verliert unter Kaufleuten seine Rechte.', error: 'w-ruegefrist' } }, explanation: 'Äußere Schäden **sofort** auf dem Lieferschein vermerken und gegenzeichnen lassen; bei schweren Schäden die Annahme verweigern.' },
+    { id: 'w04-q037', kind: 'single', skill: 'w.vertragsarten', difficulty: 2, prompt: 'Ein Systemhaus soll im Gebäude des Kunden ein **Netzwerk installieren und einrichten**; geschuldet ist ein funktionierendes Netzwerk. Welche Vertragsart liegt vor?', options: ['Werkvertrag mit Abnahme', 'Dienstvertrag', 'Kaufvertrag', 'Mietvertrag'], answer: 0, distractors: { '1': { why: 'Geschuldet ist ein Erfolg (funktionierendes Netz), nicht nur die Tätigkeit.', error: 'w-vertragsart' }, '2': { why: 'Im Vordergrund steht die Arbeitsleistung beim Kunden, nicht die Lieferung einer Sache.', error: 'w-vertragsart' }, '3': { why: 'Es wird nichts auf Zeit überlassen.', error: 'w-vertragsart' } }, explanation: 'Erfolg wird geschuldet und die Arbeit beim Kunden steht im Vordergrund → **Werkvertrag** (§ 631 BGB) mit Abnahme.' },
+    { id: 'w04-q038', kind: 'single', skill: 'w.vertragsarten', difficulty: 2, prompt: 'In einem älteren Lehrbuch steht der Werklieferungsvertrag in **§ 651 BGB**. Was gilt heute?', options: ['Er steht seit 2018 in § 650 BGB; inhaltlich gilt weiter Kaufrecht.', 'Der Werklieferungsvertrag wurde abgeschafft.', 'Heute gilt dafür Dienstvertragsrecht.', '§ 651 BGB ist weiterhin richtig.'], answer: 0, distractors: { '1': { why: 'Es gibt ihn weiterhin – nur die Nummer hat sich geändert.', error: 'w-vertragsart' }, '2': { why: 'Es gilt weiter Kaufrecht, nicht Dienstvertragsrecht.', error: 'w-vertragsart' }, '3': { why: 'Seit dem 01.01.2018 ist es § 650 BGB.', error: 'w-vertragsart' } }, explanation: 'Seit der Reform zum 01.01.2018: **§ 650 BGB**, Rechtsfolge Kaufrecht.' },
+    { id: 'w04-q039', kind: 'single', skill: 'w.avvertrag', difficulty: 2, prompt: 'Innerhalb eines Systemhauses vereinbart das **Netzwerkteam mit dem Serverteam**, auf Störungsmeldungen innerhalb von 15 Minuten zu reagieren. Wie heißt diese Vereinbarung?', options: ['OLA (Operational Level Agreement)', 'SLA (Service Level Agreement)', 'UC (Underpinning Contract)', 'AV-Vertrag'], answer: 0, distractors: { '1': { why: 'Ein SLA wird mit dem Kunden geschlossen.', error: 'w-sla-ola-uc' }, '2': { why: 'Ein UC wird mit einem externen Zulieferer geschlossen.', error: 'w-sla-ola-uc' }, '3': { why: 'Der AV-Vertrag regelt Datenschutz bei Auftragsverarbeitung.', error: 'w-sla-ola-uc' } }, explanation: 'Interne Vereinbarung zwischen Abteilungen → **OLA**.' },
+    { id: 'w04-q040', kind: 'single', skill: 'w.avvertrag', difficulty: 2, prompt: 'Ein Systemhaus schließt mit einem **Hardwarehersteller** einen Vertrag: defekte Serverteile werden innerhalb von 4 Stunden getauscht. Wie heißt dieser Vertrag in der SLA-Kette?', options: ['UC (Underpinning Contract)', 'OLA (Operational Level Agreement)', 'SLA (Service Level Agreement)', 'Garantie'], answer: 0, distractors: { '1': { why: 'Ein OLA gilt nur innerhalb des eigenen Unternehmens.', error: 'w-sla-ola-uc' }, '2': { why: 'Das SLA schließt das Systemhaus mit seinem Kunden.', error: 'w-sla-ola-uc' }, '3': { why: 'Eine Garantie ist ein freiwilliges Versprechen, kein vereinbarter Servicevertrag mit Reaktionszeiten.', error: 'w-sla-ola-uc' } }, explanation: 'Vertrag mit einem **externen Zulieferer**, der das SLA absichert → **UC**.' },
+    { id: 'w04-q041', kind: 'single', skill: 'w.avvertrag', difficulty: 3, prompt: 'Das Systemhaus sagt dem Kunden im SLA **4 Stunden Wiederherstellung** zu. Mit dem Hersteller ist nur **Teiletausch am nächsten Arbeitstag** vereinbart. Wie bewertest du das?', options: ['Das SLA ist gefährdet: Der UC muss mindestens so gut sein wie die Zusage an den Kunden (oder es braucht Ersatzteile auf Lager).', 'Kein Problem, der Hersteller haftet gegenüber dem Kunden.', 'Kein Problem, das SLA gilt nur für Software.', 'Der Kunde muss sich direkt an den Hersteller wenden.'], answer: 0, distractors: { '1': { why: 'Der Kunde hat nur einen Vertrag mit dem Systemhaus, nicht mit dem Hersteller.', error: 'w-sla-ola-uc' }, '2': { why: 'Das SLA gilt für den vereinbarten Dienst, auch wenn Hardware ausfällt.', error: 'w-sla-ola-uc' }, '3': { why: 'Ansprechpartner des Kunden ist laut SLA das Systemhaus.', error: 'w-sla-ola-uc' } }, explanation: 'Grundregel: **OLA und UC müssen mindestens so gut sein wie das SLA.** Sonst kann das Systemhaus seine Zusage nicht einhalten.' },
+    { id: 'w04-q042', kind: 'single', skill: 'w.avvertrag', difficulty: 2, prompt: 'Die Elektro Krämer GmbH lässt ihre E-Mails mit Kundendaten bei einem **Cloud-Anbieter** hosten. Welcher Vertrag ist nach DSGVO vorgeschrieben?', options: ['Ein Auftragsverarbeitungsvertrag (Art. 28 DSGVO)', 'Ein Werkvertrag', 'Ein Leasingvertrag', 'Keiner, die Daten bleiben ja im Unternehmen'], answer: 0, distractors: { '1': { why: 'Der Werkvertrag regelt einen Erfolg, nicht den Datenschutz.', error: 'w-avv' }, '2': { why: 'Leasing betrifft die Überlassung von Gütern.', error: 'w-avv' }, '3': { why: 'Die Daten liegen beim Cloud-Anbieter – er verarbeitet sie im Auftrag.', error: 'w-avv' } }, explanation: 'Wer personenbezogene Daten **im Auftrag und nach Weisung** verarbeitet, braucht einen **AV-Vertrag** nach Art. 28 DSGVO.' },
+    { id: 'w04-q043', kind: 'single', skill: 'w.avvertrag', difficulty: 2, prompt: 'Im AV-Vertrag zwischen Elektro Krämer GmbH und dem Cloud-Anbieter: Wer ist der **Verantwortliche**?', options: ['Die Elektro Krämer GmbH – sie entscheidet über Zweck und Mittel der Verarbeitung', 'Der Cloud-Anbieter, weil die Server bei ihm stehen', 'Die Aufsichtsbehörde', 'Jeder Kunde, dessen Daten gespeichert sind'], answer: 0, distractors: { '1': { why: 'Der Cloud-Anbieter ist Auftragsverarbeiter und handelt nur nach Weisung.', error: 'w-avv' }, '2': { why: 'Die Aufsichtsbehörde kontrolliert, sie verarbeitet keine Daten.', error: 'w-avv' }, '3': { why: 'Die Kunden sind die betroffenen Personen.', error: 'w-avv' } }, explanation: '**Verantwortlicher** = Auftraggeber (Elektro Krämer). **Auftragsverarbeiter** = Cloud-Anbieter. **Betroffene** = Kunden.' },
+    { id: 'w04-q044', kind: 'number', skill: 'w.avvertrag', difficulty: 2, prompt: 'Vereinbart ist eine **Vertragsstrafe von 500 € je Tag** verspäteter Übergabe, **höchstens 5 % des Auftragswerts**. Der Auftrag hat **40.000 €**, die Übergabe erfolgt **7 Tage** zu spät. Wie hoch ist die Vertragsstrafe?', answer: 2000, tolerance: 0.01, unit: '€', misconceptions: [{ answer: '3500', error: 'w-vertragsstrafe-obergrenze', why: '7 × 500 € = 3.500 € liegt über der Obergrenze von 5 % (2.000 €).' }, { answer: '500', error: 'w-stueckzahl', why: 'Das ist die Strafe für einen Tag.' }], explanation: '7 × 500 € = 3.500 €. Obergrenze: 5 % × 40.000 € = 2.000 €. Es gilt der kleinere Wert: **2.000 €**.' },
   ],
 };

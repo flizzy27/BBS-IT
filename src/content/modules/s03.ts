@@ -9,7 +9,7 @@ export const s03: Module = {
   icon: 'HardDrive',
   relevance: 'ap1',
   prerequisites: ['s01'],
-  generators: ['sich.backupspeicher', 'sich.backupdauer'],
+  generators: ['sich.backupspeicher', 'sich.backupdauer', 'sich.redundanz'],
   skills: [
     { id: 'sich.bk.grundlagen', module: 's03', title: 'Ursachen von Datenverlust; Backup, RAID, Synchronisation und Archiv unterscheiden', requires: ['sich.schutzziele'] },
     { id: 'sich.bk.arten', module: 's03', title: 'Voll-, inkrementelle und differenzielle Sicherung vergleichen', requires: ['sich.bk.grundlagen'] },
@@ -17,6 +17,7 @@ export const s03: Module = {
     { id: 'sich.bk.strategie', module: 's03', title: 'Sicherungsstrategien: Generationenprinzip, 3-2-1-Regel, Medien, RPO/RTO', requires: ['sich.bk.arten'] },
     { id: 'sich.bk.restore', module: 's03', title: 'Wiederherstellung, Systemabbilder, Tests und Datensicherungskonzept', requires: ['sich.bk.strategie'] },
     { id: 'sich.bk.archiv', module: 's03', title: 'Archivierung und gesetzliche Aufbewahrungsfristen', requires: ['sich.bk.grundlagen'] },
+    { id: 'sich.verfuegbarkeit', module: 's03', title: 'Verfügbarkeit bei Reihen- und Parallelschaltung (Redundanz) berechnen', requires: ['sich.schutzziele'] },
   ],
   lessons: [
     /* ---------------------------------------------------------------- */
@@ -26,6 +27,11 @@ export const s03: Module = {
       minutes: 15,
       relevance: 'ap1',
       skills: ['sich.bk.grundlagen'],
+      simple: `Ein **Backup** (Datensicherung) ist wie ein Zweitschlüssel, den du bei deinen Eltern hinterlegst: Verlierst du deinen, kommst du trotzdem in die Wohnung. Wichtig ist, dass die Kopie **woanders** liegt.
+**RAID** (mehrere Festplatten, die sich gegenseitig spiegeln) ist dagegen wie ein zweites Schloss an derselben Tür: Geht eine Platte kaputt, läuft alles weiter. Löschst du aber aus Versehen etwas, ist es auf allen Platten gleichzeitig weg.
+Auch eine Synchronisation (z. B. ein Cloud-Ordner) überträgt Fehler und Verschlüsselungen sofort mit.
+
+**Merke:** RAID schützt vor Plattenausfall, ein Backup schützt vor Datenverlust – RAID ersetzt kein Backup.`,
       steps: [
         {
           type: 'explain',
@@ -106,6 +112,11 @@ export const s03: Module = {
       minutes: 25,
       relevance: 'ap1',
       skills: ['sich.bk.arten'],
+      simple: `Stell dir vor, du fotografierst dein Zimmer. Bei der **Vollsicherung** fotografierst du alles.
+Bei der **inkrementellen** Sicherung fotografierst du nur, was sich seit dem **letzten Foto** verändert hat. Das geht schnell – aber zum Wiederherstellen brauchst du alle Fotos der Reihe nach.
+Bei der **differenziellen** Sicherung fotografierst du alles, was sich seit dem **letzten Komplettfoto** verändert hat. Das wird jeden Tag mehr – dafür reichen zum Wiederherstellen zwei Fotos.
+
+**Merke:** Inkrementell = seit der letzten Sicherung (wenig Speicher, lange Kette); differenziell = seit der letzten Vollsicherung (wächst, nur Voll + letzte Differenz nötig).`,
       steps: [
         {
           type: 'explain',
@@ -220,6 +231,12 @@ Moderne Software arbeitet meist mit Änderungsjournalen oder Blockvergleich (*Ch
       minutes: 25,
       relevance: 'ap1',
       skills: ['sich.bk.rechnen'],
+      simple: `Die Dauer einer Sicherung rechnest du wie eine Autofahrt: Zeit = Strecke durch Geschwindigkeit – hier **Zeit = Datenmenge durch Datenrate**.
+Achte auf die Einheiten wie auf km und m: Netzwerke rechnen in **Bit** pro Sekunde, Festplatten meist in **Byte** pro Sekunde (1 Byte = 8 Bit).
+Es gibt außerdem zwei Arten von „Giga“: **GB** = 1 Milliarde Byte und **GiB** = 1.073.741.824 Byte (2³⁰). Welche gilt, steht in der Aufgabe.
+Beim Speicherbedarf zählst du die Änderungen zusammen – bei differenziell immer alles seit der Vollsicherung.
+
+**Merke:** t = Datenmenge / Datenrate – vorher Bit/Byte (· 8) und GB/GiB klären, am Ende in Minuten oder Stunden umrechnen.`,
       steps: [
         {
           type: 'explain',
@@ -242,9 +259,59 @@ Bei gleich großen täglichen Änderungen *c* über *n* Tage gilt:
 
 Stolperfallen (wie bei der Übertragungszeit im Netzwerkmodul):
 - **Byte vs. Bit:** Laufwerke werden meist in **MB/s** angegeben, Netzwerke in **Mbit/s** → Datenmenge mal 8.
-- **1000 vs. 1024:** Ohne Angabe gelten bei Herstellerangaben Dezimalpräfixe (1 TB = 1000 GB). Halte dich an die Aufgabenstellung.
+- **1000 vs. 1024:** Herstellerangaben und Datenraten sind **dezimal** (1 TB = 1000 GB, 1 Gbit/s = 1.000.000.000 bit/s). Betriebssysteme und viele Schulbücher geben Datenmengen dagegen **binär** an (GiB, TiB – siehe Kasten unten). Halte dich an die Aufgabenstellung.
 - **Einheiten am Ende umrechnen:** Sekunden → Minuten (÷ 60) → Stunden (÷ 3600).
 - **Nutzrate:** Protokoll-Overhead, Komprimierung oder Last können die effektive Rate verändern – nur rechnen, wenn angegeben.`,
+        },
+        {
+          type: 'explain',
+          title: 'GiB und TiB: wenn die Datenmenge binär angegeben ist',
+          body: `Windows zeigt eine „2-TB-Festplatte“ nur mit etwa **1,8 TB** an (genauer: 2.000.000.000.000 Byte ÷ 1.099.511.627.776 ≈ 1,82). Der Grund: Windows rechnet intern **binär** (mit Zweierpotenzen), schreibt aber „TB“. Korrekt heißen die binären Einheiten **GiB** (Gibibyte) und **TiB** (Tebibyte):
+
+| dezimal (SI, Hersteller, Datenraten) | binär (IEC, Betriebssystem, viele Schulbücher) |
+|---|---|
+| 1 GB = 10⁹ Byte = 1.000.000.000 Byte | 1 GiB = 2³⁰ Byte = 1.073.741.824 Byte |
+| 1 TB = 10¹² Byte = 1.000.000.000.000 Byte | 1 TiB = 2⁴⁰ Byte = 1.099.511.627.776 Byte |
+
+**Datenraten sind immer dezimal:** 1 Gbit/s = 1.000.000.000 bit/s, 1 MB/s = 1.000.000 Byte/s.
+
+**Schulbuch-Konvention:** Viele Bücher geben die Datenmenge in GiB/TiB an, die Datenrate aber in Mbit/s oder MB/s. Dann rechnest du so:
+1. Datenmenge in **Byte**: GiB · 1.073.741.824 bzw. TiB · 1.099.511.627.776
+2. Bei Netzwerkraten in **Bit**: · 8
+3. Rate in bit/s (bzw. Byte/s) umrechnen, ggf. mit dem Nutzanteil multiplizieren
+4. t = Datenmenge / Rate → Sekunden → Minuten/Stunden
+
+**Der Unterschied ist nicht klein:** 1 GiB ist rund **7,4 %** größer als 1 GB, 1 TiB rund **10 %** größer als 1 TB. Rechnest du TiB wie TB, ist dein Ergebnis um etwa 10 % zu klein.
+
+**Steht nichts dabei?** Dann nimm die Einheit wörtlich (GB = dezimal, GiB = binär) und schreib deine Annahme kurz dazu: „Annahme: 1 GB = 10⁹ Byte“.`,
+        },
+        {
+          type: 'example',
+          title: 'Backup mit TiB-Angabe und Nutzanteil',
+          problem: 'Der Explorer zeigt für die Projektablage **1,5 TiB** an. Sie wird über **1 Gbit/s** auf ein NAS gesichert; nutzbar sind **80 %** der Bandbreite. Wie lange dauert die Sicherung? (1 TiB = 2⁴⁰ Byte, Datenrate dezimal)',
+          steps: [
+            { label: '1. Datenmenge in Byte', body: '1,5 · 1.099.511.627.776 Byte = **1.649.267.441.664 Byte**' },
+            { label: '2. In Bit', body: '1.649.267.441.664 Byte · 8 = **13.194.139.533.312 bit**' },
+            { label: '3. Nutzbare Rate', body: '1.000.000.000 bit/s · 0,8 = **800.000.000 bit/s**' },
+            { label: '4. Dauer', body: '13.194.139.533.312 bit / 800.000.000 bit/s = 16.492,7 s → / 60 = **274,9 min** → / 60 = **≈ 4,58 h**' },
+            { label: 'Zum Vergleich: dezimal gerechnet', body: '1,5 · 10¹² Byte · 8 / 800.000.000 bit/s = 15.000 s = 250 min. Das wäre hier der **falsche Weg**, weil die Aufgabe TiB vorgibt – rund 25 Minuten zu wenig.' },
+          ],
+          result: 'Die Sicherung dauert rund 275 Minuten (≈ 4,6 h). Dezimal gerechnet käme man nur auf 250 Minuten.',
+        },
+        {
+          type: 'check',
+          question: {
+            id: 's03-c11', kind: 'number', skill: 'sich.bk.rechnen', difficulty: 2,
+            prompt: 'Das Betriebssystem zeigt für einen Ordner **500 GiB** an. Er wird auf eine USB-Festplatte mit **200 MB/s** gesichert. Wie viele **Minuten** dauert das? (1 GiB = 2³⁰ Byte = 1.073.741.824 Byte; 1 MB/s = 1.000.000 Byte/s; auf ganze Minuten runden)',
+            answer: 45, tolerance: 1, unit: 'min',
+            hints: ['Erst die Datenmenge in Byte: 500 · 1.073.741.824.', 'Dann durch 200.000.000 Byte/s teilen und durch 60.'],
+            misconceptions: [
+              { answer: '42', error: 'einheit-1000-1024', why: 'Du hast GiB wie GB gerechnet (500 · 10⁹ Byte). Laut Aufgabe ist 1 GiB = 1.073.741.824 Byte.' },
+              { answer: '2684', error: 'einheit-sekunden-minuten', why: 'Das sind Sekunden – noch durch 60 teilen.' },
+              { answer: '358', error: 'einheit-bit-byte', why: 'MB/s ist schon Byte pro Sekunde – hier nicht mit 8 multiplizieren.' },
+            ],
+            explanation: '**Ergebnis: ≈ 45 min**\n\n1. 500 GiB · 1.073.741.824 Byte = 536.870.912.000 Byte\n2. 536.870.912.000 Byte / 200.000.000 Byte/s = 2.684,35 s\n3. 2.684,35 s / 60 = 44,74 min ≈ **45 min**\n\nHäufiger Fehler: GiB wie GB rechnen → 500.000.000.000 / 200.000.000 = 2.500 s ≈ 42 min.',
+          },
         },
         {
           type: 'example',
@@ -297,6 +364,7 @@ Stolperfallen (wie bei der Übertragungszeit im Netzwerkmodul):
             'Inkrementell: Summe der Tagesänderungen; differenziell: Summe der kumulierten Änderungen; + Vollsicherung.',
             'Gleiche Änderung c an n Tagen: inkrementell n·c, differenziell c·n·(n+1)/2.',
             't = Datenmenge / Datenrate – Byte/Bit (· 8) und Einheiten beachten.',
+            'GiB/TiB sind binär (2³⁰ bzw. 2⁴⁰ Byte), Datenraten immer dezimal; TiB wie TB zu rechnen macht das Ergebnis rund 10 % zu klein.',
             'Ergebnis mit dem Backupfenster vergleichen und bewerten.',
           ],
         },
@@ -310,6 +378,12 @@ Stolperfallen (wie bei der Übertragungszeit im Netzwerkmodul):
       minutes: 30,
       relevance: 'ap1',
       skills: ['sich.bk.strategie'],
+      simple: `Eine gute Sicherungsstrategie funktioniert wie bei wichtigen Dokumenten: Original zu Hause, Kopie im Bankschließfach – und die Kopien werden regelmäßig erneuert.
+Die **3-2-1-Regel** sagt: **3** Kopien der Daten, auf **2** verschiedenen Speichermedien, **1** davon außer Haus.
+Beim **Generationenprinzip** (Großvater – Vater – Sohn) hebst du mehrere ältere Stände auf, damit du auch zu einem Stand von vor einigen Wochen zurückkannst.
+**RPO** sagt, wie viel Datenverlust höchstens erlaubt ist (z. B. die Arbeit von 4 Stunden). **RTO** sagt, wie schnell wieder alles laufen muss.
+
+**Merke:** 3-2-1 plus eine Kopie offline oder unveränderbar – das schützt gegen Ransomware, Brand und Diebstahl.`,
       steps: [
         {
           type: 'explain',
@@ -437,6 +511,12 @@ Wie viele Medien werden insgesamt benötigt?`,
       minutes: 20,
       relevance: 'ap1',
       skills: ['sich.bk.restore'],
+      simple: `Ein Backup, das nie getestet wurde, ist wie ein Feuerlöscher, den nie jemand geprüft hat: Im Ernstfall weißt du nicht, ob er funktioniert.
+Deshalb wird die **Wiederherstellung** (Restore) regelmäßig geprobt.
+Ein **Systemabbild** (Image) ist eine Kopie der ganzen Festplatte samt Betriebssystem – damit läuft ein Rechner schnell wieder.
+Im **Datensicherungskonzept** steht schriftlich, was, wann, wie und wohin gesichert wird, wer zuständig ist und wie getestet wird.
+
+**Merke:** Nur ein getestetes Backup ist ein Backup – Wiederherstellung regelmäßig üben und dokumentieren.`,
       steps: [
         {
           type: 'explain',
@@ -526,6 +606,12 @@ Viele Backup-Lösungen kombinieren beides (Image mit Einzeldateiwiederherstellun
       minutes: 15,
       relevance: 'ap1-teilweise',
       skills: ['sich.bk.archiv'],
+      simple: `Ein **Archiv** ist wie der Ordner mit alten Steuerunterlagen im Keller: Die Sachen sind abgeschlossen, du brauchst sie selten, musst sie aber viele Jahre unverändert aufheben.
+Ein **Backup** ist dagegen für den Notfall da und wird regelmäßig überschrieben.
+Das Gesetz schreibt Aufbewahrungsfristen vor: z. B. **8 Jahre** für Buchungsbelege wie Rechnungen und **10 Jahre** für Handelsbücher und Jahresabschlüsse. Die Frist beginnt erst am Ende des Kalenderjahres.
+Archivierte Daten müssen **revisionssicher** sein: vollständig, unverändert und jederzeit auffindbar.
+
+**Merke:** Backup = Betrieb wiederherstellen, Archiv = langfristig und unveränderbar aufbewahren – Frist ab Jahresende zählen.`,
       steps: [
         {
           type: 'explain',
@@ -570,6 +656,90 @@ Die Frist beginnt mit dem **Schluss des Kalenderjahres**, in dem die Unterlage e
             'GoBD: steuerlich relevante Daten unveränderbar, vollständig, auffindbar, lesbar.',
             'Fristen: 10 Jahre (Bücher, Abschlüsse), 8 Jahre (Buchungsbelege, seit 2025), 6 Jahre (Geschäftsbriefe).',
             'Fristbeginn: Ende des Kalenderjahres der Entstehung; danach personenbezogene Daten löschen.',
+          ],
+        },
+      ],
+    },
+
+    /* ---------------------------------------------------------------- */
+    {
+      id: 's03-l07',
+      title: 'Verfügbarkeit durch Redundanz berechnen',
+      minutes: 20,
+      relevance: 'ap1-teilweise',
+      skills: ['sich.verfuegbarkeit'],
+      simple: `Stell dir eine Lichterkette vor, bei der alle Lämpchen hintereinander hängen: Geht eins kaputt, ist alles dunkel. Das ist eine **Reihenschaltung** – jedes zusätzliche Teil macht das Ganze **anfälliger**.
+Hast du dagegen zwei Taschenlampen dabei, bleibt es hell, solange **eine** funktioniert. Das ist **Redundanz** (Parallelschaltung) – dunkel wird es nur, wenn **beide** gleichzeitig ausfallen.
+Deshalb rechnet man: Reihe → Verfügbarkeiten malnehmen. Parallel → die **Ausfall**wahrscheinlichkeiten malnehmen und das Ergebnis von 1 abziehen.
+
+**Merke:** Reihe: A = A₁ · A₂ · … – parallel: A = 1 − (1 − A₁) · (1 − A₂) · … (bei n gleichen Teilen: 1 − (1 − A)ⁿ).`,
+      steps: [
+        {
+          type: 'explain',
+          title: 'Reihe und Parallel – zwei Formeln',
+          body: `**Verfügbarkeit** (A, von *availability*) ist der Anteil der Zeit, in der ein System funktioniert – z. B. 99,5 % = 0,995. Wie man aus einer Verfügbarkeit die erlaubte Ausfallzeit für ein SLA berechnet, lernst du im Modul zum IT-Service. Hier geht es darum, was passiert, wenn **mehrere Komponenten** zusammenspielen. Annahme dabei: Die Komponenten fallen **unabhängig** voneinander aus.
+
+| Schaltung | Wann läuft der Dienst? | Formel | Wirkung |
+|---|---|---|---|
+| **Reihe** (Kette) | nur wenn **alle** Komponenten laufen | A = A₁ · A₂ · A₃ · … | Gesamt ist **schlechter** als die schwächste Komponente |
+| **Parallel** (redundant) | wenn **mindestens eine** Komponente läuft | A = 1 − (1 − A₁) · (1 − A₂) · … | Gesamt ist **besser** als jede einzelne Komponente |
+| n **gleiche** Komponenten parallel | mindestens eine läuft | A = 1 − (1 − A)ⁿ | jede weitere Komponente bringt eine „Neun“ oder mehr |
+
+**Warum die Formel für parallel?** (1 − A) ist die **Ausfallwahrscheinlichkeit** einer Komponente. Der Dienst fällt nur aus, wenn **alle** gleichzeitig ausfallen – dafür multipliziert man die Ausfallwahrscheinlichkeiten. Die Verfügbarkeit ist der Rest bis 1.
+
+**Ausfallzeit pro Jahr:** (1 − A) · 8.760 h bzw. (1 − A) · 525.600 min (365 Tage).
+
+**Typische Redundanzen am Arbeitsplatz und im Serverraum:** zwei Netzteile im Server, USV neben dem Stromnetz, zwei Internetanschlüsse verschiedener Anbieter, zwei Server im Cluster, zwei Domänencontroller.
+
+**Wichtig:** Redundanz hilft nur, wenn die Komponenten **nicht gemeinsam** ausfallen können. Zwei Server im selben Rack an derselben Steckdosenleiste haben eine gemeinsame Schwachstelle (**Single Point of Failure**) – die Formel gilt dann nicht mehr. Und: Redundanz schützt die **Verfügbarkeit**, sie ersetzt **kein Backup** (ein gelöschter Ordner ist auf beiden Servern weg).`,
+        },
+        {
+          type: 'example',
+          title: 'Serverraum: Stromnetz, USV und Server',
+          problem: 'Das Stromnetz hat eine Verfügbarkeit von **99,98 %**, die USV von **95 %**; Strom fehlt nur, wenn beide gleichzeitig ausfallen. Der Server hat **99,5 %**. (a) Wie viele Minuten Ausfall pro Jahr sind zu erwarten? (b) Wie viele sind es, wenn ein zweiter, gleich guter Server im Cluster dazukommt (einer genügt)?',
+          steps: [
+            { label: '1. Strom (parallel)', body: '1 − (1 − 0,9998) · (1 − 0,95) = 1 − 0,0002 · 0,05 = 1 − 0,00001 = **0,99999**' },
+            { label: '2a. Strom und Server in Reihe', body: '0,99999 · 0,995 = **0,99499005**' },
+            { label: '3a. Ausfallzeit', body: '(1 − 0,99499005) · 525.600 min = 0,00500995 · 525.600 min ≈ **2.633,2 min** (≈ 43,9 h)' },
+            { label: '2b. Zwei Server parallel', body: '1 − (1 − 0,995)² = 1 − 0,005² = 1 − 0,000025 = **0,999975**' },
+            { label: '3b. Strom und Cluster in Reihe', body: '0,99999 · 0,999975 = 0,99996500025 → (1 − 0,99996500025) · 525.600 min ≈ **18,4 min**' },
+          ],
+          result: 'Ohne Cluster rund 2.633 Minuten (≈ 44 h) Ausfall pro Jahr, mit zweitem Server nur noch rund 18 Minuten – Redundanz beim schwächsten Glied bringt am meisten.',
+        },
+        {
+          type: 'check',
+          question: {
+            id: 's03-c12', kind: 'number', skill: 'sich.verfuegbarkeit', difficulty: 1,
+            prompt: 'Ein Server hat **zwei Netzteile** (Hot-Swap), jedes mit einer Verfügbarkeit von **99 %**. Der Server läuft, solange mindestens ein Netzteil funktioniert (Ausfälle unabhängig). Wie hoch ist die Verfügbarkeit der Stromversorgung in **%**?',
+            answer: 99.99, tolerance: 0.0001, unit: '%',
+            hints: ['Ausfallwahrscheinlichkeit eines Netzteils: 1 − 0,99 = 0,01.', 'Beide gleichzeitig: 0,01 · 0,01. Verfügbarkeit = 1 minus dieser Wert.'],
+            misconceptions: [
+              { answer: '98.01', error: 'redundanz-reihe-parallel', why: '0,99 · 0,99 ist die Formel für die **Reihe** (beide müssen laufen). Bei Redundanz reicht eines – multipliziert werden die Ausfallwahrscheinlichkeiten.' },
+              { answer: '0.01', error: 'redundanz-ausfall-statt-verfuegbar', why: 'Das ist die Wahrscheinlichkeit, dass **beide** ausfallen (0,0001 = 0,01 %). Gefragt ist die Verfügbarkeit.' },
+            ],
+            explanation: '**Ergebnis: 99,99 %**\n\n1. Ausfall je Netzteil: 1 − 0,99 = 0,01\n2. Beide fallen gleichzeitig aus: 0,01 · 0,01 = 0,0001\n3. Verfügbarkeit: 1 − 0,0001 = 0,9999 = **99,99 %**\n\nHäufiger Fehler: 0,99 · 0,99 = 98,01 % – dann würde das zweite Netzteil die Verfügbarkeit verschlechtern.',
+          },
+        },
+        {
+          type: 'check',
+          question: {
+            id: 's03-c13', kind: 'number', skill: 'sich.verfuegbarkeit', difficulty: 2,
+            prompt: 'Der Webshop braucht gleichzeitig Internetanschluss (**99,5 %**), Firewall (**99,9 %**) und Webserver (**99,8 %**) – Reihenschaltung, Ausfälle unabhängig. Wie hoch ist die Gesamtverfügbarkeit in **%**? (auf 4 Nachkommastellen runden)',
+            answer: 99.2017, tolerance: 0.0001, unit: '%',
+            hints: ['In der Reihe werden die Verfügbarkeiten multipliziert.', '0,995 · 0,999 · 0,998'],
+            misconceptions: [{ answer: '99.5', error: 'redundanz-reihe-parallel', why: 'Die schwächste Komponente allein reicht nicht – in der Reihe muss **jede** laufen, das Ergebnis liegt darunter.' }],
+            explanation: '**Ergebnis: 99,2017 %**\n\n0,995 · 0,999 · 0,998 = 0,992017 → **99,2017 %**\n\nAusfall pro Jahr: (1 − 0,992017) · 8.760 h ≈ 69,9 h. Häufiger Fehler: nur die schwächste Komponente (99,5 %) nehmen.',
+          },
+        },
+        { type: 'practice', title: 'Übung: Reihe und Parallel', generator: 'sich.redundanz', count: 3, difficulty: 2 },
+        { type: 'practice', title: 'Übung: Verfügbarkeit und Redundanz', questionIds: ['s03-q031', 's03-q032', 's03-q033', 's03-q034'], count: 3, difficulty: 2 },
+        {
+          type: 'summary',
+          points: [
+            'Reihe (alle müssen laufen): A = A₁ · A₂ · … – schlechter als das schwächste Glied.',
+            'Parallel (eine genügt): A = 1 − (1 − A₁) · (1 − A₂) · …; n gleiche: 1 − (1 − A)ⁿ.',
+            'Ausfallzeit pro Jahr = (1 − A) · 8.760 h bzw. · 525.600 min.',
+            'Redundanz wirkt nur ohne gemeinsamen Single Point of Failure – und ersetzt kein Backup.',
           ],
         },
       ],
@@ -836,6 +1006,56 @@ Bewerten Sie das Konzept und nennen Sie vier konkrete Verbesserungen.`,
       hints: ['Erst eine Woche berechnen: Voll + 20 · (1+2+3+4+5).', 'Dann mal 4.'],
       misconceptions: [{ answer: '2800', error: 'backup-ink-diff-verwechselt', why: 'Das wäre inkrementell (600 + 100 GB je Woche). Differenziell wächst: 20 + 40 + 60 + 80 + 100 = 300 GB.' }, { answer: '900', error: 'wochen-vergessen', why: 'Das ist nur eine Woche – es werden 4 Wochen aufbewahrt.' }],
       explanation: 'Eine Woche: 600 + 20 · 15 = 600 + 300 = 900 GB. Vier Wochen: 4 · 900 = **3.600 GB** (3,6 TB).',
+    },
+    {
+      id: 's03-q031', kind: 'number', skill: 'sich.verfuegbarkeit', difficulty: 2,
+      prompt: 'Zwei **Firewalls** laufen als Cluster; der Internetzugang funktioniert, solange **mindestens eine** läuft. Jede hat eine Verfügbarkeit von **99,5 %** (Ausfälle unabhängig). Wie hoch ist die Verfügbarkeit des Clusters in **%**? (auf 4 Nachkommastellen)',
+      answer: 99.9975, tolerance: 0.0001, unit: '%',
+      hints: ['Ausfallwahrscheinlichkeit einer Firewall: 1 − 0,995 = 0,005.', 'Beide gleichzeitig: 0,005 · 0,005. Verfügbarkeit = 1 minus dieser Wert.'],
+      misconceptions: [{ answer: '99.0025', error: 'redundanz-reihe-parallel', why: '0,995 · 0,995 ist die Formel für die **Reihe**. Im Cluster reicht eine Firewall.' }],
+      explanation: '1 − (1 − 0,995)² = 1 − 0,005² = 1 − 0,000025 = 0,999975 = **99,9975 %**',
+    },
+    {
+      id: 's03-q032', kind: 'single', skill: 'sich.verfuegbarkeit', difficulty: 1,
+      prompt: 'Der Dateiserver hat zwei gespiegelte Festplatten (RAID 1) und zwei Netzteile. Der Chef meint: „Dann brauchen wir kein Backup mehr.“ Was antwortest du?',
+      options: [
+        'Doch: Redundanz schützt vor Hardwareausfall, aber nicht vor Löschen, Verschlüsselung durch Ransomware oder Brand – ein Backup bleibt nötig.',
+        'Stimmt, RAID 1 ist ein vollwertiges Backup.',
+        'Stimmt, wenn zusätzlich eine USV vorhanden ist.',
+        'Ein Backup ist nur bei Servern ohne RAID vorgeschrieben.',
+      ],
+      answer: 0,
+      distractors: {
+        '1': { why: 'RAID 1 spiegelt auch versehentliches Löschen sofort auf die zweite Platte.', error: 'raid-ist-backup' },
+        '2': { why: 'Die USV schützt vor Stromausfall, nicht vor Datenverlust durch Löschen oder Schadsoftware.', error: 'raid-ist-backup' },
+        '3': { why: 'Backup und Redundanz haben verschiedene Aufgaben – beides wird gebraucht.', error: 'raid-ist-backup' },
+      },
+      explanation: 'Redundanz erhöht die **Verfügbarkeit**. Ein Backup schützt vor **Datenverlust**. Das eine ersetzt das andere nicht.',
+    },
+    {
+      id: 's03-q033', kind: 'number', skill: 'sich.verfuegbarkeit', difficulty: 2,
+      prompt: 'Ein Arbeitsplatz braucht gleichzeitig den **Switch (99,9 %)** und den **Server (99,5 %)** – Reihenschaltung, Ausfälle unabhängig. Wie viele **Stunden** Ausfall pro Jahr (8.760 h) sind zu erwarten? (auf eine Nachkommastelle)',
+      answer: 52.5, tolerance: 0.05, unit: 'h',
+      hints: ['Gesamtverfügbarkeit: 0,999 · 0,995.', 'Ausfallzeit = (1 − Gesamtverfügbarkeit) · 8.760 h.'],
+      misconceptions: [{ answer: '43.8', error: 'redundanz-reihe-parallel', why: 'Das ist nur der Ausfall des Servers. In der Reihe kommt der Ausfall des Switches dazu.' }],
+      explanation: '0,999 · 0,995 = 0,994005 → (1 − 0,994005) · 8.760 h = 0,005995 · 8.760 h ≈ **52,5 h**',
+    },
+    {
+      id: 's03-q034', kind: 'single', skill: 'sich.verfuegbarkeit', difficulty: 2,
+      prompt: 'Zwei Server laufen als Cluster, stehen aber im **selben Rack an derselben Steckdosenleiste**. Was ist das Problem?',
+      options: [
+        'Die Steckdosenleiste ist ein Single Point of Failure – fällt sie aus, sind beide Server weg; die Formel für Parallelschaltung gilt dann nicht.',
+        'Es gibt kein Problem, zwei Server sind immer redundant.',
+        'Cluster dürfen grundsätzlich nicht im selben Rack stehen.',
+        'Die Verfügbarkeit wird dadurch doppelt so hoch.',
+      ],
+      answer: 0,
+      distractors: {
+        '1': { why: 'Redundanz wirkt nur, wenn die Geräte nicht gemeinsam ausfallen können.', error: 'redundanz-spof' },
+        '2': { why: 'Erlaubt ist das schon – problematisch ist die gemeinsame Stromversorgung.', error: 'redundanz-spof' },
+        '3': { why: 'Verfügbarkeiten verdoppeln sich nie; mit gemeinsamer Schwachstelle bringt der zweite Server sogar wenig.', error: 'redundanz-spof' },
+      },
+      explanation: 'Redundanz hilft nur ohne gemeinsame Schwachstelle (**Single Point of Failure**). Besser: zwei Steckdosenleisten an verschiedenen Stromkreisen bzw. USVs.',
     },
   ],
 };

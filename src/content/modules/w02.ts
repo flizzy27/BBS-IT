@@ -9,7 +9,7 @@ export const w02: Module = {
   icon: 'Scale',
   relevance: 'ap1',
   prerequisites: ['w01'],
-  generators: ['w.bezugspreis', 'w.nutzwert'],
+  generators: ['w.bezugspreis', 'w.nutzwert', 'w.preispunkte'],
   skills: [
     { id: 'w.beschaffung', module: 'w02', title: 'Beschaffungsprozess & Bezugsquellen' },
     { id: 'w.angebot', module: 'w02', title: 'Anfrage und Angebot (Inhalt, Bindung)', requires: ['w.beschaffung'] },
@@ -25,6 +25,7 @@ export const w02: Module = {
       minutes: 15,
       relevance: 'ap1',
       skills: ['w.beschaffung'],
+      simple: `Beschaffen ist wie der Großeinkauf für eine Party: Erst schreibst du auf, was du wie oft brauchst. Dann schaust du, wo es das gibt, fragst Preise an und vergleichst. Erst danach kaufst du, prüfst beim Auspacken, ob alles da ist, und bezahlst. Im Betrieb heißen diese Schritte Bedarf, Bezugsquellen, Anfrage, Angebotsvergleich, Bestellung, Wareneingang und Zahlung. **Merke:** Erst Bedarf klären und vergleichen, dann bestellen – und die Rechnung immer mit Bestellung und Lieferschein abgleichen.`,
       steps: [
         {
           type: 'explain',
@@ -92,6 +93,7 @@ export const w02: Module = {
       minutes: 20,
       relevance: 'ap1',
       skills: ['w.angebot'],
+      simple: `Eine Anfrage ist wie die Frage beim Bäcker „Was kostet die Torte?“ – kaufen musst du danach nichts. Das Angebot ist die Antwort an dich persönlich, und an diesen Preis ist der Bäcker gebunden. Werbung oder ein Preisschild im Schaufenster ist dagegen nur eine Einladung, selbst zu bestellen. Mit Wörtern wie „freibleibend“ kann der Anbieter seine Bindung lockern. **Merke:** Anfrage unverbindlich, Angebot verbindlich, Werbung ist kein Angebot.`,
       steps: [
         {
           type: 'explain',
@@ -183,6 +185,7 @@ Beantworte: Ist das Angebot verbindlich? Wer trägt die Versandkosten? Was passi
       minutes: 25,
       relevance: 'ap1',
       skills: ['w.bezugskalkulation'],
+      simple: `Zwei Onlineshops verkaufen dieselben Kopfhörer: Der eine ist billiger, verlangt aber hohe Versandkosten. Für dich zählt, was am Ende vom Konto abgeht – nicht das Preisschild. Genau das rechnet die Bezugskalkulation aus: Listenpreis minus Rabatt, minus Skonto, plus Versand. Vergleichst du in Prozent, sag immer, worauf du dich beziehst: „B ist 2 % günstiger als A“ heißt, A ist 100 %. **Merke:** Rabatt vom Listenpreis, Skonto vom Zieleinkaufspreis, Bezugskosten zum Schluss.`,
       steps: [
         {
           type: 'explain',
@@ -206,7 +209,13 @@ Beantworte: Ist das Angebot verbindlich? Wer trägt die Versandkosten? Was passi
 - Bei Angeboten „**frei Haus**“ sind die Bezugskosten 0 €.
 - Runde Zwischenergebnisse kaufmännisch **auf Cent** (bei Prüfungen: Rundungsregel der Aufgabe beachten).
 
-Für den Vergleich verschiedener Mengen oder Packungsgrößen rechnest du den **Bezugspreis je Stück** (Bezugspreis ÷ Menge).`,
+Für den Vergleich verschiedener Mengen oder Packungsgrößen rechnest du den **Bezugspreis je Stück** (Bezugspreis ÷ Menge).
+
+**Unterschied in Prozent – immer mit Bezugsgröße:** Du teilst die Differenz in Euro durch den Preis, **mit dem verglichen wird** (er ist 100 %). Das Wort nach „als“ verrät die Bezugsgröße:
+- „B ist … % günstiger **als A**“ → Differenz ÷ Preis A × 100
+- „A ist … % teurer **als B**“ → Differenz ÷ Preis B × 100
+
+Im Beispiel unten: 63,34 € ÷ 8.420,08 € × 100 ≈ 0,75 % (B günstiger als A), aber 63,34 € ÷ 8.356,74 € × 100 ≈ 0,76 % (A teurer als B). Bei großen Unterschieden weichen die Werte deutlich ab: 1.000 € gegenüber 1.250 € → B ist **25 %** teurer als A, A ist aber nur **20 %** günstiger als B. Nenne deshalb in jeder Antwort die Bezugsgröße.`,
         },
         {
           type: 'visual',
@@ -263,7 +272,8 @@ Welches Angebot ist günstiger? Runde jedes Zwischenergebnis auf Cent; Skonto wi
         },
         { type: 'practice', title: 'Übung: Bezugspreise berechnen', generator: 'w.bezugspreis', count: 3, difficulty: 2 },
         { type: 'practice', title: 'Prüfungsniveau: zwei Angebote vollständig kalkulieren', generator: 'w.bezugspreis', count: 2, difficulty: 3 },
-        { type: 'summary', points: ['Listeneinkaufspreis − Rabatt = Zieleinkaufspreis − Skonto = Bareinkaufspreis + Bezugskosten = Bezugspreis.', 'Skonto immer vom Zieleinkaufspreis, Bezugskosten zum Schluss.', 'Mit Nettopreisen vergleichen (Vorsteuerabzug).', 'Niedrigster Listenpreis ≠ niedrigster Bezugspreis.'] },
+        { type: 'practice', title: 'Belegaufgabe: drei Lieferanten und Prozentunterschiede', questionIds: ['w02-q033', 'w02-q041', 'w02-q036'], count: 3, difficulty: 2 },
+        { type: 'summary', points: ['Listeneinkaufspreis − Rabatt = Zieleinkaufspreis − Skonto = Bareinkaufspreis + Bezugskosten = Bezugspreis.', 'Skonto immer vom Zieleinkaufspreis, Bezugskosten zum Schluss.', 'Mit Nettopreisen vergleichen (Vorsteuerabzug).', 'Niedrigster Listenpreis ≠ niedrigster Bezugspreis.', 'Prozentunterschied = Differenz ÷ Bezugsgröße × 100 – die Bezugsgröße steht nach „als“.'] },
       ],
     },
     /* ------------------------------------------------------------ */
@@ -273,6 +283,7 @@ Welches Angebot ist günstiger? Runde jedes Zwischenergebnis auf Cent; Skonto wi
       minutes: 25,
       relevance: 'ap1',
       skills: ['w.nutzwertanalyse'],
+      simple: `Beim Handykauf zählt nicht nur der Preis, sondern auch Akku, Kamera und Speicher – und manches ist dir wichtiger als anderes. Die Nutzwertanalyse macht das mit Zahlen: Jedes Kriterium bekommt ein Gewicht, jedes Angebot Punkte. Auch der Preis wird in Punkte übersetzt, damit er zu den anderen Kriterien passt. Gewicht mal Punkte, alles zusammenzählen – der höchste Wert gewinnt. **Merke:** Erst K.-o.-Kriterien prüfen, dann gewichten, Punkte vergeben und summieren.`,
       steps: [
         {
           type: 'explain',
@@ -343,6 +354,38 @@ Berechne die Nutzwerte und bilde die Rangfolge.`,
           result: '**Angebot A** hat mit 7,45 den höchsten Nutzwert und wird empfohlen.',
         },
         {
+          type: 'explain',
+          title: 'Preis in Punkte übersetzen',
+          body: `Der Preis ist ein Kriterium wie jedes andere – er muss nur erst in Punkte übersetzt werden. Zwei Regeln sind üblich; die Aufgabe sagt dir, welche gilt und wie gerundet wird.
+
+**1. Verhältnisregel (proportional):** Das günstigste Angebot erhält die Höchstpunktzahl, die anderen anteilig weniger.
+
+**Punkte = Höchstpunktzahl × günstigster Preis ÷ eigener Preis**
+
+| Angebot | Bezugspreis | Rechnung | Punkte (eine Nachkommastelle) |
+|---|---|---|---|
+| A | 8.640 € | 10 × 8.640 ÷ 8.640 | 10,0 |
+| B | 9.150 € | 10 × 8.640 ÷ 9.150 = 9,44 | 9,4 |
+| C | 9.980 € | 10 × 8.640 ÷ 9.980 = 8,66 | 8,7 |
+
+**2. Stufenregel:** Du berechnest den **Mehrpreis in Prozent gegenüber dem günstigsten Angebot** (Bezugsgröße = günstigster Preis) und liest die Punkte aus einer vorgegebenen Tabelle ab, zum Beispiel:
+
+| Mehrpreis gegenüber dem günstigsten Angebot | Preispunkte |
+|---|---|
+| 0 % (günstigstes Angebot) | 10 |
+| über 0 % bis 5 % | 8 |
+| über 5 % bis 10 % | 6 |
+| über 10 % bis 15 % | 4 |
+| über 15 % bis 20 % | 2 |
+| über 20 % | 0 |
+
+Beispiel: Das günstigste Angebot kostet 15.200 €. Angebot B kostet 15.900 € → 700 € ÷ 15.200 € × 100 = 4,61 % → **8 Punkte**. Angebot C kostet 17.300 € → 2.100 € ÷ 15.200 € × 100 = 13,82 % → **4 Punkte**.
+
+Danach rechnest du mit den Preispunkten ganz normal weiter: Gewicht × Punkte.
+
+Häufige Fehler: den Bruch umdrehen (eigener ÷ günstigster Preis – dann bekäme das teurere Angebot mehr als 10 Punkte); den Mehrpreis auf den eigenen Preis statt auf den günstigsten beziehen; an der Grenze die falsche Stufe wählen („bis 5 %“ schließt genau 5,00 % noch ein).`,
+        },
+        {
           type: 'check',
           question: {
             id: 'w02-c04', kind: 'number', skill: 'w.nutzwertanalyse', difficulty: 2,
@@ -364,7 +407,12 @@ Berechne die Nutzwerte und bilde die Rangfolge.`,
         },
         { type: 'practice', title: 'Übung: Nutzwertanalysen auswerten', generator: 'w.nutzwert', count: 3, difficulty: 2 },
         { type: 'practice', title: 'Prüfungsniveau: vollständige Bewertungstabelle', generator: 'w.nutzwert', count: 2, difficulty: 3 },
-        { type: 'summary', points: ['Qualitative Kriterien: Leistung, Lieferzeit, Service, Garantie, Zuverlässigkeit, Energie, Datenschutz.', 'Erst K.-o.-Kriterien prüfen, dann bewerten.', 'Gewichte summieren sich zu 100 %; Teilnutzwert = Gewicht × Punkte.', 'Höchster Nutzwert = Empfehlung.', 'Nachteil: Gewichte und Punkte sind subjektiv.'] },
+        { type: 'practice', title: 'Übung: Preis in Punkte (Verhältnisregel)', generator: 'w.preispunkte', count: 3, difficulty: 1 },
+        { type: 'practice', title: 'Übung: Preispunkte nach Stufenregel', generator: 'w.preispunkte', count: 2, difficulty: 2 },
+        { type: 'practice', title: 'Prüfungsniveau: Nutzwertanalyse mit Preispunkten', generator: 'w.preispunkte', count: 2, difficulty: 3 },
+        { type: 'practice', title: 'Übung: Schreibweisen, Gewichte und K.-o.-Kriterien', questionIds: ['w02-q034', 'w02-q035', 'w02-q037', 'w02-q038', 'w02-q042'], count: 5, difficulty: 2 },
+        { type: 'practice', title: 'Belegaufgabe: Notebooks für den Außendienst', questionIds: ['w02-q039', 'w02-q040'], count: 2, difficulty: 3 },
+        { type: 'summary', points: ['Qualitative Kriterien: Leistung, Lieferzeit, Service, Garantie, Zuverlässigkeit, Energie, Datenschutz.', 'Erst K.-o.-Kriterien prüfen, dann bewerten.', 'Gewichte summieren sich zu 100 %; Teilnutzwert = Gewicht × Punkte.', 'Preis in Punkte: Verhältnisregel (10 × günstigster ÷ eigener Preis) oder Stufenregel (Mehrpreis in % vom günstigsten Preis).', 'Höchster Nutzwert = Empfehlung.', 'Nachteil: Gewichte und Punkte sind subjektiv.'] },
       ],
     },
     /* ------------------------------------------------------------ */
@@ -374,6 +422,7 @@ Berechne die Nutzwerte und bilde die Rangfolge.`,
       minutes: 20,
       relevance: 'ap1',
       skills: ['w.entscheidung'],
+      simple: `Erklärst du deinen Eltern, warum es genau dieses Fahrrad sein soll, reicht „weil es gut ist“ nicht – du nennst Preis, Vorteile und auch den Haken. Genauso begründest du im Betrieb eine Empfehlung. Skonto ist ein Bonus fürs schnelle Bezahlen; wer ihn verschenkt, zahlt sozusagen sehr teure Zinsen. Deshalb nutzt man Skonto fast immer. **Merke:** Empfehlung = Zahl + Vorteile + Nachteile; Skonto lohnt sich fast immer.`,
       steps: [
         {
           type: 'explain',
@@ -530,5 +579,122 @@ Die Geräte werden in 10 Tagen benötigt.`, modelAnswer: 'Wir empfehlen Angebot 
     { id: 'w02-q030', kind: 'match', skill: 'w.angebot', difficulty: 2, prompt: 'Ordne die Lieferbedingungen zu: Wer trägt die Transportkosten?', left: ['„ab Werk“', '„frei Haus“', 'keine Vereinbarung (gesetzliche Regelung)'], right: ['Käufer trägt alle Transportkosten', 'Verkäufer trägt alle Transportkosten', 'Käufer trägt die Versendungskosten (§ 448 BGB)'], answer: [0, 1, 2], explanation: '„Frei Haus“ ist für den Käufer am günstigsten; bei „ab Werk“ und ohne Vereinbarung muss er den Versand bezahlen.' },
     { id: 'w02-q031', kind: 'free', skill: 'w.beschaffung', difficulty: 2, prompt: 'Die gelieferten Notebooks kommen mit Lieferschein an. Nenne **vier Prüfungen**, die du beim **Wareneingang** durchführst.', modelAnswer: '1. Stimmt die Lieferanschrift / sind wir der richtige Empfänger? 2. Stimmt die Anzahl der Packstücke mit dem Lieferschein überein? 3. Sind Verpackungen äußerlich beschädigt? (Schäden sofort auf dem Lieferschein vermerken und vom Fahrer bestätigen lassen) 4. Stimmen Artikel, Modell und Menge mit Lieferschein und Bestellung überein? Danach zeitnah Inhalt und Funktion prüfen (Seriennummern, Ausstattung, Funktionstest).', keywords: ['Lieferschein', 'Menge', 'Beschädigung', 'Bestellung', 'Funktionstest', 'unverzüglich'], explanation: 'Unter Kaufleuten müssen Mängel unverzüglich gerügt werden (§ 377 HGB) – deshalb sofort prüfen.' },
     { id: 'w02-q032', kind: 'number', skill: 'w.bezugskalkulation', difficulty: 3, prompt: 'Für 8 Notebooks stehen höchstens **7.000,00 €** (Bezugspreis, netto) zur Verfügung. Der Lieferer gewährt **10 % Rabatt**, kein Skonto; die Lieferung ist frei Haus. Welcher **Listenpreis je Stück** darf höchstens verlangt werden? (auf Cent abrunden)', answer: 972.22, tolerance: 0.01, unit: '€', misconceptions: [{ answer: '962.5', error: 'w-rueckwaerts-prozent', why: 'Beim Rückwärtsrechnen nicht 10 % aufschlagen: Der Zieleinkaufspreis entspricht 90 % des Listenpreises → ÷ 0,90.' }, { answer: '875', error: 'w-rabatt-vergessen', why: 'Der Rabatt wurde nicht berücksichtigt.' }], hints: ['Rückwärts rechnen: 7.000 € entsprechen 90 % des Listeneinkaufspreises.'], explanation: 'Listeneinkaufspreis = 7.000,00 € ÷ 0,90 = 7.777,78 € (für 8 Stück). Je Stück: 7.777,78 € ÷ 8 = 972,222… → höchstens **972,22 €** (abrunden, damit das Budget nicht überschritten wird). Probe: 8 × 972,22 € = 7.777,76 € − 10 % = 6.999,98 € ≤ 7.000 €.' },
+    { id: 'w02-q033', kind: 'number', skill: 'w.bezugskalkulation', difficulty: 2, prompt: 'Für 20 Thin Clients wurden folgende Bezugspreise ermittelt: **Angebot A 7.642,56 €**, **Angebot B 7.480,34 €**. Um wie viel **Prozent ist Angebot B günstiger als Angebot A**? (auf zwei Nachkommastellen runden)', answer: 2.12, tolerance: 0.01, unit: '%', misconceptions: [{ answer: '2.17', error: 'w-prozent-bezugsgroesse', why: '„B ist günstiger **als A**“ – Bezugsgröße (100 %) ist Angebot A, nicht B.' }, { answer: '162.22', error: 'w-euro-statt-prozent', why: 'Das ist die Differenz in Euro. Gefragt ist der Unterschied in Prozent.' }], hints: ['Differenz in Euro berechnen.', 'Das Wort nach „als“ ist die Bezugsgröße (100 %).'], explanation: '**Ergebnis: 2,12 %.**\n\nDifferenz: 7.642,56 € − 7.480,34 € = 162,22 €\n\nBezugsgröße A: 162,22 € ÷ 7.642,56 € × 100 = 2,1226 … ≈ **2,12 %**\n\nHäufiger Fehler: durch den Preis von B teilen – das ergäbe 2,17 % und beantwortet die Frage „Um wie viel Prozent ist A teurer als B?“.' },
+    { id: 'w02-q034', kind: 'number', skill: 'w.nutzwertanalyse', difficulty: 2, prompt: `Die Preispunkte werden nach der **Verhältnisregel** vergeben: Das günstigste Angebot erhält 10 Punkte, die anderen Punkte = 10 × günstigster Preis ÷ eigener Preis.
+
+| Angebot | Bezugspreis |
+|---|---|
+| A | 12.480,00 € |
+| B | 13.150,00 € |
+| C | 14.020,00 € |
+
+Wie viele Preispunkte erhält **Angebot C**? (auf eine Nachkommastelle runden)`, answer: 8.9, tolerance: 0.05, misconceptions: [{ answer: '11.2', error: 'w-preispunkte-kehrwert', why: 'Der Bruch ist umgedreht. Das teurere Angebot muss **weniger** Punkte erhalten: 10 × günstigster ÷ eigener Preis.' }, { answer: '9.5', error: 'w-preispunkte-regel', why: 'Das sind die Punkte von Angebot B. Für C rechnest du mit 14.020 €.' }], hints: ['Günstigster Preis: 12.480,00 €.'], explanation: '**Ergebnis: 8,9 Punkte.**\n\n10 × 12.480 ÷ 14.020 = 8,9016 … ≈ **8,9**\n\n(Zum Vergleich: B erhält 10 × 12.480 ÷ 13.150 ≈ 9,5 Punkte.)\n\nHäufiger Fehler: eigener ÷ günstigster Preis rechnen – dann bekäme C mit 11,2 sogar mehr Punkte als das günstigste Angebot.' },
+    { id: 'w02-q035', kind: 'table', skill: 'w.nutzwertanalyse', difficulty: 2, prompt: `Die Preispunkte werden nach dieser **Stufenregel** vergeben:
+
+| Mehrpreis gegenüber dem günstigsten Angebot | Preispunkte |
+|---|---|
+| 0 % (günstigstes Angebot) | 10 |
+| über 0 % bis 5 % | 8 |
+| über 5 % bis 10 % | 6 |
+| über 10 % bis 15 % | 4 |
+| über 15 % bis 20 % | 2 |
+| über 20 % | 0 |
+
+Bezugspreise: **A 9.870,00 €**, **B 10.290,00 €**, **C 11.540,00 €**. Berechne den Mehrpreis in Prozent (zwei Nachkommastellen) und die Preispunkte.`, columns: [{ key: 'm', label: 'Mehrpreis (%)', type: 'number' }, { key: 'p', label: 'Preispunkte', type: 'number' }], rows: [
+      { label: 'Angebot A', cells: { m: { answer: '0' }, p: { answer: '10' } } },
+      { label: 'Angebot B', cells: { m: { answer: '4.26' }, p: { answer: '8' } } },
+      { label: 'Angebot C', cells: { m: { answer: '16.92' }, p: { answer: '2' } } },
+    ], misconceptions: [{ cell: '1:m', answer: '4.08', error: 'w-prozent-bezugsgroesse', why: 'Der Mehrpreis wird auf den **günstigsten** Preis (9.870 €) bezogen, nicht auf den eigenen Preis.' }, { cell: '2:m', answer: '14.47', error: 'w-prozent-bezugsgroesse', why: 'Der Mehrpreis wird auf den günstigsten Preis (9.870 €) bezogen, nicht auf den eigenen Preis.' }, { cell: '2:p', answer: '4', error: 'w-preispunkte-regel', why: '16,92 % liegt in der Stufe „über 15 % bis 20 %“ → 2 Punkte.' }], explanation: '**Ergebnis: A 10, B 8, C 2 Punkte.**\n\nGünstigstes Angebot: A (9.870 €) → 0 % → 10 Punkte\n\nB: (10.290 − 9.870) ÷ 9.870 × 100 = 420 ÷ 9.870 × 100 = **4,26 %** → Stufe bis 5 % → **8 Punkte**\n\nC: (11.540 − 9.870) ÷ 9.870 × 100 = 1.670 ÷ 9.870 × 100 = **16,92 %** → Stufe über 15 % bis 20 % → **2 Punkte**\n\nHäufiger Fehler: den Mehrpreis durch den eigenen Preis teilen (B: 4,08 %, C: 14,47 %) – bei C führt das sogar in die falsche Stufe.' },
+    { id: 'w02-q036', kind: 'table', skill: 'w.bezugskalkulation', difficulty: 3, prompt: `**Handlungssituation:** Die Elektro Krämer GmbH richtet vier Arbeitsplätze in der Arbeitsvorbereitung neu ein und benötigt **4 Monitore** (27 Zoll, USB-C). Drei Lieferanten haben Angebote abgegeben (alle Preise netto):
+
+| | Lieferant A – Systemhaus Weser | Lieferant B – MediaPro24 | Lieferant C – BüroTech Nord |
+|---|---|---|---|
+| Listenpreis je Stück | 365,00 € | 389,00 € | 349,00 € |
+| Rabatt | 25 % | 30 % | 20 % |
+| Skonto | 2 % | 3 % | kein Skonto |
+| Lieferung | 6,90 € Fracht **je Monitor** | frei Haus | Versandpauschale 24,00 € |
+
+Vervollständige die Bezugskalkulation für alle drei Angebote (Skonto wird genutzt; jedes Zwischenergebnis auf Cent runden; Abzüge als positive Beträge). Gib zum Schluss das günstigste Angebot an (**A**, **B** oder **C**).`, columns: [{ key: 'a', label: 'A (€)', type: 'number' }, { key: 'b', label: 'B (€)', type: 'number' }, { key: 'c', label: 'C (€)', type: 'number' }, { key: 'e', label: 'Ergebnis', type: 'text' }], rows: [
+      { label: 'Listeneinkaufspreis', cells: { a: { answer: '1460' }, b: { answer: '1556' }, c: { answer: '1396' } } },
+      { label: '− Liefererrabatt', cells: { a: { answer: '365' }, b: { answer: '466.80' }, c: { answer: '279.20' } } },
+      { label: '= Zieleinkaufspreis', cells: { a: { answer: '1095' }, b: { answer: '1089.20' }, c: { answer: '1116.80' } } },
+      { label: '− Liefererskonto', cells: { a: { answer: '21.90' }, b: { answer: '32.68' }, c: { answer: '0' } } },
+      { label: '= Bareinkaufspreis', cells: { a: { answer: '1073.10' }, b: { answer: '1056.52' }, c: { answer: '1116.80' } } },
+      { label: '+ Bezugskosten', cells: { a: { answer: '27.60' }, b: { answer: '0' }, c: { answer: '24' } } },
+      { label: '= Bezugspreis', cells: { a: { answer: '1100.70' }, b: { answer: '1056.52' }, c: { answer: '1140.80' } } },
+      { label: 'günstigstes Angebot', cells: { e: { answer: 'B', accept: ['angebot b', 'lieferant b'] } } },
+    ], misconceptions: [{ cell: '5:a', answer: '6.90', error: 'w-bezugskosten-menge', why: 'Die Fracht gilt **je Monitor**: 4 × 6,90 € = 27,60 €.' }, { cell: '3:b', answer: '46.68', error: 'w-skonto-basis', why: 'Skonto vom Zieleinkaufspreis (1.089,20 €), nicht vom Listeneinkaufspreis.' }, { cell: '7:e', answer: 'C', error: 'w-listenpreis-vergleich', why: 'C hat den niedrigsten Listenpreis, nach Rabatt, Skonto und Versand ist aber B am günstigsten.' }], explanation: '**Ergebnis: B ist mit 1.056,52 € am günstigsten.**\n\n**A:** 4 × 365,00 € = 1.460,00 € − 25 % (365,00 €) = 1.095,00 € − 2 % (21,90 €) = 1.073,10 € + 4 × 6,90 € (27,60 €) = **1.100,70 €**\n\n**B:** 4 × 389,00 € = 1.556,00 € − 30 % (466,80 €) = 1.089,20 € − 3 % (32,676 ≈ 32,68 €) = 1.056,52 € + 0,00 € (frei Haus) = **1.056,52 €**\n\n**C:** 4 × 349,00 € = 1.396,00 € − 20 % (279,20 €) = 1.116,80 € − 0,00 € = 1.116,80 € + 24,00 € = **1.140,80 €**\n\nHäufige Fehler: die Fracht „je Monitor“ nur einmal ansetzen; vom niedrigsten Listenpreis (C) auf das günstigste Angebot schließen.' },
+    { id: 'w02-q037', kind: 'number', skill: 'w.nutzwertanalyse', difficulty: 2, prompt: `In der Prüfungsaufgabe sollen die Gewichte als **ganze Prozentzahlen** eingesetzt werden (Teilnutzwert = Gewicht in % × Punkte). Berechne den Nutzwert von **Angebot A**.
+
+| Kriterium | Gewicht | A |
+|---|---|---|
+| Preis | 35 % | 8 |
+| Leistung | 25 % | 6 |
+| Service | 25 % | 7 |
+| Lieferzeit | 15 % | 9 |`, answer: 740, tolerance: 0.5, accept: [7.4], misconceptions: [{ answer: '30', error: 'w-nutzwert-ungewichtet', why: 'Nur die Punkte addiert – jede Punktzahl muss mit ihrem Gewicht multipliziert werden.' }], hints: ['35 × 8 + 25 × 6 + …'], explanation: '**Ergebnis: 740** (in der Dezimalschreibweise 7,40).\n\n35 × 8 + 25 × 6 + 25 × 7 + 15 × 9 = 280 + 150 + 175 + 135 = **740**\n\nMit Dezimalfaktoren (0,35 · 8 + …) erhältst du 7,40 – das ist dieselbe Bewertung, nur durch 100 geteilt. Beide Schreibweisen werden akzeptiert; die Rangfolge ändert sich nicht.\n\nHäufiger Fehler: die Punkte ungewichtet addieren (30).' },
+    { id: 'w02-q038', kind: 'table', skill: 'w.nutzwertanalyse', difficulty: 3, prompt: `Die Arbeitsplatzrechner aus dem Lektionsbeispiel werden neu bewertet. Die Konstruktionsabteilung verlangt mehr Rechenleistung, deshalb ändern sich die **Gewichte** – die Punkte bleiben gleich:
+
+| Kriterium | neues Gewicht | A | B | C |
+|---|---|---|---|---|
+| Preis | 20 % | 8 | 6 | 9 |
+| Leistung | 45 % | 6 | 9 | 5 |
+| Garantie & Service | 20 % | 7 | 8 | 4 |
+| Lieferzeit | 15 % | 9 | 5 | 8 |
+
+Berechne die neuen Nutzwerte (zwei Nachkommastellen) und die Rangfolge.`, columns: [{ key: 'nw', label: 'Nutzwert', type: 'number' }, { key: 'r', label: 'Rang', type: 'number' }], rows: [
+      { label: 'Angebot A', cells: { nw: { answer: '7.05', accept: ['705'] }, r: { answer: '2' } } },
+      { label: 'Angebot B', cells: { nw: { answer: '7.60', accept: ['760'] }, r: { answer: '1' } } },
+      { label: 'Angebot C', cells: { nw: { answer: '6.05', accept: ['605'] }, r: { answer: '3' } } },
+    ], misconceptions: [{ cell: '0:nw', answer: '7.45', error: 'w-gewichte-uebernommen', why: 'Das ist der Nutzwert mit den **alten** Gewichten (40/25/20/15). Rechne mit den neuen Gewichten.' }, { cell: '0:r', answer: '1', error: 'w-gewichte-uebernommen', why: 'Mit den neuen Gewichten liegt B vorn – A ist nur noch Zweiter.' }], explanation: '**Ergebnis: B 7,60 vor A 7,05 und C 6,05.**\n\nA: 0,20 · 8 + 0,45 · 6 + 0,20 · 7 + 0,15 · 9 = 1,60 + 2,70 + 1,40 + 1,35 = **7,05**\n\nB: 0,20 · 6 + 0,45 · 9 + 0,20 · 8 + 0,15 · 5 = 1,20 + 4,05 + 1,60 + 0,75 = **7,60**\n\nC: 0,20 · 9 + 0,45 · 5 + 0,20 · 4 + 0,15 · 8 = 1,80 + 2,25 + 0,80 + 1,20 = **6,05**\n\nMit den alten Gewichten gewann A (7,45). Die Gewichte entscheiden also mit – deshalb werden sie **vor** der Bewertung mit dem Kunden festgelegt.\n\nHäufiger Fehler: die alten Gewichte weiterverwenden.' },
+    { id: 'w02-q039', kind: 'table', skill: 'w.nutzwertanalyse', difficulty: 3, prompt: `**Handlungssituation:** Die Elektro Krämer GmbH beschafft **12 Notebooks für den Außendienst**. Du hast die Bezugspreise bereits berechnet; jetzt soll eine Nutzwertanalyse die Entscheidung vorbereiten.
+
+| | Angebot A | Angebot B | Angebot C |
+|---|---|---|---|
+| Bezugspreis (12 Stück, netto) | 18.240,00 € | 17.150,00 € | 19.380,00 € |
+
+Die **Preispunkte** werden nach dieser Stufenregel vergeben (Mehrpreis in Prozent vom günstigsten Bezugspreis, auf zwei Nachkommastellen):
+
+| Mehrpreis | 0 % | über 0 bis 5 % | über 5 bis 10 % | über 10 bis 15 % | über 15 bis 20 % | über 20 % |
+|---|---|---|---|---|---|---|
+| Preispunkte | 10 | 8 | 6 | 4 | 2 | 0 |
+
+Bewertung (Punkte 0–10):
+
+| Kriterium | Gewicht | A | B | C |
+|---|---|---|---|---|
+| Preis | 40 % | ? | ? | ? |
+| Akkulaufzeit | 25 % | 9 | 4 | 10 |
+| Garantie & Service | 20 % | 8 | 6 | 9 |
+| Gewicht | 15 % | 7 | 6 | 9 |
+
+Ermittle die Preispunkte, die Nutzwerte (Gewicht als Dezimalfaktor, zwei Nachkommastellen) und die Rangfolge.`, columns: [{ key: 'p', label: 'Preispunkte', type: 'number' }, { key: 'nw', label: 'Nutzwert', type: 'number' }, { key: 'r', label: 'Rang', type: 'number' }], rows: [
+      { label: 'Angebot A', cells: { p: { answer: '6' }, nw: { answer: '7.30', accept: ['730'] }, r: { answer: '1' } } },
+      { label: 'Angebot B', cells: { p: { answer: '10' }, nw: { answer: '7.10', accept: ['710'] }, r: { answer: '3' } } },
+      { label: 'Angebot C', cells: { p: { answer: '4' }, nw: { answer: '7.25', accept: ['725'] }, r: { answer: '2' } } },
+    ], misconceptions: [{ cell: '0:p', answer: '8', error: 'w-preispunkte-regel', why: 'A ist 6,36 % teurer als B – das liegt in der Stufe „über 5 bis 10 %“ → 6 Punkte.' }, { cell: '1:r', answer: '1', error: 'w-nur-preis', why: 'B ist am günstigsten, hat aber wegen der schwachen Akkulaufzeit den niedrigsten Nutzwert.' }], explanation: '**Ergebnis: A (7,30) vor C (7,25) und B (7,10).**\n\n**Preispunkte:** Günstigstes Angebot ist B (17.150 €) → 10 Punkte.\nA: 1.090 € ÷ 17.150 € × 100 = 6,36 % → **6 Punkte**\nC: 2.230 € ÷ 17.150 € × 100 = 13,00 % → **4 Punkte**\n\n**Nutzwerte:**\nA: 0,40 · 6 + 0,25 · 9 + 0,20 · 8 + 0,15 · 7 = 2,40 + 2,25 + 1,60 + 1,05 = **7,30**\nB: 0,40 · 10 + 0,25 · 4 + 0,20 · 6 + 0,15 · 6 = 4,00 + 1,00 + 1,20 + 0,90 = **7,10**\nC: 0,40 · 4 + 0,25 · 10 + 0,20 · 9 + 0,15 · 9 = 1,60 + 2,50 + 1,80 + 1,35 = **7,25**\n\nHäufige Fehler: den Mehrpreis auf den eigenen Preis beziehen; das günstigste Angebot automatisch auf Rang 1 setzen.' },
+    { id: 'w02-q040', kind: 'free', skill: 'w.entscheidung', difficulty: 3, prompt: 'Formuliere auf Basis der Nutzwertanalyse für die **Außendienst-Notebooks** (A 7,30 · C 7,25 · B 7,10; Bezugspreise A 18.240 €, B 17.150 €, C 19.380 €) eine **begründete Empfehlung** an die Geschäftsleitung (3–4 Sätze). Gehe auch darauf ein, wie belastbar das Ergebnis ist.', modelAnswer: 'Ich empfehle Angebot A, weil es mit 7,30 den höchsten Nutzwert erreicht. A ist zwar 1.090 € (6,36 %) teurer als das günstigste Angebot B, bietet aber eine deutlich bessere Akkulaufzeit und besseren Service – für den Außendienst wichtig. Der Abstand zu C (7,25) ist sehr gering; schon eine kleine Änderung der Gewichte könnte die Reihenfolge drehen. Deshalb sollten die Gewichte mit dem Außendienst abgestimmt und ggf. mit C über den Preis verhandelt werden.', keywords: ['Angebot A', '7,30', 'Akkulaufzeit', 'teurer', 'knapp', 'Gewichte', 'subjektiv'], explanation: 'Eine gute Empfehlung nennt die Entscheidung, die wichtigsten Zahlen (Nutzwert, Mehrpreis), die ausschlaggebenden Kriterien und eine kritische Einordnung: Bei nur 0,05 Punkten Abstand ist das Ergebnis empfindlich gegenüber den Gewichten.' },
+    { id: 'w02-q041', kind: 'single', skill: 'w.bezugskalkulation', difficulty: 2, prompt: 'Angebot A kostet **1.000 €**, Angebot B **1.250 €**. Welche Aussage ist richtig?', options: ['B ist 25 % teurer als A.', 'A ist 25 % günstiger als B.', 'B ist 20 % teurer als A.', 'Der Prozentunterschied ist in beide Richtungen gleich groß.'], answer: 0, distractors: { '1': { why: '„günstiger **als B**“ – Bezugsgröße ist B: 250 € ÷ 1.250 € = 20 %.', error: 'w-prozent-bezugsgroesse' }, '2': { why: '„teurer **als A**“ – Bezugsgröße ist A: 250 € ÷ 1.000 € = 25 %.', error: 'w-prozent-bezugsgroesse' }, '3': { why: 'Dieselbe Differenz (250 €) ergibt je nach Bezugsgröße 25 % oder 20 %.', error: 'w-prozent-bezugsgroesse' } }, explanation: '**B ist 25 % teurer als A** (250 ÷ 1.000), aber **A ist nur 20 % günstiger als B** (250 ÷ 1.250). Die Bezugsgröße steht immer nach „als“.' },
+    { id: 'w02-q042', kind: 'table', skill: 'w.nutzwertanalyse', difficulty: 3, prompt: `**Handlungssituation:** Die Elektro Krämer GmbH ersetzt ihre Firewall. Im Lastenheft stehen zwei **Muss-Kriterien**: mindestens **8 Gigabit-Ports** und eine **Support-Reaktionszeit von höchstens 4 Stunden**.
+
+| | Angebot A | Angebot B | Angebot C |
+|---|---|---|---|
+| Gigabit-Ports | 8 | 10 | 8 |
+| Support-Reaktionszeit | 4 h | 8 h | 2 h |
+
+Bewertung (Punkte 1–10):
+
+| Kriterium | Gewicht | A | B | C |
+|---|---|---|---|---|
+| Preis | 40 % | 8 | 9 | 6 |
+| Durchsatz | 30 % | 7 | 9 | 8 |
+| Bedienung | 15 % | 6 | 8 | 9 |
+| Service | 15 % | 7 | 6 | 9 |
+
+Prüfe zuerst die Muss-Kriterien (**erfüllt** oder **scheidet aus**). Berechne dann den Nutzwert (zwei Nachkommastellen) nur für die verbleibenden Angebote und gib das empfohlene Angebot an.`, columns: [{ key: 'k', label: 'K.-o.-Prüfung', type: 'text' }, { key: 'nw', label: 'Nutzwert', type: 'number' }, { key: 'e', label: 'Empfehlung', type: 'text' }], rows: [
+      { label: 'Angebot A', cells: { k: { answer: 'erfüllt', accept: ['erfuellt', 'ja', 'bleibt'] }, nw: { answer: '7.25', accept: ['725'] } } },
+      { label: 'Angebot B', cells: { k: { answer: 'scheidet aus', accept: ['nein', 'nicht erfüllt', 'nicht erfuellt', 'ausgeschieden', 'raus'] }, nw: { given: '–' } } },
+      { label: 'Angebot C', cells: { k: { answer: 'erfüllt', accept: ['erfuellt', 'ja', 'bleibt'] }, nw: { answer: '7.50', accept: ['750'] } } },
+      { label: 'empfohlenes Angebot', cells: { e: { answer: 'C', accept: ['angebot c'] } } },
+    ], misconceptions: [{ cell: '1:k', answer: 'erfüllt', error: 'w-ko-kriterium', why: 'B hat zwar 10 Ports, aber 8 h Reaktionszeit – erlaubt sind höchstens 4 h. Ein Muss-Kriterium nicht erfüllt → B scheidet aus.' }, { cell: '0:k', answer: 'scheidet aus', error: 'w-ko-kriterium', why: '„höchstens 4 Stunden“ schließt genau 4 h ein – A erfüllt beide Muss-Kriterien.' }, { cell: '3:e', answer: 'B', error: 'w-ko-kriterium', why: 'B hätte zwar den höchsten Nutzwert (8,40), scheidet aber wegen der Reaktionszeit vor der Bewertung aus.' }], explanation: '**Ergebnis: B scheidet aus; C wird mit 7,50 empfohlen.**\n\n**K.-o.-Prüfung:** A: 8 Ports, 4 h → erfüllt („höchstens 4 h“ schließt 4 h ein). B: 8 h Reaktionszeit → **scheidet aus**. C: 8 Ports, 2 h → erfüllt.\n\n**Nutzwerte:**\nA: 0,40 · 8 + 0,30 · 7 + 0,15 · 6 + 0,15 · 7 = 3,20 + 2,10 + 0,90 + 1,05 = **7,25**\nC: 0,40 · 6 + 0,30 · 8 + 0,15 · 9 + 0,15 · 9 = 2,40 + 2,40 + 1,35 + 1,35 = **7,50**\n\nHäufiger Fehler: B mitbewerten – mit 8,40 hätte B den höchsten Nutzwert, aber ein hoher Nutzwert gleicht ein nicht erfülltes Muss-Kriterium nicht aus.' },
   ],
 };

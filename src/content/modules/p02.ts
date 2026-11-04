@@ -8,17 +8,18 @@ export const p02: Module = {
   nr: 2,
   area: 'programmierung',
   title: 'Kontrollstrukturen & Schreibtischtest',
-  short: 'Sequenz, Verzweigung, Mehrfachauswahl und Schleifen in Pseudocode – mit Trace-Tabellen exakt nachvollziehen und selbst formulieren.',
+  short: 'Sequenz, Verzweigung, Mehrfachauswahl, Schleifen und Entscheidungstabellen in Pseudocode – mit Trace-Tabellen exakt nachvollziehen und selbst formulieren.',
   icon: 'Repeat',
   relevance: 'ap1',
   prerequisites: ['p01'],
-  generators: ['p.trace.loop', 'p.trace.branch'],
+  generators: ['p.trace.loop', 'p.trace.branch', 'p.dectable'],
   skills: [
     { id: 'prog.trace', module: 'p02', title: 'Schreibtischtest mit Trace-Tabelle', requires: ['prog.variables'] },
     { id: 'prog.branch', module: 'p02', title: 'Verzweigungen (WENN … SONST, verschachtelt)', requires: ['prog.logic'] },
     { id: 'prog.switch', module: 'p02', title: 'Mehrfachauswahl (SONST WENN, FALLS)', requires: ['prog.branch'] },
     { id: 'prog.loops', module: 'p02', title: 'Schleifen: kopf-, fußgesteuert, Zählschleife', requires: ['prog.branch'] },
     { id: 'prog.writecode', module: 'p02', title: 'Algorithmen selbst in Pseudocode formulieren', requires: ['prog.loops', 'prog.switch'] },
+    { id: 'prog.dectable', module: 'p02', title: 'Entscheidungstabellen lesen und aufstellen', requires: ['prog.branch'] },
   ],
   lessons: [
     /* ------------------------------------------------------------------ */
@@ -28,6 +29,9 @@ export const p02: Module = {
       minutes: 15,
       relevance: 'ap1',
       skills: ['prog.trace'],
+      simple: `Eine Sequenz ist die einfachste Struktur: Die Anweisungen laufen einfach nacheinander von oben nach unten ab – wie die Schritte einer Bauanleitung. Beim Schreibtischtest spielst du selbst den Computer: Du gehst Zeile für Zeile durch und notierst in einer Tabelle, welchen Wert jede Variable gerade hat. So findest du Fehler, ohne das Programm laufen zu lassen. Wichtig: Jede neue Zuweisung überschreibt den alten Wert.
+
+**Merke:** Schreibtischtest = Zeile für Zeile, jede Wertänderung in eine neue Tabellenzeile.`,
       steps: [
         {
           type: 'explain',
@@ -100,6 +104,9 @@ Ein Schreibtischtest ist auch in der Praxis ein wertvolles Werkzeug: Man findet 
       minutes: 20,
       relevance: 'ap1',
       skills: ['prog.branch'],
+      simple: `Eine Verzweigung ist wie eine Ampel: Bei Grün fährst du los, sonst bleibst du stehen. Das Programm prüft eine Bedingung (eine Frage, die WAHR oder FALSCH ergibt) und wählt danach einen von zwei Wegen. Ist die Bedingung WAHR, läuft der DANN-Zweig, ist sie FALSCH, der SONST-Zweig. Der SONST-Zweig darf auch fehlen – dann passiert bei FALSCH einfach nichts.
+
+**Merke:** WENN Bedingung DANN … SONST … ENDE WENN – es läuft immer höchstens ein Zweig.`,
       steps: [
         {
           type: 'explain',
@@ -200,6 +207,9 @@ ${F}
       minutes: 15,
       relevance: 'ap1',
       skills: ['prog.switch'],
+      simple: `Bei mehr als zwei Möglichkeiten arbeitest du mit SONST WENN – wie mit einem Sieb aus mehreren Lagen: Die erste Bedingung, die passt, gewinnt, alle weiteren werden gar nicht mehr geprüft. Deshalb kommt es auf die Reihenfolge an: Prüfe zum Beispiel „≥ 1000“ vor „≥ 500“. FALLS (Mehrfachauswahl) ist wie die Tasten im Fahrstuhl: Jeder feste Wert führt direkt zu seinem Stockwerk, und SONST fängt alles andere ab.
+
+**Merke:** SONST WENN für Bereiche (Reihenfolge beachten), FALLS für feste Einzelwerte.`,
       steps: [
         {
           type: 'explain',
@@ -299,6 +309,9 @@ Der \`SONST:\`-Zweig (in Java/C# \`default\`) fängt alle übrigen Werte ab – 
       minutes: 20,
       relevance: 'ap1',
       skills: ['prog.loops', 'prog.trace'],
+      simple: `Die Zählschleife ist wie eine Treppe mit bekannter Stufenzahl: Du weißt vorher genau, wie oft du hochsteigst. FÜR i VON 1 BIS 5 läuft fünfmal, und die Zählvariable i (der Stufenzähler) zählt dabei automatisch mit. In dieser App ist der Endwert eingeschlossen – BIS 5 heißt also auch noch mit 5. Vorsicht beim Übersetzen: In Python schließt range(1, 6) die 6 aus, und eine Bedingung „i < 10“ bedeutet BIS 9, nicht BIS 10.
+
+**Merke:** Anzahl Durchläufe = Endwert − Startwert + 1 (bei Schrittweite 1).`,
       steps: [
         {
           type: 'explain',
@@ -336,6 +349,8 @@ ${F}
 |---|---|---|
 | \`FÜR i VON 1 BIS 5\` | \`for i in range(1, 6):\` (Ende **exklusiv**!) | \`for (int i = 1; i <= 5; i++)\` |
 | \`FÜR i VON 0 BIS n - 1\` | \`for i in range(n):\` | \`for (int i = 0; i < n; i++)\` |
+
+⚠️ **Grenze beim Übersetzen:** \`for (int i = 0; i < 10; i++)\` läuft mit i = 0 … 9, also **10-mal**. In unserem Pseudocode heißt das \`FÜR i VON 0 BIS 9\` – **nicht** „BIS 10“ (das wären 11 Durchläufe). Ebenso: \`range(0, 10)\` in Python endet bei 9. Merke: \`< 10\` → Endwert 9, \`≤ 10\` → Endwert 10. Manche Lösungsbücher übersetzen \`< 10\` ungenau mit „BIS 10“ – rechne die Durchläufe immer nach.
 
 **Verschachtelte Schleifen:** Läuft eine Schleife mit a Durchläufen eine innere mit b Durchläufen, wird der innere Rumpf a · b-mal ausgeführt (sofern die innere Schleife nicht von der äußeren Laufvariable abhängt).`,
         },
@@ -377,7 +392,7 @@ ${F}
           },
         },
         { type: 'practice', title: 'Übung: Schleifen-Trace (Generator)', generator: 'p.trace.loop', count: 5, difficulty: 1 },
-        { type: 'practice', title: 'Übung: Zählschleifen aus dem Pool', questionIds: ['p02-q010', 'p02-q011', 'p02-q019', 'p02-q020', 'p02-q021', 'p02-q032'], count: 5, difficulty: 2 },
+        { type: 'practice', title: 'Übung: Zählschleifen aus dem Pool', questionIds: ['p02-q010', 'p02-q011', 'p02-q019', 'p02-q020', 'p02-q021', 'p02-q032', 'p02-q039', 'p02-q040'], count: 5, difficulty: 2 },
         { type: 'summary', points: ['FÜR i VON a BIS b: a und b inklusive → b − a + 1 Durchläufe.', 'Summe startet bei 0, Produkt bei 1.', 'SCHRITT -k zählt rückwärts.', 'Python range(a, b) schließt b aus!'] },
       ],
     },
@@ -388,6 +403,9 @@ ${F}
       minutes: 20,
       relevance: 'ap1',
       skills: ['prog.loops', 'prog.trace'],
+      simple: `Die kopfgesteuerte Schleife (SOLANGE) ist wie ein Türsteher: Er prüft vor dem Eintritt – passt die Bedingung nicht, kommst du gar nicht erst hinein (null Durchläufe möglich). Die fußgesteuerte Schleife (WIEDERHOLE … BIS) ist wie eine Kostprobe: Erst probierst du, dann entscheidest du – sie läuft also mindestens einmal. Bei SOLANGE steht eine Laufbedingung (weiter, solange WAHR), bei BIS eine Abbruchbedingung (Schluss, sobald WAHR). Achte darauf, dass sich in der Schleife etwas ändert, sonst läuft sie endlos (Endlosschleife).
+
+**Merke:** SOLANGE prüft vorne (0-mal möglich), WIEDERHOLE … BIS prüft hinten (mindestens 1-mal).`,
       steps: [
         {
           type: 'explain',
@@ -413,6 +431,31 @@ ${F}
 - \`SOLANGE bedingung TUE\` → läuft, **solange** die Bedingung WAHR ist (Laufbedingung).
 - \`WIEDERHOLE … BIS bedingung\` → läuft, **bis** die Bedingung WAHR ist (Abbruchbedingung).
 - In Java/C# ist die fußgesteuerte Schleife \`do { … } while (bedingung);\` – dort ist die Bedingung wieder eine **Lauf**bedingung! Python hat keine eingebaute fußgesteuerte Schleife (man nutzt \`while True:\` mit \`break\`).
+
+📘 **Andere Schreibweise in Schulbüchern und Prüfungen:** Manche Bücher schreiben die fußgesteuerte Schleife als \`Wiederhole … solange bedingung\`. Dann ist die Bedingung eine **Laufbedingung** (wie bei \`do … while\`): Die Schleife läuft weiter, **solange** sie WAHR ist. Beide Formen lassen sich ineinander umrechnen, indem man die Bedingung **verneint**:
+
+| Schulbuch-Schreibweise | gleichbedeutend in dieser App |
+|---|---|
+| \`Wiederhole … solange versuche < 3\` | \`WIEDERHOLE … BIS versuche ≥ 3\` |
+| \`Wiederhole … solange eingabe ≠ 0\` | \`WIEDERHOLE … BIS eingabe = 0\` |
+
+Lies in der Prüfung immer genau, **welches Wort** vor der Bedingung steht: **BIS** = Abbruchbedingung, **SOLANGE** = Laufbedingung – egal, ob oben oder unten.
+
+**Python-Entsprechung** (die Schule arbeitet mit Python):
+
+${F}python
+# kopfgesteuert: SOLANGE kontostand < ziel TUE
+while kontostand < ziel:
+    kontostand = kontostand + sparrate
+    monate = monate + 1
+
+# fußgesteuert: WIEDERHOLE … BIS pin = 1234 ODER versuche = 3
+while True:
+    pin = int(input("PIN: "))
+    versuche = versuche + 1
+    if pin == 1234 or versuche == 3:   # Abbruchbedingung → break
+        break
+${F}
 
 | | kopfgesteuert (SOLANGE) | fußgesteuert (WIEDERHOLE … BIS) | Zählschleife (FÜR) |
 |---|---|---|---|
@@ -468,7 +511,7 @@ ${F}`,
           },
         },
         { type: 'practice', title: 'Übung: SOLANGE / WIEDERHOLE (Generator, anspruchsvoll)', generator: 'p.trace.loop', count: 4, difficulty: 3 },
-        { type: 'practice', title: 'Übung: Schleifenarten aus dem Pool', questionIds: ['p02-q012', 'p02-q013', 'p02-q014', 'p02-q015', 'p02-q016', 'p02-q017', 'p02-q018', 'p02-q022', 'p02-q030', 'p02-q031', 'p02-q034'], count: 6, difficulty: 2 },
+        { type: 'practice', title: 'Übung: Schleifenarten aus dem Pool', questionIds: ['p02-q012', 'p02-q013', 'p02-q014', 'p02-q015', 'p02-q016', 'p02-q017', 'p02-q018', 'p02-q022', 'p02-q030', 'p02-q031', 'p02-q034', 'p02-q038', 'p02-q041'], count: 6, difficulty: 2 },
         { type: 'summary', points: ['SOLANGE: Bedingung vorher, 0 … n Durchläufe, Laufbedingung.', 'WIEDERHOLE … BIS: Bedingung nachher, mindestens 1 Durchlauf, Abbruchbedingung.', 'Endlosschleife: Bedingungsvariable wird im Rumpf nicht verändert.'] },
       ],
     },
@@ -479,6 +522,9 @@ ${F}`,
       minutes: 25,
       relevance: 'ap1',
       skills: ['prog.writecode'],
+      simple: `Einen Algorithmus selbst zu formulieren ist wie ein Rezept für jemanden schreiben, der noch nie gekocht hat. Kläre zuerst, was hineinkommt (Eingabe), was herauskommen soll (Ausgabe) und welche Regeln dazwischen gelten (Verarbeitung). Dann wählst du die passenden Bausteine: Verzweigung für Entscheidungen, Schleife für Wiederholungen. Zum Schluss spielst du deinen Pseudocode mit einem Beispiel durch (Schreibtischtest) – auch mit Grenzwerten wie genau 0 oder genau 100.
+
+**Merke:** Erst EVA klären, dann Bausteine wählen, dann mit Beispielen testen.`,
       steps: [
         {
           type: 'explain',
@@ -568,6 +614,93 @@ Beachte die **Division durch 0**: Ohne die Prüfung \`anzahl > 0\` würde das Pr
         },
         { type: 'practice', title: 'Übung: Algorithmen formulieren', questionIds: ['p02-q023', 'p02-q024', 'p02-q025'], count: 3, difficulty: 2 },
         { type: 'summary', points: ['Erst analysieren (EVA, Sonderfälle), dann Struktur wählen, dann notieren.', 'Startwerte nicht vergessen, Grenzwerte exakt übersetzen.', 'Division durch 0 und ungültige Eingaben abfangen.', 'Zum Schluss Schreibtischtest mit Normal- und Grenzfall.'] },
+      ],
+    },
+    /* ------------------------------------------------------------------ */
+    {
+      id: 'p02-l07',
+      title: 'Entscheidungstabellen: alle Fälle auf einen Blick',
+      minutes: 20,
+      relevance: 'ap1-teilweise',
+      skills: ['prog.dectable'],
+      simple: `Eine Entscheidungstabelle ist wie eine Rabatt-Übersicht im Laden: Oben stehen die Fragen (Bedingungen, z. B. „Stammkunde?“, „über 100 €?“), in den Spalten alle möglichen J/N-Kombinationen (Regeln) und unten, was dann passiert (Aktionen, angekreuzt mit X). So vergisst du keinen Fall. Bei n Bedingungen mit Ja/Nein gibt es 2ⁿ Regeln – bei 3 Bedingungen also 8. Regeln mit gleicher Aktion kannst du später zusammenfassen (konsolidieren), indem du „–“ für „egal“ einträgst.
+
+**Merke:** n Bedingungen → 2ⁿ Regeln; oben Bedingungen, unten Aktionen.`,
+      steps: [
+        {
+          type: 'explain',
+          title: 'Bedingungen oben, Aktionen unten, jede Spalte eine Regel',
+          body: `Wenn mehrere Bedingungen zusammenspielen, verliert man in verschachtelten WENN-Blöcken schnell den Überblick. Eine **Entscheidungstabelle** (genormt in DIN 66241) schreibt **alle Kombinationen** systematisch auf – so wird kein Fall vergessen.
+
+**Aufbau (vier Bereiche):**
+
+| | Regel R1 | R2 | R3 | R4 |
+|---|---|---|---|---|
+| **Bedingungen** (B1, B2 …) – Fragen mit Ja/Nein | J / N | … | … | … |
+| **Aktionen** (A1, A2 …) – was getan wird | X / – | … | … | … |
+
+- Oben links stehen die **Bedingungen**, oben rechts je Regel ihr Wert: **J** (trifft zu) oder **N** (trifft nicht zu).
+- Unten links stehen die **Aktionen**, unten rechts ein **X**, wenn die Aktion bei dieser Regel ausgeführt wird, sonst **–**.
+- Jede **Spalte** ist eine **Regel** = eine bestimmte J/N-Kombination.
+
+**Anzahl der Regeln:** Jede Bedingung hat 2 Werte, jede weitere Bedingung **verdoppelt** die Kombinationen. Bei **n Bedingungen** hat die vollständige Tabelle **2ⁿ Regeln**: 2 Bedingungen → 4, 3 → 8, 4 → 16.
+
+**Übliche Reihenfolge der Spalten:** Die erste Bedingung wechselt am langsamsten (bei 3 Bedingungen: R1 = JJJ, R2 = JJN, R3 = JNJ, R4 = JNN, R5 = NJJ … R8 = NNN). So lässt sich leicht prüfen, ob alle Kombinationen da sind.
+
+**Konsolidieren (zusammenfassen):** Haben zwei Regeln **dieselben Aktionen** und unterscheiden sich nur in **einer** Bedingung, ist diese Bedingung für sie egal. Man fasst sie zu einer Regel zusammen und schreibt bei der Bedingung **–** („egal“, irrelevant).
+
+**Wofür?**
+- **Anforderungen klären:** Lücken („Was passiert eigentlich, wenn …?“) und Widersprüche (zwei Regeln für denselben Fall) fallen sofort auf.
+- **Testfälle ableiten:** Jede Regel ist ein Testfall (Black-Box-Test, siehe Modul p05).
+- **Programmieren:** Die Tabelle lässt sich direkt in WENN-Blöcke übersetzen.`,
+        },
+        {
+          type: 'visual',
+          title: 'So liest du eine Entscheidungstabelle',
+          widget: {
+            kind: 'cards',
+            data: {
+              columns: 4,
+              items: [
+                { title: '1. Bedingungen', text: 'Ja/Nein-Fragen links oben, z. B. „Bestellwert ≥ 100 €?“', icon: 'HelpCircle' },
+                { title: '2. Regeln', text: 'Jede Spalte ist eine J/N-Kombination. n Bedingungen → 2ⁿ Spalten.', icon: 'Columns3' },
+                { title: '3. Aktionen', text: 'X = wird ausgeführt, – = wird nicht ausgeführt.', icon: 'ListChecks' },
+                { title: '4. Konsolidieren', text: 'Gleiche Aktionen, nur eine Bedingung verschieden → zusammenfassen, Bedingung „–“.', icon: 'Merge' },
+              ],
+            },
+          },
+          caption: 'Eine vollständige Entscheidungstabelle ist zugleich eine Checkliste für den Test: jede Regel ein Testfall.',
+        },
+        {
+          type: 'example',
+          title: 'Leih-Laptops: von der Regel zum Pseudocode',
+          problem: 'Die IT der Elektro Krämer GmbH gibt Leih-Laptops aus. Regel: Ein Laptop wird nur ausgegeben, wenn der Leihvertrag unterschrieben ist. Wird er außer Haus genutzt, wird zusätzlich ein VPN-Zugang eingerichtet. Ohne Vertrag wird die Ausgabe abgelehnt. Stelle die vollständige Entscheidungstabelle auf, konsolidiere sie und übersetze sie in Pseudocode.',
+          steps: [
+            { label: 'Bedingungen und Aktionen', body: 'B1: Leihvertrag unterschrieben · B2: Nutzung außer Haus\nA1: Laptop ausgeben · A2: VPN-Zugang einrichten · A3: Ausgabe ablehnen\n2 Bedingungen → 2² = **4 Regeln**.' },
+            { label: 'Vollständige Tabelle', body: '| | R1 | R2 | R3 | R4 |\n|---|---|---|---|---|\n| B1 Vertrag unterschrieben | J | J | N | N |\n| B2 außer Haus | J | N | J | N |\n| A1 Laptop ausgeben | X | X | – | – |\n| A2 VPN einrichten | X | – | – | – |\n| A3 Ausgabe ablehnen | – | – | X | X |' },
+            { label: 'Konsolidieren', body: 'R3 und R4 haben dieselben Aktionen (nur A3) und unterscheiden sich nur in B2 → B2 ist dort egal. Zusammengefasst: R3/4 mit B1 = N, B2 = **–**. Es bleiben **3 Regeln**.' },
+            { label: 'Pseudocode', body: `${F}\nWENN vertragUnterschrieben = WAHR DANN\n  AUSGABE "Laptop ausgeben"\n  WENN ausserHaus = WAHR DANN\n    AUSGABE "VPN-Zugang einrichten"\n  ENDE WENN\nSONST\n  AUSGABE "Ausgabe ablehnen"\nENDE WENN\n${F}` },
+          ],
+          result: '4 Regeln, konsolidiert 3; im Code wird B2 nur im Fall „Vertrag unterschrieben“ geprüft.',
+        },
+        {
+          type: 'check',
+          question: {
+            id: 'p02-c07', kind: 'number', skill: 'prog.dectable', difficulty: 1,
+            prompt: 'Eine Rabattregel hängt von drei Bedingungen ab: **Bestellwert ≥ 500 €**, **Stammkunde** und **Zahlung per Vorkasse**. Wie viele Regeln hat die **vollständige** Entscheidungstabelle?',
+            answer: 8,
+            unit: 'Regeln',
+            hints: ['Jede Bedingung kann J oder N sein – jede weitere Bedingung verdoppelt die Kombinationen.'],
+            misconceptions: [
+              { answer: '6', error: 'dectable-regelanzahl', why: '2 · 3 = 6 ist falsch: Es sind 2 · 2 · 2 = 2³ Kombinationen.' },
+              { answer: '9', error: 'dectable-regelanzahl', why: '3² = 9 ist falsch: Jede Bedingung hat 2 Werte → 2³.' },
+            ],
+            explanation: '3 Bedingungen mit je 2 Werten → 2³ = 2 · 2 · 2 = **8 Regeln** (JJJ, JJN, JNJ, JNN, NJJ, NJN, NNJ, NNN).',
+          },
+        },
+        { type: 'practice', title: 'Übung: Entscheidungstabellen (Generator)', generator: 'p.dectable', count: 4, difficulty: 2 },
+        { type: 'practice', title: 'Übung: Entscheidungstabellen aus dem Pool', questionIds: ['p02-q035', 'p02-q036', 'p02-q037', 'p02-q042'], count: 3, difficulty: 2 },
+        { type: 'summary', points: ['Bedingungen (J/N) oben, Aktionen (X/–) unten, jede Spalte eine Regel.', 'n Bedingungen → 2ⁿ Regeln (2 → 4, 3 → 8, 4 → 16).', 'Konsolidieren: gleiche Aktionen, nur eine Bedingung verschieden → zusammenfassen, Bedingung „–“.', 'Jede Regel ist ein Testfall; die Tabelle lässt sich direkt in WENN-Blöcke übersetzen.'] },
       ],
     },
   ],
@@ -861,6 +994,72 @@ Beachte die **Division durch 0**: Ohne die Prüfung \`anzahl > 0\` würde das Pr
       hints: ['Die Schleife endet, sobald **eine** der beiden Teilbedingungen FALSCH wird.'],
       misconceptions: [{ answer: '10', error: 'logik-und', why: 'Bei UND reicht es, wenn eine Teilbedingung FALSCH wird: summe ≥ 20 beendet die Schleife schon bei i = 6.' }, { answer: '5', error: 'schleife-off-by-one', why: 'Bei i = 5 ist summe = 15 < 20 – es folgt noch ein Durchlauf.' }],
       explanation: '| i | summe | i < 10 UND summe < 20 |\n|---|---|---|\n| 0 | 0 | WAHR |\n| 1 | 1 | WAHR |\n| 2 | 3 | WAHR |\n| 3 | 6 | WAHR |\n| 4 | 10 | WAHR |\n| 5 | 15 | WAHR |\n| 6 | 21 | FALSCH → Ende |\n\ni = **6**',
+    },
+    /* ---------- Entscheidungstabellen, Schreibweisen, Python ---------- */
+    {
+      id: 'p02-q035', kind: 'free', skill: 'prog.dectable', difficulty: 1,
+      prompt: 'Erläutern Sie Aufbau und Zweck einer **Entscheidungstabelle**.',
+      modelAnswer: 'Eine Entscheidungstabelle besteht aus vier Bereichen: links oben die Bedingungen, rechts oben je Regel deren Werte (J/N), links unten die Aktionen, rechts unten die Markierung, welche Aktion bei welcher Regel ausgeführt wird (X oder –). Jede Spalte ist eine Regel, also eine Kombination der Bedingungswerte; bei n Bedingungen gibt es vollständig 2ⁿ Regeln. Zweck: Alle Fälle einer komplexen Entscheidung werden übersichtlich und vollständig dargestellt, Lücken und Widersprüche fallen auf. Sie dient als Grundlage für die Programmierung (WENN-Strukturen) und für Black-Box-Testfälle (jede Regel ein Testfall).',
+      keywords: ['Bedingungen', 'Aktionen', 'Regeln/Spalten', '2^n', 'vollständig', 'Testfälle'],
+      explanation: 'Wichtig: vier Bereiche, Regel = Spalte = Kombination, 2ⁿ, Nutzen (Vollständigkeit, Programmierung, Test).',
+    },
+    {
+      id: 'p02-q036', kind: 'free', skill: 'prog.dectable', difficulty: 3,
+      prompt: `Übersetze die Entscheidungstabelle in Pseudocode. Die Variablen \`ausweisGueltig\`, \`gruppeIT\` und \`ausserhalbArbeitszeit\` sind WAHR oder FALSCH.\n\n| | R1 | R2 | R3 | R4 | R5–R8 |\n|---|---|---|---|---|---|\n| B1 Ausweis gültig | J | J | J | J | N |\n| B2 Gruppe „IT“ | J | J | N | N | – |\n| B3 außerhalb der Arbeitszeit | J | N | J | N | – |\n| A1 Tür öffnen | X | X | – | – | – |\n| A2 IT-Leitung benachrichtigen | X | – | – | – | – |\n| A3 Zutritt verweigern | – | – | X | X | X |`,
+      modelAnswer: `WENN ausweisGueltig = WAHR UND gruppeIT = WAHR DANN\n  AUSGABE "Tür öffnen"\n  WENN ausserhalbArbeitszeit = WAHR DANN\n    AUSGABE "IT-Leitung benachrichtigen"\n  ENDE WENN\nSONST\n  AUSGABE "Zutritt verweigern"\nENDE WENN`,
+      keywords: ['UND', 'verschachteltes WENN', 'SONST', 'ausserhalbArbeitszeit nur im Öffnen-Zweig'],
+      hints: ['Welche zwei Bedingungen entscheiden über „Tür öffnen“ oder „verweigern“?', 'B3 spielt nur eine Rolle, wenn die Tür geöffnet wird.'],
+      explanation: 'A1 gilt genau bei B1 = J **und** B2 = J (R1, R2) – sonst immer A3. A2 kommt nur hinzu, wenn zusätzlich B3 = J (R1). Darum: äußeres WENN mit UND, inneres WENN für B3. Häufiger Fehler: drei unabhängige WENN-Blöcke ohne SONST – dann fehlt die Aktion „Zutritt verweigern“ oder sie wird doppelt ausgelöst.',
+    },
+    {
+      id: 'p02-q037', kind: 'text', skill: 'prog.dectable', difficulty: 2,
+      prompt: 'Mit welchem Zeichen kennzeichnet man in einer **konsolidierten** Entscheidungstabelle, dass eine Bedingung für eine Regel keine Rolle spielt?',
+      accept: ['-', '–', '—', 'Strich', 'Bindestrich', 'Gedankenstrich'],
+      misconceptions: [{ answer: 'X', error: 'dectable-zeichen', why: 'X markiert eine **ausgeführte Aktion**. Bei Bedingungen bedeutet „–“, dass der Wert egal ist.' }],
+      explanation: 'Ein **Strich (–)** bei einer Bedingung heißt „egal / irrelevant“: Die Regel gilt für J und für N. So werden zwei Regeln mit gleichen Aktionen zu einer zusammengefasst.',
+    },
+    {
+      id: 'p02-q038', kind: 'number', skill: 'prog.loops', difficulty: 2,
+      prompt: `Der folgende Algorithmus stammt aus einem Schulbuch, das die fußgesteuerte Schleife als **„Wiederhole … solange“** schreibt (die Bedingung ist dort eine **Laufbedingung**). Welcher Wert wird ausgegeben?\n\n${F}\nx := 1\nWiederhole\n  x := x * 3\nsolange x < 50\nAusgabe x\n${F}`,
+      answer: 81,
+      hints: ['Laufbedingung: Die Schleife läuft weiter, solange x < 50 WAHR ist.', '„:=“ ist eine Zuweisung, wie unser ←.'],
+      misconceptions: [
+        { answer: '3', error: 'pseudocode-lauf-abbruch', why: 'Du hast „solange x < 50“ wie „BIS x < 50“ gelesen (Abbruchbedingung). Hier läuft die Schleife weiter, solange x < 50 gilt.' },
+        { answer: '27', error: 'schleife-off-by-one', why: 'Nach x = 27 ist 27 < 50 noch WAHR → es folgt ein weiterer Durchlauf: x = 81.' },
+      ],
+      explanation: '| Durchlauf | x | x < 50? |\n|---|---|---|\n| 1 | 3 | WAHR → weiter |\n| 2 | 9 | WAHR → weiter |\n| 3 | 27 | WAHR → weiter |\n| 4 | 81 | FALSCH → Ende |\n\nAusgabe **81**. In der App-Schreibweise: `WIEDERHOLE … BIS x ≥ 50`.',
+    },
+    {
+      id: 'p02-q039', kind: 'number', skill: 'prog.loops', difficulty: 1,
+      prompt: 'Die Java-Schleife `for (int i = 0; i < 10; i++)` soll in Pseudocode übersetzt werden: `FÜR i VON 0 BIS ?`. Welcher Endwert ist richtig?',
+      answer: 9,
+      hints: ['Bei „< 10“ ist 10 selbst nicht mehr dabei.', 'In unserem Pseudocode ist der Endwert eingeschlossen.'],
+      misconceptions: [{ answer: '10', error: 'schleife-grenze-kleiner', why: '„BIS 10“ schließt 10 ein → 11 Durchläufe. Die Java-Schleife endet bei i = 9 (10 Durchläufe).' }],
+      explanation: '`i < 10` lässt i = 0 … 9 zu. Da `FÜR … BIS` den Endwert **einschließt**, lautet die Übersetzung `FÜR i VON 0 BIS 9` (10 Durchläufe). Häufiger Fehler: „< 10“ als „bis 10“ lesen.',
+    },
+    {
+      id: 'p02-q040', kind: 'number', skill: 'prog.loops', difficulty: 2,
+      prompt: `Welchen Wert gibt das Python-Programm aus?\n\n${F}python\nsumme = 0\nfor i in range(2, 8):\n    summe = summe + i\nprint(summe)\n${F}`,
+      answer: 27,
+      hints: ['range(2, 8) liefert 2, 3, 4, 5, 6, 7 – der Endwert 8 ist **nicht** dabei.'],
+      misconceptions: [{ answer: '35', error: 'schleife-grenze-kleiner', why: 'Du hast 8 mitgezählt. In Python ist der Endwert von range() ausgeschlossen.' }],
+      explanation: 'range(2, 8) = 2, 3, 4, 5, 6, 7 → 2 + 3 + 4 + 5 + 6 + 7 = **27**. In unserem Pseudocode wäre das `FÜR i VON 2 BIS 7`.',
+    },
+    {
+      id: 'p02-q041', kind: 'match', skill: 'prog.loops', difficulty: 1,
+      prompt: 'Ordne jedem Pseudocode die passende Python-Entsprechung zu.',
+      left: ['WENN … / SONST WENN … / SONST', 'SOLANGE x < 10 TUE', 'FÜR i VON 1 BIS 5', 'WIEDERHOLE … BIS fertig', 'a MOD b', 'x ← 5'],
+      right: ['if … / elif … / else', 'while x < 10:', 'for i in range(1, 6):', 'while True: … if fertig: break', 'a % b', 'x = 5'],
+      answer: [0, 1, 2, 3, 4, 5],
+      explanation: 'Achtung bei `range`: Der Endwert ist ausgeschlossen, darum `range(1, 6)` für 1 bis 5. Eine fußgesteuerte Schleife gibt es in Python nicht – man baut sie mit `while True` und `break`.',
+    },
+    {
+      id: 'p02-q042', kind: 'number', skill: 'prog.dectable', difficulty: 1,
+      prompt: 'Aus einer **vollständigen** Entscheidungstabelle mit **4 Bedingungen** sollen Testfälle abgeleitet werden – je Regel ein Testfall. Wie viele Testfälle ergeben sich?',
+      answer: 16,
+      unit: 'Testfälle',
+      misconceptions: [{ answer: '8', error: 'dectable-regelanzahl', why: '2 · 4 = 8 ist falsch: 2⁴ = 16 Kombinationen.' }],
+      explanation: '4 Bedingungen → 2⁴ = **16 Regeln** → 16 Testfälle. Nach dem Konsolidieren können es weniger werden.',
     },
   ],
 };

@@ -4,7 +4,7 @@ export const m09: Module = {
   id: 'm09',
   nr: 9,
   title: 'Routing',
-  short: `Wie Router Pakete zwischen Netzen weiterleiten: Routingtabelle, Standardgateway, Default Route, Longest Prefix Match und Paketwege über mehrere Standorte.`,
+  short: `Wie Router Pakete zwischen Netzen weiterleiten: Routingtabelle, Standardgateway, Default Route, Longest Prefix Match, Paketwege über mehrere Standorte, Sammelrouten und Routerauswahl.`,
   icon: 'Route',
   relevance: 'ap1',
   prerequisites: ['m03', 'm05'],
@@ -19,8 +19,10 @@ export const m09: Module = {
     { id: 'routing.ttl', module: 'm09', title: 'TTL und Hop-Zählung', requires: ['routing.forwarding'] },
     { id: 'routing.multisite', module: 'm09', title: 'Routing für Mehrstandort-Netze planen', requires: ['routing.static', 'routing.default'] },
     { id: 'routing.dynamic', module: 'm09', title: 'Dynamisches Routing (RIP, OSPF, BGP – Grundidee)', requires: ['routing.table'] },
+    { id: 'routing.aggregate', module: 'm09', title: 'Routen zusammenfassen (Supernetting)', requires: ['routing.static'] },
+    { id: 'routing.select', module: 'm09', title: 'Router nach Datenblatt auswählen (SoHo, Business, Profi)', requires: ['routing.basics'] },
   ],
-  generators: ['routing.lpm'],
+  generators: ['routing.lpm', 'routing.supernet'],
   lessons: [
     /* ------------------------------------------------------------------ */
     {
@@ -29,6 +31,9 @@ export const m09: Module = {
       minutes: 20,
       relevance: 'ap1',
       skills: ['routing.basics', 'routing.forwarding'],
+      simple: `Ein **Router** verbindet verschiedene Netze miteinander – so wie ein Postverteilzentrum Briefe zwischen Städten weiterleitet. Er schaut auf die **Ziel-IP-Adresse** (die Anschrift des Pakets) und entscheidet mit seiner **Routingtabelle** (Liste: welches Ziel über welchen Weg), wohin das Paket als Nächstes geht. Ein **Switch** verteilt dagegen nur innerhalb eines Netzes – wie die Briefträgerin in einer Straße. Kennt der Router kein passendes Ziel, wirft er das Paket weg; er verteilt es nie „an alle“.
+
+**Merke:** Switch = innerhalb eines Netzes (MAC-Adressen, Schicht 2), Router = zwischen Netzen (IP-Adressen, Schicht 3).`,
       steps: [
         {
           type: 'explain',
@@ -142,6 +147,9 @@ Wichtig: Ein Router **flutet nie**. Kennt er kein passendes Ziel, verwirft er da
       minutes: 20,
       relevance: 'ap1',
       skills: ['routing.gateway'],
+      simple: `Bevor dein PC etwas verschickt, prüft er: Liegt das Ziel in meinem eigenen Netz? Dafür vergleicht er mit der **Subnetzmaske** den Netzanteil seiner eigenen Adresse und der Zieladresse. Gleich → er schickt direkt hin, wie einen Brief an die Nachbarin, den du selbst einwirfst. Verschieden → er gibt das Paket dem **Standardgateway** (dem Router seines Netzes), wie einen Brief an die Post. Deshalb muss das Gateway immer im **eigenen** Netz des PCs liegen.
+
+**Merke:** Ziel im eigenen Netz → direkt zustellen; Ziel in einem fremden Netz → ans Standardgateway, und das muss im eigenen Subnetz liegen.`,
       steps: [
         {
           type: 'explain',
@@ -227,6 +235,9 @@ Intern ist das Standardgateway nichts anderes als eine **Default Route** in der 
       minutes: 30,
       relevance: 'ap1',
       skills: ['routing.table', 'routing.static', 'routing.default'],
+      simple: `Die **Routingtabelle** ist der Wegweiser des Routers. Jede Zeile sagt: „Für dieses Zielnetz geht es über diesen Nachbarrouter (**Next Hop**) bzw. diese Schnittstelle.“ Direkt angeschlossene Netze kennt der Router von selbst. Entfernte Netze trägt der Administrator als **statische Route** von Hand ein. Für alle übrigen Ziele gibt es die **Default Route 0.0.0.0/0** – wie das Schild „alle anderen Richtungen“ an einer Kreuzung.
+
+**Merke:** Eintrag = Zielnetz + Next Hop bzw. Schnittstelle; 0.0.0.0/0 ist die Default Route für alle Ziele ohne eigenen Eintrag.`,
       steps: [
         {
           type: 'explain',
@@ -388,6 +399,9 @@ Beachte: R-B braucht **keine** eigene Route für 192.168.10.0/24 – die Default
       minutes: 25,
       relevance: 'ap1',
       skills: ['routing.lpm'],
+      simple: `Manchmal passen mehrere Zeilen der Routingtabelle zum selben Ziel. Dann nimmt der Router die **genaueste** – die mit dem **längsten Präfix** (der größten Zahl hinter dem Schrägstrich). Das ist wie bei einer Anschrift: „Hamburg, Hafenstraße 12“ ist genauer als „Hamburg“ und gewinnt deshalb. Die Default Route /0 passt immer, ist aber am ungenauesten und kommt nur zum Zug, wenn sonst nichts passt.
+
+**Merke:** Passen mehrere Routen, gewinnt das längste Präfix (Longest Prefix Match).`,
       steps: [
         {
           type: 'explain',
@@ -492,6 +506,9 @@ Welcher Next Hop wird für (1) 10.1.2.77, (2) 10.1.5.5, (3) 10.200.1.1, (4) 8.8.
       minutes: 25,
       relevance: 'ap1',
       skills: ['routing.forwarding', 'routing.ttl'],
+      simple: `Ein Paket reist wie eine Sendung bei einer Spedition: Die **Endadresse** (Ziel-IP) bleibt die ganze Zeit gleich. Für jede Etappe bekommt es aber einen neuen Lieferschein mit der Adresse der **nächsten Station** (MAC-Adresse = Hardwareadresse des nächsten Geräts). Jeder Router zieht außerdem 1 von der **TTL** (Time to Live, „Lebensdauer“) ab. Ist sie bei 0, wird das Paket verworfen – so kreist kein Paket endlos im Netz.
+
+**Merke:** IP-Adressen bleiben Ende-zu-Ende gleich (außer bei NAT), MAC-Adressen wechseln an jedem Router, die TTL sinkt pro Router um 1.`,
       steps: [
         {
           type: 'explain',
@@ -601,6 +618,9 @@ Daraus folgt die wichtigste Erkenntnis dieser Lektion:
       minutes: 30,
       relevance: 'ap1',
       skills: ['routing.multisite', 'routing.static', 'routing.default'],
+      simple: `Bei mehreren Standorten muss jeder Router wissen, wie er zu **jedem** Netz kommt – und wie die Antwort zurückkommt. Stell dir eine Firma mit Zentrale und Filialen vor: Die Filialen schicken alles Unbekannte zur Zentrale (Default Route), die Zentrale braucht für jede Filiale einen eigenen Eintrag. Die Router sind über kleine **Transfernetze** verbunden (meist /30 mit genau zwei nutzbaren Adressen). Der **Next Hop** ist immer die Adresse des Nachbarrouters in diesem Transfernetz.
+
+**Merke:** Netze sammeln → direkte Netze → statische Routen → Default Route → Rückweg prüfen.`,
       steps: [
         {
           type: 'explain',
@@ -710,6 +730,9 @@ Daraus folgt die wichtigste Erkenntnis dieser Lektion:
       minutes: 20,
       relevance: 'ap1-teilweise',
       skills: ['routing.dynamic'],
+      simple: `Bei vielen Routern wird das Eintragen von Hand mühsam und fehleranfällig. Dann tauschen die Router ihre Wege automatisch aus – mit **Routingprotokollen** wie RIP, OSPF oder BGP. Das ist wie ein Navi mit Stauinfo: Fällt eine Strecke aus, wird von selbst ein anderer Weg berechnet. **RIP** zählt nur die Router auf dem Weg (Hops), **OSPF** kennt die ganze Netzkarte und rechnet mit Kosten, **BGP** verbindet die großen Netze des Internets.
+
+**Merke:** Statisch = von Hand und fest; dynamisch = Router lernen Wege automatisch und reagieren auf Ausfälle.`,
       steps: [
         {
           type: 'explain',
@@ -777,6 +800,242 @@ Eine nützliche Praxistechnik ist die **Floating Static Route**: eine statische 
             'OSPF: Link-State, Kosten, Dijkstra/SPF, Areas.',
             'BGP: Pfadvektor zwischen autonomen Systemen – das Protokoll des Internets.',
             'Entscheidung: längstes Präfix → Administrative Distanz → Metrik.',
+          ],
+        },
+      ],
+    },
+    /* ------------------------------------------------------------------ */
+    {
+      id: 'm09-l08',
+      title: 'Routen zusammenfassen (Supernetting)',
+      minutes: 25,
+      relevance: 'ap1-teilweise',
+      skills: ['routing.aggregate'],
+      simple: `Erreicht ein Router mehrere Netze über **denselben** Nachbarn, kann er sie zu **einer** Route zusammenfassen. Das ist wie bei Postleitzahlen: Statt 20095, 20097, 20099 … einzeln aufzuzählen, sagst du „alles mit 20… geht ins Verteilzentrum Hamburg“. Technisch nimmst du die Bits, die bei allen Netzen gleich sind, als neuen Netzanteil – das Präfix (die Zahl hinter dem Schrägstrich) wird kleiner. Das klappt nur, wenn die Netze lückenlos hintereinander liegen und das erste Netz am Anfang eines passenden Blocks beginnt.
+
+**Merke:** 2 gleich große Netze = 1 Bit weniger, 4 Netze = 2 Bit weniger, 8 Netze = 3 Bit weniger – und das erste Netz muss auf der Blockgrenze liegen.`,
+      steps: [
+        {
+          type: 'explain',
+          title: 'Warum Routen zusammenfassen?',
+          body: `Das Lager in Lübeck hat inzwischen vier VLANs bekommen: **192.168.32.0/24** (Büro), **192.168.33.0/24** (Scanner), **192.168.34.0/24** (Kameras) und **192.168.35.0/24** (Drucker). Alle vier erreicht die Zentrale über denselben Next Hop **10.0.0.6** (R-HL).
+
+Ohne Zusammenfassung braucht R-HH dafür **vier** statische Routen. Mit einer **Sammelroute** (auch **Routenaggregation**, **Route Summarization** oder **Supernetting** genannt) reicht **eine**:
+
+| Ohne Zusammenfassung | Mit Sammelroute |
+|---|---|
+| 192.168.32.0/24 via 10.0.0.6 | **192.168.32.0/22 via 10.0.0.6** |
+| 192.168.33.0/24 via 10.0.0.6 | |
+| 192.168.34.0/24 via 10.0.0.6 | |
+| 192.168.35.0/24 via 10.0.0.6 | |
+
+**Vorteile:**
+- **Kleinere Routingtabellen** – weniger Einträge, weniger Tippfehler, schnellere Suche.
+- **Weniger Änderungen:** Kommt in Lübeck ein Netz aus demselben Block dazu, muss in Hamburg nichts angepasst werden.
+- Bei dynamischem Routing: weniger Updates zwischen den Routern.
+
+**Voraussetzung:** Alle zusammengefassten Netze liegen hinter **demselben Next Hop**. Eine Sammelroute zu einem Router, hinter dem nur ein Teil der Netze liegt, schickt Pakete in die falsche Richtung.
+
+**Begriff „Supernetting“:** Beim Subnetting machst du das Präfix **länger** (ein Netz wird in kleinere geteilt). Beim Supernetting machst du es **kürzer** (mehrere Netze werden zu einem größeren Block zusammengefasst) – also genau die Gegenrichtung.`,
+        },
+        {
+          type: 'explain',
+          title: 'So rechnest du – in drei Schritten',
+          body: `**Schritt 1 – Größe bestimmen:** Zähle die Adressen aller Netze zusammen. Die Summe muss eine **Zweierpotenz** sein (512, 1024, 2048 …), sonst gibt es keine exakte Sammelroute.
+- Vier /24-Netze = 4 · 256 = **1024 Adressen** = 2¹⁰ → Präfix 32 − 10 = **/22**.
+- Kurzregel für gleich große Netze: 2 Netze → Präfix − 1, 4 Netze → Präfix − 2, 8 Netze → Präfix − 3.
+
+**Schritt 2 – Ausrichtung prüfen:** Das **erste** Netz muss auf einer Blockgrenze des neuen Präfixes liegen. Ein /22 umfasst im 3. Oktett **4** Werte. Die Sammelroute kann also nur bei 0, 4, 8, 12 … 32 … beginnen. 32 ist durch 4 teilbar → passt.
+
+**Schritt 3 – Probe binär:** Schreib das Oktett, in dem sich die Netze unterscheiden, binär untereinander:
+
+| Netz | 3. Oktett binär |
+|---|---|
+| 192.168.32.0 | \`001000|00\` |
+| 192.168.33.0 | \`001000|01\` |
+| 192.168.34.0 | \`001000|10\` |
+| 192.168.35.0 | \`001000|11\` |
+
+Die ersten 6 Bit des 3. Oktetts sind bei allen gleich. Dazu kommen die 16 Bit der ersten beiden Oktette: 16 + 6 = **22** gemeinsame Bits → **192.168.32.0/22**.
+
+**Wenn es nicht passt:** 192.168.1.0/24 und 192.168.2.0/24 lassen sich **nicht** zu einem /23 zusammenfassen. Ein /23 beginnt nur bei geraden Werten: 192.168.0.0/23 enthält .0 und .1, 192.168.2.0/23 enthält .2 und .3. Die kleinste gemeinsame Route wäre 192.168.0.0/22 – sie enthält aber zusätzlich die fremden Netze .0 und .3. Dann trägst du lieber **zwei** einzelne Routen ein.
+
+**Häufiger Fehler:** pro Netz ein Bit abziehen (4 Netze → /20). Richtig ist: 4 = 2² → nur **2** Bit.`,
+        },
+        {
+          type: 'visual',
+          title: 'Vier Routen werden zu einer',
+          widget: {
+            kind: 'cards',
+            data: {
+              columns: 3,
+              items: [
+                { title: 'Vorher', text: '4 Einträge: 192.168.32.0/24 bis 192.168.35.0/24, alle via 10.0.0.6', icon: 'List' },
+                { title: 'Rechnung', text: '4 Netze = 2² → 2 Bit weniger: /24 → /22. Start 32 ist durch 4 teilbar.', icon: 'Calculator' },
+                { title: 'Nachher', text: '1 Eintrag: 192.168.32.0/22 via 10.0.0.6 (deckt .32 bis .35 ab)', icon: 'CheckCircle' },
+              ],
+            },
+          },
+          caption: 'Eine Sammelroute und spezifischere Einzelrouten dürfen gleichzeitig existieren – durch den Longest Prefix Match gewinnt dann immer der genauere Eintrag.',
+        },
+        {
+          type: 'example',
+          title: 'Nicht ausgerichtete Netze',
+          problem: `In Lübeck kommen statt .32–.35 die Netze **192.168.34.0/24, 192.168.35.0/24, 192.168.36.0/24 und 192.168.37.0/24** zum Einsatz (alle via 10.0.0.6). Finde die kleinstmögliche Anzahl an Routen, die **genau** diese Netze abdeckt.`,
+          steps: [
+            { label: 'Größe', body: `4 · 256 = 1024 Adressen = 2¹⁰ → eine einzelne Route müsste ein **/22** sein.` },
+            { label: 'Ausrichtung', body: `Ein /22 beginnt im 3. Oktett nur bei Vielfachen von 4: 32, 36, 40 … **34 ist nicht durch 4 teilbar** → kein exakter /22 möglich.` },
+            { label: 'Binärprobe', body: `34 = \`00100010\`, 37 = \`00100101\`. Gemeinsam sind nur die ersten 5 Bit → kleinste gemeinsame Route 192.168.32.0/21. Die enthält aber auch .32, .33, .38 und .39 – fremde Netze.` },
+            { label: 'Aufteilen', body: `34 und 35: 34 ist durch 2 teilbar → **192.168.34.0/23**. 36 und 37: 36 ist durch 2 teilbar → **192.168.36.0/23**.` },
+          ],
+          result: `Zwei Routen: **192.168.34.0/23** und **192.168.36.0/23**, beide via 10.0.0.6. Eine einzige Route geht nur, wenn man fremde Netze mit einschließt – das ist nur zulässig, wenn diese Netze nirgendwo anders verwendet werden.`,
+        },
+        {
+          type: 'check',
+          question: {
+            id: 'm09-l08-c1',
+            kind: 'cidr',
+            skill: 'routing.aggregate',
+            difficulty: 2,
+            prompt: `Fasse die acht Netze **10.20.8.0/24 bis 10.20.15.0/24** (alle über denselben Next Hop) zu einer Sammelroute zusammen.`,
+            answer: '10.20.8.0/21',
+            misconceptions: [
+              { answer: '10.20.8.0/16', error: 'bits-statt-anzahl', why: 'Du hast pro Netz ein Bit abgezogen. 8 Netze = 2³ → nur 3 Bit weniger: /21.' },
+              { answer: '10.20.8.0/22', error: 'supernet-zu-klein', why: 'Ein /22 umfasst nur 4 der 8 Netze (.8 bis .11).' },
+              { answer: '10.20.15.0/21', error: 'supernet-falsche-basis', why: 'Die Sammelroute beginnt beim ersten Netz (.8).' },
+            ],
+            hints: ['8 Netze = 2 hoch wie viel?', '8 = 2³ → /24 − 3.'],
+            explanation: `**10.20.8.0/21**\n\n1. 8 Netze = 2³ → 3 Bit weniger als /24 → **/21**.\n2. Ein /21 umfasst im 3. Oktett 8 Werte. 8 ist durch 8 teilbar → ausgerichtet.\n3. Probe: 8 = \`00001|000\`, 15 = \`00001|111\` → die ersten 5 Bit gleich → 16 + 5 = 21.`,
+          },
+        },
+        {
+          type: 'practice',
+          title: 'Übung: Sammelrouten (generiert)',
+          generator: 'routing.supernet',
+          count: 5,
+          difficulty: 2,
+        },
+        {
+          type: 'practice',
+          title: 'Übung: Supernetting aus dem Pool',
+          questionIds: ['m09-q038', 'm09-q039', 'm09-q040', 'm09-q041', 'm09-q042', 'm09-q043'],
+          count: 5,
+          difficulty: 2,
+        },
+        {
+          type: 'summary',
+          points: [
+            'Sammelroute = mehrere Netze hinter demselben Next Hop mit einem kürzeren Präfix.',
+            'Größe: Summe der Adressen muss eine Zweierpotenz sein; 2/4/8 gleich große Netze → Präfix −1/−2/−3.',
+            'Ausrichtung: Das erste Netz muss durch die neue Blockgröße teilbar sein – sonst mehrere Routen.',
+            'Probe: Oktett binär untereinander schreiben, gleiche Bits von links zählen.',
+            'Sammelroute und genauere Einzelrouten dürfen nebeneinander stehen – Longest Prefix Match entscheidet.',
+          ],
+        },
+      ],
+    },
+    /* ------------------------------------------------------------------ */
+    {
+      id: 'm09-l09',
+      title: 'Router auswählen: SoHo, Business, Profi – nach Datenblatt',
+      minutes: 25,
+      relevance: 'ap1',
+      skills: ['routing.select'],
+      simple: `Ein Router für Büro oder Zuhause (**SoHo** = Small Office/Home Office) ist ein Alleskönner: Modem, Router, kleiner Switch, WLAN, DHCP-Server und Firewall in einem Gerät – wie ein Schweizer Taschenmesser. Profi-Router im Rechenzentrum können weniger Zusatzfunktionen, leiten aber sehr viele Daten zuverlässig weiter und werden meist per Kommandozeile eingerichtet. Bei der Auswahl liest du das Datenblatt wie eine Checkliste: Passt der Internetanschluss? Reichen Ports, WLAN und VPN (verschlüsselter Tunnel ins Firmennetz)? Erst wenn alle Pflichtpunkte erfüllt sind, entscheidet der Preis.
+
+**Merke:** Erst die Muss-Kriterien aus der Aufgabe prüfen, Geräte mit Lücken ausscheiden, dann unter den passenden das wirtschaftlichste wählen – und die Wahl begründen.`,
+      steps: [
+        {
+          type: 'explain',
+          title: 'Drei Router-Klassen',
+          body: `| | **SoHo-Router** | **Business-/KMU-Router** | **Profi-Router (Edge/Core)** |
+|---|---|---|---|
+| Einsatz | Zuhause, kleines Büro (bis ca. 10–20 Personen) | Firmen mit mehreren Standorten, Filialen | Rechenzentrum, Provider, große Standorte |
+| Internet-Anschluss | Modem oft eingebaut (DSL, Kabel/DOCSIS, Glasfaser-ONT) oder WAN-Ethernet | 1–2 WAN-Ports (Ethernet/SFP) für **Lastverteilung oder Ausfallsicherung**, oft Mobilfunk-Backup | viele Ports, modulare Einschübe (SFP/SFP+ für Glasfaser) |
+| Zusatzfunktionen | WLAN, 4-Port-Switch, DHCP, DNS-Weiterleitung, Firewall/NAT, Gäste-WLAN, VPN für wenige Nutzer, DynDNS, oft Telefonanlage/DECT, USB-Speicher | VLANs, viele VPN-Tunnel, Firewall-Regeln, Monitoring, meist **ohne** WLAN | dynamisches Routing (OSPF, BGP), sehr hoher Durchsatz, redundante Netzteile; DHCP/WLAN übernehmen andere Geräte |
+| Bedienung | Weboberfläche, App | Weboberfläche und Kommandozeile (CLI), zentrale Verwaltung | fast nur CLI per **SSH** (nie per unverschlüsseltem Telnet) |
+| Bauform | Tischgerät | Tischgerät oder 19″-Rack | 19″-Rack |
+
+**Merksatz:** Je professioneller der Router, desto **weniger Nebenfunktionen** und desto **mehr Leistung, Ports und Ausfallsicherheit**.`,
+        },
+        {
+          type: 'explain',
+          title: 'Ein Router-Datenblatt lesen',
+          body: `In der Prüfung bekommst du oft zwei oder drei Datenblätter als Beleg und eine Anforderungsliste. Diese Punkte prüfst du der Reihe nach:
+
+| Datenblatt-Angabe | Worauf du achtest |
+|---|---|
+| **WAN-Anschluss** | Passt er zum Anschluss des Kunden? VDSL2/Supervectoring (DSL), DOCSIS 3.1 (Kabelnetz), Glasfaser mit eingebautem ONT/SFP **oder** WAN-Ethernet für ein externes Glasfasermodem (ONT) des Providers. |
+| **LAN-Ports** | Anzahl und Geschwindigkeit (1 GbE, 2,5 GbE). Reichen sie oder kommt ein Switch dazu? |
+| **WLAN** | Standard (Wi-Fi 6/6E/7), Frequenzbänder, Gäste-WLAN. Business-Router haben oft gar kein WLAN – dann werden Access Points gebraucht. |
+| **VPN** | Protokolle (IPsec, WireGuard, OpenVPN) und **Anzahl gleichzeitiger Tunnel** – wichtig für Homeoffice. |
+| **Durchsatz** | NAT-/Firewall-Durchsatz und **VPN-Durchsatz** getrennt lesen: Verschlüsseln kostet Rechenleistung, der VPN-Durchsatz ist oft deutlich kleiner. |
+| **Ausfallsicherheit** | zweiter WAN-Port, Mobilfunk-Backup (LTE/5G), redundantes Netzteil. |
+| **Verwaltung & Updates** | Weboberfläche/CLI, VLAN-Unterstützung, Dauer der Sicherheitsupdates durch den Hersteller. |
+| **Sonstiges** | Leistungsaufnahme (Stromkosten im Dauerbetrieb), Bauform, Preis, Garantie. |
+
+**Vorgehen bei der Auswahl:**
+1. Anforderungen in **Muss** (zwingend) und **Kann** (wünschenswert) trennen.
+2. Jedes Gerät gegen die Muss-Kriterien prüfen. Fehlt eines → Gerät scheidet aus.
+3. Unter den verbleibenden Geräten: Kann-Kriterien und Preis vergleichen (bei vielen Kriterien: Nutzwertanalyse).
+4. Entscheidung **mit Begründung** aufschreiben – ohne Begründung gibt es in der Prüfung kaum Punkte.`,
+        },
+        {
+          type: 'example',
+          title: 'Belegaufgabe: Router für ein Steuerbüro',
+          problem: `Ein Kunde des IT-Systemhauses (Steuerbüro, 8 Arbeitsplätze) bekommt einen Glasfaseranschluss. Der Provider liefert ein **Glasfasermodem (ONT) mit Ethernet-Ausgang**. Anforderungen:
+
+- **Muss:** Anschluss an das ONT per Ethernet, **mindestens 5 gleichzeitige VPN-Verbindungen** für das Homeoffice, getrenntes **Gäste-WLAN** für Mandanten, mindestens 4 LAN-Ports.
+- **Kann:** Mobilfunk-Backup bei Ausfall der Glasfaser.
+
+| Merkmal | Router A | Router B | Router C |
+|---|---|---|---|
+| WAN | VDSL2-Modem eingebaut, **kein** Ethernet-WAN | 1 × 2,5-GbE-WAN (für externes ONT) | 2 × 1-GbE-WAN, 2 × SFP |
+| LAN | 4 × 1 GbE | 4 × 1 GbE | 8 × 1 GbE |
+| WLAN | Wi-Fi 6, Gäste-WLAN | Wi-Fi 6, Gäste-WLAN | kein WLAN |
+| VPN | WireGuard, max. 4 Tunnel | WireGuard und IPsec, max. 10 Tunnel | IPsec und SSL-VPN, max. 50 Tunnel |
+| Mobilfunk-Backup | nein | ja (LTE-Stick am USB-Port) | ja (Zusatzmodul) |
+| Preis | 189 € | 259 € | 690 € (+ Access Point 140 €) |`,
+          steps: [
+            { label: 'Router A prüfen', body: `Kein Ethernet-WAN → kann nicht an das ONT angeschlossen werden. Außerdem nur 4 VPN-Tunnel < 5. **Scheidet aus.**` },
+            { label: 'Router B prüfen', body: `Ethernet-WAN ✔, 10 Tunnel ≥ 5 ✔, Gäste-WLAN ✔, 4 LAN-Ports ✔. Kann-Kriterium Mobilfunk-Backup ✔.` },
+            { label: 'Router C prüfen', body: `Alle Muss-Kriterien erfüllbar, aber **kein WLAN** → für das Gäste-WLAN ist ein zusätzlicher Access Point nötig. Gesamtpreis 830 €.` },
+            { label: 'Entscheiden', body: `B und C erfüllen alle Muss-Kriterien. B kostet 259 €, C mit Access Point 830 €. Die Mehrleistung von C (50 Tunnel, zweiter WAN-Port) braucht ein Büro mit 8 Plätzen nicht.` },
+          ],
+          result: `**Router B**: Er erfüllt alle Muss-Kriterien und das Kann-Kriterium und ist mit 259 € die wirtschaftlichste Lösung. Router A scheidet wegen fehlendem Ethernet-WAN und zu wenigen VPN-Tunneln aus, Router C ist für die Bürogröße überdimensioniert und braucht einen zusätzlichen Access Point.`,
+        },
+        {
+          type: 'check',
+          question: {
+            id: 'm09-l09-c1',
+            kind: 'single',
+            skill: 'routing.select',
+            difficulty: 2,
+            prompt: `Im Datenblatt eines Routers stehen: „Firewall-Durchsatz 940 Mbit/s“, „VPN-Durchsatz (IPsec) 180 Mbit/s“, „WLAN bis 2.400 Mbit/s“. Mit welcher Datenrate können die Homeoffice-Nutzer über VPN **höchstens** gemeinsam arbeiten?`,
+            options: ['940 Mbit/s', '180 Mbit/s', '2.400 Mbit/s', '180 Mbit/s je Nutzer'],
+            answer: 1,
+            distractors: {
+              '0': { why: 'Der Firewall-Durchsatz gilt für unverschlüsselten Verkehr. Verschlüsseln kostet Rechenleistung.', error: 'datenblatt-falscher-wert' },
+              '2': { why: 'Die WLAN-Bruttorate betrifft nur die Funkstrecke im Büro, nicht den VPN-Tunnel.', error: 'datenblatt-falscher-wert' },
+              '3': { why: 'Der VPN-Durchsatz ist die Gesamtleistung des Geräts und wird auf alle Tunnel aufgeteilt.', error: 'datenblatt-falscher-wert' },
+            },
+            explanation: `**180 Mbit/s** – der VPN-Durchsatz begrenzt alle Tunnel zusammen. Häufiger Fehler: den größten Wert im Datenblatt nehmen. Für jede Anforderung zählt der **passende** Wert.`,
+          },
+        },
+        {
+          type: 'practice',
+          title: 'Übung: Router auswählen',
+          questionIds: ['m09-q044', 'm09-q045', 'm09-q046', 'm09-q047', 'm09-q048'],
+          count: 5,
+          difficulty: 2,
+        },
+        {
+          type: 'summary',
+          points: [
+            'SoHo-Router = Alleskönner (Modem, WLAN, Switch, DHCP, Firewall, VPN für wenige Nutzer).',
+            'Business-Router: mehrere WAN-Ports, viele VPN-Tunnel, VLANs, meist ohne WLAN; Profi-Router: hoher Durchsatz, dynamisches Routing, Bedienung per SSH/CLI.',
+            'Datenblatt prüfen: WAN-Typ, LAN-Ports, WLAN, VPN-Protokolle und Tunnelzahl, VPN-Durchsatz, Ausfallsicherheit, Updates.',
+            'Vorgehen: Muss-Kriterien → Ausschluss → Kann-Kriterien/Preis → Entscheidung mit Begründung.',
           ],
         },
       ],
@@ -1377,6 +1636,182 @@ Eine nützliche Praxistechnik ist die **Floating Static Route**: eine statische 
       modelAnswer: `Switching findet auf Schicht 2 innerhalb eines Netzes statt: Der Switch leitet Frames anhand der Ziel-MAC weiter und verändert dabei weder MAC- noch IP-Adressen. Routing findet auf Schicht 3 zwischen Netzen statt: Der Router entscheidet anhand der Ziel-IP und seiner Routingtabelle. Auf jedem Abschnitt (Hop) wird ein neuer Frame gebildet: Die Quell-MAC ist die des ausgehenden Router-Interfaces, die Ziel-MAC die des Next Hops bzw. des Zielhosts. Die IP-Adressen von Quelle und Ziel bleiben Ende-zu-Ende gleich (außer bei NAT), nur die TTL wird an jedem Router um 1 verringert.`,
       keywords: ['Schicht 2', 'Schicht 3', 'MAC', 'IP', 'Next Hop', 'TTL', 'NAT'],
       explanation: `Wichtig: MAC wechselt pro Hop, IP bleibt (außer NAT), TTL sinkt. Switch ändert keine Adressen.`,
+    },
+    {
+      id: 'm09-q038',
+      kind: 'cidr',
+      skill: 'routing.aggregate',
+      difficulty: 1,
+      prompt: `Die Netze **172.16.4.0/24, 172.16.5.0/24, 172.16.6.0/24 und 172.16.7.0/24** liegen alle hinter demselben Router. Wie lautet die Sammelroute in CIDR-Notation?`,
+      answer: '172.16.4.0/22',
+      misconceptions: [
+        { answer: '172.16.4.0/20', error: 'bits-statt-anzahl', why: '4 Netze = 2² → nur 2 Bit weniger als /24, nicht 4.' },
+        { answer: '172.16.4.0/23', error: 'supernet-zu-klein', why: 'Ein /23 umfasst nur 2 der 4 Netze.' },
+        { answer: '172.16.7.0/22', error: 'supernet-falsche-basis', why: 'Die Sammelroute beginnt beim ersten Netz.' },
+      ],
+      hints: ['4 Netze = 2²', 'Ist 4 durch 4 teilbar?'],
+      explanation: `**172.16.4.0/22**\n\n1. 4 Netze à 256 Adressen = 1024 = 2¹⁰ → 32 − 10 = **/22**.\n2. Ausrichtung: 4 ist durch 4 teilbar ✔.\n3. Probe: 4 = \`000001|00\`, 7 = \`000001|11\` → 16 + 6 = 22 gemeinsame Bits.\n\nHäufiger Fehler: pro Netz ein Bit abziehen (/20).`,
+    },
+    {
+      id: 'm09-q039',
+      kind: 'number',
+      skill: 'routing.aggregate',
+      difficulty: 1,
+      prompt: `Wie viele **/24-Netze** fasst die Sammelroute **10.8.0.0/21** zusammen?`,
+      answer: 8,
+      unit: 'Netze',
+      misconceptions: [{ answer: '3', error: 'bits-statt-anzahl', why: '3 ist die Anzahl der Bits (24 − 21). Diese 3 Bits ergeben 2³ = 8 Kombinationen.' }],
+      hints: ['Differenz der Präfixe: 24 − 21.', '2 hoch Differenz.'],
+      explanation: `24 − 21 = 3 Bit → 2³ = **8** /24-Netze (10.8.0.0 bis 10.8.7.0).\n\nHäufiger Fehler: die Bitzahl (3) statt der Anzahl (2³) angeben.`,
+    },
+    {
+      id: 'm09-q040',
+      kind: 'single',
+      skill: 'routing.aggregate',
+      difficulty: 2,
+      prompt: `Welches Netzpaar lässt sich **exakt** zu **einem /23** zusammenfassen?`,
+      options: [
+        '192.168.1.0/24 und 192.168.2.0/24',
+        '192.168.2.0/24 und 192.168.3.0/24',
+        '192.168.3.0/24 und 192.168.4.0/24',
+        '192.168.5.0/24 und 192.168.6.0/24',
+      ],
+      answer: 1,
+      distractors: {
+        '0': { why: 'Ein /23 beginnt nur bei geraden Werten im 3. Oktett. .1 ist ungerade – .1 gehört zu 192.168.0.0/23, .2 zu 192.168.2.0/23.', error: 'supernet-nicht-ausgerichtet' },
+        '2': { why: '.3 ist ungerade, .3 und .4 liegen in zwei verschiedenen /23-Blöcken.', error: 'supernet-nicht-ausgerichtet' },
+        '3': { why: '.5 ist ungerade, .5 und .6 liegen in zwei verschiedenen /23-Blöcken.', error: 'supernet-nicht-ausgerichtet' },
+      },
+      hints: ['Ein /23 umfasst zwei /24-Netze. Bei welchen Werten kann er beginnen?'],
+      explanation: `Ein /23-Block beginnt im 3. Oktett bei einer **geraden** Zahl (0, 2, 4 …). Nur **2 und 3** bilden so einen Block: 2 = \`0000001|0\`, 3 = \`0000001|1\` → 192.168.2.0/23.\n\nHäufiger Fehler: Nur auf „zwei aufeinanderfolgende Netze“ achten und die Ausrichtung vergessen.`,
+    },
+    {
+      id: 'm09-q041',
+      kind: 'free',
+      skill: 'routing.aggregate',
+      difficulty: 2,
+      prompt: `Erläutern Sie zwei Vorteile einer **Routenzusammenfassung** und nennen Sie eine Bedingung, die erfüllt sein muss, damit sie korrekt funktioniert.`,
+      modelAnswer: `Vorteile: (1) Die Routingtabelle wird kleiner und übersichtlicher; das senkt den Pflegeaufwand und das Risiko von Tippfehlern. (2) Neue Netze aus demselben Adressblock sind automatisch erreichbar, ohne dass auf jedem Router eine weitere Route eingetragen werden muss; bei dynamischem Routing werden außerdem weniger Updates ausgetauscht. Bedingungen: Alle zusammengefassten Netze müssen hinter demselben Next Hop liegen, und die Netze müssen lückenlos und an der Blockgrenze ausgerichtet sein (die Gesamtgröße ist eine Zweierpotenz und das erste Netz liegt auf einer passenden Grenze). Sonst würde die Sammelroute auch fremde Netze umfassen oder Pakete in die falsche Richtung schicken.`,
+      keywords: ['kleinere Routingtabelle', 'weniger Pflegeaufwand', 'neue Netze automatisch', 'gleicher Next Hop', 'ausgerichtet', 'Zweierpotenz'],
+      hints: ['Denk an die Größe der Tabelle und an spätere Erweiterungen.', 'Was passiert, wenn ein Netz hinter einem anderen Router liegt?'],
+      explanation: `Eine gute Antwort nennt zwei Vorteile (kleinere Tabelle, weniger Pflege/Updates) und mindestens eine Bedingung (gleicher Next Hop **oder** zusammenhängender, ausgerichteter Block).`,
+    },
+    {
+      id: 'm09-q042',
+      kind: 'table',
+      skill: 'routing.aggregate',
+      difficulty: 2,
+      prompt: `Gib für jede Sammelroute das **erste** und das **letzte** enthaltene /24-Netz an (Netzadresse).`,
+      columns: [
+        { key: 'r', label: 'Sammelroute', type: 'text' },
+        { key: 'first', label: 'erstes /24-Netz', type: 'ip' },
+        { key: 'last', label: 'letztes /24-Netz', type: 'ip' },
+      ],
+      rows: [
+        { cells: { r: { given: '192.168.40.0/21' }, first: { answer: '192.168.40.0' }, last: { answer: '192.168.47.0' } } },
+        { cells: { r: { given: '10.1.64.0/22' }, first: { answer: '10.1.64.0' }, last: { answer: '10.1.67.0' } } },
+        { cells: { r: { given: '172.20.6.0/23' }, first: { answer: '172.20.6.0' }, last: { answer: '172.20.7.0' } } },
+      ],
+      hints: ['/21 = 2³ = 8 Netze, /22 = 4 Netze, /23 = 2 Netze.', 'Letztes Netz = erstes + Anzahl − 1 (im 3. Oktett).'],
+      explanation: `- /21: 24 − 21 = 3 Bit → 8 Netze: 40 bis 40 + 7 = **47**.\n- /22: 4 Netze: 64 bis **67**.\n- /23: 2 Netze: 6 bis **7**.\n\nHäufiger Fehler: 40 + 8 = 48 rechnen – das wäre schon das erste Netz des nächsten Blocks.`,
+    },
+    {
+      id: 'm09-q043',
+      kind: 'cidr',
+      skill: 'routing.aggregate',
+      difficulty: 3,
+      prompt: `Hinter dem Router der Niederlassung liegen die Netze **10.50.8.0/23**, **10.50.10.0/24** und **10.50.11.0/24**. Gib die Sammelroute an, die genau diese Netze abdeckt.`,
+      answer: '10.50.8.0/22',
+      misconceptions: [
+        { answer: '10.50.8.0/21', error: 'supernet-zu-gross', why: 'Ein /21 umfasst 8 /24-Netze (8 bis 15) – doppelt so viele wie vorhanden.' },
+        { answer: '10.50.8.0/23', error: 'supernet-zu-klein', why: 'Das ist nur das erste Netz; .10 und .11 fehlen.' },
+        { answer: '10.50.10.0/22', error: 'supernet-falsche-basis', why: 'Die Sammelroute beginnt beim kleinsten Netz (10.50.8.0).' },
+      ],
+      hints: ['Ein /23 sind 512 Adressen, ein /24 sind 256.', 'Zusammen 1024 Adressen = 2¹⁰.'],
+      explanation: `**10.50.8.0/22**\n\n1. Größe: 512 + 256 + 256 = **1024** Adressen = 2¹⁰ → /22.\n2. Ausrichtung: Ein /22 umfasst im 3. Oktett 4 Werte; 8 ist durch 4 teilbar ✔.\n3. Probe: 8 = \`000010|00\`, 11 = \`000010|11\` → 16 + 6 = 22 gemeinsame Bits.\n\nNetze unterschiedlicher Größe lassen sich zusammenfassen, solange sie zusammen einen lückenlosen, ausgerichteten Block bilden.`,
+    },
+    {
+      id: 'm09-q044',
+      kind: 'free',
+      skill: 'routing.select',
+      difficulty: 3,
+      prompt: `Eine Arztpraxis (6 Arbeitsplätze) hat einen **VDSL-Anschluss** (Supervectoring). Anforderungen: Muss – VDSL-Modem im Router, WLAN für das Praxisteam, **zwei VPN-Zugänge** für Fernwartung und Homeoffice, Telefonie (zwei schnurlose DECT-Telefone). Kann – Gäste-WLAN im Wartezimmer.
+
+| Merkmal | Router X | Router Y | Router Z |
+|---|---|---|---|
+| WAN | VDSL2 bis 300 Mbit/s (Supervectoring), zusätzlich WAN-Ethernet | nur WAN-Ethernet (externes Modem nötig) | VDSL2 bis 100 Mbit/s (ohne Supervectoring) |
+| WLAN | Wi-Fi 6, Gäste-WLAN | Wi-Fi 6, Gäste-WLAN | Wi-Fi 5, kein Gäste-WLAN |
+| VPN | WireGuard, max. 8 Tunnel | IPsec, max. 20 Tunnel | WireGuard, max. 2 Tunnel |
+| Telefonie | DECT-Basis, 2 analoge Anschlüsse | keine | DECT-Basis |
+| Preis | 279 € | 229 € (+ Modem 89 €) | 169 € |
+
+Wählen Sie einen Router aus und begründen Sie Ihre Entscheidung anhand der Anforderungen.`,
+      modelAnswer: `Empfehlung: Router X. Begründung: Router Y hat kein eingebautes VDSL-Modem und keine DECT-Basis – zwei Muss-Kriterien fehlen, er scheidet aus (auch mit Zusatzmodem fehlt die Telefonie). Router Z unterstützt kein Supervectoring; der Anschluss könnte nur mit bis zu 100 Mbit/s genutzt werden, und er bietet kein Gäste-WLAN. Seine 2 VPN-Tunnel reichen zwar knapp, lassen aber keine Reserve. Router X erfüllt alle Muss-Kriterien (VDSL2 mit Supervectoring, WLAN, 8 VPN-Tunnel, DECT-Basis) und zusätzlich das Kann-Kriterium Gäste-WLAN. Er ist zwar 110 € teurer als Z, nutzt aber die volle Anschlussleistung und hat Reserve – daher ist er die wirtschaftlich sinnvollste Wahl.`,
+      keywords: ['Muss-Kriterien', 'Supervectoring', 'DECT', 'VPN-Tunnel', 'Gäste-WLAN', 'scheidet aus', 'Begründung'],
+      hints: ['Prüfe zuerst jedes Gerät gegen die Muss-Kriterien.', 'Kann Router Z den Anschluss voll ausnutzen?'],
+      explanation: `Erwartet wird das Vorgehen „Muss-Kriterien prüfen → ausscheiden → Rest vergleichen → begründen“. Router Y scheidet aus (kein Modem, keine DECT-Basis), Z nutzt den Anschluss nicht aus und hat kein Gäste-WLAN, **X** erfüllt alles.`,
+    },
+    {
+      id: 'm09-q045',
+      kind: 'match',
+      skill: 'routing.select',
+      difficulty: 1,
+      prompt: `Ordne jedes Merkmal der Router-Klasse zu, für die es **typisch** ist.`,
+      left: ['Eingebautes DSL-Modem, WLAN und DECT-Basis', 'Zwei WAN-Ports für Ausfallsicherheit, viele VPN-Tunnel, kein WLAN', 'Dynamisches Routing mit BGP, modulare SFP+-Einschübe, Bedienung per SSH'],
+      right: ['Profi-Router (Edge/Core)', 'SoHo-Router', 'Business-/KMU-Router'],
+      answer: [1, 2, 0],
+      explanation: `SoHo = Alleskönner fürs kleine Büro, Business = Standortvernetzung mit Ausfallsicherheit, Profi = Durchsatz und dynamisches Routing im Rechenzentrum/beim Provider.`,
+    },
+    {
+      id: 'm09-q046',
+      kind: 'single',
+      skill: 'routing.select',
+      difficulty: 2,
+      prompt: `Ein Kunde hat einen Glasfaseranschluss. Der Provider liefert ein Glasfasermodem (ONT) mit Ethernet-Buchse. Welche Angabe im Router-Datenblatt ist für den **Anschluss an das ONT** entscheidend?`,
+      options: ['Ein WAN-Port mit Ethernet (z. B. 1 oder 2,5 GbE)', 'Ein eingebautes VDSL2-Modem', 'Wi-Fi 6E', 'Ein USB-3.0-Port'],
+      answer: 0,
+      distractors: {
+        '1': { why: 'Ein VDSL2-Modem braucht man nur für DSL über die Telefonleitung.', error: 'wan-typ-verwechselt' },
+        '2': { why: 'Wi-Fi 6E betrifft das WLAN im Büro, nicht den Internetanschluss.', error: 'datenblatt-falscher-wert' },
+        '3': { why: 'USB dient für Speicher oder einen Mobilfunk-Stick, nicht für das ONT.', error: 'datenblatt-falscher-wert' },
+      },
+      explanation: `Das ONT wandelt das Lichtsignal in Ethernet um. Der Router braucht deshalb einen **WAN-Ethernet-Port**. Ein eingebautes DSL-Modem nützt an Glasfaser nichts.`,
+    },
+    {
+      id: 'm09-q047',
+      kind: 'multi',
+      skill: 'routing.select',
+      difficulty: 1,
+      prompt: `Welche Funktionen bietet ein typischer **SoHo-Router** (Small Office/Home Office) in einem Gerät? (alle zutreffenden wählen)`,
+      options: ['DHCP-Server', 'WLAN-Access-Point', 'NAT und einfache Firewall', 'Dynamisches Routing mit BGP zu mehreren Providern', 'Kleiner Switch mit 4 LAN-Ports', 'Redundante, im Betrieb tauschbare Netzteile'],
+      answer: [0, 1, 2, 4],
+      explanation: `SoHo-Router vereinen Modem/Router, DHCP, NAT/Firewall, WLAN und einen kleinen Switch. BGP mit mehreren Providern und tauschbare redundante Netzteile sind Merkmale von Profi-Routern.`,
+    },
+    {
+      id: 'm09-q048',
+      kind: 'table',
+      skill: 'routing.select',
+      difficulty: 2,
+      prompt: `Prüfe die drei Router aus dem Beispiel „Steuerbüro“ gegen die Muss-Kriterien. Trage **ja** oder **nein** ein.
+
+| Merkmal | Router A | Router B | Router C |
+|---|---|---|---|
+| WAN | VDSL2-Modem, kein Ethernet-WAN | 2,5-GbE-WAN | 2 × 1-GbE-WAN |
+| VPN | max. 4 Tunnel | max. 10 Tunnel | max. 50 Tunnel |
+| WLAN | Wi-Fi 6, Gäste-WLAN | Wi-Fi 6, Gäste-WLAN | kein WLAN |
+
+Muss-Kriterien: Ethernet-WAN zum ONT, mindestens 5 VPN-Tunnel, Gäste-WLAN **im Gerät**.`,
+      columns: [
+        { key: 'wan', label: 'Ethernet-WAN', type: 'text' },
+        { key: 'vpn', label: '≥ 5 VPN-Tunnel', type: 'text' },
+        { key: 'wlan', label: 'Gäste-WLAN im Gerät', type: 'text' },
+      ],
+      rows: [
+        { label: 'Router A', cells: { wan: { answer: 'nein' }, vpn: { answer: 'nein' }, wlan: { answer: 'ja' } } },
+        { label: 'Router B', cells: { wan: { answer: 'ja' }, vpn: { answer: 'ja' }, wlan: { answer: 'ja' } } },
+        { label: 'Router C', cells: { wan: { answer: 'ja' }, vpn: { answer: 'ja' }, wlan: { answer: 'nein' } } },
+      ],
+      explanation: `Nur **Router B** erfüllt alle drei Muss-Kriterien im Gerät. A hat kein Ethernet-WAN und zu wenige Tunnel, C hat kein WLAN (dafür wäre ein zusätzlicher Access Point nötig).`,
     },
   ],
 };

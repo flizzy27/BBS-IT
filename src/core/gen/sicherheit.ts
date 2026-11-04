@@ -144,12 +144,84 @@ const backupStorage: GeneratorMeta = {
 /* Datensicherung: Dauer                                               */
 /* ------------------------------------------------------------------ */
 
+/**
+ * Variante mit Binärpräfixen (GiB/TiB) wie in vielen Schulbüchern: Datenmenge binär, Datenrate dezimal.
+ * Die Konvention steht immer im Aufgabentext; der dezimale Rechenweg ist das Fehlbild.
+ */
+function backupDurationBinary(rng: Rng, d: Difficulty): Question {
+  const GIB = 2 ** 30;
+  const TIB = 2 ** 40;
+  const fmtBig = (n: number) => n.toLocaleString('de-DE');
+  if (d === 1) {
+    const gib = rng.pick([500, 600, 750, 800, 900]);
+    const rate = rng.pick([100, 150, 200, 250]); // MB/s
+    const bytes = gib * GIB;
+    const sec = bytes / (rate * 1e6);
+    const ans = Math.round(sec / 60);
+    return clean({
+      id: gid('sich.backupdauer'), generated: true, kind: 'number', skill: 'sich.bk.rechnen', difficulty: d,
+      prompt:
+        `Das Betriebssystem zeigt für den Projektordner **${gib} GiB** an. Er wird auf eine USB-Festplatte gesichert, die dauerhaft **${rate} MB/s** schreibt. Wie lange dauert die Sicherung in **Minuten**?\n\n` +
+        `Konvention: Die Datenmenge ist **binär** angegeben (1 GiB = 2³⁰ Byte = 1.073.741.824 Byte), die Datenrate **dezimal** (1 MB/s = 1.000.000 Byte/s). Auf ganze Minuten runden.`,
+      answer: ans, tolerance: 1, unit: 'min',
+      hints: ['Datenmenge in Byte umrechnen: GiB · 1.073.741.824.', 'Rate in Byte/s: MB/s · 1.000.000. Dann t = Byte / (Byte/s) und durch 60 teilen.'],
+      misconceptions: [
+        { answer: String(Math.round((gib * 1e9) / (rate * 1e6) / 60)), error: 'einheit-1000-1024', why: 'Du hast GiB wie GB (1 GB = 10⁹ Byte) gerechnet. 1 GiB sind aber 2³⁰ = 1.073.741.824 Byte – rund 7,4 % mehr.' },
+        { answer: String(Math.round(sec)), error: 'einheit-sekunden-minuten', why: 'Das ist die Zeit in Sekunden – teile noch durch 60.' },
+        { answer: String(Math.round((bytes * 8) / (rate * 1e6) / 60)), error: 'einheit-bit-byte', why: 'Die Rate ist in **MB/s** (Byte) angegeben – hier nicht mit 8 multiplizieren.' },
+      ],
+      explanation:
+        `**Ergebnis: ≈ ${ans} min**\n\n` +
+        `1. Datenmenge in Byte: ${gib} GiB · 1.073.741.824 Byte = ${fmtBig(bytes)} Byte\n` +
+        `2. Rate in Byte/s: ${rate} MB/s = ${fmtBig(rate * 1e6)} Byte/s\n` +
+        `3. t = ${fmtBig(bytes)} Byte / ${fmtBig(rate * 1e6)} Byte/s = ${fmtN(sec, 1)} s\n` +
+        `4. ${fmtN(sec, 1)} s / 60 = ${fmtN(sec / 60, 2)} min ≈ **${ans} min**\n\n` +
+        `Häufiger Fehler: GiB wie GB rechnen (${gib} · 10⁹ Byte) – das ergibt ≈ ${Math.round((gib * 1e9) / (rate * 1e6) / 60)} min und ist hier zu wenig, weil die Aufgabe binäre Einheiten vorgibt.`,
+    });
+  }
+  const tib = rng.pick([0.5, 1, 1.5, 2, 3]);
+  const rate = rng.pick([1000, 2500, 10000]); // Mbit/s
+  const eff = d === 3 ? rng.pick([70, 75, 80]) : 100;
+  const effRate = (rate * eff) / 100;
+  const bits = tib * TIB * 8;
+  const sec = bits / (effRate * 1e6);
+  const min = sec / 60;
+  const ans = Math.round(min);
+  const tibS = String(tib).replace('.', ',');
+  const rateS = rate >= 1000 ? `${String(rate / 1000).replace('.', ',')} Gbit/s` : `${rate} Mbit/s`;
+  const decMin = Math.round((tib * 1e12 * 8) / (effRate * 1e6) / 60);
+  return clean({
+    id: gid('sich.backupdauer'), generated: true, kind: 'number', skill: 'sich.bk.rechnen', difficulty: d,
+    prompt:
+      `Der Fileserver der Elektro Krämer GmbH meldet **${tibS} TiB** belegten Speicher. Diese Daten werden nachts über das Netzwerk (**${rateS}**) auf ein Backup-NAS übertragen.` +
+      (d === 3 ? ` Erfahrungsgemäß stehen nur **${eff} %** der Bandbreite für Nutzdaten zur Verfügung.` : '') +
+      ` Wie lange dauert die Übertragung in **Minuten**?\n\nKonvention: Datenmenge **binär** (1 TiB = 2⁴⁰ Byte = 1.099.511.627.776 Byte), Datenrate **dezimal** (1 Gbit/s = 1.000.000.000 bit/s). Auf ganze Minuten runden.`,
+    answer: ans, tolerance: 1, unit: 'min',
+    hints: ['Datenmenge in Bit: TiB · 1.099.511.627.776 · 8.', d === 3 ? `Nutzbare Rate = ${fmtN(rate)} Mbit/s · ${fmtN(eff / 100)} = ${fmtN(effRate)} Mbit/s.` : 'Rate in bit/s umrechnen, t = Bit / (bit/s), dann durch 60.'],
+    misconceptions: [
+      { answer: String(decMin), error: 'einheit-1000-1024', why: `Du hast TiB wie TB (10¹² Byte) gerechnet. 1 TiB = 2⁴⁰ Byte ist rund 10 % mehr – laut Aufgabe ist die Datenmenge binär angegeben.` },
+      { answer: String(Math.round((tib * TIB) / (effRate * 1e6) / 60)), error: 'einheit-bit-byte', why: 'Byte → Bit vergessen (· 8). Netzwerk-Datenraten werden in **Bit** pro Sekunde angegeben.' },
+      { answer: String(Math.round(sec)), error: 'einheit-sekunden-minuten', why: 'Das ist die Zeit in Sekunden – teile noch durch 60.' },
+      ...(d === 3 ? [{ answer: String(Math.round(bits / (rate * 1e6) / 60)), error: 'overhead-vergessen', why: `Die nutzbare Datenrate beträgt nur ${eff} % der Nennrate.` }] : []),
+    ],
+    explanation:
+      `**Ergebnis: ≈ ${ans} min** (≈ ${fmtN(min / 60, 2)} h)\n\n` +
+      `1. Datenmenge in Byte: ${tibS} TiB · 1.099.511.627.776 Byte = ${fmtBig(tib * TIB)} Byte\n` +
+      `2. In Bit: · 8 = ${fmtBig(bits)} bit\n` +
+      (d === 3 ? `3. Nutzbare Rate: ${fmtN(rate)} Mbit/s · ${fmtN(eff / 100)} = ${fmtN(effRate)} Mbit/s = ${fmtBig(effRate * 1e6)} bit/s\n` : `3. Rate: ${rateS} = ${fmtBig(rate * 1e6)} bit/s\n`) +
+      `4. t = ${fmtBig(bits)} bit / ${fmtBig(effRate * 1e6)} bit/s = ${fmtN(sec, 1)} s\n` +
+      `5. ${fmtN(sec, 1)} s / 60 = ${fmtN(min, 2)} min ≈ **${ans} min**\n\n` +
+      `Zum Vergleich der dezimale Weg (falls die Aufgabe „TB“ und 1 TB = 10¹² Byte vorgibt): ≈ ${decMin} min. Welcher Weg gilt, entscheidet immer die Angabe in der Aufgabe – fehlt sie, nenne deine Annahme.`,
+  });
+}
+
 const backupDuration: GeneratorMeta = {
   id: 'sich.backupdauer',
   title: 'Dauer einer Datensicherung berechnen',
   skill: 'sich.bk.rechnen',
   module: 's03',
   make(rng: Rng, d: Difficulty): Question {
+    if (d === 1 && rng.bool()) return backupDurationBinary(rng, d);
     if (d === 1) {
       const gb = rng.pick([150, 240, 300, 450, 600, 720, 900]);
       const rate = rng.pick([100, 120, 150, 200, 250, 300]);
@@ -169,6 +241,7 @@ const backupDuration: GeneratorMeta = {
         explanation: `${gb} GB = ${fmtN(gb * 1000)} MB\n\nt = ${fmtN(gb * 1000)} MB / ${rate} MB/s = ${fmtN(sec)} s\n\n${fmtN(sec)} s / 60 = ${fmtN(min)} min ≈ **${ans} min**`,
       });
     }
+    if (rng.bool()) return backupDurationBinary(rng, d);
     const tb = rng.pick([0.8, 1.2, 1.5, 2, 2.4, 3, 4.5]);
     const rate = d === 2 ? rng.pick([1000, 2500, 10000]) : rng.pick([1000, 2500]);
     const eff = d === 3 ? rng.pick([70, 75, 80]) : 100;
@@ -357,6 +430,237 @@ const maxGen: GeneratorMeta = {
 };
 
 /* ------------------------------------------------------------------ */
+/* Schutzbedarf aus einer Grenzwerttabelle ableiten (Belegaufgabe)     */
+/* ------------------------------------------------------------------ */
+
+/** Grenzwerte eines Unternehmens: fin = [Grenze normal/hoch, Grenze hoch/sehr hoch] in €, down = tolerierbare Ausfallzeit in h [normal über …, sehr hoch unter …]. */
+const LIMITS = [
+  { fin: [10000, 250000], down: [24, 2] },
+  { fin: [5000, 100000], down: [72, 8] },
+  { fin: [20000, 500000], down: [48, 4] },
+];
+const DS_TEXT = [
+  'Laut Datenschutzbeauftragtem hätte ein Bekanntwerden **keine besonderen Auswirkungen** auf die betroffenen Personen.',
+  'Laut Datenschutzbeauftragtem würde ein Bekanntwerden die Betroffenen in ihrer **gesellschaftlichen Stellung oder wirtschaftlichen Lage erheblich beeinträchtigen**.',
+  'Laut Datenschutzbeauftragtem könnte ein Bekanntwerden **Leib, Leben oder die Existenz** der Betroffenen gefährden.',
+];
+const OBJECTS = ['Angebotskalkulation (Fileserver-Freigabe)', 'Lohnabrechnungsprogramm', 'Webshop-Datenbank', 'Zeiterfassung', 'CAD-Projektablage', 'Kundendatenbank (CRM)', 'Ticketsystem des Service Desks', 'Bewerberportal'];
+const euro0 = (n: number) => `${n.toLocaleString('de-DE')} €`;
+const hoursText = (h: number) => (h >= 48 && h % 24 === 0 ? `${h / 24} Tage` : h < 1 ? `${Math.round(h * 60)} Minuten` : h === 1 ? '1 Stunde' : `${fmtN(h, 1)} Stunden`);
+
+const schutzbedarfBeleg: GeneratorMeta = {
+  id: 'sich.schutzbedarf.beleg',
+  title: 'Schutzbedarf aus der Grenzwerttabelle ableiten und begründen',
+  skill: 'sich.schutzbedarf.beleg',
+  module: 's01',
+  make(rng: Rng, d: Difficulty): Question {
+    const L = rng.pick(LIMITS);
+    const [f0, f1] = L.fin;
+    const [d0, d1] = L.down;
+    // Beträge und Zeiten mit Abstand zu den Grenzen, damit die Zuordnung eindeutig ist
+    const money = (lv: number) => {
+      const raw = lv === 0 ? f0 * rng.pick([0.2, 0.3, 0.5, 0.6]) : lv === 1 ? f0 + (f1 - f0) * rng.pick([0.1, 0.25, 0.4, 0.6]) : f1 * rng.pick([1.5, 2, 3, 4]);
+      return Math.round(raw / 1000) * 1000;
+    };
+    const downtime = (lv: number) => (lv === 0 ? d0 * rng.pick([2, 3]) : lv === 1 ? Math.round(((d0 + d1) / 2) * rng.pick([0.5, 1, 1.4])) : d1 * rng.pick([0.25, 0.5]));
+    const catMoney = (x: number) => (x < f0 ? 0 : x <= f1 ? 1 : 2);
+    const catDown = (h: number) => (h > d0 ? 0 : h >= d1 ? 1 : 2);
+    const nObj = d === 3 ? 2 : 1;
+    const names = rng.shuffle(OBJECTS).slice(0, nObj);
+    const objs = names.map((name) => {
+      const vMoney = money(rng.int(0, 2));
+      const ds = d >= 2 ? rng.int(0, 2) : -1;
+      const iMoney = money(rng.int(0, 2));
+      const down = downtime(rng.int(0, 2));
+      const v = Math.max(catMoney(vMoney), ds);
+      return { name, vMoney, ds, iMoney, down, v, i: catMoney(iMoney), a: catDown(down) };
+    });
+    const limitTable =
+      `| Schadensszenario | normal | hoch | sehr hoch |\n|---|---|---|---|\n` +
+      `| finanzieller Schaden | unter ${euro0(f0)} | ${euro0(f0)} bis ${euro0(f1)} | über ${euro0(f1)} |\n` +
+      `| tolerierbare Ausfallzeit | mehr als ${hoursText(d0)} | ${hoursText(d1)} bis ${hoursText(d0)} | weniger als ${hoursText(d1)} |\n` +
+      (d >= 2 ? `| informationelle Selbstbestimmung | keine besonderen Auswirkungen | gesellschaftliche Stellung oder wirtschaftliche Lage erheblich beeinträchtigt | Gefahr für Leib, Leben oder Existenz |\n` : '');
+    const facts = (o: (typeof objs)[number]) =>
+      `- Werden die Daten Unbefugten bekannt, rechnet die Geschäftsführung mit einem Schaden von **${euro0(o.vMoney)}** (Vertragsstrafen, Wettbewerbsnachteil).\n` +
+      (o.ds >= 0 ? `- ${DS_TEXT[o.ds]}\n` : '') +
+      `- Unbemerkt verfälschte Daten würden zu Fehlentscheidungen mit einem Schaden von etwa **${euro0(o.iMoney)}** führen.\n` +
+      `- Die Fachabteilung kann einen Ausfall höchstens **${hoursText(o.down)}** überbrücken.`;
+    const cell = (x: number) => ({ answer: LV[x], accept: accLv(x) });
+    const reasonV = (o: (typeof objs)[number]) =>
+      o.ds >= 0 ? `${euro0(o.vMoney)} → ${LV[catMoney(o.vMoney)]}; Datenschutz → ${LV[o.ds]}; Maximum beider Szenarien → **${LV[o.v]}**` : `${euro0(o.vMoney)} → **${LV[o.v]}**`;
+    const reasonI = (o: (typeof objs)[number]) => `${euro0(o.iMoney)} → **${LV[o.i]}**`;
+    const reasonA = (o: (typeof objs)[number]) => `höchstens ${hoursText(o.down)} überbrückbar → **${LV[o.a]}** (je kürzer die tolerierbare Ausfallzeit, desto höher der Schutzbedarf)`;
+    const misc: NonNullable<Question['misconceptions']> = [];
+    const downWhy = 'Umgekehrt gelesen: Je **kürzer** ein Ausfall toleriert werden kann, desto **höher** ist der Schutzbedarf der Verfügbarkeit.';
+    const dsWhy = 'Je Grundwert zählt das **schwerste** Schadensszenario (Maximumprinzip über die Szenarien) – hier wiegt der Datenschutz-Schaden schwerer als der finanzielle.';
+
+    if (d < 3) {
+      const o = objs[0];
+      if (o.a !== 1) misc.push({ cell: '2:k', answer: LV[2 - o.a], error: 'ausfallzeit-umgekehrt', why: downWhy });
+      if (o.ds > catMoney(o.vMoney)) misc.push({ cell: '0:k', answer: LV[catMoney(o.vMoney)], error: 'maximumprinzip', why: dsWhy });
+      const q: TableQuestion = {
+        id: gid('sich.schutzbedarf.beleg'), generated: true, kind: 'table', skill: 'sich.schutzbedarf.beleg', difficulty: d,
+        prompt:
+          `Die Elektro Krämer GmbH hat für die Schutzbedarfsfeststellung folgende **Grenzwerte** festgelegt:\n\n${limitTable}\n` +
+          `Für die Anwendung **${o.name}** liegen diese Angaben vor:\n\n${facts(o)}\n\n` +
+          `Bestimme den Schutzbedarf je Grundwert (**normal**, **hoch** oder **sehr hoch**). Notiere dir zu jedem Wert eine kurze Begründung.`,
+        columns: [{ key: 'k', label: 'Schutzbedarf', type: 'text' }],
+        rows: [
+          { label: 'Vertraulichkeit', cells: { k: cell(o.v) } },
+          { label: 'Integrität', cells: { k: cell(o.i) } },
+          { label: 'Verfügbarkeit', cells: { k: cell(o.a) } },
+        ],
+        misconceptions: misc,
+        hints: ['Vergleiche jede Zahl mit der passenden Zeile der Grenzwerttabelle.', d >= 2 ? 'Gibt es für einen Grundwert zwei Szenarien, zählt das schlimmere.' : 'Bei der Ausfallzeit gilt: kurze tolerierbare Zeit = hoher Schutzbedarf.'],
+        explanation:
+          `| Grundwert | Begründung (Schadensszenario → Kategorie) |\n|---|---|\n` +
+          `| Vertraulichkeit | ${reasonV(o)} |\n| Integrität | ${reasonI(o)} |\n| Verfügbarkeit | ${reasonA(o)} |\n\n` +
+          `So sieht eine vollständige Begründung in der Prüfung aus: „Verfügbarkeit **${LV[o.a]}**, weil die Fachabteilung einen Ausfall nur ${hoursText(o.down)} überbrücken kann und das laut Grenzwerttabelle der Kategorie ${LV[o.a]} entspricht.“`,
+      };
+      return q;
+    }
+
+    // d === 3: zwei Anwendungen auf einem Server → Maximumprinzip zusätzlich
+    const srv = { v: Math.max(objs[0].v, objs[1].v), i: Math.max(objs[0].i, objs[1].i), a: Math.max(objs[0].a, objs[1].a) };
+    objs.forEach((o, ri) => {
+      if (o.a !== 1) misc.push({ cell: `${ri}:a`, answer: LV[2 - o.a], error: 'ausfallzeit-umgekehrt', why: downWhy });
+      if (o.ds > catMoney(o.vMoney)) misc.push({ cell: `${ri}:v`, answer: LV[catMoney(o.vMoney)], error: 'maximumprinzip', why: dsWhy });
+    });
+    (['v', 'i', 'a'] as const).forEach((k) => {
+      const lo = Math.min(objs[0][k], objs[1][k]);
+      if (lo !== srv[k]) misc.push({ cell: `2:${k}`, answer: LV[lo], error: 'maximumprinzip', why: 'Der Server erbt je Grundwert den **höchsten** Schutzbedarf der Anwendungen, die auf ihm laufen.' });
+    });
+    const q: TableQuestion = {
+      id: gid('sich.schutzbedarf.beleg'), generated: true, kind: 'table', skill: 'sich.schutzbedarf.beleg', difficulty: d,
+      prompt:
+        `Die Elektro Krämer GmbH hat für die Schutzbedarfsfeststellung folgende **Grenzwerte** festgelegt:\n\n${limitTable}\n` +
+        objs.map((o) => `**${o.name}:**\n\n${facts(o)}`).join('\n\n') +
+        `\n\nBeide Anwendungen laufen auf dem Server **SRV-HH-05**. Bestimme den Schutzbedarf der beiden Anwendungen und des Servers je Grundwert (**normal**, **hoch** oder **sehr hoch**; ohne Kumulations- oder Verteilungseffekt).`,
+      columns: [
+        { key: 'v', label: 'Vertraulichkeit', type: 'text' },
+        { key: 'i', label: 'Integrität', type: 'text' },
+        { key: 'a', label: 'Verfügbarkeit', type: 'text' },
+      ],
+      rows: [
+        ...objs.map((o) => ({ label: o.name, cells: { v: cell(o.v), i: cell(o.i), a: cell(o.a) } })),
+        { label: 'Server SRV-HH-05', cells: { v: cell(srv.v), i: cell(srv.i), a: cell(srv.a) } },
+      ],
+      misconceptions: misc,
+      hints: ['Erst jede Anwendung mit der Grenzwerttabelle einstufen.', 'Dann der Server: je Grundwert das Maximum der beiden Anwendungen.'],
+      explanation:
+        objs.map((o) => `**${o.name}:** V: ${reasonV(o)} · I: ${reasonI(o)} · A: ${reasonA(o)}`).join('\n\n') +
+        `\n\n**SRV-HH-05** (Maximumprinzip): V **${LV[srv.v]}**, I **${LV[srv.i]}**, A **${LV[srv.a]}** – fällt der Server aus oder wird er kompromittiert, sind beide Anwendungen betroffen.`,
+    };
+    return q;
+  },
+};
+
+/* ------------------------------------------------------------------ */
+/* Verfügbarkeit von Reihen- und Parallelsystemen (Redundanz)          */
+/* ------------------------------------------------------------------ */
+
+const pct = (a: number) => fmtN(a * 100, 4);
+const r4 = (n: number) => Math.round(n * 10000) / 10000;
+
+const redundancyGen: GeneratorMeta = {
+  id: 'sich.redundanz',
+  title: 'Gesamtverfügbarkeit bei Reihen- und Parallelschaltung berechnen',
+  skill: 'sich.verfuegbarkeit',
+  module: 's03',
+  make(rng: Rng, d: Difficulty): Question {
+    if (d === 1) {
+      const a = rng.pick([0.9, 0.95, 0.98, 0.99, 0.995]);
+      const n = a >= 0.98 ? 2 : rng.pick([2, 3]); // sonst rundet das Ergebnis auf 100,0000 %
+      const comp = rng.pick(['Netzteile im Server (Hot-Swap)', 'Internetanschlüsse verschiedener Provider', 'Firewalls im Cluster']);
+      const tot = 1 - (1 - a) ** n;
+      const ans = r4(tot * 100);
+      return clean({
+        id: gid('sich.redundanz'), generated: true, kind: 'number', skill: 'sich.verfuegbarkeit', difficulty: d,
+        prompt: `Die Elektro Krämer GmbH setzt **${n} ${comp}** parallel ein. Jede Komponente hat eine Verfügbarkeit von **${fmtN(a * 100, 2)} %**. Der Dienst läuft, solange **mindestens eine** Komponente funktioniert; Ausfälle sind voneinander unabhängig.\n\nWie hoch ist die Gesamtverfügbarkeit in **%**? (auf 4 Nachkommastellen runden)`,
+        answer: ans, tolerance: 0.0001, unit: '%',
+        hints: ['Erst die Ausfallwahrscheinlichkeit einer Komponente: 1 − A.', `Alle ${n} fallen gleichzeitig aus mit (1 − A)^${n}. Gesamtverfügbarkeit = 1 − (1 − A)^${n}.`],
+        misconceptions: [
+          { answer: String(r4(a ** n * 100)), error: 'redundanz-reihe-parallel', why: 'Du hast die Verfügbarkeiten multipliziert – das gilt für eine **Reihenschaltung** (alle müssen laufen). Bei Redundanz (parallel) multipliziert man die **Ausfallwahrscheinlichkeiten**.' },
+          { answer: String(r4((1 - a) ** n * 100)), error: 'redundanz-ausfall-statt-verfuegbar', why: 'Das ist die Wahrscheinlichkeit, dass **alle** gleichzeitig ausfallen. Gefragt ist die Verfügbarkeit: 1 minus diesen Wert.' },
+        ],
+        explanation:
+          `**Ergebnis: ${pct(tot)} %**\n\n` +
+          `1. Ausfallwahrscheinlichkeit je Komponente: 1 − ${fmtN(a, 3)} = ${fmtN(1 - a, 3)}\n` +
+          `2. Alle ${n} fallen gleichzeitig aus: ${fmtN(1 - a, 3)}^${n} = ${fmtN((1 - a) ** n, 8)}\n` +
+          `3. Gesamtverfügbarkeit: 1 − ${fmtN((1 - a) ** n, 8)} = ${fmtN(tot, 8)} = **${pct(tot)} %**\n\n` +
+          `Häufiger Fehler: ${fmtN(a, 3)}^${n} rechnen – das wäre die Reihenschaltung und ergäbe nur ${pct(a ** n)} %. Redundanz macht das System **besser**, nicht schlechter als eine einzelne Komponente.`,
+      });
+    }
+    if (d === 2) {
+      const pool = [
+        { n: 'Internetanschluss', a: rng.pick([0.995, 0.999]) },
+        { n: 'Firewall', a: rng.pick([0.999, 0.9995]) },
+        { n: 'Core-Switch', a: rng.pick([0.9995, 0.9999]) },
+        { n: 'Webserver', a: rng.pick([0.99, 0.995, 0.998]) },
+      ];
+      const parts = rng.shuffle(pool).slice(0, rng.pick([2, 3]));
+      const tot = parts.reduce((p, x) => p * x.a, 1);
+      const askHours = rng.bool();
+      const down = (1 - tot) * 8760;
+      const ans = askHours ? r2(down) : r4(tot * 100);
+      const minA = Math.min(...parts.map((x) => x.a));
+      return clean({
+        id: gid('sich.redundanz'), generated: true, kind: 'number', skill: 'sich.verfuegbarkeit', difficulty: d,
+        prompt:
+          `Der Webshop ist nur erreichbar, wenn **alle** folgenden Komponenten gleichzeitig funktionieren (Reihenschaltung, Ausfälle unabhängig):\n\n| Komponente | Verfügbarkeit |\n|---|---|\n${parts.map((x) => `| ${x.n} | ${fmtN(x.a * 100, 2)} % |`).join('\n')}\n\n` +
+          (askHours
+            ? `Mit wie vielen **Stunden Ausfall pro Jahr** (365 Tage = 8.760 h) muss man rechnen? (auf 2 Nachkommastellen runden)`
+            : `Wie hoch ist die **Gesamtverfügbarkeit** des Webshops in %? (auf 4 Nachkommastellen runden)`),
+        answer: ans, tolerance: askHours ? 0.01 : 0.0001, unit: askHours ? 'h' : '%',
+        hints: ['Reihenschaltung: Gesamtverfügbarkeit = A₁ · A₂ · …', askHours ? 'Ausfallzeit = (1 − Gesamtverfügbarkeit) · 8.760 h.' : 'Prozent als Dezimalzahl rechnen (99,9 % = 0,999).'],
+        misconceptions: askHours
+          ? [{ answer: String(r2((1 - minA) * 8760)), error: 'redundanz-reihe-parallel', why: 'Du hast nur die schwächste Komponente betrachtet. In einer Reihe addieren sich die Ausfälle aller Glieder – die Gesamtverfügbarkeit ist das **Produkt**.' }]
+          : [
+              { answer: String(r4(minA * 100)), error: 'redundanz-reihe-parallel', why: 'Die schwächste Komponente allein reicht nicht: In einer Reihe muss **jedes** Glied laufen, deshalb wird multipliziert – das Ergebnis liegt unter dem schwächsten Glied.' },
+              { answer: String(r4((1 - parts.reduce((p, x) => p * (1 - x.a), 1)) * 100)), error: 'redundanz-reihe-parallel', why: 'Das ist die Formel für **parallele** (redundante) Komponenten. Hier müssen alle gleichzeitig funktionieren – Reihenschaltung.' },
+            ],
+        explanation:
+          `**Ergebnis: ${askHours ? `${fmtN(ans, 2)} h pro Jahr` : `${pct(tot)} %`}**\n\n` +
+          `1. Reihenschaltung: ${parts.map((x) => fmtN(x.a, 4)).join(' · ')} = ${fmtN(tot, 8)} = ${pct(tot)} %\n` +
+          (askHours ? `2. Ausfallanteil: 1 − ${fmtN(tot, 8)} = ${fmtN(1 - tot, 8)}\n3. Ausfallzeit: ${fmtN(1 - tot, 8)} · 8.760 h = **${fmtN(ans, 2)} h** (≈ ${fmtN(down * 60, 0)} min)\n\n` : '\n') +
+          `Merke: Eine Kette ist schwächer als ihr schwächstes Glied – jede Komponente in Reihe senkt die Gesamtverfügbarkeit.`,
+      });
+    }
+    // d === 3: Stromversorgung Netz ∥ USV, in Reihe mit einem Server bzw. einem Servercluster
+    const net = rng.pick([0.9998, 0.9999]);
+    const ups = rng.pick([0.95, 0.98, 0.99]);
+    const cluster = rng.bool();
+    const srvA = rng.pick([0.99, 0.995, 0.998]);
+    const power = 1 - (1 - net) * (1 - ups);
+    const srvTot = cluster ? 1 - (1 - srvA) ** 2 : srvA;
+    const tot = power * srvTot;
+    const downMin = (1 - tot) * 525600;
+    const ans = r1(downMin);
+    const wrongSerial = net * ups * srvTot;
+    return clean({
+      id: gid('sich.redundanz'), generated: true, kind: 'number', skill: 'sich.verfuegbarkeit', difficulty: d,
+      prompt:
+        `Für den Serverraum in Hamburg gilt (Ausfälle unabhängig voneinander):\n\n| Komponente | Verfügbarkeit |\n|---|---|\n| öffentliches Stromnetz | ${fmtN(net * 100, 2)} % |\n| USV (überbrückt Netzausfälle) | ${fmtN(ups * 100, 2)} % |\n| ${cluster ? 'je Server (2 Server im Cluster, einer genügt)' : 'Server'} | ${fmtN(srvA * 100, 2)} % |\n\n` +
+        `Strom fehlt nur, wenn Netz **und** USV gleichzeitig ausfallen. ${cluster ? 'Der Dienst läuft, solange Strom da ist und **mindestens ein** Server arbeitet.' : 'Der Dienst läuft, wenn Strom da ist **und** der Server arbeitet.'}\n\n` +
+        `Wie viele **Minuten Ausfall pro Jahr** (365 Tage = 525.600 min) sind zu erwarten? (auf 1 Nachkommastelle runden)`,
+      answer: ans, tolerance: Math.max(0.1, ans * 0.002), unit: 'min',
+      hints: ['Strom: Netz und USV sind parallel → 1 − (1 − A_Netz) · (1 − A_USV).', cluster ? 'Server-Cluster ebenfalls parallel: 1 − (1 − A_Server)². Danach Strom und Server in Reihe multiplizieren.' : 'Danach Strom und Server in Reihe multiplizieren.'],
+      misconceptions: [
+        { answer: String(r1((1 - wrongSerial) * 525600)), error: 'redundanz-reihe-parallel', why: 'Netz und USV sind **redundant** (parallel): Strom fehlt nur, wenn beide ausfallen. Du hast sie wie eine Reihe multipliziert.' },
+        ...(cluster ? [{ answer: String(r1((1 - power * srvA) * 525600)), error: 'redundanz-reihe-parallel', why: 'Der zweite Server im Cluster fehlt in deiner Rechnung – zwei Server parallel sind viel verfügbarer als einer.' }] : []),
+      ],
+      explanation:
+        `**Ergebnis: ≈ ${fmtN(ans, 1)} min pro Jahr**\n\n` +
+        `1. Strom (parallel): 1 − (1 − ${fmtN(net, 4)}) · (1 − ${fmtN(ups, 2)}) = 1 − ${fmtN(1 - net, 4)} · ${fmtN(1 - ups, 2)} = ${fmtN(power, 8)}\n` +
+        (cluster ? `2. Server-Cluster (parallel): 1 − (1 − ${fmtN(srvA, 3)})² = 1 − ${fmtN((1 - srvA) ** 2, 8)} = ${fmtN(srvTot, 8)}\n` : `2. Server: ${fmtN(srvA, 3)}\n`) +
+        `3. Strom und Server in Reihe: ${fmtN(power, 8)} · ${fmtN(srvTot, 8)} = ${fmtN(tot, 8)} (= ${pct(tot)} %)\n` +
+        `4. Ausfallzeit: (1 − ${fmtN(tot, 8)}) · 525.600 min = **${fmtN(ans, 1)} min**\n\n` +
+        `Häufiger Fehler: Netz und USV in Reihe rechnen (${fmtN(net, 4)} · ${fmtN(ups, 2)}) – dann würde die USV die Verfügbarkeit **senken**, obwohl sie Netzausfälle überbrückt.`,
+    });
+  },
+};
+
+/* ------------------------------------------------------------------ */
 /* Brute Force: Kombinationen und Dauer                               */
 /* ------------------------------------------------------------------ */
 
@@ -500,4 +804,4 @@ const fineGen: GeneratorMeta = {
   },
 };
 
-export const GENERATORS_SICHERHEIT: GeneratorMeta[] = [riskGen, maxGen, fineGen, backupStorage, backupDuration, pwGen];
+export const GENERATORS_SICHERHEIT: GeneratorMeta[] = [riskGen, maxGen, schutzbedarfBeleg, fineGen, backupStorage, backupDuration, redundancyGen, pwGen];

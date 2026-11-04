@@ -25,6 +25,12 @@ export const m03: Module = {
       minutes: 12,
       relevance: 'ap1',
       skills: ['ipv4.structure'],
+      simple: `Eine **IPv4-Adresse** ist wie eine Postanschrift für eine Netzwerkschnittstelle (den Netzwerkanschluss eines Geräts).
+Sie besteht aus 32 Bit, also 32 Nullen und Einsen.
+Damit man sie lesen kann, teilt man sie in vier Blöcke zu je 8 Bit, die **Oktette**, und schreibt jeden Block als Zahl von 0 bis 255 – getrennt durch Punkte, z. B. 192.168.10.21.
+Eine Zahl über 255 gibt es in einem Oktett nicht, weil 8 Bit nur 256 Werte (0 bis 255) haben.
+
+**Merke:** 4 Oktette × 8 Bit = 32 Bit, jedes Oktett liegt zwischen 0 und 255.`,
       steps: [
         {
           type: 'explain',
@@ -71,6 +77,13 @@ Wichtig: Die IP-Adresse gehört zur **Schnittstelle**, nicht zum Gerät. Ein Rou
       minutes: 15,
       relevance: 'ap1',
       skills: ['ipv4.netvshost'],
+      simple: `Eine IP-Adresse hat zwei Teile – wie eine Anschrift aus Straße und Hausnummer.
+Der **Netzanteil** ist die Straße: Alle Geräte im selben Netz haben denselben.
+Der **Hostanteil** ist die Hausnummer: Sie ist in dieser Straße einmalig.
+Nachbarn in derselben Straße erreichst du direkt über den Switch, für eine andere Straße brauchst du einen Router.
+Wo die Straße aufhört und die Hausnummer beginnt, verrät erst die Subnetzmaske.
+
+**Merke:** Gleicher Netzanteil = gleiches Netz = direkte Verbindung ohne Router.`,
       steps: [
         {
           type: 'explain',
@@ -135,6 +148,13 @@ Alle vier Geräte liegen im Netz **192.168.10.0/24** und können direkt (über d
       minutes: 25,
       relevance: 'ap1',
       skills: ['ipv4.mask', 'ipv4.netvshost'],
+      simple: `Die **Subnetzmaske** ist eine Schablone, die du über die IP-Adresse legst – wie bei einer Telefonnummer: Die Vorwahl nennt den Ort, der Rest den Anschluss.
+Steht in der Maske **255**, gehört dieses Oktett zur „Vorwahl“, also zum Netz.
+Steht dort **0**, gehört es zum Gerät (Host).
+Bei 255.255.255.0 sind also die ersten drei Zahlen das Netz und die letzte das Gerät.
+Binär ist 255 einfach 11111111 (acht Einsen) – deshalb schreibt man kurz **/24** für 24 Einsen.
+
+**Merke:** 255 = Netz, 0 = Gerät; /24 = 255.255.255.0 = 254 nutzbare Geräteadressen.`,
       steps: [
         {
           type: 'explain',
@@ -266,6 +286,13 @@ Weil nur die Anzahl der Einsen zählt, gibt es eine Kurzschreibweise: **/24** (�
       minutes: 20,
       relevance: 'ap1',
       skills: ['ipv4.mask'],
+      simple: `Eine Maske besteht immer zuerst aus Einsen und dann aus Nullen – wie ein Lineal, auf dem ein Strich markiert, wo das Netz endet.
+Die Einsen links sind der Netzanteil, die Nullen rechts der Hostanteil.
+Weil nur die Anzahl der Einsen zählt, schreibt man kurz **/n** (CIDR-Schreibweise, gesprochen „Slash n“).
+Zum Umrechnen zählst du: Jedes 255 bringt 8 Einsen, ein Teilwert wie 224 (= 11100000) bringt 3.
+Beispiel: 255.255.255.224 = 8 + 8 + 8 + 3 = /27.
+
+**Merke:** /n = Anzahl der Einsen in der Maske; Hostbits = 32 − n.`,
       steps: [
         {
           type: 'explain',
@@ -329,6 +356,13 @@ Weil nur die **Anzahl der Einsen** zählt, schreibt man die Maske kürzer in **C
       minutes: 20,
       relevance: 'ap1',
       skills: ['ipv4.hostrange'],
+      simple: `In jedem Netz sind zwei Adressen für Sonderaufgaben reserviert – wie das Straßenschild und die Lautsprecherdurchsage einer Straße.
+Die **erste** Adresse (alle Hostbits 0) ist die **Netzadresse**, der Name des Netzes selbst.
+Die **letzte** Adresse (alle Hostbits 1) ist die **Broadcastadresse** – sie erreicht alle Geräte im Netz auf einmal.
+Keine der beiden darfst du einem Gerät geben.
+Darum ist die Zahl der nutzbaren Adressen immer 2 hoch Hostbits minus 2.
+
+**Merke:** Nutzbare Hosts = 2^h − 2; erster Host = Netzadresse + 1, letzter Host = Broadcast − 1.`,
       steps: [
         {
           type: 'explain',
@@ -380,6 +414,13 @@ Deshalb gilt die wichtigste Formel der IPv4-Adressierung:
       minutes: 15,
       relevance: 'ap1',
       skills: ['ipv4.private'],
+      simple: `**Private Adressen** sind wie Zimmernummern im Hotel: Jedes Hotel hat ein Zimmer 101, aber von außen erreicht dich niemand unter „Zimmer 101“.
+**Öffentliche Adressen** sind dagegen wie die Hotelanschrift – weltweit einmalig.
+Private Bereiche: 10.0.0.0/8, 172.16.0.0/12 (bis 172.31.255.255) und 192.168.0.0/16.
+Ins Internet kommen private Geräte nur über **NAT** (Network Address Translation, Adressübersetzung): Der Router setzt seine öffentliche Adresse ein – wie die Rezeption, die Post für alle Zimmer annimmt.
+Sonderfälle: 127.0.0.1 ist der eigene Rechner (Loopback), 169.254.x.x heißt „kein DHCP-Server gefunden“.
+
+**Merke:** Privat = 10/8, 172.16/12, 192.168/16; 169.254.x.x deutet auf ein DHCP-Problem.`,
       steps: [
         {
           type: 'explain',
@@ -395,6 +436,8 @@ Deshalb gilt die wichtigste Formel der IPv4-Adressierung:
 | 192.168.0.0 | /16 | 192.168.0.0 – 192.168.255.255 | kleine Netze, Heimnetz |
 
 Achtung Prüfungsfalle: **172.32.0.1** ist **nicht** privat – der Bereich endet bei 172.31.255.255.
+
+So kannst du dir die Größen merken: **172.16.0.0/12** sind **16 aufeinanderfolgende /16-Netze** (früher „Klasse-B-Netze“: 172.16 bis 172.31), **192.168.0.0/16** sind **256 /24-Netze** (früher „Klasse-C-Netze“: 192.168.0 bis 192.168.255).
 
 **Weitere spezielle Bereiche:**
 
@@ -421,6 +464,13 @@ Achtung Prüfungsfalle: **172.32.0.1** ist **nicht** privat – der Bereich ende
       minutes: 15,
       relevance: 'ap1',
       skills: ['ipv4.gateway'],
+      simple: `Ein PC braucht vier Angaben: IP-Adresse, Subnetzmaske, Standardgateway und DNS-Server.
+Das **Standardgateway** ist der Router im eigenen Netz – wie die Poststelle im Ort, über die alle Briefe in andere Städte gehen.
+Liegt das Ziel im eigenen Netz, schickt der PC direkt; liegt es woanders, gibt er das Paket ans Gateway.
+Deshalb muss das Gateway im selben Netz liegen wie der PC.
+Ist es falsch eingetragen, erreichst du nur noch die Nachbarn im eigenen Netz.
+
+**Merke:** Gateway = Router-Adresse im eigenen Subnetz; falsches Gateway → nur das lokale Netz ist erreichbar.`,
       steps: [
         {
           type: 'explain',
@@ -458,17 +508,23 @@ Konvention in vielen Firmen: Gateway = erste nutzbare Adresse (.1) oder letzte (
       minutes: 8,
       relevance: 'ap1-teilweise',
       skills: ['ipv4.classes'],
+      simple: `Früher gab es IP-Netze nur in festen Größen – wie Kleidung nur in S, M und L.
+**Klasse A** (erstes Oktett 1–126) war riesig (/8), **Klasse B** (128–191) mittel (/16), **Klasse C** (192–223) klein (/24).
+Wer 300 Geräte hatte, musste ein Klasse-B-Netz mit über 65.000 Adressen nehmen – eine riesige Verschwendung.
+Seit 1993 gilt deshalb **CIDR** (Classless Inter-Domain Routing): Die Netzgrenze darf an jeder Bitstelle liegen – Kleidung nach Maß.
+
+**Merke:** Klasse am ersten Oktett: A 1–126, B 128–191, C 192–223 – heute nur noch als Begriff gebräuchlich.`,
       steps: [
         {
           type: 'explain',
           title: 'Warum man heute CIDR nutzt',
           body: `Früher wurde der Adressraum **klassenbasiert** (classful) aufgeteilt. Die Klasse ergab sich aus dem ersten Oktett:
 
-| Klasse | 1. Oktett | Standardmaske | Netze × Hosts |
+| Klasse | 1. Oktett | Standardmaske | Größe eines Netzes |
 |---|---|---|---|
-| A | 1 – 126 (127 = Loopback) | /8 | wenige, riesige Netze |
-| B | 128 – 191 | /16 | |
-| C | 192 – 223 | /24 | viele kleine Netze |
+| A | 1 – 126 (127 = Loopback) | /8 | 2²⁴ = 16.777.216 Adressen (16.777.214 nutzbare Hosts) |
+| B | 128 – 191 | /16 | 2¹⁶ = 65.536 Adressen (65.534 nutzbare Hosts) |
+| C | 192 – 223 | /24 | 2⁸ = 256 Adressen (254 nutzbare Hosts) |
 | D | 224 – 239 | – | Multicast |
 | E | 240 – 255 | – | reserviert |
 
@@ -500,5 +556,179 @@ Problem: Eine Firma mit 300 Geräten brauchte ein Klasse-B-Netz mit 65.534 Adres
     { id: 'm03-q015', kind: 'single', skill: 'ipv4.netvshost', difficulty: 2, prompt: 'Bei 10.4.5.6/8: Welcher Teil ist der Netzanteil?', options: ['10', '10.4', '10.4.5', '6'], answer: 0, explanation: '/8 → nur das erste Oktett gehört zum Netzanteil: **10**.' },
     { id: 'm03-q016', kind: 'number', skill: 'ipv4.mask', difficulty: 1, prompt: 'Wie viele Hostbits hat ein /27-Netz?', answer: 5, explanation: '32 − 27 = 5.' },
     { id: 'm03-q017', kind: 'order', skill: 'ipv4.gateway', difficulty: 2, prompt: 'Bringe die Schritte eines PCs beim Senden an eine Adresse in einem **fremden** Netz in die richtige Reihenfolge.', items: ['Netzanteil von Ziel und eigener Adresse per Maske vergleichen', 'Feststellen: Ziel liegt in einem anderen Netz', 'MAC-Adresse des Standardgateways per ARP ermitteln', 'Frame an die Gateway-MAC mit Ziel-IP des fremden Hosts senden'], explanation: 'Vergleich → fremd → ARP nach Gateway-MAC → Frame an Gateway (IP-Ziel bleibt der eigentliche Zielhost).' },
+    {
+      id: 'm03-q018', kind: 'table', skill: 'ipv4.mask', difficulty: 2,
+      prompt: 'Ergänze die Tabelle. Je Zeile ist entweder die Maske oder das Präfix vorgegeben.',
+      columns: [
+        { key: 'mask', label: 'Subnetzmaske', type: 'mask' },
+        { key: 'prefix', label: 'Präfix', type: 'cidr' },
+        { key: 'hb', label: 'Hostbits', type: 'number' },
+        { key: 'hosts', label: 'Nutzbare Hosts', type: 'number' },
+      ],
+      rows: [
+        { cells: { mask: { given: '255.255.240.0' }, prefix: { answer: '/20' }, hb: { answer: '12' }, hosts: { answer: '4094' } } },
+        { cells: { mask: { answer: '255.255.255.192' }, prefix: { given: '/26' }, hb: { answer: '6' }, hosts: { answer: '62' } } },
+        { cells: { mask: { given: '255.255.255.252' }, prefix: { answer: '/30' }, hb: { answer: '2' }, hosts: { answer: '2' } } },
+        { cells: { mask: { answer: '255.255.254.0' }, prefix: { given: '/23' }, hb: { answer: '9' }, hosts: { answer: '510' } } },
+      ],
+      misconceptions: [
+        { cell: '0:hosts', answer: '4096', error: 'reservierte-vergessen', why: '2¹² = 4096 Adressen, davon 2 reserviert → 4094.' },
+        { cell: '1:hosts', answer: '64', error: 'reservierte-vergessen', why: '2⁶ = 64 Adressen, davon 2 reserviert → 62.' },
+      ],
+      hints: ['Jedes 255 = 8 Einsen; Teilwerte: 128=1, 192=2, 224=3, 240=4, 248=5, 252=6, 254=7.', 'Hostbits = 32 − Präfix, nutzbare Hosts = 2^Hostbits − 2.'],
+      explanation: `**Weg je Zeile:**
+- 255.255.240.0: 8 + 8 + 4 = **/20** → 32 − 20 = **12** Hostbits → 2¹² − 2 = **4094**
+- /26: 24 Einsen + 2 im 4. Oktett (11000000 = 192) → **255.255.255.192**, **6** Hostbits → 64 − 2 = **62**
+- 255.255.255.252: 24 + 6 = **/30** → **2** Hostbits → 4 − 2 = **2**
+- /23: 16 + 7 (11111110 = 254) → **255.255.254.0**, **9** Hostbits → 512 − 2 = **510**
+
+Häufiger Fehler: die zwei reservierten Adressen (Netz und Broadcast) nicht abziehen.`,
+    },
+    {
+      id: 'm03-q019', kind: 'free', skill: 'ipv4.private', difficulty: 2,
+      prompt: 'Erläutere den Unterschied zwischen **privaten** und **öffentlichen** IPv4-Adressen und beschreibe, warum ein PC mit der Adresse 192.168.10.51 trotzdem Webseiten im Internet aufrufen kann.',
+      modelAnswer: `**Öffentliche** Adressen sind weltweit eindeutig, werden über die Registries (in Europa RIPE NCC) an Provider vergeben und im Internet geroutet. **Private** Adressen (RFC 1918: 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16) darf jeder intern frei verwenden; sie sind nicht eindeutig und werden von Internet-Routern verworfen.
+Der PC mit 192.168.10.51 erreicht das Internet über **NAT** (Network Address Translation): Der Router ersetzt beim Senden die private Quelladresse durch seine öffentliche Adresse und merkt sich die Zuordnung (mit Portnummern). Antworten kommen an die öffentliche Adresse zurück und werden wieder an den PC weitergeleitet.`,
+      keywords: ['weltweit eindeutig', 'RFC 1918', 'nicht geroutet', 'NAT', 'Router', 'öffentliche Adresse'],
+      hints: ['Welche Funktion des Routers „übersetzt“ Adressen?'],
+      explanation: 'Kernpunkte: privat = intern frei nutzbar, im Internet nicht geroutet; öffentlich = weltweit eindeutig; Internetzugang über NAT am Router.',
+    },
+    {
+      id: 'm03-q020', kind: 'single', skill: 'ipv4.gateway', difficulty: 3,
+      prompt: `**Beleg:** Ein Mitarbeiter meldet: „Ich kann den Netzwerkdrucker (10.8.4.150) nutzen, erreiche aber weder den Fileserver (10.8.4.10) noch das Internet.“ \`ipconfig\` zeigt:
+
+\`\`\`
+Ethernet-Adapter Ethernet:
+   IPv4-Adresse . . . . . . . . . . : 10.8.4.200
+   Subnetzmaske . . . . . . . . . . : 255.255.255.128
+   Standardgateway  . . . . . . . . : 10.8.4.1
+   DNS-Server . . . . . . . . . . . : 10.8.4.10
+\`\`\`
+
+Alle anderen PCs im Netz nutzen die Maske 255.255.255.0. Was ist die Ursache?`,
+      options: [
+        'Der DNS-Server ist ausgefallen.',
+        'Die Subnetzmaske ist falsch: Mit /25 liegt der PC im Bereich 10.8.4.128–.255; Gateway (.1) und Fileserver (.10) hält er für fremde Netze.',
+        'Der Drucker hat eine doppelte IP-Adresse.',
+        'Die Maske 255.255.255.128 ist für Clients grundsätzlich unzulässig.',
+      ],
+      answer: 1,
+      distractors: {
+        '0': { why: 'Dann wäre der Fileserver per IP-Adresse trotzdem erreichbar. Das Problem liegt in der IP-Konfiguration des PCs.', error: 'gateway-dns-verwechselt' },
+        '2': { why: 'Der Drucker funktioniert ja – ein Adresskonflikt beim Drucker erklärt den Fehler nicht.', error: 'adresskonflikt' },
+        '3': { why: '/25 ist eine normale Maske. Sie passt hier nur nicht zum Rest des Netzes.', error: 'maske-lesen' },
+      },
+      hints: ['Rechne mit der Maske des PCs aus, von wo bis wo sein Netz reicht.', '/25 → Schrittweite 128 → Netze .0 und .128.'],
+      explanation: `**Ursache: falsche Subnetzmaske.**
+1. Maske 255.255.255.128 = /25 → Schrittweite 256 − 128 = 128.
+2. 200 liegt im Block ab 128 → Netz des PCs: **10.8.4.128 – 10.8.4.255**.
+3. Drucker .150 liegt darin → direkt erreichbar ✔
+4. Fileserver .10 und Gateway .1 liegen aus Sicht des PCs in einem **anderen** Netz. Pakete dorthin müsste er ans Gateway schicken – das liegt aber selbst nicht in seinem Netz → keine Verbindung.
+
+Lösung: Maske auf 255.255.255.0 korrigieren (wie bei allen anderen PCs).`,
+    },
+    {
+      id: 'm03-q021', kind: 'number', skill: 'ipv4.private', difficulty: 2,
+      prompt: 'Wie viele IPv4-Adressen umfasst der private Bereich **172.16.0.0/12** insgesamt (einschließlich aller Netz- und Broadcastadressen)?',
+      answer: 1048576,
+      unit: 'Adressen',
+      misconceptions: [{ answer: '1048574', error: 'reservierte-verwechselt', why: 'Gefragt war die Gesamtzahl der Adressen, nicht die nutzbaren Hosts. Außerdem wird der Bereich intern in viele Subnetze aufgeteilt.' }],
+      hints: ['Hostbits = 32 − 12.', '2²⁰ = 2¹⁰ · 2¹⁰ = 1024 · 1024.'],
+      explanation: `32 − 12 = 20 Hostbits → 2²⁰ = 1024 × 1024 = **1.048.576** Adressen. Das sind 16 aufeinanderfolgende /16-Netze (172.16.x.x bis 172.31.x.x).`,
+    },
+    {
+      id: 'm03-q022', kind: 'ip', skill: 'ipv4.hostrange', difficulty: 2,
+      prompt: 'Wie lautet die **letzte nutzbare Hostadresse** im Netz **192.168.0.0/16**?',
+      answer: '192.168.255.254',
+      misconceptions: [
+        { answer: '192.168.0.254', error: 'netz-oktettgrenze', why: 'Bei /16 gehören die letzten **zwei** Oktette zum Hostanteil. Das Netz reicht bis 192.168.255.255.' },
+        { answer: '192.168.255.255', error: 'broadcast-letzter-host', why: 'Das ist der Broadcast. Der letzte Host ist eine Adresse davor.' },
+      ],
+      hints: ['Bei /16 sind die letzten beiden Oktette Hostanteil.'],
+      explanation: `/16 → Hostanteil = 3. und 4. Oktett. Broadcast: 192.168.**255.255** → letzter Host: **192.168.255.254**.`,
+    },
+    {
+      id: 'm03-q023', kind: 'multi', skill: 'ipv4.gateway', difficulty: 1,
+      prompt: 'Welche Angaben muss ein Client (statisch oder per DHCP) erhalten, damit er im lokalen Netz **und** im Internet **mit Namen** arbeiten kann?',
+      options: ['IP-Adresse', 'Subnetzmaske', 'Standardgateway', 'DNS-Server', 'MAC-Adresse des Routers', 'Broadcastadresse'],
+      answer: [0, 1, 2, 3],
+      explanation: 'Die vier Angaben der IP-Konfiguration: **IP-Adresse, Subnetzmaske, Standardgateway, DNS-Server**. Die MAC des Routers ermittelt der Client selbst per ARP, die Broadcastadresse ergibt sich aus IP und Maske.',
+    },
+    {
+      id: 'm03-q024', kind: 'free', skill: 'ipv4.private', difficulty: 2,
+      prompt: 'Ein Notebook zeigt nach dem Start die IPv4-Adresse **169.254.112.9**. Erläutere, was diese Adresse bedeutet, und nenne **drei** sinnvolle Prüfschritte.',
+      modelAnswer: `169.254.0.0/16 ist der **APIPA-/Link-Local-Bereich**. Windows vergibt sich eine solche Adresse selbst, wenn **kein DHCP-Server geantwortet** hat. Mit ihr ist nur Kommunikation mit Nachbarn möglich, die ebenfalls APIPA nutzen – kein Gateway, kein Internet.
+Prüfschritte (drei davon):
+1. Physische Verbindung prüfen: Kabel gesteckt, Link-LED an, richtiges WLAN verbunden?
+2. Richtiges VLAN am Switch-Port bzw. richtige SSID?
+3. DHCP-Server erreichbar/läuft der Dienst? Adressbereich (Scope) erschöpft?
+4. Adresse neu anfordern: \`ipconfig /release\` und \`ipconfig /renew\`.`,
+      keywords: ['APIPA', 'DHCP', 'keine Antwort', 'Kabel', 'VLAN', 'ipconfig /renew'],
+      hints: ['Wer vergibt Adressen normalerweise automatisch?'],
+      explanation: '169.254.x.x = Selbstzuweisung, weil DHCP nicht geantwortet hat. Prüfung von unten nach oben: Verbindung → VLAN/SSID → DHCP-Server → neu anfordern.',
+    },
+    {
+      id: 'm03-q025', kind: 'table', skill: 'ipv4.gateway', difficulty: 2,
+      prompt: `Im Netz der Werkstatt ist das Standardgateway **192.168.50.1/26**. Prüfe für jedes Gerät, ob es mit seiner Konfiguration das Gateway direkt erreichen kann (**ja**/**nein**).`,
+      columns: [{ key: 'ok', label: 'Gateway direkt erreichbar?', type: 'text' }],
+      rows: [
+        { label: 'PC Meister: 192.168.50.20/26', cells: { ok: { answer: 'ja' } } },
+        { label: 'PC Lager: 192.168.50.70/26', cells: { ok: { answer: 'nein' } } },
+        { label: 'Drucker: 192.168.50.62/26', cells: { ok: { answer: 'ja' } } },
+        { label: 'Notebook: 192.168.50.64/26', cells: { ok: { answer: 'nein' } } },
+      ],
+      hints: ['Bestimme das Netz des Gateways: /26 → Schrittweite 64.', 'Liegt das Gerät zwischen .1 und .62?'],
+      explanation: `Gateway 192.168.50.1/26 → Netz **192.168.50.0 – .63** (Hosts .1 – .62).
+- .20 → im Netz → **ja**
+- .70 → Netz .64 – .127 → **nein**
+- .62 → letzter Host im Netz → **ja**
+- .64 → Netzadresse des nächsten Subnetzes → **nein**`,
+    },
+    {
+      id: 'm03-q026', kind: 'number', skill: 'ipv4.mask', difficulty: 2,
+      prompt: 'Wie viele **Hostbits** hat ein Netz mit der Maske **255.255.252.0**?',
+      answer: 10,
+      misconceptions: [{ answer: '22', error: 'netzbits-hostbits-verwechselt', why: '22 ist die Zahl der **Netzbits** (das Präfix). Hostbits = 32 − 22.' }],
+      hints: ['252 = 11111100 → 6 Einsen.'],
+      explanation: '8 + 8 + 6 = 22 Netzbits (/22) → 32 − 22 = **10 Hostbits** (2¹⁰ − 2 = 1022 Hosts).',
+    },
+    {
+      id: 'm03-q027', kind: 'single', skill: 'ipv4.hostrange', difficulty: 1,
+      prompt: 'Welche Adresse darfst du im Netz **192.168.1.0/24** keinem Gerät zuweisen?',
+      options: ['192.168.1.1', '192.168.1.100', '192.168.1.254', '192.168.1.255'],
+      answer: 3,
+      distractors: {
+        '0': { why: '.1 ist der erste nutzbare Host – oft das Gateway.', error: 'erster-host-netz' },
+        '1': { why: '.100 ist eine normale Hostadresse.', error: 'maske-lesen' },
+        '2': { why: '.254 ist der letzte nutzbare Host.', error: 'broadcast-letzter-host' },
+      },
+      explanation: '**192.168.1.255** ist die Broadcastadresse (alle Hostbits 1) und darf keinem Gerät zugewiesen werden. Ebenso wenig 192.168.1.0 (Netzadresse).',
+    },
+    {
+      id: 'm03-q028', kind: 'match', skill: 'ipv4.mask', difficulty: 1,
+      prompt: 'Ordne jedem Präfix die passende Subnetzmaske zu.',
+      left: ['/8', '/16', '/24', '/30'],
+      right: ['255.0.0.0', '255.255.0.0', '255.255.255.0', '255.255.255.252'],
+      answer: [0, 1, 2, 3],
+      explanation: '/8 = ein volles Oktett Einsen, /16 = zwei, /24 = drei; /30 = 24 + 6 Einsen → 252 (11111100).',
+    },
+    {
+      id: 'm03-q029', kind: 'free', skill: 'ipv4.gateway', difficulty: 2,
+      prompt: 'Ein neuer Netzwerkdrucker soll im Büro eingebunden werden. Nenne die vier Angaben der IP-Konfiguration und begründe, warum Drucker meist eine **feste Adresse** (statisch oder per DHCP-Reservierung) erhalten.',
+      modelAnswer: `Angaben: **IP-Adresse**, **Subnetzmaske**, **Standardgateway**, **DNS-Server**.
+Begründung: Die Clients sprechen den Drucker über seine Adresse (oder einen DNS-Namen, der auf die Adresse zeigt) an. Ändert sich die Adresse – etwa bei einer neuen DHCP-Zuweisung –, finden die Druckerwarteschlangen den Drucker nicht mehr. Eine feste Adresse erleichtert außerdem Dokumentation, Firewall-Regeln und Fehlersuche. Eine **DHCP-Reservierung** (feste Zuordnung MAC → IP am DHCP-Server) verbindet beides: feste Adresse, aber zentral verwaltet.`,
+      keywords: ['IP-Adresse', 'Subnetzmaske', 'Standardgateway', 'DNS-Server', 'feste Adresse', 'Reservierung', 'MAC'],
+      hints: ['Was passiert mit den Druckerverbindungen der Clients, wenn sich die Adresse ändert?'],
+      explanation: 'Server, Drucker und Netzwerkgeräte bekommen feste Adressen, Clients meist dynamische. Die DHCP-Reservierung ist der Kompromiss.',
+    },
+    {
+      id: 'm03-q030', kind: 'number', skill: 'ipv4.private', difficulty: 2,
+      prompt: 'Der private Bereich 172.16.0.0/12 wird in /16-Netze („Klasse-B-Netze“) aufgeteilt. Wie viele /16-Netze entstehen?',
+      answer: 16,
+      unit: 'Netze',
+      misconceptions: [{ answer: '4', error: 'bits-statt-anzahl', why: '16 − 12 = 4 Bits – daraus ergeben sich aber 2⁴ = 16 Netze.' }],
+      hints: ['Differenz der Präfixe = geliehene Bits.'],
+      explanation: '16 − 12 = 4 Bits → 2⁴ = **16** Netze: 172.16.0.0/16 bis 172.31.0.0/16. Deshalb endet der private Bereich bei 172.**31**.255.255.',
+    },
   ],
 };

@@ -676,7 +676,7 @@ export const m15: Module = {
   icon: 'Calculator',
   relevance: 'ap1',
   prerequisites: ['m04'],
-  generators: ['calc.units', 'calc.transfertime', 'calc.rate'],
+  generators: ['calc.units', 'calc.transfertime', 'calc.rate', 'calc.sollrate', 'calc.tarif', 'calc.transfertime.bin', 'calc.conference', 'calc.nvp'],
   skills: [
     { id: 'calc.units', module: 'm15', title: 'Bit und Byte umrechnen' },
     { id: 'calc.prefixes', module: 'm15', title: 'Dezimal- und Binärpräfixe (kB/KiB …)', requires: ['calc.units'] },
@@ -684,6 +684,7 @@ export const m15: Module = {
     { id: 'calc.transfertime', module: 'm15', title: 'Übertragungszeit berechnen', requires: ['calc.units', 'calc.rate'] },
     { id: 'calc.overhead', module: 'm15', title: 'Bandbreite, Durchsatz und Overhead', requires: ['calc.transfertime'] },
     { id: 'calc.latency', module: 'm15', title: 'Latenz und Laufzeit', requires: ['calc.rate'] },
+    { id: 'calc.conference', module: 'm15', title: 'Bandbreite für Video-/Telefonkonferenzen berechnen', requires: ['calc.rate'] },
     { id: 'calc.storage', module: 'm15', title: 'Speicherbedarf berechnen', requires: ['calc.units', 'calc.rate'] },
   ],
   questions,

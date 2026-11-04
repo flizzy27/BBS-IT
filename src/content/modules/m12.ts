@@ -106,6 +106,29 @@ Zusätzlich gibt es unterschiedliche **Schliffe**: **PC/UPC** (gerade, bei SM of
 Switches haben oft **SFP-Steckplätze** (SFP = 1 Gbit/s, SFP+ = 10 Gbit/s, SFP28 = 25 Gbit/s, QSFP+ = 40 Gbit/s). Das eingesteckte Modul bestimmt Medium und Reichweite. Das Modul muss zum **Fasertyp und zur Wellenlänge** passen – ein SR-Modul (Multimode, 850 nm) funktioniert nicht an einem LR-Modul (Singlemode, 1310 nm) auf der Gegenseite.`,
         },
         {
+          type: 'explain',
+          title: 'Wenn kein Netzwerkkabel liegt: PowerLAN – und Internet über das Kabelnetz (DOCSIS)',
+          body: `**PowerLAN** (auch Powerline, dLAN) nutzt die **Stromleitungen** im Gebäude als Übertragungsmedium. Ein Adapter steckt an der Steckdose beim Router, ein zweiter an der Steckdose im entfernten Raum; dazwischen laufen die Daten über die 230-V-Leitung.
+
+| Vorteile | Nachteile |
+|---|---|
+| keine neuen Kabel, sofort einsatzbereit | geteiltes Medium: alle Adapter im Stromnetz teilen sich die Datenrate |
+| durchdringt Wände und Decken besser als WLAN | Werbeangaben („bis 2400 Mbit/s“) sind Bruttowerte; real oft nur ein Bruchteil |
+| | störanfällig (Netzteile, Motoren, Mehrfachsteckdosen mit Filter), schlecht über verschiedene Stromkreise/Phasen |
+| | funktioniert nicht über verschiedene Stromzähler hinweg; Verbindung muss **verschlüsselt** gekoppelt werden (sonst könnten Nachbarn mithören) |
+
+**Einordnung:** PowerLAN ist eine Notlösung für Wohnung, Homeoffice oder Altbau. Für ein Firmengebäude bleibt die **strukturierte Verkabelung** der Standard.
+
+**Internet über das Kabelnetz (DOCSIS):** Neben DSL (Telefonleitung, VDSL2 mit Vectoring bis 100 Mbit/s, Supervectoring bis 250 Mbit/s) und Glasfaser (FTTH mit Glasfasermodem/ONT) gibt es Internet über das **Kabelfernsehnetz**. Der Standard heißt **DOCSIS** (Data Over Cable Service Interface Specification); beim Kunden steht ein **Kabelmodem** am Koaxialanschluss. Mit **DOCSIS 3.1** sind rund **1 Gbit/s im Download** üblich, der Upload ist deutlich kleiner (asymmetrisch). Wichtig: Alle Haushalte eines Kabelsegments **teilen sich** die Kapazität – zu Stoßzeiten kann die Rate sinken.
+
+| Zugang | Medium | Gerät beim Kunden |
+|---|---|---|
+| DSL (VDSL2) | Kupfer-Telefonleitung | DSL-Modem/-Router |
+| Kabel (DOCSIS) | Koaxialkabel des TV-Kabelnetzes | Kabelmodem/-router |
+| Glasfaser (FTTH) | Glasfaser bis in die Wohnung/das Gebäude | Glasfasermodem (ONT) bzw. Router mit Glasfaseranschluss |
+| Mobilfunk (LTE/5G) | Funk | LTE-/5G-Router, oft als Backup |`,
+        },
+        {
           type: 'visual',
           title: 'Elektro Krämer: Wo welches Medium?',
           widget: {
@@ -190,7 +213,7 @@ Switches haben oft **SFP-Steckplätze** (SFP = 1 Gbit/s, SFP+ = 10 Gbit/s, SFP28
         {
           type: 'practice',
           title: 'Übung: Medien und Glasfaser',
-          questionIds: ['m12-q001', 'm12-q002', 'm12-q003', 'm12-q004', 'm12-q005', 'm12-q006', 'm12-q007'],
+          questionIds: ['m12-q001', 'm12-q002', 'm12-q003', 'm12-q004', 'm12-q005', 'm12-q006', 'm12-q007', 'm12-q049', 'm12-q050'],
           count: 5,
           difficulty: 2,
         },
@@ -203,6 +226,8 @@ Switches haben oft **SFP-Steckplätze** (SFP = 1 Gbit/s, SFP+ = 10 Gbit/s, SFP28
             'Singlemode ca. 9 µm Kern, 1310/1550 nm, km-Bereich; Mantelfarbe gelb.',
             'Stecker: LC (klein, SFP), SC (quadratisch), ST (Bajonett), MPO (Mehrfaser).',
             'Nie in eine aktive Faser blicken – Laser im unsichtbaren Infrarotbereich.',
+            'PowerLAN nutzt die Stromleitung (geteilt, störanfällig) – Notlösung, kein Ersatz für strukturierte Verkabelung.',
+            'Internetzugänge: DSL (Telefonleitung), Kabel/DOCSIS (Koax, geteiltes Segment), Glasfaser/FTTH (ONT), Mobilfunk.',
           ],
         },
       ],
@@ -264,6 +289,26 @@ Wichtige Praxispunkte:
 - **Cat 8** ist für kurze Strecken im **Rechenzentrum** gedacht (Server ↔ Top-of-Rack-Switch), nicht für die Büroverkabelung.
 - Die 100 m gelten für den **Kanal** (Channel): **90 m festes Verlegekabel + insgesamt 10 m Patch- und Geräteanschlusskabel**.
 - Für Neuinstallationen im Büro gilt heute **Cat 6A** als Mindeststandard – auch weil moderne Access Points (Wi-Fi 6/7) mit 2,5 bzw. 5 Gbit/s angebunden werden und PoE mit höherer Leistung (Erwärmung des Kabelbündels) besser verträgt.
+
+### Kategorie oder Klasse?
+
+Zwei Begriffe, die oft verwechselt werden:
+
+- Die **Kategorie** (Cat) gilt für **einzelne Bauteile**: Kabel, Dose, Patchfeld, Stecker. Sie steht im Datenblatt und auf dem Kabelmantel.
+- Die **Klasse** gilt für die **fertig installierte Strecke** (Permanent Link bzw. Channel). Ob eine Strecke ihre Klasse erreicht, zeigt erst die **Messung nach der Verlegung**.
+
+| Kategorie (Bauteil) | Klasse (Strecke) | Frequenz |
+|---|---|---|
+| Cat 5e | **D** | 100 MHz |
+| Cat 6 | **E** | 250 MHz |
+| Cat 6A | **EA** | 500 MHz |
+| Cat 7 | **F** | 600 MHz |
+| Cat 7A | **FA** | 1000 MHz |
+| Cat 8.1 / 8.2 | **I / II** | 2000 MHz |
+
+Eine Strecke erreicht ihre Klasse nur, wenn **alle** Bauteile mindestens die passende Kategorie haben **und** sauber verarbeitet sind. Zu weit aufgedrehte Paare an der Dose, zu enge Biegeradien oder ein nicht aufgelegter Schirm können dazu führen, dass eine Strecke aus lauter Cat-6A-Bauteilen die Klasse EA **nicht** besteht.
+
+**Hinweis zu Lehrbüchern:** Manche Tabellen ordnen 2,5GBASE-T und 5GBASE-T erst Cat 6A oder 10GBASE-T Cat 7 zu. Diese Kategorien sind ebenfalls **geeignet** (sie können mehr als nötig). Fragt eine Aufgabe nach der **mindestens nötigen** Kategorie, gilt die Tabelle oben.
 
 ### RJ45 und Belegung T568A / T568B
 
@@ -364,7 +409,7 @@ Der **RJ45-Stecker** (genauer: 8P8C, 8 Positionen, 8 Kontakte) ist der Standards
         {
           type: 'practice',
           title: 'Übung: Twisted Pair',
-          questionIds: ['m12-q008', 'm12-q009', 'm12-q010', 'm12-q011', 'm12-q012', 'm12-q013', 'm12-q014', 'm12-q016', 'm12-q017'],
+          questionIds: ['m12-q008', 'm12-q009', 'm12-q010', 'm12-q011', 'm12-q012', 'm12-q013', 'm12-q014', 'm12-q016', 'm12-q017', 'm12-q051', 'm12-q052', 'm12-q053'],
           count: 6,
           difficulty: 2,
         },
@@ -375,6 +420,7 @@ Der **RJ45-Stecker** (genauer: 8P8C, 8 Positionen, 8 Kontakte) ist der Standards
             'XX/YTP: vor dem Schrägstrich Gesamtschirm (U, F, S, SF), danach Paarschirm (U, F).',
             'Cat 5e 100 MHz/1G, Cat 6 250 MHz, Cat 6A 500 MHz/10G/100 m, Cat 7 600 MHz, Cat 8 2000 MHz/40G/30 m.',
             '100 m Kanal = 90 m Verlegekabel + 10 m Patchkabel; schwächste Komponente bestimmt die Klasse.',
+            'Kategorie = Bauteil (Cat 5e/6/6A/7), Klasse = installierte Strecke (D/E/EA/F) – nachgewiesen durch Messung.',
             'T568A vs. T568B: Orange und Grün vertauscht. 1:1-Kabel = beide Enden gleich; Auto-MDI-X macht Crossover überflüssig.',
             '100BASE-TX nutzt Pins 1, 2, 3, 6; Gigabit und mehr nutzen alle vier Paare.',
           ],
@@ -1836,6 +1882,81 @@ Begründung: Eine Funkstation kann beim Senden nicht gleichzeitig zuverlässig e
       keywords: ['Collision Detection', 'Collision Avoidance', 'Halbduplex', 'Backoff', 'ACK', 'RTS/CTS', 'Hidden Station', 'nicht gleichzeitig senden und empfangen'],
       hints: ['D = Detection, A = Avoidance.', 'Warum kann eine Funkstation Kollisionen nicht erkennen?'],
       explanation: `Wichtig sind der Unterschied Erkennen vs. Vermeiden, die Mechanismen (Backoff, ACK, RTS/CTS) und die physikalische Begründung für WLAN.`,
+    },
+    {
+      id: 'm12-q049', kind: 'single', skill: 'cabling.media', difficulty: 2,
+      prompt: `Ein Kunde möchte sein Homeoffice im Dachgeschoss per **PowerLAN** anbinden. Der Adapter verspricht „bis 2400 Mbit/s“. Welche Aussage ist richtig?`,
+      options: [
+        'Die Angabe ist ein Bruttowert; alle Adapter im Stromnetz teilen sich die Datenrate, real ist oft nur ein Bruchteil erreichbar.',
+        'PowerLAN ist der empfohlene Standard für die Verkabelung von Firmengebäuden.',
+        'PowerLAN funktioniert problemlos auch über verschiedene Stromzähler hinweg zum Nachbarn.',
+        'Eine Verschlüsselung ist nicht nötig, weil die Daten im Stromkabel nicht abgehört werden können.',
+      ],
+      answer: 0,
+      distractors: {
+        '1': { why: 'Für Firmengebäude bleibt die strukturierte Verkabelung der Standard – PowerLAN ist eine Notlösung.', error: 'medien-auswahl' },
+        '2': { why: 'Über verschiedene Stromzähler hinweg funktioniert PowerLAN in der Regel nicht.', error: 'medien-auswahl' },
+        '3': { why: 'Andere Adapter im selben Stromnetz könnten mithören – die Adapter müssen verschlüsselt gekoppelt werden.', error: 'medien-auswahl' },
+      },
+      explanation: `PowerLAN nutzt die Stromleitung als **geteiltes Medium**. Werbeangaben sind Bruttowerte; Störungen (Netzteile, Motoren, Filter in Steckdosenleisten) senken die Rate weiter.`,
+    },
+    {
+      id: 'm12-q050', kind: 'single', skill: 'cabling.media', difficulty: 1,
+      prompt: `Ein Kunde bekommt Internet über den **Anschluss des Kabelfernsehens**. Welcher Standard und welches Gerät gehören dazu?`,
+      options: ['DOCSIS mit Kabelmodem am Koaxialanschluss', 'VDSL2 mit DSL-Modem an der Telefonleitung', 'FTTH mit Glasfasermodem (ONT)', 'LTE mit Mobilfunkrouter'],
+      answer: 0,
+      distractors: {
+        '1': { why: 'VDSL2 läuft über die Kupfer-Telefonleitung, nicht über das TV-Kabelnetz.', error: 'medien-auswahl' },
+        '2': { why: 'FTTH nutzt eine Glasfaser bis ins Gebäude, nicht das Koaxialkabel.', error: 'medien-auswahl' },
+        '3': { why: 'LTE ist Funk und braucht keinen Kabelanschluss.', error: 'medien-auswahl' },
+      },
+      explanation: `Internet über das TV-Kabelnetz nutzt **DOCSIS** (z. B. DOCSIS 3.1 mit rund 1 Gbit/s Download). Beim Kunden steht ein **Kabelmodem**. Alle Haushalte eines Segments teilen sich die Kapazität.`,
+    },
+    {
+      id: 'm12-q051', kind: 'single', skill: 'cabling.categories', difficulty: 2,
+      prompt: `Was ist der Unterschied zwischen **Kategorie** (Cat) und **Klasse** bei der Netzwerkverkabelung?`,
+      options: [
+        'Die Kategorie gilt für einzelne Bauteile (Kabel, Dose, Patchfeld), die Klasse für die fertig installierte Strecke.',
+        'Die Klasse gilt für einzelne Bauteile, die Kategorie für die fertig installierte Strecke.',
+        'Beide Begriffe bedeuten dasselbe.',
+        'Die Kategorie gibt die Schirmung an, die Klasse die Länge des Kabels.',
+      ],
+      answer: 0,
+      distractors: {
+        '1': { why: 'Genau andersherum: Bauteile haben eine Kategorie, die gemessene Strecke eine Klasse.', error: 'kategorie-klasse' },
+        '2': { why: 'Die Begriffe werden oft verwechselt, meinen aber Verschiedenes.', error: 'kategorie-klasse' },
+        '3': { why: 'Die Schirmung steht im Kürzel wie U/FTP, nicht in Kategorie oder Klasse.', error: 'kategorie-klasse' },
+      },
+      explanation: `**Kategorie** = Bauteil (steht im Datenblatt). **Klasse** = installierte Strecke; ob sie erreicht wird, zeigt erst die Messung nach der Verlegung.`,
+    },
+    {
+      id: 'm12-q052', kind: 'single', skill: 'cabling.categories', difficulty: 2,
+      prompt: `Eine Strecke wird komplett aus **Cat-6A-Bauteilen** aufgebaut und sauber verarbeitet. Welche **Klasse** soll sie bei der Abnahmemessung erreichen?`,
+      options: ['Klasse EA (500 MHz)', 'Klasse D (100 MHz)', 'Klasse E (250 MHz)', 'Klasse F (600 MHz)'],
+      answer: 0,
+      distractors: {
+        '1': { why: 'Klasse D gehört zu Cat 5e.', error: 'kategorie-klasse' },
+        '2': { why: 'Klasse E gehört zu Cat 6 (250 MHz).', error: 'kategorie-klasse' },
+        '3': { why: 'Klasse F gehört zu Cat 7 (600 MHz).', error: 'kategorie-klasse' },
+      },
+      explanation: `Cat 5e → D, Cat 6 → E, **Cat 6A → EA (500 MHz)**, Cat 7 → F, Cat 7A → FA.`,
+    },
+    {
+      id: 'm12-q053', kind: 'single', skill: 'cabling.categories', difficulty: 3,
+      prompt: `Eine neu verlegte Strecke aus lauter Cat-6A-Bauteilen **besteht die Messung für Klasse EA nicht**. Was ist die wahrscheinlichste Ursache?`,
+      options: [
+        'Verarbeitungsfehler, z. B. zu weit aufgedrehte Adernpaare an der Dose oder zu enge Biegeradien',
+        'Cat-6A-Bauteile können grundsätzlich nur Klasse D erreichen',
+        'Die Strecke ist kürzer als 90 m',
+        'Das Messgerät misst nur Glasfaser',
+      ],
+      answer: 0,
+      distractors: {
+        '1': { why: 'Cat-6A-Bauteile sind für Klasse EA gebaut – wenn sie richtig verarbeitet werden.', error: 'kategorie-klasse' },
+        '2': { why: 'Kürzer als 90 m ist erlaubt; problematisch wäre eine zu lange Strecke.', error: 'kategorie-laengen' },
+        '3': { why: 'Für Kupferstrecken gibt es eigene Messgeräte (Zertifizierer).', error: 'kategorie-klasse' },
+      },
+      explanation: `Die Klasse erreicht eine Strecke nur, wenn **alle Bauteile passen und sauber verarbeitet** sind. Aufgedrehte Paare, Knicke oder ein nicht aufgelegter Schirm verschlechtern die Werte.`,
     },
   ],
 };

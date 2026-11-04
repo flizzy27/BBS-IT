@@ -817,6 +817,12 @@ export const m07: Module = {
       minutes: 15,
       relevance: 'ap1',
       skills: ['ipv6.structure', 'ipv6.vs4'],
+      simple: `IPv4 hat nur rund 4,3 Milliarden Adressen – das ist weniger, als es Menschen gibt, und die Adressen sind praktisch aufgebraucht.
+**IPv6** verlängert die Adresse von 32 auf **128 Bit**; damit gibt es mehr Adressen, als man je verbrauchen kann.
+Eine IPv6-Adresse besteht aus **8 Blöcken zu je 16 Bit**, geschrieben als Hexadezimalzahlen (Ziffern 0–9 und a–f) mit Doppelpunkten dazwischen.
+Wie bei einer Anschrift gibt es zwei Teile: Die vorderen 64 Bit sind meist das Netz (Präfix), die hinteren 64 Bit das Gerät (Interface-ID).
+
+**Merke:** IPv6 = 128 Bit = 8 Blöcke × 16 Bit, hexadezimal und mit Doppelpunkten geschrieben.`,
       steps: [
         {
           type: 'explain',
@@ -948,6 +954,12 @@ Warum gerade Hex? Ein Hex-Zeichen steht für genau **4 Bit**. 4 Zeichen · 4 Bit
       minutes: 20,
       relevance: 'ap1',
       skills: ['ipv6.hex'],
+      simple: `Das **Hexadezimalsystem** zählt mit 16 Ziffern: 0 bis 9 und danach a (10), b (11), c (12), d (13), e (14), f (15).
+Eine Hex-Ziffer steht genau für 4 Bit – wie eine Abkürzung, die vier Lichtschalter auf einmal beschreibt.
+Darum ist Hex so praktisch: 4 Bit = 1 Hex-Ziffer, 8 Bit = 2 Hex-Ziffern, 16 Bit (ein IPv6-Block) = 4 Hex-Ziffern.
+Beispiel: f = 1111 und a = 1010, also ist fa binär 1111 1010 = 250.
+
+**Merke:** 1 Hex-Ziffer = 4 Bit; a bis f stehen für 10 bis 15.`,
       steps: [
         {
           type: 'explain',
@@ -1067,6 +1079,13 @@ Merkhilfe für die Buchstaben: **a = 10, c = 12, f = 15** – den Rest zählst d
       minutes: 25,
       relevance: 'ap1',
       skills: ['ipv6.compress', 'ipv6.expand'],
+      simple: `Lange IPv6-Adressen darf man kürzen – so wie man bei einer Uhrzeit „9 Uhr“ statt „09:00“ sagt.
+**Regel 1:** Führende Nullen in einem Block fallen weg (0db8 wird db8, 0000 wird 0).
+**Regel 2:** Mehrere Blöcke hintereinander, die nur aus Nullen bestehen, werden zu **::** – aber nur **einmal** pro Adresse, sonst wüsste niemand, wie viele Nullen wo fehlen.
+Gibt es mehrere Nullfolgen, kürzt du die längste, bei Gleichstand die erste; ein einzelner Nullblock bleibt als 0 stehen.
+Beim Erweitern füllst du wieder auf 8 Blöcke mit je 4 Ziffern auf.
+
+**Merke:** Führende Nullen weg, :: nur einmal und für die längste Nullfolge (bei Gleichstand die erste).`,
       steps: [
         {
           type: 'explain',
@@ -1209,6 +1228,13 @@ Andere Schreibweisen (z. B. \`2001:0db8::1\`) sind technisch gültig, aber nicht
       minutes: 25,
       relevance: 'ap1',
       skills: ['ipv6.prefix', 'ipv6.type'],
+      simple: `Bei IPv6 erkennst du am Anfang der Adresse, wofür sie gedacht ist – wie an der Vorwahl, ob eine Nummer ins Handynetz oder ins Ausland geht.
+**2000::/3** (beginnt mit 2 oder 3) ist eine globale Adresse, im Internet erreichbar (GUA).
+**fe80::/10** ist link-lokal: Sie gilt nur im eigenen Netzsegment, jedes IPv6-Gerät hat so eine.
+**fc00::/7** (in der Praxis fd…) ist die private Adresse (ULA), **ff00::/8** ist Multicast und **::1** der eigene Rechner (Loopback).
+Ein Firmennetz bekommt vom Provider oft ein /48 oder /56, jedes einzelne LAN ist ein /64.
+
+**Merke:** 2/3… = global, fe80 = link-lokal, fd = privat (ULA), ff = Multicast, ::1 = Loopback; ein LAN ist ein /64.`,
       steps: [
         {
           type: 'explain',
@@ -1349,6 +1375,12 @@ Bei /48 bleiben die ersten **3 Blöcke**: \`2001:db8:4b00::/48\`.`,
       minutes: 30,
       relevance: 'ap1-teilweise',
       skills: ['ipv6.slaac', 'ipv6.dhcpv6', 'ipv6.vs4'],
+      simple: `Bei IPv6 kann sich ein Gerät seine Adresse selbst bauen – wie ein Neuzugezogener, der den Straßennamen vom Schild abliest und seine Hausnummer selbst wählt.
+Der Router verkündet das Netz-Präfix (Router Advertisement), das Gerät hängt seine eigene Interface-ID an: Das ist **SLAAC** (automatische Adressbildung ohne Server).
+**NDP** (Neighbor Discovery Protocol) ersetzt dabei ARP und findet die Hardware-Adressen der Nachbarn.
+**DHCPv6** gibt es zusätzlich: *stateful* vergibt es Adressen wie bei IPv4, *stateless* liefert es nur Zusatzangaben wie den DNS-Server.
+
+**Merke:** SLAAC = Präfix vom Router + eigene Interface-ID; NDP ersetzt ARP.`,
       steps: [
         {
           type: 'explain',
@@ -1570,6 +1602,12 @@ Windows und die meisten modernen Betriebssysteme verwenden standardmäßig **zuf
       minutes: 25,
       relevance: 'ap1-teilweise',
       skills: ['ipv6.subnets'],
+      simple: `IPv6-Subnetting ist einfacher als bei IPv4, weil jedes LAN immer ein **/64** bekommt – du musst keine Hosts zählen.
+Stell dir vor, du bekommst vom Provider ein Grundstück (/48) und teilst es in gleich große Parzellen (/64).
+Zwischen /48 und /64 liegen 16 Bit – genau der vierte Block der Adresse, die **Subnetz-ID**.
+Damit kannst du 2^16 = 65.536 Netze bilden und sie einfach hochzählen: …:0001::/64, …:0002::/64 und so weiter (hexadezimal, nach 9 kommt a).
+
+**Merke:** Anzahl /64-Netze = 2^(64 − Präfix vom Provider); bei /48 ist der 4. Block die Subnetz-ID.`,
       steps: [
         {
           type: 'explain',

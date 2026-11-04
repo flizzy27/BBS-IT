@@ -5,11 +5,11 @@ export const h04: Module = {
   nr: 4,
   area: 'hardware',
   title: 'Energie, Elektrotechnik & Umwelt',
-  short: `P = U · I, W = P · t, Stromkosten, Wirkungsgrad und 80 PLUS, Energielabels, USV-Typen und -Dimensionierung, Green IT und Entsorgung nach ElektroG.`,
+  short: `P = U · I, Drehstrom, W = P · t mit Betriebsprofil, Stromkosten, Wirkungsgrad und 80 PLUS (230 V EU), Energielabels, USV-Typen und -Dimensionierung, Green IT mit CO₂-Rechnung und Entsorgung nach ElektroG.`,
   icon: 'Zap',
   relevance: 'ap1',
   prerequisites: ['h01'],
-  generators: ['hw.leistung', 'hw.stromkosten', 'hw.wirkungsgrad', 'hw.usv'],
+  generators: ['hw.leistung', 'hw.stromkosten', 'hw.betriebsprofil', 'hw.wirkungsgrad', 'hw.80plus', 'hw.usv', 'hw.usvcheck', 'hw.co2'],
   skills: [
     { id: 'hw.energy.power', module: 'h04', title: 'Elektrische Grundgrößen: U, I, R, P' },
     { id: 'hw.energy.cost', module: 'h04', title: 'Energie (W = P · t) und Stromkosten berechnen', requires: ['hw.energy.power'] },
@@ -28,6 +28,9 @@ export const h04: Module = {
       minutes: 15,
       relevance: 'ap1',
       skills: ['hw.energy.power'],
+      simple: `Strom kannst du dir wie Wasser in einem Gartenschlauch vorstellen. Die **Spannung** (Volt, V) ist der Wasserdruck, die **Stromstärke** (Ampere, A) ist die Wassermenge pro Sekunde, und der **Widerstand** (Ohm, Ω) ist eine Engstelle im Schlauch. Die **Leistung** (Watt, W) sagt, wie viel Arbeit pro Sekunde erledigt wird: Druck mal Menge, also P = U · I. Eine Sicherung (z. B. 16 A) ist wie ein Ventil, das bei zu viel Durchfluss zumacht. Darum dürfen nicht beliebig viele Geräte an einem Stromkreis hängen.
+
+**Merke:** P = U · I, umgestellt I = P ÷ U – an 230 V mit 16 A sind höchstens 3.680 W möglich.`,
       steps: [
         {
           type: 'explain',
@@ -52,7 +55,17 @@ export const h04: Module = {
 - Ein Stromkreis mit **16-A-Sicherung**: P_max = 230 V · 16 A = **3.680 W**. Mehrere Schulungs-PCs, ein Laserdrucker (Spitzen über 1.000 W beim Aufheizen) und eine Kaffeemaschine am selben Stromkreis können die Sicherung auslösen.
 - Kleingeräte arbeiten mit **Gleichspannung** aus Netzteilen: Notebook 19–20 V, Router 12 V, USB 5–48 V.
 
-**Wechselstrom-Hinweis:** Bei Wechselstrom gilt genau genommen P = U · I · cos φ (Leistungsfaktor, siehe USV-Lektion). PC-Netzteile mit aktiver PFC haben cos φ nahe 1 – in Prüfungsaufgaben wird ohne Angabe meist **cos φ = 1** angenommen.`,
+**Wechselstrom-Hinweis:** Bei Wechselstrom gilt genau genommen P = U · I · cos φ (Leistungsfaktor, siehe USV-Lektion). PC-Netzteile mit aktiver PFC haben cos φ nahe 1 – in Prüfungsaufgaben wird ohne Angabe meist **cos φ = 1** angenommen.
+
+**Wechselspannung genauer:** Die 230 V sind der **Effektivwert** – die Spannung wirkt so stark wie 230 V Gleichspannung. Tatsächlich schwankt sie sinusförmig zwischen etwa **+325 V und −325 V** (Scheitelwert = 230 V · √2 ≈ 325 V). Bei **50 Hz** wiederholt sich die Schwingung 50-mal pro Sekunde. Eine Schwingung dauert also **T = 1 ÷ f = 1 ÷ 50 Hz = 0,02 s = 20 ms** (Periodendauer).
+
+**Drehstrom (Dreiphasenwechselstrom):** Ins Gebäude kommen drei **Außenleiter** (L1, L2, L3, umgangssprachlich „Phasen“), dazu Neutralleiter (N) und Schutzleiter (PE). Zwischen einem Außenleiter und N liegen **230 V**, zwischen zwei Außenleitern **400 V** (230 V · √3 ≈ 400 V). Eine normale Steckdose hängt an genau einem Außenleiter. Für Serverraum und Netzwerkschrank folgt daraus:
+- Die Last **gleichmäßig auf die drei Phasen verteilen** – sonst ist eine Phase überlastet, während die anderen kaum genutzt werden.
+- Server mit **zwei Netzteilen** an **zwei verschiedene Stromkreise** anschließen (ideal: getrennte A-/B-Versorgung, z. B. über zwei Phasen oder zwei USVs). Löst eine Sicherung aus, läuft der Server über das zweite Netzteil weiter.
+- Große USVs (oft ab etwa 10 kVA) werden dreiphasig angeschlossen.
+- Die Elektroinstallation selbst (Steckdosen, Verteiler, Drehstromanschlüsse) baut und ändert nur eine **Elektrofachkraft** – siehe Modul „Ergonomie, Arbeitsschutz & Barrierefreiheit“.
+
+**Rechenbeispiel Phase:** 6 Server mit je 450 W an **einer** Phase: I = 2.700 W ÷ 230 V ≈ **11,74 A** → ein 16-A-Stromkreis reicht, aber mit wenig Reserve.`,
         },
         {
           type: 'visual',
@@ -101,6 +114,7 @@ export const h04: Module = {
           },
         },
         { type: 'practice', title: 'Übung: P = U · I', generator: 'hw.leistung', count: 4, difficulty: 2 },
+        { type: 'practice', title: 'Übung: Wechselspannung und Drehstrom', questionIds: ['h04-q032', 'h04-q033', 'h04-q034'], count: 3, difficulty: 2 },
         {
           type: 'summary',
           points: [
@@ -108,6 +122,8 @@ export const h04: Module = {
             'P = U · I; U = R · I.',
             '230 V, 16 A → max. 3.680 W pro Stromkreis.',
             'Ohne Angabe: cos φ = 1.',
+            '230 V = Effektivwert (Scheitel ≈ 325 V); 50 Hz → T = 20 ms.',
+            'Drehstrom: 230 V gegen N, 400 V zwischen zwei Außenleitern; Last auf die Phasen verteilen, redundante Netzteile an getrennte Stromkreise.',
           ],
         },
       ],
@@ -119,6 +135,9 @@ export const h04: Module = {
       minutes: 25,
       relevance: 'ap1',
       skills: ['hw.energy.cost'],
+      simple: `Die **Leistung** (Watt) sagt, wie viel ein Gerät **gerade** braucht – wie die Geschwindigkeit beim Autofahren. Die **Energie** (Kilowattstunden, kWh) ist das, was am Ende zusammenkommt – wie die gefahrenen Kilometer. Deshalb gilt: Energie = Leistung · Zeit (W = P · t). Der Stromanbieter rechnet pro kWh ab, also teilst du Wattstunden erst durch 1.000. Vergiss die Zeit im **Standby** (Bereitschaft) nicht: Ein paar Watt über tausende Stunden ergeben auch Geld.
+
+**Merke:** Kosten = P · t ÷ 1.000 · Preis pro kWh – Betrieb und Standby getrennt rechnen und die Zeiten aus dem Betriebsprofil nehmen.`,
       steps: [
         {
           type: 'explain',
@@ -189,13 +208,36 @@ export const h04: Module = {
             explanation: '45 W · 8.760 h = 394.200 Wh = 394,2 kWh · 0,30 € = **118,26 €**.',
           },
         },
+        {
+          type: 'explain',
+          title: 'Betriebsprofil: Wann läuft das Gerät wirklich?',
+          body: `In vielen Aufgaben steht nicht einfach „Dauerbetrieb“, sondern ein **Betriebsprofil**. Es sagt, wann ein Gerät in welchem Zustand ist:
+
+| Zustand | Zeit | Leistung |
+|---|---|---|
+| Betrieb | Montag bis Freitag, je 12 h | 60 W |
+| Standby | restliche Stunden der Woche | 2 W |
+
+**Rechenweg mit Wochenprofil** (die Aufgabe gibt 52 Wochen pro Jahr vor):
+1. **Stunden pro Woche:** Betrieb 5 · 12 h = **60 h**. Eine Woche hat 7 · 24 h = **168 h**, also Standby 168 h − 60 h = **108 h**.
+2. **Stunden pro Jahr:** Betrieb 60 h · 52 = **3.120 h**; Standby 108 h · 52 = **5.616 h**.
+3. **Energie Betrieb:** 60 W · 3.120 h = 187.200 Wh = **187,2 kWh**.
+4. **Energie Standby:** 2 W · 5.616 h = 11.232 Wh = **11,232 kWh**.
+5. **Summe:** 187,2 kWh + 11,232 kWh = **198,432 kWh** pro Jahr und Arbeitsplatz. Bei mehreren Arbeitsplätzen mit der Anzahl multiplizieren, dann mit dem Preis.
+
+**Achtung:** 52 Wochen · 168 h = 8.736 h – das sind 24 h weniger als 365 Tage (8.760 h). Nimm immer die Vorgabe der Aufgabe (52 Wochen, 365 Tage oder z. B. 220 Arbeitstage) und schreib sie in deinen Rechenweg.
+
+**Kurzaufgabe „viele Geräte an einem Tag“:** 60 PCs · 150 W · 10 h = 90.000 Wh = **90 kWh** pro Tag.`,
+        },
         { type: 'practice', title: 'Übung: Stromkosten', generator: 'hw.stromkosten', count: 4, difficulty: 2 },
-        { type: 'practice', title: 'Übung: Stromkosten mit Belegen', questionIds: ['h04-q004', 'h04-q005', 'h04-q006'], count: 3, difficulty: 2 },
+        { type: 'practice', title: 'Übung: Betriebsprofil', generator: 'hw.betriebsprofil', count: 3, difficulty: 2 },
+        { type: 'practice', title: 'Übung: Stromkosten mit Belegen', questionIds: ['h04-q004', 'h04-q005', 'h04-q006', 'h04-q035'], count: 4, difficulty: 2 },
         {
           type: 'summary',
           points: [
             'W = P · t; 1 kWh = 1.000 Wh.',
             'Jahr = 8.760 h; Standby = 8.760 h − Betriebszeit.',
+            'Betriebsprofil: Woche = 168 h; Betrieb und Standby je Woche, dann · 52 (oder die Vorgabe der Aufgabe).',
             'Kosten = kWh · €/kWh (ct → € durch 100).',
             'Typische Fehler: Wh/kWh, ct/€, Standby vergessen.',
           ],
@@ -209,6 +251,9 @@ export const h04: Module = {
       minutes: 20,
       relevance: 'ap1',
       skills: ['hw.energy.efficiency'],
+      simple: `Ein Netzteil ist wie ein Übersetzer: Es macht aus den 230 V der Steckdose die kleinen Gleichspannungen für den PC. Dabei geht immer etwas als Wärme verloren – wie bei einem Übersetzer, der ein paar Wörter verschluckt. Der **Wirkungsgrad** η (sprich „eta“) sagt, welcher Anteil wirklich ankommt: η = abgegebene Leistung ÷ aufgenommene Leistung. Das Siegel **80 PLUS** (Bronze bis Titanium) garantiert Mindestwerte für diesen Anteil. Weil Verluste dazukommen, nimmt das Netzteil immer **mehr** aus der Steckdose auf, als es an den PC abgibt.
+
+**Merke:** Aufgenommene Leistung = abgegebene Leistung ÷ η – niemals mal η.`,
       steps: [
         {
           type: 'explain',
@@ -223,18 +268,36 @@ export const h04: Module = {
 
 **Verlustleistung:** P_V = P_zu − P_ab (wird als Wärme frei → muss per Lüfter/Klimaanlage abgeführt werden, kostet also doppelt).
 
-**80 PLUS** – Zertifizierung für Netzteile (Mindestwirkungsgrade bei 20 %, 50 % und 100 % Last; Werte für **115 V, interne Netzteile**):
+**80 PLUS** – Zertifizierung für Netzteile. Sie garantiert **Mindestwirkungsgrade** bei bestimmten Auslastungen (Last = abgegebene Leistung ÷ Nennleistung des Netzteils). Es gibt **zwei Tabellen**, weil Netzteile an höherer Netzspannung etwas effizienter arbeiten.
 
-| Stufe | 10 % | 20 % | 50 % | 100 % |
+**Tabelle 1 – 230 V EU, interne Netzteile (gilt für Deutschland):**
+
+| Stufe | 10 % Last | 20 % Last | 50 % Last | 100 % Last |
+|---|---|---|---|---|
+| 80 PLUS (Standard) | – | 82 % | 85 % | 82 % |
+| Bronze | – | 85 % | 88 % | 85 % |
+| Silver | – | 87 % | 90 % | 87 % |
+| **Gold** | – | 90 % | **92 %** | 89 % |
+| Platinum | – | 92 % | 94 % | 90 % |
+| Titanium | 90 % | 94 % | 96 % | 94 % |
+
+**Tabelle 2 – 115 V (z. B. USA), interne Netzteile:**
+
+| Stufe | 10 % Last | 20 % Last | 50 % Last | 100 % Last |
 |---|---|---|---|---|
 | 80 PLUS (Standard) | – | 80 % | 80 % | 80 % |
 | Bronze | – | 82 % | 85 % | 82 % |
 | Silver | – | 85 % | 88 % | 85 % |
-| **Gold** | – | 87 % | **90 %** | 87 % |
+| Gold | – | 87 % | 90 % | 87 % |
 | Platinum | – | 90 % | 92 % | 89 % |
 | Titanium | 90 % | 92 % | 94 % | 90 % |
 
-Für das europäische 230-V-Netz gibt es eine eigene Variante („230V EU Internal“) mit jeweils etwas höheren Anforderungen. Wichtig fürs Verständnis:
+**So liest du die Tabelle (3 Schritte):**
+1. **Auslastung bestimmen:** abgegebene Leistung ÷ Nennleistung, z. B. 325 W ÷ 650 W = 0,5 = **50 %**.
+2. **Mindestwirkungsgrad ablesen:** Zeile der Stufe, Spalte der Auslastung (Gold, 50 % → **92 %**).
+3. **Aufgenommene Leistung:** P_zu = P_ab ÷ η = 325 W ÷ 0,92 ≈ **353,26 W**.
+
+In der Prüfung gilt immer die Tabelle **im Beleg**. Steht keine dabei, nimm für Deutschland die 230-V-Tabelle. Wichtig fürs Verständnis:
 - Der Wirkungsgrad hängt von der **Auslastung** ab – das Maximum liegt meist um **50 %**.
 - Bei sehr geringer Last (Büro-PC mit 750-W-Netzteil im Leerlauf bei 40 W ≈ 5 % Last) ist der Wirkungsgrad deutlich schlechter.
 
@@ -273,12 +336,27 @@ Für das europäische 230-V-Netz gibt es eine eigene Variante („230V EU Intern
             explanation: 'P_zu = 180 W / 0,87 = **206,9 W** (Verlust ≈ 26,9 W).',
           },
         },
+        {
+          type: 'example',
+          title: 'Beispiel 2: Aufgenommene Leistung aus der 80-PLUS-Tabelle',
+          problem: `Ein Büro-PC hat ein **650-W-Netzteil, 80 PLUS Gold** (230 V EU). Unter Last brauchen die Komponenten **325 W**. Wie viel Leistung nimmt das Netzteil höchstens aus der Steckdose auf, und wie groß ist die Verlustleistung?`,
+          steps: [
+            { label: 'Auslastung', body: '325 W ÷ 650 W = 0,5 → **50 % Last**' },
+            { label: 'Tabelle', body: '230-V-EU-Tabelle, Zeile Gold, Spalte 50 % → **η = 92 % = 0,92**' },
+            { label: 'Aufnahme', body: 'P_zu = P_ab ÷ η = 325 W ÷ 0,92 = **353,26 W**' },
+            { label: 'Verlust', body: 'P_V = 353,26 W − 325 W = **28,26 W** (wird zu Wärme)' },
+          ],
+          result: 'Höchstens ≈ 353,3 W aus dem Netz; ≈ 28,3 W Verlustleistung. Häufiger Fehler: 325 W · 0,92 = 299 W – dann käme weniger heraus, als abgegeben wird.',
+        },
         { type: 'practice', title: 'Übung: Wirkungsgrad', generator: 'hw.wirkungsgrad', count: 4, difficulty: 2 },
+        { type: 'practice', title: 'Übung: 80-PLUS-Tabelle anwenden', generator: 'hw.80plus', count: 3, difficulty: 2 },
+        { type: 'practice', title: 'Übung: 80 PLUS mit Beleg', questionIds: ['h04-q036', 'h04-q037'], count: 2, difficulty: 2 },
         {
           type: 'summary',
           points: [
             'η = P_ab / P_zu; P_zu = P_ab / η; Verlust = P_zu − P_ab.',
-            '80 PLUS Bronze … Titanium: höhere Stufe = höherer Mindestwirkungsgrad.',
+            '80 PLUS Bronze … Titanium: höhere Stufe = höherer Mindestwirkungsgrad; in Deutschland gilt die 230-V-EU-Tabelle (Gold bei 50 % Last: 92 %).',
+            'Tabelle lesen: Auslastung = P_ab ÷ Nennleistung → η ablesen → P_zu = P_ab ÷ η.',
             'Effizienzmaximum meist um 50 % Last.',
             'Verlustwärme muss zusätzlich gekühlt werden.',
           ],
@@ -292,6 +370,9 @@ Für das europäische 230-V-Netz gibt es eine eigene Variante („230V EU Intern
       minutes: 15,
       relevance: 'ap1',
       skills: ['hw.energy.labels'],
+      simple: `Prüf- und Umweltzeichen sind wie Siegel auf Lebensmitteln: Jedes verspricht etwas anderes. Das **EU-Energielabel** (Klassen A bis G) ist bei Monitoren Pflicht und zeigt den Verbrauch. Der **Blaue Engel** ist das deutsche Umweltzeichen, **TCO Certified** prüft zusätzlich Ergonomie und faire Arbeitsbedingungen in der Herstellung. Das **CE**-Zeichen ist dagegen nur ein Versprechen des Herstellers selbst – niemand Unabhängiges hat geprüft. Das **GS**-Zeichen („geprüfte Sicherheit“) vergibt eine unabhängige Prüfstelle wie der TÜV.
+
+**Merke:** CE = Erklärung des Herstellers, kein Prüfzeichen; TCO Certified = auch soziale Kriterien; Blauer Engel = deutsches Umweltzeichen.`,
       steps: [
         {
           type: 'explain',
@@ -371,6 +452,9 @@ Für das europäische 230-V-Netz gibt es eine eigene Variante („230V EU Intern
       minutes: 20,
       relevance: 'ap1',
       skills: ['hw.ups.types'],
+      simple: `Eine **USV** (unterbrechungsfreie Stromversorgung) ist wie eine Powerbank für den Server: Fällt der Strom aus, liefern Akkus sofort weiter. So bleibt Zeit, die Server sauber herunterzufahren, damit keine Daten kaputtgehen. Die **Offline-USV** (VFD) springt erst bei einem Ausfall ein. Die **Line-interactive-USV** (VI) gleicht zusätzlich zu hohe oder zu niedrige Spannung aus. Die **Online-USV** (VFI) erzeugt den Strom ständig selbst neu – wie ein Fahrer, der immer am Steuer sitzt, statt erst im Notfall zu übernehmen.
+
+**Merke:** VFD → VI → VFI = immer mehr Schutz; nur die Online-USV (VFI) arbeitet ohne Umschaltzeit (0 ms).`,
       steps: [
         {
           type: 'explain',
@@ -451,6 +535,9 @@ Merkhilfe: **VFD → VI → VFI** = Schutz nimmt zu, Preis und Eigenverbrauch au
       minutes: 25,
       relevance: 'ap1',
       skills: ['hw.ups.sizing'],
+      simple: `Bei Wechselstrom gibt es zwei Leistungsangaben. **Watt** (W, Wirkleistung) ist das, was die Geräte wirklich nutzen. **Voltampere** (VA, Scheinleistung) ist das, was Leitung und USV tatsächlich liefern müssen. Stell dir ein Glas Bier vor: Das Bier ist die Wirkleistung, Bier plus Schaum ist die Scheinleistung – das Glas muss für beides groß genug sein. Das Verhältnis heißt **Leistungsfaktor**: cos φ = W ÷ VA. Eine USV hat deshalb **zwei** Grenzen, und beide müssen passen.
+
+**Merke:** S = P ÷ cos φ und P = S · cos φ – immer die W-Grenze **und** die VA-Grenze der USV prüfen.`,
       steps: [
         {
           type: 'explain',
@@ -478,7 +565,14 @@ USV-Datenblätter nennen oft beide Werte, z. B. „1.500 VA / 900 W“ (cos φ =
 > Akkuenergie in Wh = Spannung · Kapazität (V · Ah) · Anzahl Akkus
 > t = (Akkuenergie · η_Wechselrichter) / Last in W  → Stunden (· 60 = Minuten)
 
-In der Praxis ist die Zeit kürzer (bei hoher Last geben Bleiakkus weniger Energie ab, Alterung, Entladeschluss). Verbindlich sind die **Laufzeittabellen des Herstellers** – die Rechnung dient der groben Abschätzung.`,
+In der Praxis ist die Zeit kürzer (bei hoher Last geben Bleiakkus weniger Energie ab, Alterung, Entladeschluss). Verbindlich sind die **Laufzeittabellen des Herstellers** – die Rechnung dient der groben Abschätzung.
+
+**Eine vorhandene USV prüfen** (umgekehrte Richtung): Gegeben sind das USV-Datenblatt, z. B. **1.500 VA / 900 W**, und die Last, z. B. **700 W** bei einem Leistungsfaktor der Geräte von **cos φ = 0,9**.
+1. **W-Grenze:** 700 W ÷ 900 W = 0,778 → **77,8 %** ausgelastet.
+2. **VA-Grenze:** Scheinleistung der Last S = 700 W ÷ 0,9 = 777,8 VA → 777,8 VA ÷ 1.500 VA → **51,9 %** ausgelastet.
+3. **Maßgeblich ist die stärker ausgelastete Grenze** (hier die W-Grenze mit 77,8 %). Liegen beide unter 100 %, reicht die USV. Ob genug **Reserve** bleibt (20–30 %), musst du zusätzlich bewerten.
+
+Bei Geräten mit niedrigem cos φ (z. B. ältere Netzteile ohne PFC) kann umgekehrt zuerst die **VA-Grenze** erreicht sein. Deshalb immer **beide** prüfen.`,
         },
         {
           type: 'example',
@@ -515,13 +609,14 @@ In der Praxis ist die Zeit kürzer (bei hoher Last geben Bleiakkus weniger Energ
           },
         },
         { type: 'practice', title: 'Übung: USV dimensionieren', generator: 'hw.usv', count: 4, difficulty: 2 },
-        { type: 'practice', title: 'Übung: USV mit Belegen', questionIds: ['h04-q017', 'h04-q018', 'h04-q019'], count: 3, difficulty: 3 },
+        { type: 'practice', title: 'Übung: USV prüfen (VA- und W-Grenze)', generator: 'hw.usvcheck', count: 3, difficulty: 2 },
+        { type: 'practice', title: 'Übung: USV mit Belegen', questionIds: ['h04-q017', 'h04-q018', 'h04-q019', 'h04-q038', 'h04-q039'], count: 4, difficulty: 3 },
         {
           type: 'summary',
           points: [
             'P (W) = Wirkleistung, S (VA) = Scheinleistung; cos φ = P / S.',
             'S = P / cos φ – Reserve einplanen, aufrunden, nächstes Modell wählen.',
-            'W- und VA-Grenze der USV beide einhalten.',
+            'W- und VA-Grenze der USV beide einhalten – USV prüfen: Auslastung W = P ÷ W_USV, Auslastung VA = (P ÷ cos φ) ÷ VA_USV; der größere Wert zählt.',
             't ≈ (Wh · η) / W – Herstellertabellen sind verbindlich.',
           ],
         },
@@ -534,6 +629,9 @@ In der Praxis ist die Zeit kürzer (bei hoher Last geben Bleiakkus weniger Energ
       minutes: 20,
       relevance: 'ap1',
       skills: ['hw.green.it', 'hw.green.disposal'],
+      simple: `**Green IT** heißt: IT so planen und betreiben, dass möglichst wenig Strom und Rohstoffe verbraucht werden – vom Kauf bis zur Entsorgung. Wer Geräte ausschaltet, Server zusammenlegt (Virtualisierung) oder Geräte länger nutzt, spart Geld **und** CO₂ (das Klimagas aus der Stromerzeugung). Wie viel CO₂ eine kWh verursacht, steht als **Emissionsfaktor** in der Aufgabe, weil er sich jedes Jahr ändert. Alte Geräte gehören nicht in den Hausmüll: Wie bei einem Umzug erst ausräumen (Daten sicher löschen, Akkus raus), dann beim Entsorger abgeben.
+
+**Merke:** Einsparung = ΔP · t; CO₂ = kWh · Faktor (g ÷ 1.000 = kg); vor der Entsorgung Daten löschen und Akkus entnehmen.`,
       steps: [
         {
           type: 'explain',
@@ -609,12 +707,45 @@ In der Praxis ist die Zeit kürzer (bei hoher Last geben Bleiakkus weniger Energ
             explanation: 'Weiterverwendung prüfen → Daten löschen → Akkus → zertifizierte Entsorgung → Nachweis.',
           },
         },
-        { type: 'practice', title: 'Übung: Green IT und Entsorgung', questionIds: ['h04-q021', 'h04-q022', 'h04-q023', 'h04-q024', 'h04-q025'], count: 5, difficulty: 2 },
+        {
+          type: 'explain',
+          title: 'Einsparung in Zahlen: kWh, Euro und CO₂',
+          body: `Bei einer Energieberatung rechnest du meist drei Zahlen aus:
+
+| Größe | Formel | Einheit |
+|---|---|---|
+| Eingesparte Energie | ΔE = ΔP · t (ΔP = alte Leistung − neue Leistung) | Wh → ÷ 1.000 → kWh |
+| Eingesparte Kosten | ΔE · Strompreis | € |
+| Eingespartes CO₂ | ΔE · **Emissionsfaktor** | g → ÷ 1.000 → kg → ÷ 1.000 → t |
+
+**Emissionsfaktor:** So viel Gramm CO₂ entstehen im Mittel bei der Erzeugung einer Kilowattstunde Strom. Der Wert hängt vom Strommix ab (Kohle, Gas, Wind, Sonne) und **ändert sich jedes Jahr**. In Aufgaben steht er deshalb immer dabei, z. B. „angenommen 400 g CO₂/kWh“. Rechne mit genau diesem Wert.
+
+**Zweistufige Maßnahmen – typische Falle:** Erst wird die Hardware getauscht (weniger Leistung), dann läuft die **neue** Hardware zusätzlich kürzer. Die zweite Einsparung rechnest du mit der **neuen** Leistung. Wer hier die alte Leistung nimmt, zählt einen Teil der Einsparung doppelt.
+
+**PUE** (siehe oben) hilft beim Rechenzentrum: Bei PUE 1,5 kostet jede kWh IT-Energie insgesamt 1,5 kWh – spart die IT eine kWh, sinken auch Kühlung und Verluste mit.`,
+        },
+        {
+          type: 'example',
+          title: 'Beispiel: CO₂-Einsparung einer Testumgebung',
+          problem: `Eine Testumgebung nimmt **2.000 W** auf und läuft 24/7 (8.760 h). (1) Neue Hardware braucht nur **900 W**. (2) Zusätzlich läuft die neue Umgebung nur noch **Mo–Fr je 10 h** (52 Wochen), sonst ist sie aus. Strompreis 30 ct/kWh, Emissionsfaktor **angenommen 400 g CO₂/kWh**. Wie viel Energie, Geld und CO₂ sparen beide Maßnahmen zusammen pro Jahr?`,
+          steps: [
+            { label: 'Maßnahme 1', body: 'ΔP = 2.000 W − 900 W = 1.100 W; 1.100 W · 8.760 h = 9.636.000 Wh = **9.636 kWh**' },
+            { label: 'Laufzeit neu', body: '5 · 10 h · 52 = **2.600 h** Betrieb → ausgeschaltet: 8.760 h − 2.600 h = **6.160 h**' },
+            { label: 'Maßnahme 2', body: 'Mit der **neuen** Leistung: 900 W · 6.160 h = 5.544.000 Wh = **5.544 kWh**' },
+            { label: 'Summe Energie', body: '9.636 kWh + 5.544 kWh = **15.180 kWh**' },
+            { label: 'Kosten', body: '15.180 kWh · 0,30 €/kWh = **4.554,00 €**' },
+            { label: 'CO₂', body: '15.180 kWh · 400 g/kWh = 6.072.000 g = **6.072 kg ≈ 6,07 t CO₂**' },
+          ],
+          result: '15.180 kWh, 4.554 € und rund 6,07 t CO₂ pro Jahr. Häufiger Fehler: Maßnahme 2 mit 2.000 W rechnen.',
+        },
+        { type: 'practice', title: 'Übung: Einsparung und CO₂', generator: 'hw.co2', count: 3, difficulty: 2 },
+        { type: 'practice', title: 'Übung: Green IT und Entsorgung', questionIds: ['h04-q021', 'h04-q022', 'h04-q023', 'h04-q024', 'h04-q025', 'h04-q040', 'h04-q041'], count: 5, difficulty: 2 },
         {
           type: 'summary',
           points: [
             'Energiesparpläne (S3/S4), Ausschalten, sparsame Geräte, Duplexdruck, längere Nutzung.',
             'Virtualisierung/Konsolidierung; PUE = Gesamtenergie / IT-Energie.',
+            'CO₂ = eingesparte kWh · Emissionsfaktor aus der Aufgabe (g → kg ÷ 1.000); bei zwei Maßnahmen die zweite mit der neuen Leistung rechnen.',
             'ElektroG/WEEE: nicht in den Hausmüll; Rücknahme 1:1 / 0:1 im Handel; B2B über Entsorgungsfachbetrieb.',
             'Vor der Abgabe: Akkus entnehmen, Daten sicher löschen, Nachweis dokumentieren.',
           ],
@@ -883,6 +1014,96 @@ In der Praxis ist die Zeit kürzer (bei hoher Last geben Bleiakkus weniger Energ
         '3': { why: 'Netzwerksicherheit ist Aufgabe von Firewall & Co.', error: 'usv-zweck' },
       },
       explanation: 'USV = Verfügbarkeit und Schutz vor Datenverlust bei Stromproblemen.',
+    },
+    {
+      id: 'h04-q032', kind: 'number', skill: 'hw.energy.power', difficulty: 1,
+      prompt: `Das Stromnetz in Deutschland arbeitet mit **50 Hz**. Wie lange dauert **eine** Schwingung (Periodendauer T) in **Millisekunden**?`,
+      answer: 20, unit: 'ms',
+      hints: ['T = 1 ÷ f', '1 s = 1.000 ms'],
+      misconceptions: [{ answer: '0.02', error: 'einheit-umrechnung', why: '0,02 s ist richtig gerechnet, gefragt sind aber **Millisekunden**: 0,02 s · 1.000 = 20 ms.' }, { answer: '50', error: 'periodendauer-frequenz', why: '50 ist die Frequenz (Schwingungen pro Sekunde). Die Dauer einer Schwingung ist der Kehrwert: T = 1 ÷ f.' }],
+      explanation: '**20 ms.** T = 1 ÷ f = 1 ÷ 50 Hz = 0,02 s = **20 ms**. Häufiger Fehler: Frequenz und Periodendauer verwechseln – f sagt, wie oft pro Sekunde, T sagt, wie lange eine Schwingung dauert.',
+    },
+    {
+      id: 'h04-q033', kind: 'number', skill: 'hw.energy.power', difficulty: 2,
+      prompt: `Im Netzwerkraum in Berlin hängen **6 Server** mit je **450 W** an **einem** Außenleiter (230 V gegen N, cos φ = 1). Welcher Strom fließt in diesem Außenleiter? (in A, zwei Nachkommastellen)`,
+      answer: 11.74, tolerance: 0.01, unit: 'A',
+      hints: ['Erst die Gesamtleistung bilden.', 'I = P ÷ U'],
+      misconceptions: [{ answer: '1.96', error: 'energie-anzahl-vergessen', why: 'Das ist der Strom **eines** Servers (450 W ÷ 230 V). Es hängen 6 Server an der Phase.' }, { answer: '6.75', error: 'drehstrom-400v', why: 'Mit 400 V gerechnet. Zwischen Außenleiter und N liegen 230 V – nur zwischen zwei Außenleitern sind es 400 V.' }],
+      explanation: '**≈ 11,74 A.** Gesamtleistung 6 · 450 W = 2.700 W; I = P ÷ U = 2.700 W ÷ 230 V = 11,739 A ≈ **11,74 A**. Ein 16-A-Stromkreis reicht, die Reserve ist aber gering. Häufiger Fehler: 400 V einsetzen – die gelten nur zwischen zwei Außenleitern.',
+    },
+    {
+      id: 'h04-q034', kind: 'free', skill: 'hw.energy.power', difficulty: 3,
+      prompt: `Im Serverraum der Elektro Krämer GmbH sollen **9 Server mit je 450 W** betrieben werden. Es gibt einen Drehstromanschluss mit drei Außenleitern (L1, L2, L3); jeder Steckdosenstromkreis ist mit **16 A** abgesichert. Ein Kollege will alle Server über eine Steckdosenleiste an L1 anschließen. Prüfe das rechnerisch und schlage eine bessere Verteilung vor.`,
+      modelAnswer: 'Alle 9 Server an L1: P = 9 · 450 W = 4.050 W; I = 4.050 W ÷ 230 V ≈ 17,61 A. Das ist mehr als 16 A – die Sicherung würde unter Volllast auslösen. Besser: die Last gleichmäßig auf die drei Außenleiter verteilen, je 3 Server pro Phase: 3 · 450 W = 1.350 W → I = 1.350 W ÷ 230 V ≈ 5,87 A je Phase. So bleibt genug Reserve. Server mit zwei Netzteilen an zwei verschiedene Stromkreise/Phasen anschließen (A/B-Versorgung), damit ein ausgelöster Stromkreis nicht alle Server abschaltet. Steckdosenleisten nicht hintereinanderstecken. Neue Stromkreise oder Änderungen am Verteiler plant und installiert eine Elektrofachkraft.',
+      keywords: ['4.050 W', '17,61 A', '16 A', 'Phasen verteilen', '5,87 A', 'zwei Netzteile', 'Elektrofachkraft'],
+      hints: ['Gesamtleistung bilden, dann I = P ÷ U mit 230 V.', 'Was passiert, wenn du die Server auf drei Außenleiter verteilst?'],
+      explanation: 'An einer Phase: 4.050 W ÷ 230 V ≈ 17,61 A > 16 A → nicht zulässig. Auf drei Phasen verteilt: je 1.350 W ÷ 230 V ≈ 5,87 A. Häufiger Fehler: mit 400 V rechnen – eine Steckdose hat 230 V.',
+    },
+    {
+      id: 'h04-q035', kind: 'table', skill: 'hw.energy.cost', difficulty: 3,
+      prompt: `Für den Empfang sollen zwei Multifunktionsdrucker verglichen werden.\n\n**Beleg – Betriebsprofil und Datenblattwerte:**\n\n| | Drucker A | Drucker B |\n|---|---|---|\n| Betrieb (Montag bis Freitag, je 10 h) | 35 W | 28 W |\n| Bereitschaft (restliche Stunden der Woche) | 4 W | 1 W |\n\nRechne mit **52 Wochen** (1 Woche = 168 h) und **32 ct/kWh**. Trage die Energie pro Jahr (kWh, zwei Nachkommastellen) und die Kosten pro Jahr (€, auf Cent) ein.`,
+      columns: [{ key: 'kwh', label: 'Energie (kWh/Jahr)', type: 'number' }, { key: 'eur', label: 'Kosten (€/Jahr)', type: 'number' }],
+      rows: [
+        { label: 'Drucker A', cells: { kwh: { answer: '115.54', accept: ['115,54', '115.544', '115,544', '115.5', '115,5'] }, eur: { answer: '36.97', accept: ['36,97'] } } },
+        { label: 'Drucker B', cells: { kwh: { answer: '78.94', accept: ['78,94', '78.936', '78,936', '78.9', '78,9'] }, eur: { answer: '25.26', accept: ['25,26'] } } },
+      ],
+      misconceptions: [{ cell: 'kwh', answer: '91', error: 'energie-standby-vergessen', why: 'Das ist nur die Betriebsenergie von Drucker A. Die Bereitschaft (6.136 h · 4 W) fehlt.' }],
+      hints: ['Betrieb pro Woche 5 · 10 h = 50 h, Bereitschaft 168 h − 50 h = 118 h.', 'Pro Jahr · 52: 2.600 h Betrieb, 6.136 h Bereitschaft.'],
+      explanation: '**A: 115,54 kWh / 36,97 € · B: 78,94 kWh / 25,26 €.** Stunden: Betrieb 50 h · 52 = 2.600 h; Bereitschaft 118 h · 52 = 6.136 h. A: 35 W · 2.600 h = 91 kWh plus 4 W · 6.136 h = 24,544 kWh → 115,544 kWh · 0,32 € = 36,97 €. B: 28 W · 2.600 h = 72,8 kWh plus 1 W · 6.136 h = 6,136 kWh → 78,936 kWh · 0,32 € = 25,26 €. Häufiger Fehler: Bereitschaft vergessen – bei A ist das gut ein Fünftel des Verbrauchs.',
+    },
+    {
+      id: 'h04-q036', kind: 'table', skill: 'hw.energy.efficiency', difficulty: 2,
+      prompt: `**Beleg: 80 PLUS – Mindestwirkungsgrade (230 V EU, interne Netzteile)**\n\n| Stufe | 10 % Last | 20 % Last | 50 % Last | 100 % Last |\n|---|---|---|---|---|\n| Bronze | – | 85 % | 88 % | 85 % |\n| Gold | – | 90 % | 92 % | 89 % |\n| Platinum | – | 92 % | 94 % | 90 % |\n\nErgänze für drei Netzteile die Auslastung, den Mindestwirkungsgrad laut Tabelle und die höchstens aufgenommene Leistung (W, zwei Nachkommastellen).\n\n| Netzteil | Nennleistung | abgegebene Leistung |\n|---|---|---|\n| 1 – Bronze | 500 W | 250 W |\n| 2 – Gold | 650 W | 130 W |\n| 3 – Platinum | 400 W | 400 W |`,
+      columns: [{ key: 'last', label: 'Auslastung (%)', type: 'number' }, { key: 'eta', label: 'η laut Tabelle (%)', type: 'number' }, { key: 'pzu', label: 'P_zu (W)', type: 'number' }],
+      rows: [
+        { label: 'Netzteil 1', cells: { last: { answer: '50' }, eta: { answer: '88' }, pzu: { answer: '284.09', accept: ['284,09', '284.1', '284,1'] } } },
+        { label: 'Netzteil 2', cells: { last: { answer: '20' }, eta: { answer: '90' }, pzu: { answer: '144.44', accept: ['144,44', '144.4', '144,4'] } } },
+        { label: 'Netzteil 3', cells: { last: { answer: '100' }, eta: { answer: '90' }, pzu: { answer: '444.44', accept: ['444,44', '444.4', '444,4'] } } },
+      ],
+      misconceptions: [{ cell: 'pzu', answer: '220', error: 'wirkungsgrad-multipliziert', why: '250 W · 0,88 = 220 W ist falsch: Das Netzteil nimmt mehr auf, als es abgibt – P_zu = P_ab ÷ η.' }],
+      hints: ['Auslastung = abgegebene Leistung ÷ Nennleistung · 100 %.', 'P_zu = P_ab ÷ η (η als Dezimalzahl, z. B. 0,88).'],
+      explanation: '**1: 50 % / 88 % / 284,09 W · 2: 20 % / 90 % / 144,44 W · 3: 100 % / 90 % / 444,44 W.** Netzteil 1: 250 ÷ 500 = 50 % → Bronze 88 % → 250 W ÷ 0,88 = 284,09 W. Netzteil 2: 130 ÷ 650 = 20 % → Gold 90 % → 130 W ÷ 0,90 = 144,44 W. Netzteil 3: 400 ÷ 400 = 100 % → Platinum 90 % → 400 W ÷ 0,90 = 444,44 W. Häufiger Fehler: immer die 50-%-Spalte nehmen – die Spalte hängt von der Auslastung ab.',
+    },
+    {
+      id: 'h04-q037', kind: 'number', skill: 'hw.energy.efficiency', difficulty: 2,
+      prompt: `Ein Server hat ein **1.000-W-Netzteil, 80 PLUS Titanium** (230 V EU). Nachts braucht der Server nur **100 W**. Laut Tabelle gilt bei **10 % Last** ein Mindestwirkungsgrad von **90 %**. Welche Leistung nimmt das Netzteil dabei höchstens auf? (W, eine Nachkommastelle)`,
+      answer: 111.1, tolerance: 0.1, unit: 'W',
+      misconceptions: [{ answer: '90', error: 'wirkungsgrad-multipliziert', why: 'Mit η multipliziert. Richtig: P_zu = P_ab ÷ η = 100 W ÷ 0,9.' }, { answer: '110', error: 'wirkungsgrad-prozent-aufschlag', why: '10 % Aufschlag ist nicht dasselbe wie ÷ 0,9 (das wären 11,1 %).' }],
+      explanation: '**111,1 W.** Auslastung 100 W ÷ 1.000 W = 10 % → η = 90 %. P_zu = 100 W ÷ 0,90 = 111,11 W ≈ **111,1 W**. Nur Titanium garantiert überhaupt einen Wert bei 10 % Last – wichtig für Server, die oft wenig ausgelastet sind. Häufiger Fehler: 10 % aufschlagen (110 W).',
+    },
+    {
+      id: 'h04-q038', kind: 'table', skill: 'hw.ups.sizing', difficulty: 3,
+      prompt: `**Beleg – Datenblatt der vorhandenen USV im Netzwerkschrank:** Ausgangsleistung **1.000 VA / 600 W**.\n\nNach einer Erweiterung hängen an der USV Geräte mit zusammen **550 W** (Leistungsfaktor der Geräte **cos φ = 0,95**). Prüfe beide Grenzen der USV (eine Nachkommastelle).`,
+      columns: [{ key: 'last', label: 'Last', type: 'number' }, { key: 'pct', label: 'Auslastung (%)', type: 'number' }],
+      rows: [
+        { label: 'Wirkleistung (W)', cells: { last: { given: '550' }, pct: { answer: '91.7', accept: ['91,7', '91.67', '91,67'] } } },
+        { label: 'Scheinleistung (VA)', cells: { last: { answer: '578.9', accept: ['578,9', '578.95', '578,95'] }, pct: { answer: '57.9', accept: ['57,9', '57.89', '57,89'] } } },
+      ],
+      misconceptions: [{ cell: 'pct', answer: '55', error: 'usv-va-gleich-w', why: '550 W ÷ 1.000 VA vergleicht Watt mit VA. Erst S = P ÷ cos φ berechnen.' }],
+      hints: ['Auslastung W = 550 W ÷ 600 W.', 'S = 550 W ÷ 0,95; dann ÷ 1.000 VA.'],
+      explanation: '**W-Grenze 91,7 %, VA-Grenze 57,9 %.** Wirkleistung: 550 W ÷ 600 W = 0,9167 → 91,7 %. Scheinleistung der Last: 550 W ÷ 0,95 = 578,9 VA → ÷ 1.000 VA = 57,9 %. Maßgeblich ist die W-Grenze. Die USV reicht rechnerisch noch, hat aber kaum Reserve. Häufiger Fehler: nur die VA-Angabe ansehen („1.000 VA ist doch fast das Doppelte von 550 W“).',
+    },
+    {
+      id: 'h04-q039', kind: 'free', skill: 'hw.ups.sizing', difficulty: 3,
+      prompt: `Bezug: USV im Netzwerkschrank (1.000 VA / 600 W, Last 550 W, cos φ = 0,95). Der Kollege sagt: „Passt doch, 550 W ist viel weniger als 1.000 VA.“ Beurteile die Situation und gib eine begründete Empfehlung.`,
+      modelAnswer: 'Die Aussage ist falsch begründet: VA und W darf man nicht direkt vergleichen. Die USV hat zwei Grenzen. Die Scheinleistung der Last beträgt 550 W ÷ 0,95 ≈ 579 VA (58 % von 1.000 VA). Entscheidend ist hier aber die Wirkleistungsgrenze: 550 W von 600 W sind ≈ 92 % Auslastung. Die USV reicht damit rechnerisch, es bleibt aber praktisch keine Reserve für Lastspitzen, Erweiterungen und alternde Akkus; außerdem wird die Überbrückungszeit bei hoher Last kurz. Empfehlung: eine größere USV (z. B. 1.500 VA / 1.350 W) beschaffen oder die Last aufteilen, 20–30 % Reserve einplanen und die Laufzeit in der Herstellertabelle prüfen, damit das Herunterfahren der Geräte sicher klappt.',
+      keywords: ['VA ≠ W', 'zwei Grenzen', '92 %', 'Reserve', 'Überbrückungszeit', 'größere USV'],
+      explanation: 'Maßgeblich ist die W-Grenze (≈ 92 %). Rechnerisch ok, aber ohne Reserve → größere USV empfehlen.',
+    },
+    {
+      id: 'h04-q040', kind: 'number', skill: 'hw.green.it', difficulty: 2,
+      prompt: `Am Standort Hamburg werden **5 Switches** ersetzt. Alt: je **120 W**, neu: je **65 W**. Alle laufen 24/7 (8.760 h im Jahr). Rechne mit einem **angenommenen Emissionsfaktor von 380 g CO₂/kWh**. Wie viel **kg CO₂** spart der Tausch pro Jahr? (eine Nachkommastelle)`,
+      answer: 915.4, tolerance: 0.1, unit: 'kg',
+      hints: ['ΔP = 5 · (120 W − 65 W).', 'ΔE in kWh · 380 g/kWh → g → ÷ 1.000 = kg.'],
+      misconceptions: [{ answer: '915420', error: 'co2-g-kg', why: 'Das sind Gramm – durch 1.000 teilen.' }, { answer: '2409', error: 'co2-faktor-vergessen', why: 'Das ist die eingesparte Energie in kWh. Noch mit 380 g/kWh multiplizieren.' }, { answer: '183.1', error: 'energie-anzahl-vergessen', why: 'Das ist ein Switch. Es werden 5 getauscht.' }],
+      explanation: '**915,4 kg CO₂.** ΔP = 5 · (120 W − 65 W) = 275 W; ΔE = 275 W · 8.760 h = 2.409.000 Wh = 2.409 kWh; CO₂ = 2.409 kWh · 380 g/kWh = 915.420 g ≈ **915,4 kg**. Häufiger Fehler: in Gramm stehen bleiben.',
+    },
+    {
+      id: 'h04-q041', kind: 'free', skill: 'hw.green.it', difficulty: 2,
+      prompt: `Die Geschäftsleitung möchte im Nachhaltigkeitsbericht angeben, wie viel CO₂ der Austausch der Server-Hardware einspart. Erläutere, wie du die Einsparung berechnest und warum das Ergebnis nur eine Abschätzung ist.`,
+      modelAnswer: 'Rechenweg: 1. Leistungsdifferenz ΔP = alte minus neue Leistungsaufnahme (Messung oder Datenblatt). 2. Betriebszeit t aus dem Betriebsprofil (z. B. 8.760 h bei 24/7). 3. Eingesparte Energie ΔE = ΔP · t, umgerechnet in kWh. 4. CO₂-Einsparung = ΔE · Emissionsfaktor (g CO₂ pro kWh), Ergebnis in kg bzw. t. Bei Rechenzentren zusätzlich den PUE-Wert berücksichtigen, weil auch Kühlung und USV-Verluste sinken. Abschätzung, weil: der Emissionsfaktor ein Durchschnittswert des Strommixes ist und sich jedes Jahr ändert (bei Ökostrom anders bewertet), die Leistungsaufnahme mit der Auslastung schwankt, Datenblattwerte oft Maximalwerte sind und die Herstellung der neuen Geräte selbst CO₂ verursacht (graue Energie), die in dieser Rechnung fehlt.',
+      keywords: ['ΔP', 'Betriebszeit', 'kWh', 'Emissionsfaktor', 'Strommix', 'ändert sich', 'Herstellung', 'PUE'],
+      explanation: 'ΔE = ΔP · t; CO₂ = ΔE · Faktor. Faktor, Auslastung und Herstellung machen das Ergebnis zur Abschätzung.',
     },
   ],
 };

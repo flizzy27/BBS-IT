@@ -9,7 +9,7 @@ export const w03: Module = {
   icon: 'Calculator',
   relevance: 'ap1',
   prerequisites: ['w02'],
-  generators: ['w.angebotspreis', 'w.dienstleistung', 'w.kaufleasing', 'w.amortisation', 'w.afa'],
+  generators: ['w.angebotspreis', 'w.dienstleistung', 'w.kaufleasing', 'w.amortisation', 'w.afa', 'w.kalkulation', 'w.handelsspanne', 'w.stundensatz', 'w.finanzierung', 'w.tarif', 'w.roi', 'w.veraenderung', 'w.makeorbuy', 'w.sollist'],
   skills: [
     { id: 'w.umsatzsteuer', module: 'w03', title: 'Umsatzsteuer: netto, brutto, Vorsteuer' },
     { id: 'w.handelskalkulation', module: 'w03', title: 'Verkaufspreis kalkulieren (Handelskalkulation)', requires: ['w.umsatzsteuer', 'w.bezugskalkulation'] },
@@ -18,6 +18,12 @@ export const w03: Module = {
     { id: 'w.amortisation', module: 'w03', title: 'Amortisation und kritische Menge', requires: ['w.kaufleasing'] },
     { id: 'w.abschreibung', module: 'w03', title: 'Abschreibung (AfA) und geringwertige Wirtschaftsgüter' },
     { id: 'w.tco', module: 'w03', title: 'Total Cost of Ownership (Gesamtkosten)', requires: ['w.kaufleasing'] },
+    { id: 'w.handelsspanne', module: 'w03', title: 'Kalkulationszuschlag, Handelsspanne und Kalkulationsfaktor', requires: ['w.handelskalkulation'] },
+    { id: 'w.stundensatz', module: 'w03', title: 'Stundensatz und Minutensatz herleiten', requires: ['w.dienstleistungsangebot'] },
+    { id: 'w.finanzierung', module: 'w03', title: 'Darlehen und Leasing vergleichen', requires: ['w.kaufleasing'] },
+    { id: 'w.tarifvergleich', module: 'w03', title: 'Tarife vergleichen und Break-even bestimmen' },
+    { id: 'w.roi', module: 'w03', title: 'ROI (Kapitalrendite) berechnen', requires: ['w.amortisation'] },
+    { id: 'w.prozentvergleich', module: 'w03', title: 'Prozentuale Veränderung und Soll-Ist-Vergleich' },
   ],
   lessons: [
     /* ------------------------------------------------------------ */

@@ -9,7 +9,7 @@ export const h01: Module = {
   icon: 'Cpu',
   relevance: 'ap1',
   prerequisites: [],
-  generators: ['hw.ram'],
+  generators: ['hw.ram', 'hw.netzteil'],
   skills: [
     { id: 'hw.pc.devices', module: 'h01', title: 'Geräteklassen unterscheiden und zuordnen' },
     { id: 'hw.pc.mainboard', module: 'h01', title: 'Mainboard, Formfaktoren, Chipsatz und PCIe' },

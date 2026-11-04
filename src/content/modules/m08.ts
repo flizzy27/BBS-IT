@@ -20,8 +20,11 @@ export const m08: Module = {
     { id: 'vlan.routing', module: 'm08', title: 'Inter-VLAN-Routing (Router-on-a-Stick, Layer-3-Switch)', requires: ['vlan.trunk'] },
     { id: 'switch.stp', module: 'm08', title: 'Spanning Tree: Schleifen vermeiden', requires: ['switch.function'] },
     { id: 'switch.lacp', module: 'm08', title: 'Link Aggregation (LACP)', requires: ['switch.function'] },
+    { id: 'mac.oui', module: 'm08', title: 'OUI aus Hex- und Binärdarstellung bestimmen', requires: ['mac.address', 'bin.bin2dec'] },
+    { id: 'switch.select', module: 'm08', title: 'Switch nach Datenblatt auswählen (managed/unmanaged, Ports, PoE)', requires: ['switch.function'] },
+    { id: 'switch.poebudget', module: 'm08', title: 'PoE-Budget berechnen (PSE vs. PD)', requires: ['switch.select'] },
   ],
-  generators: [],
+  generators: ['mac.oui', 'switch.poebudget', 'switch.select'],
   lessons: [
     /* ------------------------------------------------------------------ */
     {
@@ -29,7 +32,14 @@ export const m08: Module = {
       title: 'MAC-Adressen und Zustellarten',
       minutes: 20,
       relevance: 'ap1',
-      skills: ['mac.address', 'mac.casting'],
+      skills: ['mac.address', 'mac.casting', 'mac.oui'],
+      simple: `Die **MAC-Adresse** ist wie der Name am Klingelschild: Sie sagt, welches Gerät hier im Haus (im lokalen Netz) gemeint ist.
+Die IP-Adresse ist dagegen die Postanschrift, die bis zum Ziel gilt.
+Eine MAC-Adresse hat **48 Bit** und wird als 12 Hexadezimalziffern geschrieben, z. B. 00:1A:2B:3C:4D:5E.
+Die ersten 3 Byte (**OUI**, Herstellerkennung) verraten den Hersteller, die letzten 3 Byte nummeriert der Hersteller selbst.
+FF:FF:FF:FF:FF:FF ist der Broadcast – die Durchsage an alle.
+
+**Merke:** MAC = 48 Bit, erste 24 Bit = OUI (Hersteller), Broadcast = FF:FF:FF:FF:FF:FF.`,
       steps: [
         {
           type: 'explain',
@@ -77,6 +87,38 @@ Praktischer Trick: Ist die **zweite Hex-Ziffer ungerade** (1, 3, 5, 7, 9, B, D, 
         },
         {
           type: 'explain',
+          title: 'Die OUI zwischen Hex und Binär umrechnen',
+          body: `In Herstellerlisten oder Datenblättern steht die OUI manchmal **binär**, die MAC-Adresse im \`ipconfig /all\` aber **hexadezimal**. Um beides zu vergleichen, musst du umrechnen. Das ist einfacher, als es aussieht, denn:
+
+> **Eine Hex-Ziffer = genau 4 Bit** (ein *Nibble*). Ein Byte = 2 Hex-Ziffern = 8 Bit. Die OUI (3 Byte) = 6 Hex-Ziffern = 24 Bit.
+
+Du rechnest also **jede Hex-Ziffer einzeln** mit den Stellenwerten **8 – 4 – 2 – 1** um:
+
+| Hex | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | A | B | C | D | E | F |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| Dezimal | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 |
+| Binär | 0000 | 0001 | 0010 | 0011 | 0100 | 0101 | 0110 | 0111 | 1000 | 1001 | 1010 | 1011 | 1100 | 1101 | 1110 | 1111 |
+
+**Hex → Binär**, Beispiel OUI \`3C-5A-B4\`:
+
+| Hex-Ziffer | 3 | C | 5 | A | B | 4 |
+|---|---|---|---|---|---|---|
+| Wert | 3 = 2 + 1 | 12 = 8 + 4 | 5 = 4 + 1 | 10 = 8 + 2 | 11 = 8 + 2 + 1 | 4 |
+| Binär | 0011 | 1100 | 0101 | 1010 | 1011 | 0100 |
+
+→ \`00111100 01011010 10110100\`
+
+**Binär → Hex:** Die 24 Bit von **links** in Vierergruppen teilen und jede Gruppe in eine Hex-Ziffer umwandeln. Beispiel \`1010 1100 | 0001 1111 | 0110 1011\` → A C | 1 F | 6 B → **AC-1F-6B**.
+
+**Typische Fehler:**
+- die **letzten** drei Bytes (Gerätekennung) statt der ersten nehmen,
+- führende Nullen weglassen (\`0A\` ist \`00001010\`, nicht \`1010\`),
+- Bytes oder Bits in **umgekehrter Reihenfolge** lesen.
+
+Nebenbei siehst du im ersten Byte die beiden Sonderbits: \`3C\` = \`0011 1100\` → letztes Bit 0 (Unicast), vorletztes Bit 0 (weltweit eindeutig).`,
+        },
+        {
+          type: 'explain',
           title: 'Zustellarten: Unicast, Broadcast, Multicast (und Anycast)',
           body: `Je nachdem, **an wen** ein Frame gehen soll, unterscheidet man:
 
@@ -119,6 +161,33 @@ Zu **Anycast**: Das ist kein Ethernet-Begriff. In **IPv6** gibt es Anycast-Adres
             { label: 'OUI bestimmen', body: `Die ersten 3 Byte: \`01-00-5E\`. Dieser Bereich ist für **IPv4-Multicast** reserviert (hier: mDNS, 224.0.0.251).` },
           ],
           result: `Multicast-Adresse, OUI-Teil \`01-00-5E\` (IPv4-Multicast-Bereich).`,
+        },
+        {
+          type: 'example',
+          title: 'Hersteller aus einer binären OUI-Liste bestimmen',
+          problem: `Bei der Inventur im Lager Hamburg liegen drei Netzwerkkarten ohne Aufkleber. \`getmac\` zeigt:
+
+| Karte | MAC-Adresse |
+|---|---|
+| 1 | \`3C-5A-B4-10-22-01\` |
+| 2 | \`AC-1F-6B-00-12-9F\` |
+| 3 | \`00-1A-2B-3C-4D-5E\` |
+
+Der Anhang des Lieferanten-Datenblatts nennt die OUIs binär (Herstellernamen frei erfunden):
+
+| Hersteller | OUI (binär) |
+|---|---|
+| Nordnetz | \`0000 0000  0001 1010  0010 1011\` |
+| Elbtech | \`1010 1100  0001 1111  0110 1011\` |
+| Hansa Devices | \`0011 1100  0101 1010  1011 0100\` |
+
+Ordne jeder Karte ihren Hersteller zu.`,
+          steps: [
+            { label: '1. Nur die OUI betrachten', body: `Von jeder MAC zählen nur die **ersten drei Bytes**: Karte 1 → \`3C-5A-B4\`, Karte 2 → \`AC-1F-6B\`, Karte 3 → \`00-1A-2B\`.` },
+            { label: '2. Liste in Hex umrechnen', body: `Vierergruppen mit 8-4-2-1 lesen:\n- Nordnetz: 0000 0000 | 0001 1010 | 0010 1011 → 0 0 | 1 A | 2 B → **00-1A-2B**\n- Elbtech: 1010 1100 | 0001 1111 | 0110 1011 → A C | 1 F | 6 B → **AC-1F-6B**\n- Hansa Devices: 0011 1100 | 0101 1010 | 1011 0100 → 3 C | 5 A | B 4 → **3C-5A-B4**` },
+            { label: '3. Vergleichen', body: `Karte 1 (3C-5A-B4) = Hansa Devices · Karte 2 (AC-1F-6B) = Elbtech · Karte 3 (00-1A-2B) = Nordnetz.` },
+          ],
+          result: `Karte 1 → **Hansa Devices**, Karte 2 → **Elbtech**, Karte 3 → **Nordnetz**. Tipp: Rechne immer die **kürzere** Seite um – meist ist Binär → Hex schneller, weil du nur sechs Vierergruppen lesen musst.`,
         },
         {
           type: 'check',
@@ -164,10 +233,11 @@ Zu **Anycast**: Das ist kein Ethernet-Begriff. In **IPv6** gibt es Anycast-Adres
         {
           type: 'practice',
           title: 'Übung: MAC-Adressen und Zustellarten',
-          questionIds: ['m08-q001', 'm08-q002', 'm08-q003', 'm08-q004', 'm08-q005', 'm08-q006'],
+          questionIds: ['m08-q001', 'm08-q002', 'm08-q003', 'm08-q004', 'm08-q005', 'm08-q006', 'm08-q040', 'm08-q041', 'm08-q042'],
           count: 4,
           difficulty: 1,
         },
+        { type: 'practice', title: 'Übung: OUI umrechnen und Hersteller bestimmen', generator: 'mac.oui', count: 3, difficulty: 2 },
         {
           type: 'summary',
           points: [
@@ -176,6 +246,7 @@ Zu **Anycast**: Das ist kein Ethernet-Begriff. In **IPv6** gibt es Anycast-Adres
             'Schreibweisen: 00:1A:2B:… (Linux), 00-1A-2B-… (Windows), 001A.2B3C.4D5E (Cisco).',
             'Broadcast-MAC = FF:FF:FF:FF:FF:FF; I/G-Bit = 1 → Gruppenadresse (Multicast).',
             'Anycast ist ein IPv6-Konzept (an den nächsten von mehreren); IPv6 kennt keinen Broadcast.',
+            'OUI umrechnen: jede Hex-Ziffer = 4 Bit (8-4-2-1); immer die ersten drei Bytes vergleichen.',
           ],
         },
       ],
@@ -187,6 +258,13 @@ Zu **Anycast**: Das ist kein Ethernet-Begriff. In **IPv6** gibt es Anycast-Adres
       minutes: 25,
       relevance: 'ap1',
       skills: ['switch.function', 'switch.mactable'],
+      simple: `Ein **Switch** ist wie ein Postbote, der sich merkt, wer in welcher Wohnung wohnt.
+Bei jedem Frame (Datenrahmen) schaut er auf den Absender und notiert: „Dieses Gerät wohnt an Anschluss 3“ – das ist das **Lernen aus der Quell-MAC**.
+Für die Zustellung schaut er auf den Empfänger: Kennt er ihn, gibt er den Frame nur an diesen Anschluss (**Forwarding**).
+Kennt er ihn nicht, verteilt er den Frame an alle anderen Anschlüsse (**Flooding**).
+Alte Einträge vergisst er nach einiger Zeit wieder (**Aging**).
+
+**Merke:** Lernen aus der Quell-MAC, Weiterleiten nach der Ziel-MAC.`,
       steps: [
         {
           type: 'explain',
@@ -199,7 +277,9 @@ Anders als ein **Hub**, der jedes Signal stumpf an alle Ports verteilt, stellt e
 - sieht ein PC nicht den Datenverkehr der anderen,
 - steigt die nutzbare Bandbreite deutlich.
 
-Ein neuer Switch kennt anfangs **keine einzige** MAC-Adresse. Er lernt sie automatisch – man muss nichts konfigurieren (*Plug and Play*).`,
+Ein neuer Switch kennt anfangs **keine einzige** MAC-Adresse. Er lernt sie automatisch – man muss nichts konfigurieren (*Plug and Play*).
+
+> **Hinweis zu den Begriffen:** Die MAC-Adresstabelle heißt je nach Buch oder Hersteller auch *Forwarding Table*, *Switching Table*, *Bridge Table* oder *CAM-Tabelle*. Manche Arbeitsblätter nennen sie „ARP-Tabelle des Switches“ – das ist **falsch**. Die **ARP-Tabelle** (ARP-Cache) führt ein **PC oder Router**: Sie ordnet **IP-Adressen** MAC-Adressen zu. Die **MAC-Tabelle** des Switches ordnet **MAC-Adressen Ports** zu.`,
         },
         {
           type: 'explain',
@@ -286,7 +366,7 @@ Es werden nacheinander gesendet: **(1)** A → B, **(2)** B → A, **(3)** A →
         {
           type: 'practice',
           title: 'Übung: Switch-Logik',
-          questionIds: ['m08-q007', 'm08-q008', 'm08-q009', 'm08-q010', 'm08-q011', 'm08-q012', 'm08-q013'],
+          questionIds: ['m08-q007', 'm08-q008', 'm08-q009', 'm08-q010', 'm08-q011', 'm08-q012', 'm08-q013', 'm08-q053'],
           count: 5,
           difficulty: 2,
         },
@@ -309,6 +389,12 @@ Es werden nacheinander gesendet: **(1)** A → B, **(2)** B → A, **(3)** A →
       minutes: 20,
       relevance: 'ap1',
       skills: ['switch.domains'],
+      simple: `Eine **Kollisionsdomäne** ist ein Raum, in dem immer nur einer reden darf; ein Hub macht aus allen Anschlüssen einen einzigen Raum.
+Ein Switch gibt jedem Anschluss seinen eigenen Raum – darum zählt jeder Switch-Port als eigene Kollisionsdomäne.
+Eine **Broadcastdomäne** ist das ganze Gebäude, in dem eine Lautsprecherdurchsage (Broadcast) zu hören ist.
+Erst ein Router oder ein eigenes VLAN (virtuelles, abgetrenntes Netz) beendet sie.
+
+**Merke:** Switch trennt Kollisionsdomänen, Router (und VLANs) trennen Broadcastdomänen.`,
       steps: [
         {
           type: 'explain',
@@ -417,6 +503,13 @@ Mit modernen Switches im **Vollduplex**-Betrieb gibt es praktisch keine Kollisio
       minutes: 25,
       relevance: 'ap1',
       skills: ['vlan.basics', 'vlan.access'],
+      simple: `Ein **VLAN** (Virtual LAN) teilt einen Switch in mehrere getrennte Netze – wie Trennwände, die in einem Gebäude Abteilungen abtrennen, obwohl alle unter einem Dach sind.
+Geräte in VLAN 10 hören weder die Durchsagen (Broadcasts) noch den Verkehr von VLAN 20.
+Welches VLAN ein Gerät bekommt, legt der Switch-Port fest: Ein **Access-Port** gehört genau zu einem VLAN.
+Das Endgerät merkt davon nichts.
+Zwischen VLANs kommt man nur über einen Router oder Layer-3-Switch.
+
+**Merke:** Ein VLAN = eine eigene Broadcastdomäne; Endgeräte hängen an Access-Ports.`,
       steps: [
         {
           type: 'explain',
@@ -575,6 +668,13 @@ Hinweis: Viele Switches haben ab Werk alle Ports im **VLAN 1** (Default-VLAN). A
       minutes: 25,
       relevance: 'ap1',
       skills: ['vlan.trunk'],
+      simple: `Ein **Trunk-Port** ist wie ein Lieferwagen, der Pakete für mehrere Abteilungen gleichzeitig transportiert: Auf jedem Paket klebt ein Zettel mit der Abteilungsnummer.
+Dieser Zettel heißt **Tag** (Markierung nach IEEE 802.1Q, 4 Byte groß) und enthält die VLAN-ID.
+So genügt ein einziges Kabel zwischen zwei Switches für alle VLANs.
+Am Ziel-Switch wird der Zettel gelesen und vor der Zustellung ans Endgerät wieder entfernt.
+Vorsicht: Manche Hersteller nennen das Bündeln mehrerer Kabel ebenfalls „Trunk“ oder „Trunking“ – das ist Link Aggregation, etwas ganz anderes.
+
+**Merke:** Trunk = mehrere VLANs über ein Kabel mit 802.1Q-Tag; VLAN-ID 12 Bit, nutzbar 1–4094.`,
       steps: [
         {
           type: 'explain',
@@ -589,7 +689,9 @@ Variante 2 (Standard): **ein einziges Kabel**, über das **alle VLANs** laufen. 
 |---|---|---|
 | Anzahl VLANs | genau **eins** | **mehrere** |
 | Frames | **untagged** | **tagged** (802.1Q), außer Native VLAN |
-| typisch für | PCs, Drucker, Server | Switch ↔ Switch, Switch ↔ Router, Switch ↔ Hypervisor, Multi-SSID-AP |`,
+| typisch für | PCs, Drucker, Server | Switch ↔ Switch, Switch ↔ Router, Switch ↔ Hypervisor, Multi-SSID-AP |
+
+> **Achtung, Begriffsfalle „Trunk“ vs. „Trunking“:** In diesem Modul (und bei Cisco) ist ein **Trunk** ein Port, der **mehrere VLANs getaggt** über ein Kabel transportiert. Einige Hersteller (z. B. in Weboberflächen kleinerer Switches) und manche Lehrbücher nennen dagegen das **Bündeln mehrerer Leitungen** zu einer logischen Verbindung „Trunk“ oder „Trunking“ – fachlich ist das **Link Aggregation** (LACP, IEEE 802.1AX), siehe Lektion „Redundanz“. In der Prüfung entscheidet der Zusammenhang: Geht es um **VLANs und Tags**, ist der VLAN-Trunk gemeint; geht es um **mehr Bandbreite durch mehrere Kabel**, die Link Aggregation. Im Zweifel den Begriff in der Antwort kurz erklären.`,
         },
         {
           type: 'explain',
@@ -694,7 +796,7 @@ Das ältere Cisco-eigene Verfahren **ISL** ist veraltet; heute verwendet man aus
         {
           type: 'practice',
           title: 'Übung: Trunks und 802.1Q',
-          questionIds: ['m08-q023', 'm08-q024', 'm08-q025', 'm08-q026', 'm08-q027', 'm08-q028'],
+          questionIds: ['m08-q023', 'm08-q024', 'm08-q025', 'm08-q026', 'm08-q027', 'm08-q028', 'm08-q051'],
           count: 4,
           difficulty: 2,
         },
@@ -717,6 +819,12 @@ Das ältere Cisco-eigene Verfahren **ISL** ist veraltet; heute verwendet man aus
       minutes: 20,
       relevance: 'ap1',
       skills: ['vlan.routing'],
+      simple: `VLANs sind getrennte Netze – von einem ins andere kommst du nur über einen Router, wie durch eine Tür zwischen zwei abgeschlossenen Abteilungen.
+Bei **Router-on-a-Stick** hängt ein Router mit nur einem Kabel (Trunk) am Switch und hat für jedes VLAN eine eigene virtuelle Schnittstelle (Subinterface).
+Ein **Layer-3-Switch** (ein Switch, der auch routen kann) erledigt das direkt im Gerät und ist schneller.
+Jedes VLAN hat ein eigenes IP-Netz; die Router-Adresse im VLAN ist das Gateway der Geräte dort.
+
+**Merke:** Ohne Router oder Layer-3-Switch gibt es keine Verbindung zwischen VLANs.`,
       steps: [
         {
           type: 'explain',
@@ -824,6 +932,13 @@ Oft wird zusätzlich eine **Firewall** als Gateway für bestimmte VLANs genutzt 
       minutes: 20,
       relevance: 'ap1-teilweise',
       skills: ['switch.stp', 'switch.lacp'],
+      simple: `Eine zweite Leitung zwischen zwei Switches ist wie eine Umleitung: gut, wenn die Hauptstraße gesperrt ist.
+Im Netz entsteht dadurch aber ein Kreis, in dem Broadcasts (Durchsagen an alle) endlos kreisen – ein Broadcast-Sturm legt das Netz lahm.
+**Spanning Tree (STP)** sperrt deshalb die Umleitung, bis sie wirklich gebraucht wird.
+**Link Aggregation (LACP)** macht es anders: Sie bündelt parallele Kabel zu einer breiteren Straße, alle Kabel werden gleichzeitig genutzt.
+Fällt ein Kabel aus, läuft der Verkehr über die übrigen weiter.
+
+**Merke:** STP verhindert Schleifen durch Blockieren, LACP bündelt Leitungen für mehr Bandbreite und Ausfallsicherheit.`,
       steps: [
         {
           type: 'explain',
@@ -926,6 +1041,186 @@ Typisch: Core-Switch ↔ Etagenswitch oder Switch ↔ Server/NAS mit zwei NICs.`
             'STP (IEEE 802.1D) wählt eine Root Bridge (niedrigste Bridge-ID = Priorität + MAC) und blockiert redundante Ports.',
             'Klassisches STP braucht 30–50 s zum Umschalten, RSTP (802.1w) nur wenige Sekunden.',
             'Link Aggregation/LACP (802.3ad, heute 802.1AX) bündelt Leitungen zu einer logischen Verbindung: mehr Bandbreite + Redundanz.',
+          ],
+        },
+      ],
+    },
+    /* ------------------------------------------------------------------ */
+    {
+      id: 'm08-l08',
+      title: 'Switch nach Datenblatt auswählen: managed, unmanaged, PoE-Budget',
+      minutes: 30,
+      relevance: 'ap1',
+      skills: ['switch.select', 'switch.poebudget'],
+      simple: `Einen Switch auszuwählen ist wie eine Steckdosenleiste fürs Büro zu kaufen: Sie braucht genug Steckplätze für alle Geräte – plus Reserve.
+Ein **unmanaged Switch** (nicht verwaltbar) läuft sofort, man kann aber nichts einstellen.
+Ein **managed Switch** (verwaltbar, z. B. über Weboberfläche oder SSH) beherrscht VLANs, Spanning Tree und Überwachung – das brauchst du in fast jedem Firmennetz.
+Sollen Telefone, Kameras oder Access Points ihren Strom über das Netzwerkkabel bekommen, braucht der Switch **PoE** (Power over Ethernet).
+Dann zählt das **PoE-Budget**: die Gesamtleistung, die der Switch für alle Geräte zusammen liefern kann.
+
+**Merke:** Ports + Reserve, managed für VLANs, PoE-Budget ≥ Summe der Leistungen am Switch-Port (PSE-Werte).`,
+      steps: [
+        {
+          type: 'explain',
+          title: 'Welche Switch-Klassen gibt es?',
+          body: `In der AP1 bekommst du oft **Datenblatt-Auszüge** mehrerer Geräte und sollst begründet auswählen. Dafür musst du zuerst wissen, welche Arten von Switches es gibt:
+
+| Klasse | Was kann er? | Konfiguration | typischer Einsatz |
+|---|---|---|---|
+| **Unmanaged** (nicht verwaltbar) | nur Grundfunktion: MAC-Adressen lernen und Frames weiterleiten | keine – Plug and Play | Homeoffice, kleiner Besprechungsraum, Erweiterung am Schreibtisch |
+| **Smart / Web-managed** | Grundfunktionen plus einige Einstellungen, z. B. **VLANs**, QoS (Priorisierung), Port-Statistik | nur Weboberfläche | kleine Büros mit wenigen VLANs |
+| **Managed** (verwaltbar, Layer 2) | alles Einstellbare: **VLANs (802.1Q)**, **Spanning Tree**, **Link Aggregation**, **Port-Mirroring** (Datenverkehr eines Ports zur Analyse kopieren), **SNMP** (Überwachung), Zugriffslisten, 802.1X | Web, **SSH**/Konsole (CLI), SNMP | Firmennetze, Access- und Distributionsebene |
+| **Layer-3-Switch** (Multilayer) | wie managed, zusätzlich **Routing zwischen VLANs** | wie managed | Core/Distribution, Inter-VLAN-Routing |
+
+Die Namen schwanken je Hersteller („Smart Switch“, „Easy Smart“, „Websmart“). Entscheidend ist, **welche Funktionen** im Datenblatt stehen.
+
+**Faustregel für die Prüfung:** Sobald VLANs, Überwachung oder Fernwartung gefordert sind, reicht ein unmanaged Switch **nicht**.`,
+        },
+        {
+          type: 'explain',
+          title: 'Ein Switch-Datenblatt lesen',
+          body: `Ein typischer Datenblatt-Auszug und was die Angaben bedeuten:
+
+| Angabe im Datenblatt | Beispiel | Bedeutung / worauf achten |
+|---|---|---|
+| Ports | 24 × 10/100/1000BASE-T (RJ45) | Anzahl Anschlüsse für Endgeräte, Geschwindigkeit je Port (hier bis 1 Gbit/s) |
+| Uplinks | 4 × SFP+ (10 Gbit/s) | schnelle Anschlüsse zum nächsten Switch, oft für **Glasfaser**-Module (SFP = steckbares Modul) |
+| PoE | 24 × 802.3at (PoE+) | wie viele Ports Strom liefern können und nach welchem Standard |
+| **PoE-Budget** | 370 W | **Gesamtleistung** für alle PoE-Geräte zusammen – nicht pro Port! |
+| Switching-Kapazität | 128 Gbit/s | interne Leistung; gerechnet wird **Vollduplex**, also jede Richtung einzeln |
+| MAC-Tabelle | 16.000 Einträge | wie viele Geräte der Switch sich merken kann |
+| Management | Web, SSH, SNMP, 802.1Q, STP | managed oder nicht |
+| Bauform | 19″, 1 HE / lüfterlos | Einbau im Serverschrank (HE = Höheneinheit); lüfterlos = leise, für Büros geeignet |
+
+**Rechenbeispiel Switching-Kapazität:** 24 Ports × 1 Gbit/s × 2 (Vollduplex) = 48 Gbit/s, dazu 4 Uplinks × 10 Gbit/s × 2 = 80 Gbit/s → zusammen **128 Gbit/s**. Ist dieser Wert mindestens so groß wie die Summe aller Ports (in beiden Richtungen), arbeitet der Switch **blockierungsfrei** (*non-blocking*).
+
+**Portzahl planen:** Alle Geräte zählen, die einen eigenen Port brauchen, Reserve aufschlagen (oft 20–25 %) und **aufrunden**. Dann die nächste Standardgröße wählen (8, 16, 24, 48 Ports). Beispiel: 19 Geräte × 1,2 = 22,8 → **23 Ports** → 24-Port-Switch.`,
+        },
+        {
+          type: 'explain',
+          title: 'PoE-Budget: PSE und PD nicht verwechseln',
+          body: `Bei PoE gibt es zwei Seiten (Details im Modul Verkabelung, Lektion PoE):
+
+- **PSE** (*Power Sourcing Equipment*) = die **Stromquelle**, also der PoE-Switch-Port (oder ein PoE-Injektor).
+- **PD** (*Powered Device*) = das **versorgte Gerät**, z. B. Access Point, IP-Telefon, Kamera.
+
+Auf dem Kabel geht Leistung als Wärme verloren. Deshalb muss der Switch-Port **mehr** liefern, als am Gerät ankommt:
+
+| Standard | Klasse | max. am Switch-Port (**PSE**) | max. am Gerät (**PD**) |
+|---|---|---|---|
+| 802.3af (PoE) | 2 | 7 W | 6,49 W |
+| 802.3af (PoE) | 3 | 15,4 W | 12,95 W |
+| 802.3at (PoE+) | 4 | 30 W | 25,5 W |
+| 802.3bt (Type 3) | 6 | 60 W | 51 W |
+| 802.3bt (Type 4) | 8 | 90 W | 71,3 W |
+
+**So planst du das Budget:**
+1. Für jeden Gerätetyp: **Anzahl × Leistung am Switch-Port (PSE)** der jeweiligen Klasse.
+2. Alles addieren.
+3. Reserve aufschlagen, wenn gefordert.
+4. Mit dem **PoE-Budget** im Datenblatt vergleichen. Zusätzlich prüfen: Gibt es genug **PoE-fähige Ports**, und unterstützen sie den nötigen **Standard** (ein PoE+-AP braucht einen at-Port)?
+
+Warum mit PSE-Werten? Viele Switches **reservieren** pro Port die Leistung der erkannten Klasse – egal, wie viel das Gerät gerade tatsächlich zieht. Mit PSE-Werten bist du auf der sicheren Seite.
+
+> **Achtung, Buchwerte:** Manche Lehrbücher nennen für PoE+ „25,5 W“ (das ist der **PD**-Wert) oder für 802.3bt „bis 100 W“ (Werbeangabe; genormt sind 90 W am Port). In der Prüfung gilt: **Beleg lesen**. Steht dort „Leistungsaufnahme des Geräts“, ist der PD-Wert gemeint; plane das Switch-Budget trotzdem mit der Port-Leistung, wenn sie angegeben ist, und schreibe deine Annahme dazu.
+
+Ein 24-Port-PoE+-Switch kann übrigens fast nie alle Ports gleichzeitig voll versorgen: 24 × 30 W = 720 W, das Budget liegt oft nur bei 190–410 W.`,
+        },
+        {
+          type: 'visual',
+          title: 'Die Switch-Klassen im Überblick',
+          widget: {
+            kind: 'cards',
+            data: {
+              columns: 4,
+              items: [
+                { title: 'Unmanaged', text: 'Plug and Play, nichts einstellbar. Keine VLANs, keine Überwachung. Günstig.', icon: 'Plug' },
+                { title: 'Smart / Web-managed', text: 'Einige Einstellungen per Weboberfläche: VLANs, QoS, Statistik.', icon: 'Globe' },
+                { title: 'Managed (L2)', text: 'VLANs, STP, LACP, Mirroring, SNMP, SSH/CLI. Standard im Firmennetz.', icon: 'Settings' },
+                { title: 'Layer-3-Switch', text: 'Wie managed, zusätzlich Routing zwischen VLANs.', icon: 'Router' },
+              ],
+            },
+          },
+          caption: 'Von links nach rechts: mehr Funktionen, mehr Konfigurationsaufwand, höherer Preis.',
+        },
+        {
+          type: 'example',
+          title: 'Switch für das Lager Hamburg auswählen',
+          problem: `**Handlungssituation:** Im Lager der Elektro Krämer GmbH wird ein neuer Access-Switch gebraucht. Angeschlossen werden: **6 PCs, 2 Netzwerkdrucker, 6 IP-Telefone** (PoE-Klasse 2), **3 Access Points** (Wi-Fi 6, PoE+, Klasse 4) und **2 IP-Kameras** (Klasse 3). Telefone und Kameras sollen in **eigene VLANs**. Gefordert sind **20 % Reserve** bei Ports und PoE-Leistung. Jedes Gerät belegt einen eigenen Port; der Uplink läuft über einen separaten SFP-Port.
+
+**Datenblatt-Auszüge:**
+
+| | NS-24U | NS-24M-P | NS-48M-P |
+|---|---|---|---|
+| RJ45-Ports (1 Gbit/s) | 24 | 24 | 48 |
+| davon PoE+ (802.3at) | 12 | 24 | 48 |
+| PoE-Budget | 190 W | 250 W | 740 W |
+| Uplinks | – | 2 × SFP (1 Gbit/s) | 4 × SFP+ (10 Gbit/s) |
+| Management | unmanaged | managed (Web, SSH, SNMP, 802.1Q) | managed (Web, SSH, SNMP, 802.1Q) |
+| Preis netto | 289 € | 469 € | 1.190 € |
+
+Welches Modell empfiehlst du?`,
+          steps: [
+            { label: '1. Ports', body: `6 + 2 + 6 + 3 + 2 = **19 Geräte**. Mit 20 % Reserve: 19 × 1,2 = 22,8 → aufgerundet **23 Ports**. Alle drei Modelle haben mindestens 24 Ports.` },
+            { label: '2. PoE-Ports', body: `PoE-Geräte: 6 Telefone + 3 APs + 2 Kameras = **11**. NS-24U hat 12 PoE-Ports – reicht knapp, die anderen beiden sowieso.` },
+            { label: '3. PoE-Budget (PSE-Werte)', body: `Telefone: 6 × 7 W = 42 W\nAccess Points: 3 × 30 W = 90 W\nKameras: 2 × 15,4 W = 30,8 W\nSumme: 42 + 90 + 30,8 = **162,8 W**\nMit 20 % Reserve: 162,8 W × 1,2 = **195,36 W**` },
+            { label: '4. Modelle prüfen', body: `- **NS-24U:** Budget 190 W < 195,36 W **und** unmanaged → keine VLANs möglich → scheidet aus.\n- **NS-24M-P:** 24 Ports ≥ 23, 24 PoE-Ports ≥ 11, 250 W ≥ 195,36 W, managed ✔\n- **NS-48M-P:** erfüllt alles, ist aber mit 1.190 € mehr als doppelt so teuer und für 23 Ports überdimensioniert.` },
+            { label: '5. Entscheidung begründen', body: `Das günstigste Modell, das **alle** Anforderungen erfüllt, ist der NS-24M-P.` },
+          ],
+          result: `Empfehlung: **NS-24M-P** – erfüllt Portbedarf (23), PoE-Ports (11), PoE-Budget (195,36 W ≤ 250 W) und VLAN-Anforderung (managed) zum niedrigsten Preis der geeigneten Modelle (469 €).`,
+        },
+        {
+          type: 'check',
+          question: {
+            id: 'm08-l08-c1',
+            kind: 'single',
+            skill: 'switch.poebudget',
+            difficulty: 2,
+            prompt: `Ein Access Point benötigt laut seinem Datenblatt **25,5 W** (PoE+, Klasse 4). Mit welcher Leistung belastet er bei der Planung das **PoE-Budget des Switches**?`,
+            options: ['15,4 W', '25,5 W', '30 W', '90 W'],
+            answer: 2,
+            distractors: {
+              '0': { why: '15,4 W ist die Port-Leistung von 802.3af (Klasse 3). Ein PoE+-Gerät braucht mehr.', error: 'poe-standard-verwechselt' },
+              '1': { why: '25,5 W ist die Leistung **am Gerät (PD)**. Der Switch-Port (PSE) muss wegen der Kabelverluste mehr liefern.', error: 'poe-pd-statt-pse' },
+              '3': { why: '90 W ist die Höchstleistung von 802.3bt Type 4, nicht von PoE+.', error: 'poe-standard-verwechselt' },
+            },
+            explanation: `**30 W.** 25,5 W kommen am Gerät (PD) an, der Switch-Port (PSE) muss bei PoE+ bis zu **30 W** bereitstellen – mit diesem Wert planst du das Budget.`,
+          },
+        },
+        {
+          type: 'check',
+          question: {
+            id: 'm08-l08-c2',
+            kind: 'number',
+            skill: 'switch.poebudget',
+            difficulty: 1,
+            prompt: `An einem PoE-Switch hängen **8 IP-Telefone** (Klasse 2, 7 W am Switch-Port) und **2 Access Points** (PoE+, 30 W am Switch-Port). Wie viel PoE-Leistung wird insgesamt benötigt?`,
+            answer: 116,
+            unit: 'W',
+            misconceptions: [
+              { answer: '37', error: 'poe-anzahl-vergessen', why: 'Du hast jeden Gerätetyp nur einmal gezählt (7 + 30). Multipliziere mit der Anzahl.' },
+              { answer: '102.92', error: 'poe-pd-statt-pse', why: 'Das sind die Werte am Gerät (8 × 6,49 W + 2 × 25,5 W). Für das Budget zählt die Leistung am Switch-Port.' },
+            ],
+            explanation: `**116 W.** Telefone: 8 × 7 W = 56 W. APs: 2 × 30 W = 60 W. Summe: 56 W + 60 W = **116 W**.`,
+          },
+        },
+        { type: 'practice', title: 'Übung: PoE-Budget berechnen', generator: 'switch.poebudget', count: 3, difficulty: 2 },
+        { type: 'practice', title: 'Übung: Switch nach Datenblatt auswählen', generator: 'switch.select', count: 2, difficulty: 2 },
+        {
+          type: 'practice',
+          title: 'Prüfungsaufgaben: Switch-Auswahl',
+          questionIds: ['m08-q043', 'm08-q044', 'm08-q045', 'm08-q046', 'm08-q047', 'm08-q048', 'm08-q049', 'm08-q050'],
+          count: 5,
+          difficulty: 2,
+        },
+        {
+          type: 'summary',
+          points: [
+            'Unmanaged = Plug and Play ohne Einstellungen; managed = VLANs, STP, LACP, Mirroring, SNMP, SSH; Layer-3-Switch routet zusätzlich.',
+            'Portbedarf: Geräte zählen, Reserve aufschlagen, aufrunden, nächste Standardgröße (8/16/24/48) wählen.',
+            'PoE-Budget = Gesamtleistung aller PoE-Ports; Planung mit der Leistung am Switch-Port (PSE), nicht am Gerät (PD).',
+            'PoE+ (802.3at): 30 W am Port, 25,5 W am Gerät; 802.3af: 15,4 W / 12,95 W.',
+            'Auswahl: erst jedes Modell gegen jede Anforderung prüfen, dann das günstigste geeignete wählen und begründen.',
           ],
         },
       ],
@@ -1541,6 +1836,309 @@ Typisch: Core-Switch ↔ Etagenswitch oder Switch ↔ Server/NAS mit zwei NICs.`
         '3': { why: 'Endgeräte hängen an Access-Ports.', error: 'trunk-endgeraet' },
       },
       explanation: `Portbasiert: einfach den neuen Port in **VLAN 10** setzen. Das ist der Flexibilitätsvorteil von VLANs.`,
+    },
+    // ---------- OUI (Hex ↔ Binär) ----------
+    {
+      id: 'm08-q040',
+      kind: 'text',
+      skill: 'mac.oui',
+      difficulty: 1,
+      prompt: `\`ipconfig /all\` zeigt für eine Netzwerkkarte die physische Adresse **4C-E1-73-0A-1B-2C**. Gib die **OUI** in Binärdarstellung an (24 Bit, drei Bytes mit Leerzeichen getrennt).`,
+      placeholder: 'xxxxxxxx xxxxxxxx xxxxxxxx',
+      accept: ['01001100 11100001 01110011', '010011001110000101110011', '01001100.11100001.01110011', '01001100-11100001-01110011', '01001100:11100001:01110011', '0100 1100 1110 0001 0111 0011'],
+      misconceptions: [
+        { answer: '00001010 00011011 00101100', error: 'oui-position', why: 'Das sind die letzten drei Bytes (Gerätekennung). Die OUI sind die **ersten** drei Bytes: 4C-E1-73.' },
+        { answer: '1001100 11100001 1110011', error: 'bin-fuehrende-nullen', why: 'Jedes Byte hat 8 Stellen – führende Nullen gehören dazu (4C = 01001100, 73 = 01110011).' },
+      ],
+      hints: ['OUI = die ersten drei Bytes: 4C-E1-73.', 'Jede Hex-Ziffer = 4 Bit: 4 = 0100, C = 1100, E = 1110, 1 = 0001, 7 = 0111, 3 = 0011.'],
+      explanation: `**Ergebnis:** \`01001100 11100001 01110011\`
+
+**Weg:**
+1. OUI = erste drei Bytes: **4C-E1-73**.
+2. Jede Hex-Ziffer einzeln in 4 Bit (8-4-2-1):
+
+| Hex | 4 | C | E | 1 | 7 | 3 |
+|---|---|---|---|---|---|---|
+| Binär | 0100 | 1100 | 1110 | 0001 | 0111 | 0011 |
+
+3. Zu Bytes zusammensetzen: 01001100 · 11100001 · 01110011.
+
+Häufiger Fehler: die letzten drei Bytes nehmen oder führende Nullen weglassen.`,
+    },
+    {
+      id: 'm08-q041',
+      kind: 'text',
+      skill: 'mac.oui',
+      difficulty: 2,
+      prompt: `Eine Herstellerliste nennt die OUI binär: \`1101 0000  0101 0111  1001 0100\`. Gib die OUI **hexadezimal** an (Schreibweise XX-XX-XX).`,
+      placeholder: 'XX-XX-XX',
+      accept: ['D0-57-94', 'D0:57:94', 'D05794', 'D0 57 94', 'D0.57.94'],
+      misconceptions: [
+        { answer: '94-57-D0', error: 'oui-byte-reihenfolge', why: 'Die Bytes stehen in umgekehrter Reihenfolge. Lies von links nach rechts.' },
+        { answer: '0B-EA-29', error: 'bin-reihenfolge', why: 'Du hast die Bits jedes Bytes von rechts gelesen. Das linke Bit jeder Vierergruppe hat den Wert 8.' },
+      ],
+      hints: ['Vierergruppen: 1101 | 0000 | 0101 | 0111 | 1001 | 0100.', 'Jede Gruppe mit 8-4-2-1 addieren: 1101 = 8 + 4 + 1 = 13 = D.'],
+      explanation: `**Ergebnis:** **D0-57-94**
+
+**Weg:** jede Vierergruppe mit den Stellenwerten 8-4-2-1 umrechnen:
+- 1101 = 8 + 4 + 1 = 13 = **D**
+- 0000 = **0**
+- 0101 = 4 + 1 = **5**
+- 0111 = 4 + 2 + 1 = **7**
+- 1001 = 8 + 1 = **9**
+- 0100 = **4**
+
+→ D0-57-94. Häufiger Fehler: Bits innerhalb der Gruppe rückwärts lesen.`,
+    },
+    {
+      id: 'm08-q042',
+      kind: 'table',
+      skill: 'mac.oui',
+      difficulty: 2,
+      prompt: `Für die Inventarliste sollen die OUIs dreier Netzwerkkarten zusätzlich binär eingetragen werden. Ergänze die Tabelle (drei Bytes, mit Leerzeichen getrennt).`,
+      columns: [{ key: 'bin', label: 'OUI binär', type: 'text' }],
+      rows: [
+        { label: '00-1A-2B', cells: { bin: { answer: '00000000 00011010 00101011', accept: ['000000000001101000101011'] } } },
+        { label: 'F4-8E-38', cells: { bin: { answer: '11110100 10001110 00111000', accept: ['111101001000111000111000'] } } },
+        { label: '08-00-27', cells: { bin: { answer: '00001000 00000000 00100111', accept: ['000010000000000000100111'] } } },
+      ],
+      hints: ['Jede Hex-Ziffer = 4 Bit. Führende Nullen nicht vergessen: 0 = 0000.'],
+      explanation: `**Weg:** Hex-Ziffer für Hex-Ziffer in 4 Bit umwandeln:
+- 00-1A-2B: 0000 0000 · 0001 1010 · 0010 1011
+- F4-8E-38: 1111 0100 · 1000 1110 · 0011 1000
+- 08-00-27: 0000 1000 · 0000 0000 · 0010 0111
+
+Häufiger Fehler: ein Byte wie 08 als „1000“ statt „00001000“ schreiben.`,
+    },
+    // ---------- Switch-Auswahl und PoE-Budget ----------
+    {
+      id: 'm08-q043',
+      kind: 'multi',
+      skill: 'switch.select',
+      difficulty: 1,
+      prompt: `Welche Funktionen bietet ein **managed** Switch, ein **unmanaged** Switch aber **nicht**?`,
+      options: [
+        'VLANs nach IEEE 802.1Q konfigurieren',
+        'Datenverkehr eines Ports auf einen Analyse-Port spiegeln (Port-Mirroring)',
+        'Überwachung per SNMP',
+        'MAC-Adressen lernen und Frames gezielt weiterleiten',
+        'Geschwindigkeit automatisch aushandeln (Autonegotiation)',
+        'Zugriff per SSH auf eine Konfigurationsoberfläche',
+      ],
+      answer: [0, 1, 2, 5],
+      hints: ['Was davon ist eine **Einstellung**, die man vornehmen muss?'],
+      explanation: `**Nur managed:** VLANs, Port-Mirroring, SNMP-Überwachung und Fernzugriff per SSH (bzw. Web) – das sind Funktionen, die man **konfigurieren** muss. **Jeder** Switch – auch unmanaged – lernt MAC-Adressen, leitet gezielt weiter und handelt die Geschwindigkeit automatisch aus.`,
+    },
+    {
+      id: 'm08-q044',
+      kind: 'number',
+      skill: 'switch.select',
+      difficulty: 2,
+      prompt: `In einer Abteilung sollen **14 PCs, 3 Netzwerkdrucker und 1 Access Point** an einen neuen Switch. Die IT-Richtlinie verlangt **25 % Portreserve**. Wie viele Ports werden mindestens benötigt? (Jedes Gerät belegt einen Port; auf ganze Ports aufrunden.)`,
+      answer: 23,
+      unit: 'Ports',
+      misconceptions: [
+        { answer: '22', error: 'abrunden-aufrunden', why: '18 × 1,25 = 22,5. Ein halber Port reicht nicht – bei Ports wird **aufgerundet**.' },
+        { answer: '18', error: 'reserve-vergessen', why: 'Das ist der Bedarf ohne die geforderte Reserve von 25 %.' },
+        { answer: '24', error: 'standardgroesse-statt-bedarf', why: '24 ist die passende Standardgröße des Switches. Gefragt war aber der berechnete Mindestbedarf.' },
+      ],
+      hints: ['Geräte zählen: 14 + 3 + 1.', 'Mit 1,25 multiplizieren und aufrunden.'],
+      explanation: `**23 Ports.** 14 + 3 + 1 = 18 Geräte. 18 × 1,25 = 22,5 → aufgerundet **23**. Passende Standardgröße: ein 24-Port-Switch.`,
+    },
+    {
+      id: 'm08-q045',
+      kind: 'table',
+      skill: 'switch.poebudget',
+      difficulty: 2,
+      prompt: `Für einen PoE-Switch soll der Leistungsbedarf geplant werden. Rechne mit der Leistung am **Switch-Port (PSE)** und ergänze die Tabelle.
+
+| Gerät | Anzahl | Klasse | Leistung am Switch-Port (PSE) | Leistung am Gerät (PD) |
+|---|---|---|---|---|
+| IP-Telefon | 10 | 2 | 7 W | 6,49 W |
+| Access Point (PoE+) | 4 | 4 | 30 W | 25,5 W |
+| IP-Kamera | 3 | 3 | 15,4 W | 12,95 W |`,
+      columns: [{ key: 'w', label: 'Leistung gesamt (W)', type: 'number' }],
+      rows: [
+        { label: 'IP-Telefone', cells: { w: { answer: '70' } } },
+        { label: 'Access Points', cells: { w: { answer: '120' } } },
+        { label: 'IP-Kameras', cells: { w: { answer: '46,2' } } },
+        { label: 'Summe', cells: { w: { answer: '236,2' } } },
+      ],
+      misconceptions: [
+        { cell: 'w', answer: '102', error: 'poe-pd-statt-pse', why: 'Das ist der PD-Wert der Access Points (4 × 25,5 W). Für das Switch-Budget zählt die Leistung am Port (30 W).' },
+      ],
+      hints: ['Je Zeile: Anzahl × PSE-Leistung.', 'Summe = alle drei Zeilen addiert.'],
+      explanation: `**Weg:**
+- Telefone: 10 × 7 W = **70 W**
+- Access Points: 4 × 30 W = **120 W**
+- Kameras: 3 × 15,4 W = **46,2 W**
+- Summe: 70 + 120 + 46,2 = **236,2 W**
+
+Häufiger Fehler: die PD-Spalte verwenden (ergäbe 64,9 + 102 + 38,85 = 205,75 W) – dann wäre das Budget zu knapp geplant.`,
+    },
+    {
+      id: 'm08-q046',
+      kind: 'number',
+      skill: 'switch.poebudget',
+      difficulty: 3,
+      prompt: `Ein PoE-Switch hat ein **PoE-Budget von 370 W**. Angeschlossen sind **12 IP-Telefone** (7 W am Port), **4 IP-Kameras** (15,4 W am Port) und **2 Access Points** (PoE+, 30 W am Port). Wie viele **weitere** PoE+-Access-Points (30 W am Port) können noch versorgt werden? Freie Ports sind genug vorhanden.`,
+      answer: 5,
+      unit: 'Access Points',
+      misconceptions: [
+        { answer: '6', error: 'abrunden-aufrunden', why: '164,4 W ÷ 30 W = 5,48. Für einen sechsten AP fehlen 15,6 W – bei Geräten wird **abgerundet**.' },
+        { answer: '12', error: 'poe-bestand-vergessen', why: 'Du hast das ganze Budget durch 30 W geteilt. Die bereits angeschlossenen Geräte verbrauchen schon 205,6 W.' },
+        { answer: '7', error: 'poe-pd-statt-pse', why: 'Du hast mit PD-Werten (Leistung am Gerät) gerechnet. Das Switch-Budget wird mit der Port-Leistung (PSE) belastet.' },
+      ],
+      hints: ['Erst die belegte Leistung: 12 × 7 + 4 × 15,4 + 2 × 30.', 'Restbudget ÷ 30 W, dann abrunden.'],
+      explanation: `**5 Access Points.**
+1. Belegt: 12 × 7 W = 84 W; 4 × 15,4 W = 61,6 W; 2 × 30 W = 60 W → **205,6 W**
+2. Rest: 370 W − 205,6 W = **164,4 W**
+3. 164,4 W ÷ 30 W = 5,48 → abgerundet **5**`,
+    },
+    {
+      id: 'm08-q047',
+      kind: 'single',
+      skill: 'switch.select',
+      difficulty: 2,
+      prompt: `**Handlungssituation:** Das Büro Berlin der Elektro Krämer GmbH bekommt einen neuen Switch. Angeschlossen werden **10 PCs, 1 Netzwerkdrucker, 10 IP-Telefone** (7 W am Port) und **2 Access Points** (PoE+, 30 W am Port). Telefone sollen in ein eigenes VLAN. Gefordert sind **20 % Portreserve**. Jedes Gerät belegt einen eigenen Port, der Uplink läuft über SFP.
+
+| | BX-24P | BX-48U | BX-48P |
+|---|---|---|---|
+| RJ45-Ports (1 Gbit/s) | 24 | 48 | 48 |
+| davon PoE+ | 24 | 48 | 24 |
+| PoE-Budget | 370 W | 600 W | 370 W |
+| Management | managed (802.1Q, SSH, SNMP) | unmanaged | managed (802.1Q, SSH, SNMP) |
+| Preis netto | 549 € | 699 € | 899 € |
+
+Welches Modell ist das günstigste, das alle Anforderungen erfüllt?`,
+      options: ['BX-24P', 'BX-48U', 'BX-48P'],
+      answer: 2,
+      distractors: {
+        '0': { why: '23 Geräte × 1,2 = 27,6 → 28 Ports nötig. Der BX-24P hat nur 24.', error: 'switch-ports-zu-wenig' },
+        '1': { why: 'Der BX-48U ist unmanaged – das geforderte Telefon-VLAN lässt sich nicht einrichten.', error: 'switch-unmanaged-vlan' },
+      },
+      hints: ['Ports: (10 + 1 + 10 + 2) × 1,2 = ? – aufrunden.', 'PoE: 10 × 7 W + 2 × 30 W = 130 W, 12 PoE-Ports.'],
+      explanation: `**BX-48P.**
+1. Ports: 10 + 1 + 10 + 2 = 23 Geräte × 1,2 = 27,6 → **28 Ports** → BX-24P scheidet aus.
+2. VLAN gefordert → **managed** nötig → BX-48U scheidet aus.
+3. BX-48P: 48 Ports ≥ 28, 24 PoE-Ports ≥ 12, Budget 370 W ≥ 10 × 7 W + 2 × 30 W = 130 W, managed ✔
+
+Häufiger Fehler: nur auf den Preis oder nur auf das PoE-Budget schauen.`,
+    },
+    {
+      id: 'm08-q048',
+      kind: 'free',
+      skill: 'switch.select',
+      difficulty: 3,
+      prompt: `Ein Kunde des IT-Systemhauses (Steuerbüro, **12 Arbeitsplätze**, kein VoIP, keine VLANs geplant) braucht einen Switch. Das Gerät steht **im Büroraum unter einem Schreibtisch**. Zwei Angebote liegen vor:
+
+| | Modell X | Modell Y |
+|---|---|---|
+| Ports | 16 × 1 Gbit/s | 24 × 1 Gbit/s + 4 × SFP+ |
+| Management | unmanaged | managed (VLAN, SNMP, SSH) |
+| Bauform | Desktop, **lüfterlos** | 19″, 1 HE, **2 Lüfter** |
+| PoE | nein | 24 × PoE+, 370 W |
+| Preis netto | 89 € | 389 € |
+
+Empfehle ein Modell und begründe deine Entscheidung mit **mindestens drei** Kriterien. Nenne auch einen möglichen Nachteil deiner Wahl.`,
+      modelAnswer: `Empfehlung: **Modell X**.
+- **Portbedarf:** 12 Arbeitsplätze, mit 20–25 % Reserve rund 15 Ports → 16 Ports reichen.
+- **Funktionen:** Es sind keine VLANs, kein PoE (kein VoIP) und keine Überwachung gefordert → ein unmanaged Switch genügt.
+- **Aufstellort:** Das Gerät steht im Büro → lüfterlos ist leise; ein 19″-Gerät mit Lüftern gehört in einen Serverschrank.
+- **Wirtschaftlichkeit:** 89 € statt 389 € – die Zusatzfunktionen von Y würden bezahlt, aber nicht genutzt.
+Nachteil: keine Erweiterungsreserve für VLANs, PoE oder Überwachung. Plant der Kunde später VoIP oder ein Gäste-WLAN mit eigenem VLAN, müsste der Switch getauscht werden.`,
+      keywords: ['Portbedarf', 'Reserve', 'unmanaged', 'keine VLANs', 'lüfterlos', 'Preis', 'Nachteil'],
+      explanation: `Eine gute Antwort prüft jede Anforderung (Ports + Reserve, Funktionen, Aufstellort, Preis) und begründet damit die Wahl. „Größer ist besser“ ist **keine** Begründung – überdimensionierte Geräte kosten mehr und passen hier nicht an den Aufstellort.`,
+    },
+    {
+      id: 'm08-q049',
+      kind: 'free',
+      skill: 'switch.select',
+      difficulty: 2,
+      prompt: `Erläutere den Unterschied zwischen einem **managed** und einem **unmanaged** Switch und nenne **drei** Funktionen, die nur ein managed Switch bietet.`,
+      modelAnswer: `Ein **unmanaged** Switch arbeitet ohne Konfiguration (Plug and Play): Er lernt MAC-Adressen und leitet Frames weiter, man kann aber nichts einstellen oder überwachen. Ein **managed** Switch lässt sich über Weboberfläche, SSH/CLI oder SNMP konfigurieren und überwachen.
+Funktionen nur bei managed: VLANs nach IEEE 802.1Q (Access-/Trunk-Ports), Spanning Tree konfigurieren, Link Aggregation (LACP), Port-Mirroring, SNMP-Überwachung, QoS-Priorisierung, 802.1X-Portauthentifizierung, Zugriffslisten.`,
+      keywords: ['Konfiguration', 'Plug and Play', 'VLAN', 'SNMP', 'Spanning Tree', 'Port-Mirroring', 'LACP'],
+      explanation: `Kern: **unmanaged = nicht konfigurierbar**, **managed = konfigurier- und überwachbar**. Drei beliebige Funktionen aus der Liste genügen.`,
+    },
+    {
+      id: 'm08-q050',
+      kind: 'single',
+      skill: 'switch.poebudget',
+      difficulty: 1,
+      prompt: `Im Datenblatt eines 24-Port-PoE+-Switches steht „**PoE-Budget: 370 W**“. Was bedeutet das?`,
+      options: [
+        'Jeder Port kann 370 W liefern.',
+        'Alle PoE-Ports zusammen können höchstens 370 W liefern.',
+        'Der Switch selbst verbraucht 370 W.',
+        'Jedes angeschlossene Gerät darf 370 W ÷ 24 ≈ 15,4 W aufnehmen.',
+      ],
+      answer: 1,
+      distractors: {
+        '0': { why: 'Ein PoE+-Port liefert höchstens 30 W. 370 W ist die Summe für alle Ports.', error: 'poe-budget-pro-port' },
+        '2': { why: 'Die Leistungsaufnahme des Switches selbst steht separat im Datenblatt.', error: 'poe-budget-pro-port' },
+        '3': { why: 'Das Budget wird nicht gleichmäßig verteilt – ein Port darf bis zu 30 W (PoE+) liefern, solange die Summe 370 W nicht übersteigt.', error: 'poe-budget-pro-port' },
+      },
+      explanation: `Das **PoE-Budget** ist die **Gesamtleistung**, die alle PoE-Ports zusammen liefern können. 24 × 30 W wären 720 W – deshalb muss man planen, welche Geräte angeschlossen werden.`,
+    },
+    {
+      id: 'm08-q051',
+      kind: 'single',
+      skill: 'vlan.trunk',
+      difficulty: 2,
+      prompt: `In der Weboberfläche eines Switches findest du den Menüpunkt „**Trunking**“, in dem man mehrere Ports zu einer Gruppe zusammenfassen kann. Was ist hier gemeint?`,
+      options: [
+        'Ein 802.1Q-Trunk, der mehrere VLANs getaggt überträgt',
+        'Link Aggregation: mehrere physische Leitungen zu einer logischen Verbindung bündeln',
+        'Spanning Tree, das redundante Ports blockiert',
+        'Port-Mirroring für die Fehlersuche',
+      ],
+      answer: 1,
+      distractors: {
+        '0': { why: 'Ein VLAN-Trunk ist **ein** Port, der mehrere VLANs transportiert. Hier werden aber **mehrere Ports** zusammengefasst.', error: 'trunk-trunking' },
+        '2': { why: 'STP bündelt keine Ports, sondern blockiert redundante Verbindungen.', error: 'stp-lacp' },
+        '3': { why: 'Mirroring kopiert Datenverkehr auf einen Analyse-Port, es bündelt nichts.', error: 'trunk-trunking' },
+      },
+      explanation: `Manche Hersteller nennen **Link Aggregation** (LACP, IEEE 802.1AX) „Trunking“. Das Zusammenfassen mehrerer **Ports zu einer Gruppe** verrät es. Ein **VLAN-Trunk** (802.1Q) ist dagegen ein einzelner Port mit getaggten Frames mehrerer VLANs.`,
+    },
+    {
+      id: 'm08-q052',
+      kind: 'number',
+      skill: 'switch.select',
+      difficulty: 3,
+      prompt: `Ein Switch hat **48 Ports mit 1 Gbit/s** und **4 Uplinks mit 10 Gbit/s**. Welche **Switching-Kapazität** (in Gbit/s) muss er mindestens haben, um alle Ports gleichzeitig im **Vollduplex** ohne Engpass (non-blocking) zu bedienen?`,
+      answer: 176,
+      unit: 'Gbit/s',
+      misconceptions: [
+        { answer: '88', error: 'vollduplex-vergessen', why: 'Das ist nur eine Richtung. Bei Vollduplex sendet und empfängt jeder Port gleichzeitig → × 2.' },
+        { answer: '96', error: 'uplinks-vergessen', why: 'Das sind nur die 48 Gigabit-Ports im Vollduplex. Die vier 10-Gbit/s-Uplinks fehlen (+ 80 Gbit/s).' },
+      ],
+      hints: ['Summe aller Port-Geschwindigkeiten bilden.', 'Vollduplex: jede Richtung zählt → × 2.'],
+      explanation: `**176 Gbit/s.**
+1. Ports: 48 × 1 Gbit/s = 48 Gbit/s
+2. Uplinks: 4 × 10 Gbit/s = 40 Gbit/s
+3. Summe einer Richtung: 48 + 40 = 88 Gbit/s
+4. Vollduplex: 88 Gbit/s × 2 = **176 Gbit/s**`,
+    },
+    {
+      id: 'm08-q053',
+      kind: 'single',
+      skill: 'switch.mactable',
+      difficulty: 1,
+      prompt: `Ein Arbeitsblatt fragt nach der „ARP-Tabelle des Switches“. Welche Aussage ist fachlich richtig?`,
+      options: [
+        'Der Switch ordnet in seiner ARP-Tabelle IP-Adressen den Ports zu.',
+        'Ein Layer-2-Switch führt eine MAC-Adresstabelle (MAC-Adresse → Port); die ARP-Tabelle gehört zu PCs und Routern (IP-Adresse → MAC-Adresse).',
+        'ARP-Tabelle und MAC-Tabelle sind zwei Namen für dieselbe Tabelle.',
+        'Der Switch speichert in der ARP-Tabelle die Frames, bis der Empfänger antwortet.',
+      ],
+      answer: 1,
+      distractors: {
+        '0': { why: 'Ein Layer-2-Switch wertet keine IP-Adressen aus.', error: 'switch-layer3' },
+        '2': { why: 'Die Tabellen haben verschiedene Inhalte: ARP ordnet IP → MAC zu, die Switch-Tabelle MAC → Port.', error: 'arp-mac-tabelle' },
+        '3': { why: 'Weder die ARP- noch die MAC-Tabelle speichert Frames.', error: 'arp-mac-tabelle' },
+      },
+      explanation: `Der Switch lernt **MAC-Adresse → Port** (MAC-, CAM- oder Forwarding-Tabelle). Die **ARP-Tabelle** führen Hosts und Router: **IP-Adresse → MAC-Adresse**. Der Begriff „ARP-Tabelle des Switches“ ist deshalb falsch.`,
     },
   ],
 };

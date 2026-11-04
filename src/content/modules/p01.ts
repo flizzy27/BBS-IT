@@ -29,6 +29,9 @@ export const p01: Module = {
       minutes: 15,
       relevance: 'ap1',
       skills: ['prog.algorithm'],
+      simple: `Ein Algorithmus ist wie ein Kochrezept: eine genaue Schritt-für-Schritt-Anleitung, die bei gleichen Zutaten immer zum gleichen Ergebnis führt. Jeder Schritt muss eindeutig sein, und irgendwann muss das Rezept fertig sein (endlich). Fast jedes Programm folgt dabei dem EVA-Prinzip: Es nimmt Daten auf (Eingabe), rechnet damit (Verarbeitung) und zeigt das Ergebnis (Ausgabe). Beim Kochen sind das Zutaten, Kochen und fertiges Gericht.
+
+**Merke:** Algorithmus = eindeutige, endliche Schrittfolge; EVA = Eingabe → Verarbeitung → Ausgabe.`,
       steps: [
         {
           type: 'explain',
@@ -113,6 +116,9 @@ In der AP1 sollst du einfache Algorithmen **lesen, nachvollziehen, ergänzen und
       minutes: 20,
       relevance: 'ap1',
       skills: ['prog.pseudocode'],
+      simple: `Pseudocode ist eine Mischung aus Deutsch und Programmiersprache – wie eine Wegbeschreibung, die jeder versteht, egal ob er Auto oder Fahrrad fährt. Du schreibst damit einen Ablauf auf, ohne dich um die genauen Regeln einer echten Sprache (Syntax) zu kümmern. Weil Pseudocode nicht genormt ist, sieht er in jedem Buch etwas anders aus: Mal steht für die Zuweisung (einen Wert in eine Variable legen) ein Pfeil ←, mal :=. Wichtig ist, dass du eindeutig schreibst und sauber einrückst.
+
+**Merke:** Lies die Schreibweise der Aufgabe genau – „WIEDERHOLE … BIS“ endet bei WAHR, „Wiederhole … solange“ läuft bei WAHR weiter.`,
       steps: [
         {
           type: 'explain',
@@ -150,6 +156,47 @@ In dieser App verwenden wir durchgängig folgende **Konventionen**:
 | \`a MOD b\` | \`a % b\` | \`a % b\` |
 | \`a DIV b\` | \`a // b\` | \`a / b\` (bei zwei int-Werten!) |
 | \`UND / ODER / NICHT\` | \`and / or / not\` | \`&&\` / \`\\|\\|\` / \`!\` |`,
+        },
+        {
+          type: 'explain',
+          title: 'Andere Schreibweisen in Büchern und Prüfungen',
+          body: `Weil Pseudocode **nicht genormt** ist, verwenden Schulbücher, Prüfungsbücher und IHK-Aufgaben unterschiedliche Schlüsselwörter. Für die AP1 gilt: **Lies die Schreibweise, die die Aufgabe vorgibt**, und bleib in deiner eigenen Lösung bei **einer** eindeutigen Schreibweise.
+
+| Bedeutung | diese App | andere übliche Schreibweisen |
+|---|---|---|
+| Zuweisung | \`x ← 5\` | \`x := 5\`, \`SETZE x AUF 5\` |
+| Verzweigung | \`WENN … DANN … SONST … ENDE WENN\` | \`Wenn … dann … sonst … Ende Verzweigung\`; in manchen Prüfungsbüchern \`FALLS … DANN … SONST … ENDE FALLS\` |
+| Mehrfachauswahl | \`FALLS x\` · \`FALL 1:\` · \`ENDE FALLS\` | \`Fallunterscheidung\`, \`AUSWAHL x\`, \`switch\` |
+| kopfgesteuerte Schleife | \`SOLANGE b TUE … ENDE SOLANGE\` | \`Wiederhole solange b … Ende Schleife\` |
+| fußgesteuerte Schleife | \`WIEDERHOLE … BIS b\` (b = **Abbruch**bedingung) | \`Wiederhole … solange b\` (b = **Lauf**bedingung!) |
+| Zählschleife | \`FÜR i VON 1 BIS 10\` | \`Von i := 1 Bis 10 … Ende Schleife\`, \`FÜR i := 1 BIS 10 MIT SCHRITTWEITE 1\` |
+| Rest | \`a MOD b\` | \`a modulo b\`, \`a % b\` |
+
+⚠️ **Zwei Fallen:**
+1. **FALLS** ist in dieser App die **Mehrfachauswahl** (wie switch). Manche Prüfungsbücher schreiben \`FALLS … DANN … SONST\` für eine **einfache Verzweigung** – das ist unser WENN. Erkennbar am **DANN**.
+2. Bei fußgesteuerten Schleifen entscheidet das Wort vor der Bedingung: **BIS** = Schluss, sobald die Bedingung WAHR ist; **solange** = weiter, solange sie WAHR ist.
+
+**Beispiel – zwei Schreibweisen, gleicher Ablauf:**
+
+Schulbuch:
+${F}
+zahl := 0
+Wiederhole
+  zahl := zahl + 25
+solange zahl < 100
+${F}
+
+Diese App:
+${F}
+zahl ← 0
+WIEDERHOLE
+  zahl ← zahl + 25
+BIS zahl ≥ 100
+${F}
+
+Beide laufen viermal (zahl = 25, 50, 75, 100) und enden mit **zahl = 100**. Beim Umschreiben wird die Bedingung **verneint**: Aus „solange zahl < 100“ wird „BIS zahl ≥ 100“ – das Gegenteil von \`<\` ist \`≥\`, nicht \`>\`.
+
+**Grenzen genau übersetzen:** \`for (i = 0; i < 10; i++)\` heißt \`FÜR i VON 0 BIS 9\` – „< 10“ ist **nicht** „bis 10“.`,
         },
         {
           type: 'visual',
@@ -200,8 +247,8 @@ In dieser App verwenden wir durchgängig folgende **Konventionen**:
             explanation: 'Zeile 1: x = 4 · Zeile 2: x = 4 + 3 = 7 · Zeile 3: x = 7 · 2 = **14**.',
           },
         },
-        { type: 'practice', title: 'Übung: Pseudocode', questionIds: ['p01-q005', 'p01-q027', 'p01-q029', 'p01-q035'], count: 4, difficulty: 2 },
-        { type: 'summary', points: ['Pseudocode ist nicht genormt – eindeutig, vollständig und eingerückt schreiben.', 'Zuweisung mit ←, Vergleich mit =.', 'Blöcke mit ENDE WENN / ENDE SOLANGE / ENDE FÜR schließen.', 'Arrays beginnen bei Index 0.'] },
+        { type: 'practice', title: 'Übung: Pseudocode', questionIds: ['p01-q005', 'p01-q027', 'p01-q029', 'p01-q035', 'p01-q036', 'p01-q037', 'p01-q038'], count: 5, difficulty: 2 },
+        { type: 'summary', points: ['Pseudocode ist nicht genormt – eindeutig, vollständig und eingerückt schreiben.', 'Zuweisung mit ← (in Büchern oft :=), Vergleich mit =.', 'WIEDERHOLE … BIS = Abbruchbedingung, Wiederhole … solange = Laufbedingung.', 'Blöcke mit ENDE WENN / ENDE SOLANGE / ENDE FÜR schließen.', 'Arrays beginnen bei Index 0.'] },
       ],
     },
     /* ------------------------------------------------------------------ */
@@ -211,6 +258,9 @@ In dieser App verwenden wir durchgängig folgende **Konventionen**:
       minutes: 15,
       relevance: 'ap1',
       skills: ['prog.variables'],
+      simple: `Eine Variable ist wie eine beschriftete Schublade: Auf dem Etikett steht der Name, drinnen liegt ein Wert, und den kannst du jederzeit austauschen. Mit der Zuweisung (summe ← 5) legst du einen neuen Wert hinein; der alte ist dann weg. Eine Konstante ist eine Schublade mit Schloss: Ihr Wert wird einmal festgelegt und ändert sich nie, zum Beispiel der Mehrwertsteuersatz im Programm. Bei summe ← summe + 1 wird zuerst rechts gerechnet und dann das Ergebnis in die Schublade gelegt.
+
+**Merke:** ← heißt „bekommt den Wert“, = heißt „ist gleich?“ (Vergleich).`,
       steps: [
         {
           type: 'explain',
@@ -299,6 +349,9 @@ ${F}`,
       minutes: 20,
       relevance: 'ap1',
       skills: ['prog.datatypes'],
+      simple: `Ein Datentyp ist wie die passende Verpackung: Eier kommen in den Eierkarton, Milch in die Flasche. Ganze Zahlen zum Zählen kommen in int (Ganzzahl), Kommazahlen für Messwerte in double (Gleitkommazahl), Ja/Nein in bool (Wahrheitswert) und Texte in String (Zeichenkette). Eine Postleitzahl ist ein String, weil man mit ihr nicht rechnet und die führende Null erhalten bleiben muss. Geldbeträge gehören nicht in double, weil Gleitkommazahlen kleine Rundungsfehler haben – dafür gibt es einen Dezimaltyp (decimal) oder du rechnest in Cent als Ganzzahl.
+
+**Merke:** Zählen → int, Messwert → double, ja/nein → bool, Text/PLZ → String, Geld → decimal oder Cent als int.`,
       steps: [
         {
           type: 'explain',
@@ -386,6 +439,9 @@ ${F}`,
       minutes: 20,
       relevance: 'ap1',
       skills: ['prog.operators'],
+      simple: `Rechnen im Programm funktioniert fast wie im Matheunterricht: Punkt vor Strich, Klammern zuerst. Neu sind DIV und MOD – stell dir 23 Eier vor, die in Kartons zu je 5 Stück kommen. 23 DIV 5 = 4 sagt dir, wie viele Kartons voll werden (ganzzahlige Division), 23 MOD 5 = 3 sagt dir, wie viele Eier übrig bleiben (Rest). Mit MOD prüfst du zum Beispiel, ob eine Zahl gerade ist: zahl MOD 2 = 0.
+
+**Merke:** DIV = wie oft passt es ganz hinein, MOD = was bleibt übrig.`,
       steps: [
         {
           type: 'explain',
@@ -473,6 +529,9 @@ Beispiel: \`2 + 3 * 4 MOD 5\` → 3 · 4 = 12 → 12 MOD 5 = 2 → 2 + 2 = **4**
       minutes: 25,
       relevance: 'ap1',
       skills: ['prog.logic'],
+      simple: `Ein Vergleich (z. B. alter ≥ 18) liefert immer WAHR oder FALSCH. Mehrere Vergleiche verknüpfst du mit UND, ODER und NICHT (logische Operatoren). UND ist wie eine Haustür mit Schlüssel UND Zahlencode – nur wenn beides passt, geht sie auf. ODER ist wie die Kasse, an der du mit Karte ODER bar zahlen darfst – eins reicht, beides geht auch. NICHT dreht WAHR und FALSCH einfach um.
+
+**Merke:** UND ist nur WAHR, wenn alles WAHR ist; ODER ist nur FALSCH, wenn alles FALSCH ist.`,
       steps: [
         {
           type: 'explain',
@@ -863,6 +922,35 @@ Beispiel: „Nicht (zwischen 18 und 65)“ = \`NICHT (alter ≥ 18 UND alter ≤
       accept: ['Werktag'],
       hints: ['Bei FALLS wird der Wert mit jedem FALL verglichen; mehrere Werte durch Komma.'],
       explanation: 'tag = 3 passt zu `FALL 1, 2, 3, 4, 5:` → Ausgabe **Werktag**. Die übrigen Fälle werden nicht mehr betrachtet.',
+    },
+    {
+      id: 'p01-q036', kind: 'match', skill: 'prog.pseudocode', difficulty: 2,
+      prompt: 'Schulbücher und Prüfungen verwenden unterschiedliche Pseudocode-Schreibweisen. Ordne jeder Schreibweise ihre Bedeutung zu.',
+      left: ['x := 5', 'FALLS umsatz > 1000 DANN … SONST … ENDE FALLS', 'Wiederhole … solange b', 'WIEDERHOLE … BIS b', 'Von i := 1 Bis 10 … Ende Schleife', 'a modulo b'],
+      right: ['Zuweisung (wie x ← 5)', 'einfache Verzweigung (wie WENN … DANN … SONST)', 'fußgesteuerte Schleife mit Laufbedingung', 'fußgesteuerte Schleife mit Abbruchbedingung', 'Zählschleife (wie FÜR i VON 1 BIS 10)', 'Rest der ganzzahligen Division (MOD)'],
+      answer: [0, 1, 2, 3, 4, 5],
+      hints: ['Ein DANN verrät eine Verzweigung mit Bedingung.', 'Achte bei Schleifen auf das Wort vor der Bedingung: BIS oder solange?'],
+      explanation: ':= ist eine Zuweisung · FALLS … DANN ist in manchen Büchern eine einfache Verzweigung (in dieser App: WENN) · „solange“ = Laufbedingung, „BIS“ = Abbruchbedingung · „Von … Bis“ = Zählschleife · modulo = MOD.',
+    },
+    {
+      id: 'p01-q037', kind: 'text', skill: 'prog.pseudocode', difficulty: 2,
+      prompt: 'Ein Prüfungsbuch schreibt `Wiederhole … solange versuche < 3`. Übertrage die Schleife in die Schreibweise dieser App: `WIEDERHOLE … BIS ___`. Was steht hinter BIS?',
+      accept: ['versuche ≥ 3', 'versuche >= 3', 'versuche>=3', 'versuche≥3', 'versuche => 3', 'NICHT versuche < 3', 'NICHT (versuche < 3)', 'NICHT(versuche < 3)', 'NICHT(versuche<3)'],
+      placeholder: 'Bedingung',
+      hints: ['„solange“ ist eine Laufbedingung, „BIS“ eine Abbruchbedingung – du brauchst das Gegenteil.', 'Das Gegenteil von < ist ≥.'],
+      misconceptions: [
+        { answer: 'versuche < 3', error: 'pseudocode-lauf-abbruch', why: 'Dann würde die Schleife schon nach dem ersten Durchlauf enden. BIS braucht die **verneinte** Bedingung.' },
+        { answer: 'versuche > 3', error: 'negation-falsch', why: 'Das Gegenteil von „< 3“ ist „≥ 3“. Mit „> 3“ liefe die Schleife einmal zu oft.' },
+      ],
+      explanation: 'Laufbedingung „versuche < 3“ → Abbruchbedingung ist ihr Gegenteil: **versuche ≥ 3**. Merke: Gegenteil von < ist ≥, von > ist ≤, von = ist ≠.',
+    },
+    {
+      id: 'p01-q038', kind: 'free', skill: 'prog.pseudocode', difficulty: 2,
+      prompt: 'In einem Lösungsbuch wird die Java-Schleife `for (int i = 0; i < 10; i++) { … }` als `FÜR i := 0 BIS 10` übersetzt. Beurteilen Sie die Übersetzung und geben Sie eine korrekte Fassung an.',
+      modelAnswer: 'Die Übersetzung ist ungenau bzw. falsch: Die Java-Schleife läuft, solange i < 10 gilt, also mit i = 0 bis 9 – das sind 10 Durchläufe. „FÜR i := 0 BIS 10“ schließt den Endwert 10 ein und ergibt 11 Durchläufe. Korrekt ist „FÜR i VON 0 BIS 9“ (bzw. „FÜR i := 0 BIS 9“) oder als kopfgesteuerte Schleife: i ← 0, SOLANGE i < 10 TUE … i ← i + 1 … ENDE SOLANGE.',
+      keywords: ['i < 10', '0 bis 9', '10 Durchläufe', '11 Durchläufe', 'BIS 9'],
+      hints: ['Zähle die Durchläufe beider Varianten.'],
+      explanation: 'Kern: „< 10“ schließt 10 aus, „BIS 10“ schließt 10 ein → ein Durchlauf zu viel. Häufiger Fehler in Prüfungen: Off-by-one beim Übersetzen von Schleifengrenzen.',
     },
   ],
 };

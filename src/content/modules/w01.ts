@@ -16,6 +16,9 @@ export const w01: Module = {
     { id: 'w.anforderungen', module: 'w01', title: 'Anforderungen ermitteln (funktional / nicht-funktional)', requires: ['w.fragetechnik'] },
     { id: 'w.lastenheft', module: 'w01', title: 'Lastenheft und Pflichtenheft', requires: ['w.anforderungen'] },
     { id: 'w.zielgruppe', module: 'w01', title: 'Zielgruppengerecht beraten & Barrierefreiheit' },
+    { id: 'w.kurzpflichtenheft', module: 'w01', title: 'Kundenanfrage in ein Kurzpflichtenheft überführen', requires: ['w.lastenheft'] },
+    { id: 'w.geschaeftsbrief', module: 'w01', title: 'Geschäftsbrief und Kunden-E-Mail (DIN 5008)', requires: ['w.zielgruppe'] },
+    { id: 'w.praesentation', module: 'w01', title: 'Lösungen präsentieren', requires: ['w.zielgruppe'] },
   ],
   lessons: [
     /* ------------------------------------------------------------ */
@@ -25,6 +28,9 @@ export const w01: Module = {
       minutes: 25,
       relevance: 'ap1',
       skills: ['w.gespraech', 'w.fragetechnik'],
+      simple: `Ein gutes Kundengespräch ist wie ein Arztbesuch: Die Ärztin verschreibt nicht sofort etwas, sondern fragt erst, was dir fehlt. **Offene Fragen** („Wie arbeiten Sie im Moment?“) bringen den Kunden zum Erzählen. **Geschlossene Fragen** („Brauchen Sie zwei Monitore?“) klären Details mit Ja oder Nein. Beim **aktiven Zuhören** wiederholst du mit eigenen Worten, was du verstanden hast – so merkst du Missverständnisse sofort. Am Ende schreibst du alles in ein **Protokoll**.
+
+**Merke:** Erst fragen und zuhören, dann beraten; offene Fragen zum Sammeln, geschlossene zum Klären, Ergebnis protokollieren.`,
       steps: [
         {
           type: 'explain',
@@ -123,6 +129,9 @@ export const w01: Module = {
       minutes: 20,
       relevance: 'ap1-teilweise',
       skills: ['w.kommunikation'],
+      simple: `Ein Satz kann mehrere Botschaften gleichzeitig enthalten. Sagt deine Mutter „Die Spülmaschine ist voll“, meint sie vielleicht: „Räum sie bitte aus!“ (ein **Appell**, also eine Aufforderung). Genauso im Support: „Der Drucker geht schon wieder nicht!“ ist eine Sachinformation, aber auch Ärger und die Bitte um schnelle Hilfe. Wenn du nur den Vorwurf hörst, wirst du selbst gereizt – und das Gespräch kippt. Bleib sachlich, zeig Verständnis und biete eine Lösung an. Ich-Botschaften („Ich brauche noch die Fehlermeldung“) wirken freundlicher als Du-Vorwürfe.
+
+**Merke:** Jede Nachricht hat Sach- und Beziehungsseite; bei Beschwerden zuhören, Verständnis zeigen, Lösung anbieten.`,
       steps: [
         {
           type: 'explain',
@@ -203,6 +212,9 @@ Hört der IT-Mitarbeiter vor allem mit dem **Beziehungsohr**, fühlt er sich ang
       minutes: 25,
       relevance: 'ap1',
       skills: ['w.anforderungen'],
+      simple: `Wer ein Fahrrad kauft, sagt oft nur: „Es soll gut sein.“ Das hilft dem Verkäufer wenig. Besser: „Ich fahre täglich 10 km zur Arbeit, auch bei Regen, und will höchstens 800 € ausgeben.“ Genauso brauchst du vom Kunden **Anforderungen**: **funktionale** sagen, **was** das System können muss (z. B. scannen), **nicht-funktionale** sagen, **wie gut** (z. B. in 3 Sekunden). Damit man sie später prüfen kann, müssen sie **messbar** sein – mit Zahl und Einheit.
+
+**Merke:** Funktional = WAS, nicht-funktional = WIE GUT; jede Anforderung messbar formulieren und nach Wichtigkeit ordnen (Muss/Soll/Kann).`,
       steps: [
         {
           type: 'explain',
@@ -288,6 +300,9 @@ Als Orientierung für Qualitätsmerkmale dient die Norm **ISO/IEC 25010** (u. a.
       minutes: 20,
       relevance: 'ap1',
       skills: ['w.lastenheft'],
+      simple: `Stell dir vor, du bestellst eine Geburtstagstorte. Du schreibst auf, **was** du willst: Schoko, für 20 Personen, ohne Nüsse, bis Samstag – das ist dein **Lastenheft**. Die Konditorei antwortet, **wie** sie es macht: dreistöckig, Zartbitterschokolade, 30 cm Durchmesser, Lieferung Samstag 10 Uhr – das ist ihr **Pflichtenheft**. Bestätigst du das, gilt es als Vertrag. Bei der Abholung prüfst du, ob die Torte genau so ist wie beschrieben.
+
+**Merke:** Lastenheft = Kunde, WAS; Pflichtenheft = Dienstleister, WIE – das bestätigte Pflichtenheft ist Maßstab für die Abnahme.`,
       steps: [
         {
           type: 'explain',
@@ -368,6 +383,9 @@ Als Orientierung für Qualitätsmerkmale dient die Norm **ISO/IEC 25010** (u. a.
       minutes: 20,
       relevance: 'ap1',
       skills: ['w.zielgruppe'],
+      simple: `Einem Kind erklärst du ein Handy anders als deiner Oma oder einem Technikfan. Genauso im Beruf: Die **Geschäftsführung** will wissen, was es kostet und bringt; die **Anwender** wollen wissen, wie man es bedient; **IT-Kollegen** wollen technische Details. Fachwörter übersetzt du in Alltagssprache, z. B. „Firewall“ als „Pförtner für das Firmennetz“. **Barrierefreiheit** heißt: Auch Menschen mit Einschränkungen können den Arbeitsplatz nutzen – etwa mit einem **Screenreader** (Programm, das den Bildschirminhalt vorliest).
+
+**Merke:** Sprache und Inhalt an den Zuhörer anpassen; Arbeitsplätze so planen, dass alle sie nutzen können.`,
       steps: [
         {
           type: 'explain',
@@ -435,6 +453,184 @@ Als Orientierung für Qualitätsmerkmale dient die Norm **ISO/IEC 25010** (u. a.
         { type: 'summary', points: ['Sprache, Inhalt und Detailtiefe an die Zielgruppe anpassen.', 'Geschäftsführung: Kosten/Nutzen/Risiko; Anwender: Bedienung; IT: Technik.', 'Fachbegriffe übersetzen, Analogien nutzen, mit Kontrollfragen prüfen.', 'Barrierefreie Arbeitsplätze: Screenreader, Braillezeile, Kontrast, ergonomische Eingabegeräte.', 'BITV 2.0 (öffentliche Stellen), BFSG seit 28.06.2025 (Verbraucherprodukte), WCAG als Maßstab.'] },
       ],
     },
+    /* ------------------------------------------------------------ */
+    {
+      id: 'w01-l06',
+      title: 'Von der Kundenanfrage zum Kurzpflichtenheft',
+      minutes: 25,
+      relevance: 'ap1',
+      skills: ['w.kurzpflichtenheft'],
+      simple: `Eine Kundenanfrage ist oft ein lockerer Text, wie eine Sprachnachricht von einem Freund: Wichtiges und Nebensächliches durcheinander. Du sortierst sie wie eine Einkaufsliste: Was **muss** unbedingt rein (**Muss-Kriterien**), was wäre **schön** (**Wunsch-Kriterien**) und was gehört **ausdrücklich nicht** dazu (**Abgrenzung**)? Wo etwas fehlt, fragst du nach. Daraus entsteht ein kurzes **Pflichtenheft** – ein Plan, der sagt, was du lieferst und woran man später prüft, ob alles erfüllt ist.
+
+**Merke:** Anfrage lesen → markieren → nachfragen → in Muss, Wunsch und Abgrenzung sortieren → messbar formulieren und Lösung zuordnen.`,
+      steps: [
+        {
+          type: 'explain',
+          title: 'Ordnung in eine Kundenanfrage bringen',
+          body: `In der Praxis – und in Prüfungsaufgaben – kommt selten ein fertiges Lastenheft. Meist schreibt der Kunde eine **E-Mail** oder ruft an. Deine Aufgabe: daraus ein **Kurzpflichtenheft** machen, das als Grundlage für Angebot, Umsetzung und Abnahme dient.
+
+**Vorgehen**
+1. **Anfrage gründlich lesen** und alle Informationen markieren: Anzahl, Funktionen, Termine, Budget, vorhandene Systeme.
+2. **Lücken erkennen** und **Rückfragen** stellen (Welche Software genau? Welches Datum? Lizenzen vorhanden?).
+3. Informationen **einordnen**: Muss-, Wunsch- und Abgrenzungskriterien, Rahmenbedingungen.
+4. Anforderungen **messbar** formulieren („zwei Monitore mit mindestens 24 Zoll“ statt „großer Bildschirm“).
+5. Für jede Muss-Anforderung eine **Lösung** angeben und **Abnahmekriterien** festlegen.
+
+**Gliederung eines Kurzpflichtenhefts**
+
+| Abschnitt | Inhalt | Beispiel |
+|---|---|---|
+| **Ausgangssituation** (Ist) | Was ist heute vorhanden, was ist das Problem? | 3 neue Mitarbeiterinnen im Einkauf ohne Arbeitsplatz |
+| **Zielsetzung** (Soll) | Was soll erreicht werden? | einsatzbereite Arbeitsplätze ab 01.03. |
+| **Muss-Kriterien** | unverzichtbar – ohne sie ist die Lösung unbrauchbar | Warenwirtschaft und Office, zwei Monitore je Platz |
+| **Wunsch-Kriterien** (Kann-Kriterien) | schön, wenn Budget und Zeit reichen | Homeoffice-Fähigkeit |
+| **Abgrenzungskriterien** | was ausdrücklich **nicht** geliefert wird | keine Telefonie, keine Büromöbel |
+| **Rahmenbedingungen** | Budget, Termin, vorhandene Systeme, Gesetze | max. 4.500 € netto, Anbindung an vorhandene Domäne |
+| **Lösungsvorschlag** | konkrete Produkte und Konfiguration (WIE und WOMIT) | 3 × Notebook mit Dockingstation, 6 × 24-Zoll-Monitor |
+| **Abnahmekriterien / Tests** | woran die Erfüllung geprüft wird | Anmeldung an der Domäne, Warenwirtschaft startet, beide Monitore aktiv |
+| **Zeitplan** | Meilensteine, Liefer- und Übergabetermin | Lieferung 20.02., Übergabe 27.02. |
+
+**Warum Abgrenzungskriterien?** Sie verhindern Missverständnisse und spätere Streitigkeiten: Steht dort „Telefonie ist nicht Bestandteil“, kann der Kunde bei der Abnahme nicht erwarten, dass Telefone eingerichtet werden. Was nicht im Pflichtenheft steht, ist eine **Änderung** (Change Request) mit eigenem Preis.
+
+*Hinweis:* „Muss/Wunsch/Abgrenzung“ ist dieselbe Idee wie die MoSCoW-Priorisierung aus Lektion 3 (Must – Should/Could – Won't).`,
+        },
+        {
+          type: 'example',
+          title: 'Eine Kunden-E-Mail auswerten',
+          problem: `Der Einkaufsleiter der Elektro Krämer GmbH schreibt:
+
+> „Hallo zusammen, im März fangen bei uns drei neue Kolleginnen im Einkauf an. Die brauchen Rechner wie alle anderen, mit zwei Bildschirmen, weil sie ständig im Warenwirtschaftsprogramm und in Excel gleichzeitig arbeiten. Gut wäre, wenn sie ab und zu von zu Hause arbeiten könnten. Telefone haben wir schon. Mehr als 4.500 € netto sollte das nicht kosten. Viele Grüße, T. Brandt“
+
+Erstelle die Kernpunkte eines Kurzpflichtenhefts.`,
+          steps: [
+            { label: 'Markieren', body: 'drei Arbeitsplätze · Einkauf · März · zwei Bildschirme · Warenwirtschaft + Excel · Homeoffice „gut wäre“ · Telefone vorhanden · max. 4.500 € netto' },
+            { label: 'Rückfragen', body: 'Genauer Starttermin? Welches Warenwirtschaftsprogramm und sind Lizenzen vorhanden? Office-Lizenzen vorhanden? Arbeitsplätze mit Netzwerkdosen ausgestattet?' },
+            { label: 'Muss-Kriterien', body: '3 Arbeitsplätze mit Warenwirtschaft und Office, je 2 Monitore (mind. 24 Zoll), Einbindung in die vorhandene Domäne, einsatzbereit am ersten Arbeitstag.' },
+            { label: 'Wunsch-Kriterien', body: 'Homeoffice-Fähigkeit (z. B. Notebook statt PC, VPN-Zugang).' },
+            { label: 'Abgrenzung', body: 'Telefonie ist nicht Bestandteil; keine Möbel; keine Schulung in der Warenwirtschaft (macht die Fachabteilung).' },
+            { label: 'Rahmenbedingungen und Abnahme', body: 'Budget 4.500 € netto · Termin vor Arbeitsbeginn · Abnahme: Anmeldung, Warenwirtschaft und Excel starten, beide Monitore aktiv, Netzlaufwerke verbunden.' },
+          ],
+          result: 'Aus der lockeren E-Mail ist eine prüfbare Grundlage geworden. Die Rückfragen klären Lücken, bevor du ein Angebot schreibst – nicht erst bei der Abnahme.',
+        },
+        {
+          type: 'check',
+          question: {
+            id: 'w01-c07', kind: 'table', skill: 'w.kurzpflichtenheft', difficulty: 2,
+            prompt: 'Ordne die Aussagen aus der E-Mail von Herrn Brandt ein: **Muss**, **Wunsch** oder **Abgrenzung**.',
+            columns: [{ key: 'k', label: 'Kriterium', type: 'text' }],
+            rows: [
+              { label: '„Die brauchen zwei Bildschirme.“', cells: { k: { answer: 'Muss', accept: ['muss-kriterium', 'musskriterium', 'must', 'must have'] } } },
+              { label: '„Gut wäre, wenn sie ab und zu von zu Hause arbeiten könnten.“', cells: { k: { answer: 'Wunsch', accept: ['wunsch-kriterium', 'wunschkriterium', 'kann', 'kann-kriterium', 'could', 'should'] } } },
+              { label: '„Telefone haben wir schon.“', cells: { k: { answer: 'Abgrenzung', accept: ['abgrenzungskriterium', 'abgrenzungs-kriterium', 'won\'t', 'wont'] } } },
+              { label: '„… weil sie ständig im Warenwirtschaftsprogramm arbeiten.“', cells: { k: { answer: 'Muss', accept: ['muss-kriterium', 'musskriterium', 'must', 'must have'] } } },
+            ],
+            explanation: 'Unverzichtbare Funktionen → Muss. Formulierungen wie „gut wäre“, „schön wäre“ → Wunsch. Was vorhanden ist oder ausdrücklich nicht geliefert wird → Abgrenzung.\n\nHäufiger Fehler: Wünsche als Muss-Kriterien behandeln – dann wird das Angebot unnötig teuer.',
+          },
+        },
+        { type: 'practice', title: 'Übung: Kurzpflichtenheft', questionIds: ['w01-q033', 'w01-q034', 'w01-q035', 'w01-q036', 'w01-q037'], count: 4, difficulty: 2 },
+        { type: 'summary', points: ['Kundenanfrage lesen, markieren, Lücken durch Rückfragen schließen.', 'Muss-Kriterien (unverzichtbar), Wunsch-Kriterien (optional), Abgrenzungskriterien (nicht Bestandteil).', 'Rahmenbedingungen: Budget, Termin, vorhandene Systeme.', 'Lösungsvorschlag, Abnahmekriterien und Zeitplan ergänzen.', 'Was nicht im Pflichtenheft steht, ist später ein Change Request.'] },
+      ],
+    },
+    /* ------------------------------------------------------------ */
+    {
+      id: 'w01-l07',
+      title: 'Geschäftsbrief, Kunden-E-Mail und Präsentation',
+      minutes: 30,
+      relevance: 'ap1-teilweise',
+      skills: ['w.geschaeftsbrief', 'w.praesentation'],
+      simple: `Ein Geschäftsbrief ist wie die Kleidung bei einem Vorstellungsgespräch: Der erste Eindruck zählt. Darum gibt es feste Regeln (die Norm **DIN 5008**), wo Anschrift, Datum, Betreff und Gruß stehen – so findet jeder sofort alles. Eine Kunden-E-Mail braucht einen klaren **Betreff**, eine freundliche Anrede, kurze Absätze und eine **Signatur** mit den Firmenangaben. Eine **Präsentation** ist wie eine gute Geschichte: Anfang (worum geht es?), Mitte (Lösung und Nutzen) und Schluss (Empfehlung und Fragen) – mit wenig Text auf den Folien.
+
+**Merke:** Brief und E-Mail: klarer Betreff, höflich, kurz, Pflichtangaben der Firma; Präsentation: Einleitung – Hauptteil – Schluss, wenig Text pro Folie.`,
+      steps: [
+        {
+          type: 'explain',
+          title: 'Schriftlich und mündlich professionell auftreten',
+          body: `**Geschäftsbrief nach DIN 5008 (Grundzüge)**
+
+| Element | Regel | Beispiel |
+|---|---|---|
+| **Briefkopf** | Firmenname, Logo, Kontaktdaten | IT-Systemhaus Nord GmbH |
+| **Anschriftfeld** | oben die Zusatz- und Vermerkzone (z. B. Einschreiben), darunter die Anschrift | Elektro Krämer GmbH · Herrn Tobias Brandt · Werkstraße 12 · 10115 Berlin |
+| **Informationsblock** | Ihr Zeichen, Unser Zeichen, Ansprechpartner, Telefon, Datum | Datum: 2026-11-04 oder 04.11.2026 |
+| **Betreff** | kurz und aussagekräftig, **ohne** das Wort „Betreff“, darf fett sein | **Angebot Nr. 2026-117 für drei Arbeitsplätze** |
+| **Anrede** | mit Komma; danach geht es **klein** weiter (außer Nomen) | Sehr geehrter Herr Brandt, |
+| **Text** | Absätze durch Leerzeile trennen; Anliegen, Details, nächster Schritt | |
+| **Gruß** | **ohne** Satzzeichen | Mit freundlichen Grüßen |
+| **Unterschrift** | Firmenname, Unterschrift, Name in Maschinenschrift | |
+| **Anlagen** | unter der Unterschrift aufzählen | Anlage: Angebot, Datenblatt |
+| **Fußzeile / Geschäftsangaben** | Pflichtangaben je nach Rechtsform | siehe unten |
+
+**Pflichtangaben einer GmbH** in Geschäftsbriefen – **auch in geschäftlichen E-Mails** (§ 35a GmbHG): Rechtsform und Sitz, **Registergericht** und **Handelsregisternummer**, alle **Geschäftsführer** mit Familiennamen und mindestens einem ausgeschriebenen Vornamen, ggf. Vorsitzender des Aufsichtsrats. Fehlen sie, kann das Registergericht ein Zwangsgeld festsetzen.
+
+**Kunden-E-Mail – Prüfliste**
+- **Betreff** sagt, worum es geht und was zu tun ist (z. B. „Liefertermin Notebooks – neue Übergabe am 27.02.“).
+- Persönliche **Anrede**, sachlicher und freundlicher Ton, **ein Thema** pro E-Mail.
+- Wichtigstes zuerst, kurze Absätze, klare Bitte oder nächster Schritt mit Termin.
+- **Anhänge** im Text erwähnen und vor dem Senden prüfen.
+- **Empfänger** bewusst wählen: An (soll handeln), CC (zur Kenntnis), **BCC** bei vielen externen Empfängern, damit deren Adressen nicht für alle sichtbar sind (Datenschutz).
+- Keine Passwörter oder sensiblen Daten unverschlüsselt per E-Mail.
+- **Signatur** mit Name, Funktion, Kontakt und den Pflichtangaben der Firma.
+- Vor dem Senden Rechtschreibung, Namen und Termine prüfen.
+
+**Präsentation**
+
+| Teil | Inhalt |
+|---|---|
+| **Einleitung** | Begrüßung, Thema, Ziel der Präsentation, Ablauf, Dauer |
+| **Hauptteil** | Ausgangssituation, Lösungsvorschlag, Nutzen, Kosten, Zeitplan, Risiken |
+| **Schluss** | Zusammenfassung, Empfehlung bzw. nächster Schritt, Fragen |
+
+*Folien:* wenige Stichpunkte (Faustregel: höchstens etwa sechs Zeilen pro Folie), große, gut lesbare Schrift, starker Kontrast, Diagramme statt Zahlenkolonnen, einheitliches Design, Quellen angeben.
+*Vortrag:* Zielgruppe beachten (siehe Lektion 5), frei sprechen, Blickkontakt, Zeit einhalten, Fachbegriffe erklären, Technik vorher testen.
+*Medien:* Beamer/Display, Whiteboard, Flipchart, Handout – passend zum Ziel und Raum wählen.`,
+        },
+        {
+          type: 'example',
+          title: 'Eine Kunden-E-Mail überarbeiten',
+          problem: `Ein Auszubildender will dem Kunden eine Lieferverzögerung mitteilen:
+
+> **Betreff:** Info
+> hi, die notebooks kommen später, irgendwann nächste woche. sorry!! gruß max
+
+Überarbeite die E-Mail.`,
+          steps: [
+            { label: 'Probleme erkennen', body: 'Betreff ohne Aussage · keine Anrede · kein konkreter Termin · keine Lösung · unprofessioneller Ton · keine Signatur.' },
+            { label: 'Überarbeitete Fassung', body: `**Betreff:** Lieferverzögerung Notebooks – neuer Übergabetermin 27.02.2026
+
+Sehr geehrter Herr Brandt,
+
+unser Lieferant hat uns heute mitgeteilt, dass die drei Notebooks erst am 23.02.2026 bei uns eintreffen. Die Einrichtung und Übergabe ist deshalb am **27.02.2026** möglich – weiterhin vor dem Arbeitsbeginn Ihrer neuen Kolleginnen.
+
+Falls Sie bereits vorher einen Arbeitsplatz benötigen, stellen wir Ihnen gern kostenlos ein Leihgerät zur Verfügung. Bitte geben Sie uns bis Freitag kurz Bescheid.
+
+Mit freundlichen Grüßen
+
+Max Schneider
+Auszubildender Fachinformatiker
+IT-Systemhaus Nord GmbH · Hafenstraße 5 · 20457 Hamburg · Telefon 040 123456-0
+Sitz: Hamburg · Amtsgericht Hamburg HRB 123456 · Geschäftsführerin: Anna Nord` },
+          ],
+          result: 'Aussagekräftiger Betreff, persönliche Anrede, konkrete Termine, eine Lösung für den Kunden, korrekter Gruß ohne Satzzeichen und eine Signatur mit Pflichtangaben.',
+        },
+        {
+          type: 'check',
+          question: {
+            id: 'w01-c08', kind: 'single', skill: 'w.geschaeftsbrief', difficulty: 1,
+            prompt: 'Welche Gestaltung entspricht der **DIN 5008**?',
+            options: ['Betreffzeile ohne das Wort „Betreff“; Gruß „Mit freundlichen Grüßen“ ohne Satzzeichen', 'Betreffzeile beginnt mit „Betreff:“; Gruß „Mit freundlichen Grüßen,“ mit Komma', 'Anrede ohne Komma, der Text beginnt mit Großbuchstaben', 'Datum nur als „4/11/26“'],
+            answer: 0,
+            distractors: {
+              '1': { why: 'Das Wort „Betreff“ entfällt; nach dem Gruß steht kein Komma.', error: 'w-din5008' },
+              '2': { why: 'Nach der Anrede steht ein Komma, der Text geht danach klein weiter.', error: 'w-din5008' },
+              '3': { why: 'Numerisch wird das Datum als 2026-11-04 oder 04.11.2026 geschrieben.', error: 'w-din5008' },
+            },
+            explanation: 'DIN 5008: Betreff ohne Leitwort, Anrede mit Komma, Gruß ohne Satzzeichen, Datum z. B. 2026-11-04 oder 04.11.2026.',
+          },
+        },
+        { type: 'practice', title: 'Übung: Brief, E-Mail und Präsentation', questionIds: ['w01-q038', 'w01-q039', 'w01-q040', 'w01-q041', 'w01-q042', 'w01-q043', 'w01-q044', 'w01-q045', 'w01-q046'], count: 6, difficulty: 2 },
+        { type: 'summary', points: ['DIN 5008: Betreff ohne Leitwort, Anrede mit Komma, Gruß ohne Satzzeichen, Datum 2026-11-04 oder 04.11.2026.', 'GmbH-Pflichtangaben (§ 35a GmbHG) in Briefen und geschäftlichen E-Mails: Rechtsform, Sitz, Registergericht, HRB-Nummer, Geschäftsführer.', 'E-Mail: aussagekräftiger Betreff, ein Thema, konkrete Termine, BCC bei vielen externen Empfängern, Signatur.', 'Präsentation: Einleitung – Hauptteil – Schluss; wenig Text, gut lesbar, zielgruppengerecht.'] },
+      ],
+    },
   ],
   /* ================================================================ */
   questions: [
@@ -489,5 +685,54 @@ Als Orientierung für Qualitätsmerkmale dient die Norm **ISO/IEC 25010** (u. a.
     { id: 'w01-q030', kind: 'single', skill: 'w.lastenheft', difficulty: 2, prompt: 'Wogegen wird bei der **Abnahme** eines IT-Projekts die erbrachte Leistung geprüft?', options: ['Gegen das bestätigte Pflichtenheft (bzw. die vertraglich vereinbarte Leistung)', 'Gegen das Gesprächsprotokoll des Erstkontakts', 'Gegen die Datenblätter aller Hersteller', 'Gegen die Erwartungen der Geschäftsführung am Tag der Abnahme'], answer: 0, distractors: { '1': { why: 'Das Protokoll ist ein frühes Dokument; verbindlich ist die vertraglich vereinbarte Leistung.', error: 'w-abnahme-massstab' }, '2': { why: 'Datenblätter beschreiben Produkte, nicht den vereinbarten Leistungsumfang.', error: 'w-abnahme-massstab' }, '3': { why: 'Spontane Erwartungen sind nicht vereinbart – genau dafür gibt es das Pflichtenheft.', error: 'w-abnahme-massstab' } }, explanation: 'Abnahme = Soll-Ist-Vergleich mit der vereinbarten Leistung, meist dem bestätigten Pflichtenheft samt Abnahmekriterien.' },
     { id: 'w01-q031', kind: 'order', skill: 'w.lastenheft', difficulty: 2, prompt: 'Bringe die Schritte in die richtige Reihenfolge.', items: ['Kunde erstellt das Lastenheft', 'Systemhaus erstellt Angebot und Pflichtenheft', 'Kunde erteilt den Auftrag und bestätigt das Pflichtenheft', 'Umsetzung, Test und Einweisung', 'Abnahme anhand des Pflichtenhefts'], explanation: 'Lastenheft → Pflichtenheft/Angebot → Auftrag → Umsetzung → Abnahme.' },
     { id: 'w01-q032', kind: 'free', skill: 'w.gespraech', difficulty: 2, prompt: 'Ein Kunde wendet ein: „Das Angebot ist mir **zu teuer**.“ Beschreibe, wie du auf diesen Einwand reagierst.', modelAnswer: 'Einwand ernst nehmen und nachfragen, worauf er sich bezieht („Im Vergleich wozu?“ / „Welchen Betrag hatten Sie eingeplant?“). Dann den Nutzen und die Gesamtkosten erläutern (z. B. geringere Ausfallzeiten, längere Garantie, niedrigerer Stromverbrauch – TCO statt nur Anschaffungspreis). Gegebenenfalls Alternativen anbieten (anderes Modell, Leasing, Verzicht auf Could-have-Anforderungen), ohne die Muss-Anforderungen zu gefährden.', keywords: ['nachfragen', 'Nutzen', 'Gesamtkosten', 'TCO', 'Alternative', 'Leasing'], explanation: 'Einwandbehandlung: verstehen, begründen, Alternativen anbieten – nicht sofort Rabatt geben und nicht diskutieren, wer recht hat.' },
+    /* ---- Kurzpflichtenheft (w01-l06) ---- */
+    { id: 'w01-q033', kind: 'table', skill: 'w.kurzpflichtenheft', difficulty: 2, prompt: `Die Kanzlei Berg schreibt: „Wir brauchen für unsere vier Anwälte einen gemeinsamen Speicherplatz für Mandantenakten, der jede Nacht gesichert wird. Von unterwegs sollten wir möglichst auch darankommen. Die Telefonanlage ist nicht Ihr Thema, die betreut ein anderer Dienstleister. Mehr als 6.000 € netto sind nicht drin.“
+
+Ordne ein: **Muss**, **Wunsch**, **Abgrenzung** oder **Rahmen** (Rahmenbedingung).`, columns: [{ key: 'k', label: 'Einordnung', type: 'text' }], rows: [
+      { label: 'Gemeinsamer Speicherplatz für vier Personen', cells: { k: { answer: 'Muss', accept: ['muss-kriterium', 'musskriterium', 'must'] } } },
+      { label: 'Nächtliche Datensicherung', cells: { k: { answer: 'Muss', accept: ['muss-kriterium', 'musskriterium', 'must'] } } },
+      { label: 'Zugriff von unterwegs', cells: { k: { answer: 'Wunsch', accept: ['wunsch-kriterium', 'wunschkriterium', 'kann', 'kann-kriterium'] } } },
+      { label: 'Telefonanlage', cells: { k: { answer: 'Abgrenzung', accept: ['abgrenzungskriterium', 'abgrenzungs-kriterium'] } } },
+      { label: 'Höchstens 6.000 € netto', cells: { k: { answer: 'Rahmen', accept: ['rahmenbedingung', 'rahmenbedingungen', 'budget'] } } },
+    ], explanation: '„Brauchen“, „jede Nacht“ → Muss. „Möglichst auch“ → Wunsch. „Nicht Ihr Thema“ → Abgrenzung. Budget → Rahmenbedingung.\n\nHäufiger Fehler: Budgetgrenzen als Muss-Kriterium einordnen – sie sind eine Rahmenbedingung für die gesamte Lösung.' },
+    { id: 'w01-q034', kind: 'free', skill: 'w.kurzpflichtenheft', difficulty: 3, prompt: `Erstelle aus folgender Anfrage ein **Kurzpflichtenheft** mit den Abschnitten Ausgangssituation, Ziel, Muss-, Wunsch- und Abgrenzungskriterien, Rahmenbedingungen und Abnahmekriterien. Nenne außerdem **zwei Rückfragen**.
+
+> „Guten Tag, in unserer Arztpraxis (2 Ärztinnen, 4 MFA) fällt der Empfangs-PC ständig aus. Wir brauchen bis Ende des Monats einen neuen PC am Empfang, auf dem unsere Praxissoftware läuft und an dem auch die Kartenterminals für die Gesundheitskarte funktionieren. Schön wäre ein zweiter Bildschirm. Den Drucker wollen wir behalten. Budget etwa 1.500 € netto. Viele Grüße, Dr. Schulz“`, modelAnswer: 'Ausgangssituation: Empfangs-PC der Praxis Dr. Schulz fällt häufig aus, Arbeit am Empfang wird gestört. Ziel: zuverlässiger Empfangsarbeitsplatz bis Monatsende. Muss-Kriterien: neuer PC, auf dem die Praxissoftware lauffähig ist (Systemanforderungen des Herstellers erfüllt); Kartenterminal funktioniert; Anbindung an das Praxisnetz und den vorhandenen Drucker; Datenübernahme bzw. Einrichtung des Benutzerprofils; Inbetriebnahme bis Monatsende. Wunsch-Kriterien: zweiter Bildschirm. Abgrenzung: kein neuer Drucker (vorhandener wird weiter genutzt); keine Änderung an der Praxissoftware selbst. Rahmenbedingungen: Budget ca. 1.500 € netto; Datenschutz für Gesundheitsdaten; Einrichtung möglichst außerhalb der Sprechzeiten. Abnahmekriterien: Praxissoftware startet und Patientendaten sind abrufbar, Gesundheitskarte wird eingelesen, Testdruck erfolgreich, Anmeldung am Netzwerk. Rückfragen: Welche Praxissoftware und Version, und wer ist deren Ansprechpartner? Welches Kartenterminal ist im Einsatz? Genauer Termin und mögliche Zeiten für die Installation? Gibt es einen Wartungsvertrag?', keywords: ['Ausgangssituation', 'Ziel', 'Muss', 'Praxissoftware', 'Kartenterminal', 'Wunsch', 'zweiter Bildschirm', 'Abgrenzung', 'Drucker', '1.500', 'Abnahme', 'Rückfrage'], explanation: 'Prüfliste: Sind alle Abschnitte vorhanden? Ist jede Muss-Anforderung prüfbar? Steht ausdrücklich drin, was **nicht** geliefert wird? Sind die Rückfragen konkret?' },
+    { id: 'w01-q035', kind: 'order', skill: 'w.kurzpflichtenheft', difficulty: 1, prompt: 'Bringe die Arbeitsschritte von der Kundenanfrage zum Kurzpflichtenheft in die richtige Reihenfolge.', items: ['Anfrage lesen und wichtige Informationen markieren', 'Lücken erkennen und Rückfragen an den Kunden stellen', 'Informationen in Muss-, Wunsch- und Abgrenzungskriterien einordnen', 'Anforderungen messbar formulieren und Lösung zuordnen', 'Abnahmekriterien und Zeitplan ergänzen', 'Kurzpflichtenheft vom Kunden bestätigen lassen'], explanation: 'Erst verstehen und klären, dann ordnen und konkretisieren – und zum Schluss bestätigen lassen, damit es Vertragsgrundlage wird.' },
+    { id: 'w01-q036', kind: 'single', skill: 'w.kurzpflichtenheft', difficulty: 2, prompt: 'Wozu dienen **Abgrenzungskriterien** im Pflichtenheft?', options: ['Sie legen fest, was ausdrücklich nicht zum Leistungsumfang gehört, und vermeiden so spätere Streitigkeiten.', 'Sie nennen die wichtigsten Funktionen, ohne die die Lösung unbrauchbar ist.', 'Sie beschreiben Wünsche, die nur bei ausreichendem Budget umgesetzt werden.', 'Sie grenzen die Konkurrenz vom Auftrag aus.'], answer: 0, distractors: { '1': { why: 'Das sind **Muss-Kriterien**.', error: 'w-kriterien-verwechselt' }, '2': { why: 'Das sind **Wunsch-Kriterien**.', error: 'w-kriterien-verwechselt' }, '3': { why: 'Mit Wettbewerbern hat das Pflichtenheft nichts zu tun.', error: 'w-kriterien-verwechselt' } }, explanation: 'Abgrenzungskriterien schützen beide Seiten: Was nicht vereinbart ist, muss nicht geliefert werden – und wird bei Bedarf als Änderung neu angeboten.' },
+    { id: 'w01-q037', kind: 'multi', skill: 'w.kurzpflichtenheft', difficulty: 2, prompt: 'Ein Kunde schreibt: „Wir brauchen **schnelles** WLAN im Lager, **bald**.“ Welche **Rückfragen** sind sinnvoll, um daraus prüfbare Anforderungen zu machen?', options: ['Welche Geräte und Anwendungen nutzen das WLAN, und welche Datenrate brauchen sie?', 'Bis zu welchem Datum muss das WLAN in Betrieb sein?', 'Wie groß ist die Fläche, und wie hoch und aus welchem Material sind die Regale?', 'Welche Lieblingsfarbe haben die Access Points?', 'Soll ich einfach das teuerste Modell nehmen?'], answer: [0, 1, 2], explanation: '„Schnell“ und „bald“ sind nicht messbar. Rückfragen machen daraus Zahlen (Mbit/s, Datum) und klären Rahmenbedingungen (Fläche, Bausubstanz).' },
+    /* ---- Geschäftsbrief, E-Mail, Präsentation (w01-l07) ---- */
+    { id: 'w01-q038', kind: 'free', skill: 'w.geschaeftsbrief', difficulty: 2, prompt: `Schreibe eine **E-Mail** an Frau Dr. Schulz (Arztpraxis): Der bestellte Empfangs-PC ist eingetroffen. Du schlägst als Installationstermin **Mittwoch, 18.11.2026, 13–15 Uhr** (Mittagspause der Praxis) vor und bittest um Bestätigung bis Montag. Während der Installation ist der Empfang etwa 90 Minuten ohne PC.
+
+**Prüfliste:**
+- [ ] aussagekräftiger Betreff
+- [ ] korrekte Anrede mit Komma
+- [ ] Anliegen im ersten Satz, konkreter Termin
+- [ ] Auswirkung (90 Minuten ohne PC) erklärt
+- [ ] klare Bitte mit Frist
+- [ ] Gruß ohne Satzzeichen, Signatur mit Firmenangaben`, modelAnswer: 'Betreff: Installation Empfangs-PC – Terminvorschlag Mi, 18.11.2026, 13–15 Uhr\n\nSehr geehrte Frau Dr. Schulz,\n\nIhr neuer Empfangs-PC ist bei uns eingetroffen. Gern installieren wir ihn am Mittwoch, 18.11.2026, von 13 bis 15 Uhr während Ihrer Mittagspause.\n\nWährend der Installation steht der Empfang für etwa 90 Minuten ohne PC zur Verfügung. Ihre Daten übernehmen wir vollständig; im Anschluss testen wir gemeinsam die Praxissoftware und das Kartenterminal.\n\nBitte bestätigen Sie uns den Termin bis Montag, 16.11.2026. Wenn der Termin nicht passt, nennen Sie uns gern eine Alternative.\n\nMit freundlichen Grüßen\n\nMax Schneider\nIT-Systemhaus Nord GmbH · Hafenstraße 5 · 20457 Hamburg · Telefon 040 123456-0\nSitz Hamburg · Amtsgericht Hamburg HRB 123456 · Geschäftsführerin: Anna Nord', keywords: ['Betreff', 'Sehr geehrte Frau Dr. Schulz,', '18.11.2026', '90 Minuten', 'bestätigen', 'Montag', 'Mit freundlichen Grüßen', 'Signatur'], explanation: 'Gehe die Prüfliste Punkt für Punkt durch. Besonders häufig fehlen: konkrete Frist für die Antwort und die Pflichtangaben in der Signatur.' },
+    { id: 'w01-q039', kind: 'free', skill: 'w.geschaeftsbrief', difficulty: 3, prompt: `Verfasse den **Brieftext** (Betreff bis Gruß) für ein Begleitschreiben zum Angebot Nr. 2026-117 an Herrn Tobias Brandt, Elektro Krämer GmbH: drei Arbeitsplätze für den Einkauf, Gesamtpreis 4.380 € netto, Angebot gültig bis 30.11.2026, Lieferung und Übergabe innerhalb von 10 Arbeitstagen nach Auftrag. Die Homeoffice-Option (Wunsch-Kriterium) bietest du als Alternative für 420 € netto Aufpreis an.
+
+**Prüfliste:**
+- [ ] Betreff ohne das Wort „Betreff“, mit Angebotsnummer
+- [ ] Anrede mit Komma, danach klein weiter
+- [ ] Dank für die Anfrage, Kernaussage (Preis, Leistung) zuerst
+- [ ] Alternative klar abgegrenzt
+- [ ] Gültigkeit und Liefertermin
+- [ ] Handlungsaufforderung, Ansprechpartner
+- [ ] Gruß ohne Satzzeichen, Anlage genannt`, modelAnswer: '**Angebot Nr. 2026-117 – drei Arbeitsplätze für Ihren Einkauf**\n\nSehr geehrter Herr Brandt,\n\nvielen Dank für Ihre Anfrage. Gern bieten wir Ihnen drei vollständig eingerichtete Arbeitsplätze mit je zwei Monitoren, Warenwirtschaft und Office zum Gesamtpreis von 4.380,00 € netto an. Alle Einzelheiten finden Sie im beigefügten Angebot.\n\nFür die gewünschte Arbeit im Homeoffice bieten wir Ihnen als Alternative Notebooks mit Dockingstation und VPN-Zugang an; der Aufpreis beträgt 420,00 € netto.\n\nDas Angebot ist gültig bis zum 30.11.2026. Lieferung und Übergabe erfolgen innerhalb von 10 Arbeitstagen nach Auftragseingang.\n\nFür Fragen stehe ich Ihnen gern unter 040 123456-12 zur Verfügung. Wir freuen uns auf Ihren Auftrag.\n\nMit freundlichen Grüßen\n\nIT-Systemhaus Nord GmbH\n\nMax Schneider\n\nAnlage\nAngebot Nr. 2026-117', keywords: ['Angebot Nr. 2026-117', 'Sehr geehrter Herr Brandt,', '4.380', '420', '30.11.2026', '10 Arbeitstagen', 'Mit freundlichen Grüßen', 'Anlage'], explanation: 'Ein gutes Begleitschreiben fasst das Angebot in wenigen Sätzen zusammen – die Details stehen im Angebot selbst.' },
+    { id: 'w01-q040', kind: 'multi', skill: 'w.geschaeftsbrief', difficulty: 2, prompt: 'Welche Angaben muss eine **GmbH** auf ihren Geschäftsbriefen und in geschäftlichen E-Mails machen (§ 35a GmbHG)?', options: ['Rechtsform und Sitz der Gesellschaft', 'Registergericht und Handelsregisternummer', 'Alle Geschäftsführer mit Familiennamen und mindestens einem ausgeschriebenen Vornamen', 'Die Privatadresse der Geschäftsführer', 'Den Jahresumsatz des Vorjahres'], answer: [0, 1, 2], explanation: 'Dazu kommt ggf. der Vorsitzende des Aufsichtsrats. Privatadressen und Umsätze gehören nicht dazu.\n\nHäufiger Fehler: annehmen, die Pflichtangaben gälten nur für Papierbriefe – sie gelten auch für geschäftliche E-Mails.' },
+    { id: 'w01-q041', kind: 'table', skill: 'w.geschaeftsbrief', difficulty: 2, prompt: 'Entspricht die Schreibweise der **DIN 5008**? Antworte mit **richtig** oder **falsch**.', columns: [{ key: 'r', label: 'richtig / falsch', type: 'text' }], rows: [
+      { label: 'Betreffzeile: „Betreff: Ihre Anfrage vom 02.11.2026“', cells: { r: { answer: 'falsch' } } },
+      { label: 'Datum: „2026-11-04“', cells: { r: { answer: 'richtig' } } },
+      { label: 'Anrede: „Sehr geehrte Frau Dr. Schulz,“ – nächste Zeile beginnt mit „vielen Dank …“', cells: { r: { answer: 'richtig' } } },
+      { label: 'Gruß: „Mit freundlichen Grüßen,“', cells: { r: { answer: 'falsch' } } },
+      { label: 'Datum: „04.11.2026“', cells: { r: { answer: 'richtig' } } },
+    ], explanation: 'Das Wort „Betreff“ entfällt. Das Datum steht numerisch als 2026-11-04 oder 04.11.2026. Nach der Anrede folgt ein Komma und der Text geht klein weiter. Nach dem Gruß steht **kein** Satzzeichen.' },
+    { id: 'w01-q042', kind: 'single', skill: 'w.geschaeftsbrief', difficulty: 2, prompt: 'Du informierst **40 Kunden** per E-Mail über eine Wartung des Kundenportals. Wie adressierst du die E-Mail?', options: ['Kunden in BCC, eigene Adresse in An', 'Alle Kunden in An', 'Alle Kunden in CC', 'Jeweils 10 Kunden pro E-Mail in An'], answer: 0, distractors: { '1': { why: 'So sieht jeder Kunde die Adressen aller anderen – ein Datenschutzverstoß (personenbezogene Daten an Dritte).', error: 'w-email-bcc' }, '2': { why: 'Auch in CC sind alle Adressen für alle sichtbar.', error: 'w-email-bcc' }, '3': { why: 'Auch dann sehen sich je 10 Kunden gegenseitig.', error: 'w-email-bcc' } }, explanation: 'Bei vielen externen Empfängern gehören die Adressen in **BCC** (Blindkopie); bei regelmäßigen Rundschreiben ist ein Newsletter-System besser.' },
+    { id: 'w01-q043', kind: 'order', skill: 'w.praesentation', difficulty: 1, prompt: 'Bringe die Teile einer Präsentation des Lösungsvorschlags „Neues WLAN im Lager“ vor der Geschäftsführung in eine sinnvolle Reihenfolge.', items: ['Begrüßung, Thema und Ziel der Präsentation', 'Ablauf und Dauer vorstellen', 'Ausgangssituation: Probleme mit dem heutigen WLAN', 'Lösungsvorschlag und Nutzen', 'Kosten und Zeitplan', 'Zusammenfassung und Empfehlung', 'Fragen beantworten'], explanation: 'Einleitung (Begrüßung, Ziel, Ablauf) → Hauptteil (Ist, Lösung, Nutzen, Kosten, Zeit) → Schluss (Zusammenfassung, Empfehlung, Fragen).' },
+    { id: 'w01-q044', kind: 'multi', skill: 'w.praesentation', difficulty: 2, prompt: 'Welche Regeln für die **Foliengestaltung** sind sinnvoll?', options: ['Wenige Stichpunkte pro Folie statt ganzer Sätze', 'Große, gut lesbare Schrift und starker Kontrast', 'Diagramme statt langer Zahlentabellen', 'Möglichst viele Animationen, damit niemand einschläft', 'Den kompletten Vortragstext auf die Folien schreiben und ablesen'], answer: [0, 1, 2], explanation: 'Folien unterstützen den Vortrag, sie ersetzen ihn nicht. Viele Animationen lenken ab, und Ablesen wirkt unvorbereitet.' },
+    { id: 'w01-q045', kind: 'free', skill: 'w.praesentation', difficulty: 2, prompt: 'Du sollst der Geschäftsführung der Elektro Krämer GmbH in **10 Minuten** die Umstellung auf eine Cloud-Telefonanlage vorstellen. Gliedere die Präsentation und nenne **drei Tipps** für deinen Vortrag.', modelAnswer: 'Gliederung: 1. Einleitung: Begrüßung, Ziel („Entscheidung über die Umstellung“), Ablauf. 2. Ausgangssituation: alte Anlage, Wartungsende, Probleme. 3. Lösungsvorschlag: Cloud-Telefonie, Funktionen (Homeoffice, Rufumleitung). 4. Nutzen und Risiken: Flexibilität, keine Hardware vor Ort; Abhängigkeit von der Internetverbindung. 5. Kosten und Zeitplan: einmalige und monatliche Kosten, Vergleich mit heute, Umstellung in 4 Wochen. 6. Schluss: Zusammenfassung, Empfehlung, Fragen. Tipps: Zielgruppe Geschäftsführung → Kosten, Nutzen, Risiken statt Technikdetails; frei sprechen und Blickkontakt halten; Zeit einhalten (Probedurchlauf); Technik vorher testen; Fachbegriffe erklären; Handout mit Kostenübersicht.', keywords: ['Einleitung', 'Ziel', 'Ausgangssituation', 'Lösung', 'Nutzen', 'Kosten', 'Zeitplan', 'Empfehlung', 'Blickkontakt', 'Zeit', 'Zielgruppe'], explanation: 'Für die Geschäftsführung zählt eine klare Entscheidungsvorlage: Was kostet es, was bringt es, was passiert, wenn wir nichts tun?' },
+    { id: 'w01-q046', kind: 'text', skill: 'w.geschaeftsbrief', difficulty: 1, prompt: 'Schreibe das Datum **4. November 2026** in der **internationalen numerischen Form** nach DIN 5008.', accept: ['2026-11-04'], placeholder: 'JJJJ-MM-TT', misconceptions: [{ answer: '2026-04-11', error: 'w-din5008', why: 'Reihenfolge Jahr – **Monat** – Tag: 2026-11-04.' }, { answer: '2026-11-4', error: 'w-din5008', why: 'Monat und Tag werden zweistellig geschrieben: 2026-11-04.' }], explanation: '**2026-11-04** (Jahr-Monat-Tag, jeweils mit führender Null). Die Form 04.11.2026 ist ebenfalls zulässig, aber nicht die internationale Schreibweise.' },
   ],
 };

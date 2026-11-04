@@ -23,6 +23,13 @@ export const m06: Module = {
       minutes: 12,
       relevance: 'ap1',
       skills: ['vlsm.concept'],
+      simple: `Beim klassischen Subnetting sind alle Stücke gleich groß – wie eine Pizza mit gleichen Stücken für Gäste, die sehr unterschiedlich hungrig sind.
+**VLSM** (Variable Length Subnet Mask, Masken unterschiedlicher Länge) schneidet jedem Netz ein passend großes Stück.
+Ein großes LAN bekommt ein großes Stück, eine Verbindung zwischen zwei Routern ein winziges.
+Dazu teilst du ein Stück so lange weiter, bis es passt.
+So bleiben kaum Adressen ungenutzt.
+
+**Merke:** VLSM = jedes Subnetz bekommt die Maske, die zu seinem Bedarf passt.`,
       steps: [
         {
           type: 'explain',
@@ -65,6 +72,12 @@ So entsteht ein **hierarchischer** Adressplan ohne Verschwendung. Voraussetzung:
       minutes: 15,
       relevance: 'ap1',
       skills: ['vlsm.sizing'],
+      simple: `Bevor du verteilst, schreibst du eine Bedarfsliste: alle Netze mit ihrem Hostbedarf, vom größten zum kleinsten sortiert.
+Für jedes Netz suchst du das kleinste Präfix, bei dem 2^h − 2 reicht, und notierst die Blockgröße (2^h Adressen).
+Dann addierst du alle Blockgrößen.
+Ist die Summe kleiner oder gleich der Größe des Ausgangsnetzes, passt alles hinein – wie Kartons in einen Umzugswagen.
+
+**Merke:** Sortieren, je Netz Präfix und Blockgröße bestimmen, Summe ≤ Ausgangsnetz prüfen.`,
       steps: [
         {
           type: 'explain',
@@ -98,6 +111,13 @@ Ist die Summe größer als das Ausgangsnetz, ist die Aufgabe so nicht lösbar (o
       minutes: 20,
       relevance: 'ap1',
       skills: ['vlsm.plan'],
+      simple: `Beim Beladen eines Umzugswagens stellst du die großen Möbel zuerst hinein und füllst danach mit Kartons auf.
+Bei VLSM ist es genauso: das größte Netz zuerst, das nächstkleinere direkt dahinter.
+Ein Netz mit 64 Adressen darf nur bei 0, 64, 128 oder 192 beginnen (einem Vielfachen seiner Blockgröße).
+Vergibst du die größten zuerst, landet jedes Netz automatisch auf so einer erlaubten Grenze.
+Die nächste Startadresse ist immer der Broadcast des vorherigen Netzes plus 1.
+
+**Merke:** Größte zuerst und lückenlos; jedes Netz beginnt bei einem Vielfachen seiner Blockgröße.`,
       steps: [
         {
           type: 'explain',
@@ -145,6 +165,12 @@ Vergibst du die Netze **lückenlos, größte zuerst**, ist diese Bedingung autom
       minutes: 12,
       relevance: 'ap1',
       skills: ['vlsm.overlap'],
+      simple: `Zwei Netze **überlappen**, wenn sie sich Adressen teilen – wie zwei Grundstücke, die auf dem Plan übereinander gezeichnet sind.
+Dann weiß der Router nicht, wohin ein Paket gehört, und Geräte bekommen doppelte Adressen.
+Zum Prüfen schreibst du für jedes Netz Anfang (Netzadresse) und Ende (Broadcast) auf und vergleichst die Bereiche.
+Ein kleines, korrekt ausgerichtetes Netz liegt immer ganz in einem größeren oder ganz außerhalb – nie halb.
+
+**Merke:** Für jedes Netz Anfang und Broadcast notieren – kein Bereich darf sich mit einem anderen schneiden.`,
       steps: [
         {
           type: 'explain',
@@ -177,6 +203,13 @@ Das Lager liegt komplett **im** Vertriebsnetz. Häufige Ursache: Die Blockgröß
       minutes: 10,
       relevance: 'ap1',
       skills: ['vlsm.wan'],
+      simple: `Eine Verbindung zwischen zwei Routern ist wie eine Telefonleitung zwischen genau zwei Anschlüssen.
+Sie braucht nur zwei nutzbare Adressen, eine je Router.
+Ein **/30**-Netz hat 4 Adressen: Netzadresse, Router A, Router B und Broadcast – passt genau.
+**/31** (nur 2 Adressen, ohne Netz- und Broadcastadresse) nimmst du nur, wenn die Aufgabe es ausdrücklich vorgibt.
+Weil diese Netze die kleinsten sind, vergibst du sie am Schluss.
+
+**Merke:** Punkt-zu-Punkt-Verbindung (WAN-Link) = /30 mit 2 nutzbaren Adressen.`,
       steps: [
         {
           type: 'explain',
@@ -223,6 +256,12 @@ WAN-Netze sind die kleinsten Blöcke und werden deshalb am Ende vergeben.`,
       minutes: 25,
       relevance: 'ap1',
       skills: ['vlsm.plan', 'vlsm.sizing', 'vlsm.wan'],
+      simple: `Ein kompletter Adressplan ist wie ein Sitzplan für eine Feier: erst die Gästeliste, dann die Tische nach Größe vergeben, am Ende kontrollieren.
+Die sechs Schritte: Bedarf erfassen, absteigend sortieren, Präfix je Netz bestimmen, prüfen ob alles passt, Netze lückenlos vergeben, auf Überschneidungen kontrollieren.
+Zu jedem Netz notierst du Netzadresse, ersten und letzten Host und Broadcast.
+Was am Ende übrig bleibt, ist Reserve für später.
+
+**Merke:** Bedarf → sortieren → dimensionieren → Machbarkeit → vergeben → kontrollieren.`,
       steps: [
         {
           type: 'explain',

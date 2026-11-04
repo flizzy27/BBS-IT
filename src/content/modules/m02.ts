@@ -31,6 +31,13 @@ export const m02: Module = {
       minutes: 20,
       relevance: 'ap1',
       skills: ['osi.layers'],
+      simple: `Das **OSI-Modell** zerlegt die Kommunikation in 7 Schichten – wie der Versand eines Pakets: Einer schreibt den Brief, einer verpackt, einer adressiert, einer fährt aus.
+Jede Schicht hat genau eine Aufgabe und arbeitet nur mit der Schicht direkt darüber und darunter zusammen.
+Schicht 1 überträgt die Bits über das Kabel, Schicht 7 ist die Schnittstelle zu den Netzwerkdiensten (z. B. HTTP für Webseiten).
+Bei einer Störung kannst du so Schicht für Schicht von unten nach oben suchen.
+Eselsbrücke von 7 nach 1: „Alle Deutschen Studenten Trinken Verschiedene Sorten Bier“.
+
+**Merke:** 7 Schichten, unten Bitübertragung, oben Anwendung – jede Schicht hat ihre feste Aufgabe.`,
       steps: [
         {
           type: 'explain',
@@ -155,6 +162,13 @@ Präge dir zusätzlich die Zahlen zu den wichtigsten Schichten ein: **Schicht 2 
       minutes: 25,
       relevance: 'ap1',
       skills: ['osi.tasks', 'osi.devices'],
+      simple: `Die unteren drei Schichten bringen die Daten ans Ziel – wie Straße, Klingelschild und Postleitzahl.
+**Schicht 1** (Bitübertragung) schickt Nullen und Einsen als Strom, Licht oder Funk – das ist die Straße.
+**Schicht 2** (Sicherung) packt die Bits in Frames (Datenrahmen) mit MAC-Adressen und stellt im lokalen Netz zu – wie der Name am Klingelschild.
+**Schicht 3** (Vermittlung) bildet Pakete mit IP-Adressen und findet über Router den Weg in andere Netze – wie Postleitzahl und Ort.
+Geräte: Hub = Schicht 1, Switch = Schicht 2, Router = Schicht 3.
+
+**Merke:** Schicht 2 = MAC, Switch, Frame; Schicht 3 = IP, Router, Paket.`,
       steps: [
         {
           type: 'explain',
@@ -302,6 +316,13 @@ Schicht 3 bringt Daten **über Netzgrenzen hinweg** vom Quell- zum Zielhost – 
       minutes: 25,
       relevance: 'ap1',
       skills: ['osi.tasks', 'osi.protocols', 'osi.devices'],
+      simple: `Die oberen Schichten sorgen dafür, dass die Daten beim richtigen Programm ankommen.
+**Schicht 4** (Transport) arbeitet mit Portnummern – wie die Zimmernummer im Hotel: Die IP-Adresse findet das Haus, der Port das Zimmer (z. B. 443 für HTTPS).
+**TCP** (verbindungsorientiert) ist wie ein Einschreiben mit Empfangsbestätigung, **UDP** (verbindungslos) wie eine Postkarte: schnell, aber ohne Rückmeldung.
+Schicht 5 und 6 regeln Sitzung und Datenformat (z. B. Zeichensatz, Verschlüsselung).
+**Schicht 7** stellt die Dienste bereit, etwa HTTP, DNS oder DHCP.
+
+**Merke:** Schicht 4 = Ports, TCP zuverlässig, UDP schnell; Schicht 7 = Anwendungsprotokolle wie HTTP, DNS, DHCP.`,
       steps: [
         {
           type: 'explain',
@@ -357,6 +378,8 @@ Die Schnittstelle zu den **Netzwerkdiensten**, die Anwendungen nutzen. **Achtung
 | **RDP** | Remotedesktop (Windows) | TCP (auch UDP) | 3389 |
 | **SNMP** | Netzwerkmanagement | UDP | 161 (Traps 162) |
 | **NTP** | Zeitsynchronisation | UDP | 123 |
+
+> **Hinweis – DHCP und DNS gehören zur Anwendungsschicht:** Manche Lehrbücher ordnen DHCP oder DNS der **Schicht 3** zu, weil beide „mit IP-Adressen zu tun haben“. Entscheidend für die Einordnung ist aber, **wie** ein Protokoll arbeitet: DHCP und DNS sind **Dienste**, deren Nachrichten in **UDP** (Schicht 4) verpackt werden (DHCP: Ports 67/68, DNS: Port 53). Was über einem Transportprotokoll mit Ports läuft, liegt **darüber** – also in Schicht 7 (TCP/IP-Modell: Anwendungsschicht). Das ist auch die übliche Prüfungslösung. Steht in einer Aufgabe ausdrücklich eine andere Zuordnung, begründe deine Antwort kurz mit diesem Argument.
 
 **Geräte bis Schicht 7:** **Proxy-Server**, **Application-Level-Gateway**, **Next-Generation-Firewall**, Load Balancer (je nach Typ Schicht 4 oder 7). Eine einfache **Paketfilter-Firewall** arbeitet auf **Schicht 3/4** (IP-Adressen und Ports).`,
         },
@@ -436,7 +459,7 @@ Die Schnittstelle zu den **Netzwerkdiensten**, die Anwendungen nutzen. **Achtung
         {
           type: 'practice',
           title: 'Übung: Protokolle und Ports',
-          questionIds: ['m02-q012', 'm02-q013', 'm02-q014', 'm02-q015', 'm02-q016', 'm02-q017', 'm02-q018'],
+          questionIds: ['m02-q012', 'm02-q013', 'm02-q014', 'm02-q015', 'm02-q016', 'm02-q017', 'm02-q018', 'm02-q041'],
           count: 5,
           difficulty: 2,
         },
@@ -460,6 +483,13 @@ Die Schnittstelle zu den **Netzwerkdiensten**, die Anwendungen nutzen. **Achtung
       minutes: 25,
       relevance: 'ap1',
       skills: ['osi.pdu', 'osi.encapsulation', 'osi.addressing'],
+      simple: `Beim Senden steckt jede Schicht die Daten in einen neuen Umschlag – wie bei russischen Puppen (Matroschkas). Das heißt **Kapselung**.
+Die Transportschicht macht daraus ein **Segment** (mit Ports), die Vermittlungsschicht ein **Paket** (mit IP-Adressen), die Sicherungsschicht einen **Frame** (mit MAC-Adressen), Schicht 1 schickt **Bits**.
+Diese Dateneinheiten heißen **PDUs** (Protocol Data Units).
+Beim Empfänger werden die Umschläge in umgekehrter Reihenfolge wieder geöffnet (Entkapselung).
+Die IP-Adressen bleiben auf dem Weg gleich (solange kein NAT übersetzt), die MAC-Adressen wechseln an jedem Router.
+
+**Merke:** Segment (4) → Paket (3) → Frame (2) → Bits (1); IP bleibt, MAC wechselt je Abschnitt.`,
       steps: [
         {
           type: 'explain',
@@ -607,6 +637,12 @@ Ein **Switch** dagegen verändert den Frame nicht – er liest nur die Ziel-MAC 
       minutes: 15,
       relevance: 'ap1',
       skills: ['tcpip.model', 'osi.protocols'],
+      simple: `Das OSI-Modell ist das Lehrbuch, das **TCP/IP-Modell** die Praxis – so arbeitet das Internet wirklich.
+Es fasst die 7 OSI-Schichten zu 4 Schichten zusammen, wie eine Kurzfassung eines langen Buchs.
+**Netzzugang** = OSI 1 + 2, **Internet** = OSI 3, **Transport** = OSI 4, **Anwendung** = OSI 5 bis 7.
+Die Protokolle bleiben dieselben: IP in der Internetschicht, TCP und UDP in der Transportschicht, HTTP oder DNS in der Anwendungsschicht.
+
+**Merke:** TCP/IP hat 4 Schichten: Netzzugang, Internet, Transport, Anwendung.`,
       steps: [
         {
           type: 'explain',
@@ -704,6 +740,13 @@ Netzwerker sprechen trotz TCP/IP fast immer in **OSI-Nummern**: „Layer-3-Switc
       minutes: 25,
       relevance: 'ap1',
       skills: ['osi.webrequest', 'osi.addressing', 'osi.encapsulation'],
+      simple: `Ein Webseitenaufruf läuft in festen Schritten ab – wie ein Restaurantbesuch: Adresse suchen, hinfahren, Platz bekommen, bestellen.
+Zuerst übersetzt **DNS** (Domain Name System, das „Telefonbuch“ des Internets) den Namen in eine IP-Adresse.
+Dann klärt der PC per **ARP** (Address Resolution Protocol), welche Hardware-Adresse sein Gateway hat – den Router, der ihn nach draußen bringt.
+Danach baut **TCP** die Verbindung auf (Drei-Wege-Handshake), **TLS** verschlüsselt sie, und erst dann fragt **HTTP** nach der Seite.
+Bleibt die Seite leer, prüfst du genau diese Schritte der Reihe nach.
+
+**Merke:** Reihenfolge: DNS → ARP (Gateway) → TCP-Handshake → TLS → HTTP-Anfrage.`,
       steps: [
         {
           type: 'explain',
@@ -1480,6 +1523,17 @@ Beschreiben Sie den Ablauf von der Eingabe bis zum Empfang der Webseite in **min
         '3': { why: 'Inhalte auf Schicht 7 prüfen erst Application-Level-Gateways/Proxys bzw. NGFWs.', error: 'firewall-schicht' },
       },
       explanation: `IP-Adressen → Schicht 3, Ports → Schicht 4. Ein Paketfilter arbeitet daher auf **Schicht 3 und 4**. Proxys/Application-Gateways prüfen zusätzlich Inhalte (bis Schicht 7).`,
+    },
+    {
+      id: 'm02-q041',
+      kind: 'free',
+      skill: 'osi.protocols',
+      difficulty: 2,
+      prompt: `In einem Lehrbuch steht: „DHCP arbeitet auf Schicht 3, weil es IP-Adressen vergibt.“ Nimm Stellung: Welcher OSI-Schicht ordnest du DHCP zu? Begründe deine Antwort.`,
+      modelAnswer: `DHCP gehört zur **Anwendungsschicht (Schicht 7)**, im TCP/IP-Modell zur Anwendungsschicht. Begründung: DHCP ist ein **Dienst**, dessen Nachrichten in **UDP** (Schicht 4) verpackt werden – Server-Port 67, Client-Port 68. Alles, was ein Transportprotokoll mit Ports nutzt, liegt oberhalb von Schicht 4. Dass DHCP IP-Adressen **verteilt**, macht es nicht zu einem Schicht-3-Protokoll; es transportiert diese Information nur als Nutzdaten. (Gleiches gilt für DNS über UDP/TCP 53.)`,
+      keywords: ['Anwendungsschicht', 'Schicht 7', 'UDP', 'Port 67', 'Port 68', 'Dienst'],
+      hints: ['Welches Transportprotokoll und welche Ports nutzt DHCP?'],
+      explanation: `Prüfungslösung: **Schicht 7**. Das stärkste Argument ist die Kapselung: DHCP-Nachrichten stecken in UDP-Segmenten (Ports 67/68), also liegt DHCP über der Transportschicht. Häufiger Fehler: Protokolle nach ihrem „Thema“ (IP-Adressen) statt nach ihrer Arbeitsweise einordnen.`,
     },
   ],
 };

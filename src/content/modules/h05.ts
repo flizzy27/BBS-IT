@@ -5,7 +5,7 @@ export const h05: Module = {
   nr: 5,
   area: 'hardware',
   title: 'Ergonomie, Arbeitsschutz & Barrierefreiheit',
-  short: `Bildschirmarbeitsplätze nach Arbeitsstättenverordnung (Anhang 6) einrichten: Sitzen, Monitor, Licht, Klima, Lärm – dazu Software-Ergonomie und barrierefreie IT.`,
+  short: `Bildschirmarbeitsplätze nach Arbeitsstättenverordnung (Anhang 6) einrichten: Sitzen, Monitor, Licht, Klima, Lärm – dazu Software-Ergonomie, barrierefreie IT, elektrische Sicherheit (Schutzklassen, DIN VDE 0100-410) und Arbeitssicherheit.`,
   icon: 'Armchair',
   relevance: 'ap1-teilweise',
   prerequisites: ['h03'],
@@ -16,6 +16,8 @@ export const h05: Module = {
     { id: 'hw.ergo.environment', module: 'h05', title: 'Arbeitsumgebung: Beleuchtung, Blendung, Klima, Lärm' },
     { id: 'hw.ergo.software', module: 'h05', title: 'Software-Ergonomie (DIN EN ISO 9241-110)' },
     { id: 'hw.ergo.access', module: 'h05', title: 'Barrierefreiheit und assistive Technologien' },
+    { id: 'hw.safety.electric', module: 'h05', title: 'Elektrische Sicherheit: Körperstrom, Schutzmaßnahmen nach DIN VDE 0100-410, Schutzklassen, RCD' },
+    { id: 'hw.safety.work', module: 'h05', title: 'Arbeitssicherheit: Laienregel, fünf Sicherheitsregeln, Sicherheitszeichen, Brandschutz', requires: ['hw.safety.electric'] },
   ],
   lessons: [
     /* ------------------------------------------------------------------ */
@@ -25,6 +27,9 @@ export const h05: Module = {
       minutes: 15,
       relevance: 'ap1-teilweise',
       skills: ['hw.ergo.law'],
+      simple: `Stell dir die Regeln wie eine Treppe vor: Ganz oben steht das **Gesetz** (Arbeitsschutzgesetz, ArbSchG), darunter die **Verordnung** (Arbeitsstättenverordnung, ArbStättV) und ganz unten die **Technischen Regeln** (ASR) mit konkreten Zahlen. Das Gesetz sagt „Der Arbeitgeber muss für sichere Arbeitsplätze sorgen“, die ASR sagt dann zum Beispiel „mindestens 500 Lux Licht“. Hält sich der Betrieb an die ASR, kann er davon ausgehen, dass er alles richtig macht (Vermutungswirkung). Am Anfang steht immer die **Gefährdungsbeurteilung** (eine Prüfung, welche Gefahren am Arbeitsplatz drohen).
+
+**Merke:** Gesetz (ArbSchG) → Verordnung (ArbStättV Anhang 6) → Technische Regeln (ASR) mit konkreten Werten.`,
       steps: [
         {
           type: 'explain',
@@ -110,6 +115,9 @@ export const h05: Module = {
       minutes: 20,
       relevance: 'ap1-teilweise',
       skills: ['hw.ergo.setup'],
+      simple: `Einen Arbeitsplatz einzurichten ist wie ein Fahrrad einstellen: Erst den Sattel, dann den Lenker – sonst passt nichts zusammen. Du stellst also zuerst den **Stuhl** ein (Füße flach auf dem Boden), dann den **Tisch** (Unterarme liegen waagerecht auf), dann Tastatur und Maus und ganz zum Schluss den **Monitor**. Die oberste Bildschirmzeile liegt höchstens auf Augenhöhe, damit du leicht nach unten schaust. Der Abstand zum Bildschirm beträgt etwa eine Armlänge (mindestens ca. 50 cm).
+
+**Merke:** Von unten nach oben einstellen – Stuhl, Tisch, Eingabegeräte, Monitor.`,
       steps: [
         {
           type: 'explain',
@@ -200,6 +208,9 @@ export const h05: Module = {
       minutes: 15,
       relevance: 'ap1-teilweise',
       skills: ['hw.ergo.environment'],
+      simple: `Ein Büro ist wie ein Aquarium: Licht, Temperatur und Ruhe müssen stimmen, damit sich alle darin wohlfühlen. Für Bildschirmarbeit brauchst du genug Licht (mindestens 500 Lux, Lux = Maß für die Helligkeit), ohne dass Fenster oder Lampen im Bildschirm spiegeln (Blendung). Deshalb schaust du am besten **parallel zum Fenster**. Die Raumtemperatur soll mindestens 20 °C betragen; über 26 °C soll der Arbeitgeber gegensteuern, über 30 °C muss er es. Bei konzentrierter Arbeit soll es möglichst nicht lauter als 55 dB(A) sein (dB(A) = Maß für die Lautstärke).
+
+**Merke:** 500 Lux, Blick parallel zum Fenster, mindestens 20 °C, möglichst ≤ 55 dB(A).`,
       steps: [
         {
           type: 'explain',
@@ -283,6 +294,9 @@ export const h05: Module = {
       minutes: 20,
       relevance: 'ap1-teilweise',
       skills: ['hw.ergo.software', 'hw.ergo.access'],
+      simple: `Gute Software ist wie ein gut beschilderter Bahnhof: Du weißt immer, wo du bist, wohin du gehst und wie du wieder zurückkommst. Die Norm DIN EN ISO 9241-110 beschreibt dafür sieben Grundsätze, zum Beispiel **Steuerbarkeit** (du kannst abbrechen und zurückgehen) und **Robustheit gegen Benutzungsfehler** (ein Fehler richtet keinen großen Schaden an). **Barrierefreiheit** heißt: Auch Menschen mit Einschränkungen können die Software nutzen – etwa mit einem **Screenreader** (Programm, das den Bildschirminhalt vorliest) oder nur mit der Tastatur.
+
+**Merke:** Software passt sich dem Menschen an – nicht umgekehrt; barrierefrei heißt wahrnehmbar, bedienbar, verständlich, robust.`,
       steps: [
         {
           type: 'explain',
@@ -375,6 +389,226 @@ Barrierefreie Gestaltung hilft allen: Untertitel im Großraumbüro, Tastaturbedi
             'BITV 2.0 (öffentliche Stellen), BFSG seit 28.06.2025 (Privatwirtschaft), WCAG/EN 301 549.',
             'WCAG: wahrnehmbar, bedienbar, verständlich, robust.',
             'Hilfsmittel: Screenreader, Braillezeile, Lupe, Untertitel, Spracherkennung, Spezialtastaturen.',
+          ],
+        },
+      ],
+    },
+    /* ------------------------------------------------------------------ */
+    {
+      id: 'h05-l05',
+      title: 'Elektrische Sicherheit: Gefahren, Schutzklassen und Schutzmaßnahmen',
+      minutes: 25,
+      relevance: 'ap1-teilweise',
+      skills: ['hw.safety.electric'],
+      simple: `Strom ist gefährlich, weil er durch den Körper fließen kann – schon ein paar hundertstel Ampere können das Herz aus dem Takt bringen. Darum sind Geräte wie eine Zwiebel in Schichten geschützt. Die erste Schicht ist die **Isolierung** (Basisschutz: Man kommt gar nicht an Strom führende Teile). Die zweite Schicht greift, wenn trotzdem etwas kaputtgeht: Der **Schutzleiter** leitet den Fehlerstrom ab und die Sicherung schaltet ab (Fehlerschutz). Die dritte Schicht ist der **FI-Schutzschalter** (RCD), der bei schon 30 mA Fehlerstrom blitzschnell abschaltet (Zusatzschutz). Auf dem Typenschild zeigt die **Schutzklasse**, wie ein Gerät geschützt ist: I = mit Schutzleiter, II = doppelt isoliert, III = nur Kleinspannung.
+
+**Merke:** Schutzklasse I = Schutzleiter (z. B. Desktop-PC), II = Schutzisolierung (Symbol: zwei Quadrate), III = Schutzkleinspannung (Symbol: III in einer Raute).`,
+      steps: [
+        {
+          type: 'explain',
+          title: 'Warum Strom gefährlich ist',
+          body: `Gefährlich ist nicht die Spannung allein, sondern der **Strom, der durch den Körper fließt** (Körperstrom). Er hängt nach dem ohmschen Gesetz von der Berührungsspannung und vom Körperwiderstand ab: **I = U ÷ R**.
+
+**Rechenbeispiel:** Der Körperwiderstand von Hand zu Hand liegt grob bei **1.000 Ω**. Berührt jemand 230 V: I = 230 V ÷ 1.000 Ω = 0,23 A = **230 mA** – das ist lebensgefährlich.
+
+**Wirkung von Wechselstrom (50 Hz) auf den Menschen – grobe Richtwerte:**
+
+| Körperstrom | Wirkung |
+|---|---|
+| ab ca. 0,5–1 mA | spürbares Kribbeln (Wahrnehmungsschwelle) |
+| ab ca. 10 mA | Muskeln verkrampfen, man kann **nicht mehr loslassen** |
+| ab ca. 30 mA | Atembeschwerden, Gefahr steigt mit der Einwirkdauer |
+| ab ca. 50 mA (bei längerer Einwirkung) | **Herzkammerflimmern** möglich – lebensgefährlich |
+
+Wie schlimm ein Stromunfall ist, hängt außerdem vom **Weg durch den Körper** (über das Herz?), von der **Dauer** und von der Feuchtigkeit der Haut ab. Als dauerhaft ungefährlich gelten Berührungsspannungen bis **50 V Wechselspannung** bzw. **120 V Gleichspannung** – daher kommt die Grenze der **Kleinspannung**.
+
+**Nach einem Stromunfall:** Stromkreis unterbrechen (Stecker ziehen, ausschalten) – erst dann die Person berühren. Notruf 112. Auch ohne sichtbare Verletzung muss die Person zum Arzt (Herzrhythmusstörungen können später auftreten).`,
+        },
+        {
+          type: 'explain',
+          title: 'Schutzmaßnahmen nach DIN VDE 0100-410 und Schutzklassen',
+          body: `Die Norm **DIN VDE 0100-410** („Schutz gegen elektrischen Schlag“) beschreibt, wie elektrische Anlagen Menschen schützen. Eine Schutzmaßnahme besteht immer aus **Basisschutz und Fehlerschutz**, oft ergänzt um einen **Zusatzschutz**. Manche Bücher schreiben „DIN VDE 100-410“ – korrekt ist **DIN VDE 0100-410**.
+
+| Stufe | Wogegen? | Wie? |
+|---|---|---|
+| **Basisschutz** (früher: Schutz gegen direktes Berühren) | Berühren von Teilen, die im normalen Betrieb Spannung führen | **Isolierung** der Leiter, **Abdeckungen und Gehäuse**, Hindernisse, Abstand |
+| **Fehlerschutz** (früher: Schutz bei indirektem Berühren) | Spannung am Gehäuse **im Fehlerfall** (z. B. Körperschluss: ein Leiter berührt das Metallgehäuse) | **Schutzleiter (PE)** plus **automatische Abschaltung** durch Sicherung (Leitungsschutzschalter) oder RCD – in Endstromkreisen bis 32 A innerhalb von 0,4 s; alternativ doppelte Isolierung oder Kleinspannung |
+| **Zusatzschutz** | wenn Basis- und Fehlerschutz versagen oder jemand unvorsichtig ist | **Fehlerstrom-Schutzeinrichtung (RCD, „FI-Schalter“)** mit **höchstens 30 mA** Bemessungsfehlerstrom; in neuen Anlagen u. a. für Steckdosen bis 32 A vorgeschrieben, die von Laien benutzt werden |
+
+**So arbeitet ein RCD:** Er vergleicht den Strom, der über den Außenleiter hinfließt, mit dem Strom, der über den Neutralleiter zurückkommt. Fließt ein Teil über einen anderen Weg ab (z. B. über einen Menschen zur Erde) und ist die Differenz größer als der Bemessungsfehlerstrom (30 mA), schaltet er in Bruchteilen einer Sekunde ab. **Grenzen:** Er schützt nicht vor Überlast und Kurzschluss (das macht der Leitungsschutzschalter) und nicht, wenn man isoliert stehend Außenleiter und Neutralleiter gleichzeitig berührt – dann fließt kein Strom „daneben“.
+
+**Schutzklassen** – stehen als Symbol auf dem Typenschild:
+
+| Schutzklasse | Prinzip | Symbol | Stecker | Beispiele |
+|---|---|---|---|---|
+| **I** | Basisisolierung + **Schutzleiter** am leitfähigen Gehäuse; im Fehlerfall fließt der Strom über den PE ab und die Sicherung bzw. der RCD schaltet ab | Erdungszeichen (Schutzleiteranschluss) | Schutzkontaktstecker (Schuko) bzw. Kaltgerätekabel mit PE | Desktop-PC, Server, Laserdrucker, Kopierer, viele Monitore |
+| **II** | **Schutzisolierung:** doppelte oder verstärkte Isolierung, **kein** Schutzleiter | zwei ineinanderliegende Quadrate | meist flacher Eurostecker (ohne Schutzkontakt) | viele Notebook- und Steckernetzteile, Schreibtischleuchte, Bohrmaschine |
+| **III** | Betrieb nur mit **Schutzkleinspannung (SELV)**: höchstens 50 V AC bzw. 120 V DC, sicher getrennt vom Netz | römische III in einer Raute | Kleinspannungsstecker, USB | USB-Maus, Smartphone, Webcam, Akkugeräte |
+
+**Wichtig bei Schutzklasse III:** Das **Gerät** (z. B. Smartphone) ist Schutzklasse III. Das **Netzteil**, das an 230 V hängt, gehört nicht dazu – es ist selbst meist Schutzklasse II und erzeugt die Kleinspannung mit einem Sicherheitstransformator.
+
+**Schutzklasse 0** (nur Basisisolierung, kein Schutzleiteranschluss) ist in Deutschland nicht zulässig.
+
+**Für den IT-Arbeitsplatz heißt das:** Geräte der Schutzklasse I nur an Schutzkontakt-Steckdosen betreiben, Schutzleiter nie „wegadaptieren“ (keine Adapter ohne Schutzkontakt), beschädigte Kabel und Gehäuse sofort melden und das Gerät aus dem Verkehr ziehen.`,
+        },
+        {
+          type: 'visual',
+          title: 'Die drei Schutzklassen',
+          widget: {
+            kind: 'cards',
+            data: {
+              columns: 3,
+              items: [
+                { title: 'Schutzklasse I', text: 'Schutzleiter am Metallgehäuse; im Fehlerfall schaltet die Sicherung bzw. der RCD ab. Schuko-Stecker. Desktop-PC, Server, Laserdrucker.', icon: 'Plug' },
+                { title: 'Schutzklasse II', text: 'Doppelte oder verstärkte Isolierung, kein Schutzleiter. Symbol: zwei Quadrate. Steckernetzteile, Schreibtischleuchte.', icon: 'Square' },
+                { title: 'Schutzklasse III', text: 'Schutzkleinspannung (max. 50 V AC / 120 V DC). Symbol: III in einer Raute. USB-Geräte, Smartphone.', icon: 'BatteryCharging' },
+              ],
+            },
+          },
+          caption: 'Basisschutz (Isolierung) + Fehlerschutz (Schutzleiter und Abschaltung) + Zusatzschutz (RCD ≤ 30 mA) = mehrere Schutzschichten.',
+        },
+        {
+          type: 'example',
+          title: 'Beispiel: Geräte am neuen Arbeitsplatz einordnen',
+          problem: `Du richtest in Hamburg einen Arbeitsplatz ein und liest die Typenschilder: (1) Desktop-PC mit Metallgehäuse und Kaltgerätekabel mit Schutzkontakt, (2) Notebook-Netzteil mit Symbol „zwei Quadrate“, (3) USB-Headset, (4) Laserdrucker mit Schutzleiteranschluss. Ordne die Schutzklassen zu und nenne, worauf du beim Anschluss achtest.`,
+          steps: [
+            { label: '(1) Desktop-PC', body: 'Schutzleiter am Metallgehäuse → **Schutzklasse I**. Nur an Schutzkontakt-Steckdose/-Leiste anschließen.' },
+            { label: '(2) Notebook-Netzteil', body: 'Symbol zwei Quadrate → **Schutzklasse II** (schutzisoliert). Gehäuse und Kabel müssen unbeschädigt sein – die Isolierung ist hier der Schutz.' },
+            { label: '(3) USB-Headset', body: 'Betrieb mit 5 V aus dem USB-Port → Schutzkleinspannung → **Schutzklasse III**.' },
+            { label: '(4) Laserdrucker', body: 'Schutzleiteranschluss → **Schutzklasse I**. Wegen hoher Einschaltleistung nicht an eine überlastete Mehrfachsteckdose.' },
+            { label: 'Prüfen', body: 'Vor dem Einschalten Sichtprüfung (Kabel, Stecker, Gehäuse). Steckdosenstromkreis mit RCD (30 mA) ist Standard in neuen Anlagen; Prüfplakette nach DGUV Vorschrift 3 beachten.' },
+          ],
+          result: 'PC und Laserdrucker = I, Notebook-Netzteil = II, USB-Headset = III.',
+        },
+        {
+          type: 'check',
+          question: {
+            id: 'h05-c08', kind: 'match', skill: 'hw.safety.electric', difficulty: 1,
+            prompt: `Ordne die Schutzklassen ihrem Schutzprinzip zu.`,
+            left: ['Schutzklasse I', 'Schutzklasse II', 'Schutzklasse III'],
+            right: ['Schutzleiter am leitfähigen Gehäuse', 'doppelte bzw. verstärkte Isolierung (Schutzisolierung)', 'Schutzkleinspannung (max. 50 V AC / 120 V DC)'],
+            answer: [0, 1, 2],
+            explanation: 'I = Schutzleiter, II = Schutzisolierung (Symbol zwei Quadrate), III = Schutzkleinspannung (Symbol III in Raute). Häufiger Fehler: die Zahl als „Qualitätsstufe“ lesen – sie beschreibt nur das Schutzprinzip.',
+          },
+        },
+        {
+          type: 'check',
+          question: {
+            id: 'h05-c09', kind: 'number', skill: 'hw.safety.electric', difficulty: 2,
+            prompt: `Ein Mensch berührt einen defekten Leiter mit **230 V**. Sein Körperwiderstand beträgt **1.000 Ω**. Welcher Strom fließt durch den Körper – in **mA**?`,
+            answer: 230, unit: 'mA',
+            misconceptions: [{ answer: '0.23', error: 'einheit-umrechnung', why: '0,23 A ist richtig gerechnet, gefragt sind aber Milliampere: 0,23 A · 1.000 = 230 mA.' }, { answer: '230000', error: 'ohm-formel', why: 'I = U ÷ R – nicht multiplizieren.' }],
+            explanation: '**230 mA.** I = U ÷ R = 230 V ÷ 1.000 Ω = 0,23 A = **230 mA** – weit über der Grenze für Herzkammerflimmern (ca. 50 mA). Ein RCD mit 30 mA würde hier sofort abschalten.',
+          },
+        },
+        { type: 'practice', title: 'Übung: Elektrische Sicherheit', questionIds: ['h05-q031', 'h05-q032', 'h05-q033', 'h05-q034', 'h05-q035', 'h05-q036', 'h05-q037', 'h05-q047'], count: 6, difficulty: 2 },
+        {
+          type: 'summary',
+          points: [
+            'Gefährlich ist der Körperstrom: I = U ÷ R; ab ca. 10 mA kein Loslassen, ab ca. 50 mA Herzkammerflimmern möglich.',
+            'DIN VDE 0100-410: Basisschutz (Isolierung, Abdeckung) + Fehlerschutz (Schutzleiter + automatische Abschaltung) + Zusatzschutz (RCD ≤ 30 mA).',
+            'RCD vergleicht hin- und rückfließenden Strom; schützt nicht vor Überlast und nicht bei Berührung von L und N.',
+            'Schutzklasse I = Schutzleiter, II = Schutzisolierung (zwei Quadrate), III = Schutzkleinspannung (III in Raute).',
+          ],
+        },
+      ],
+    },
+    /* ------------------------------------------------------------------ */
+    {
+      id: 'h05-l06',
+      title: 'Arbeitssicherheit: Wer darf was? Fünf Sicherheitsregeln und Sicherheitszeichen',
+      minutes: 20,
+      relevance: 'ap1-teilweise',
+      skills: ['hw.safety.work'],
+      simple: `Als IT-Fachkraft bist du beim Strom ein **Laie** – wie ein Autofahrer, der tanken und Reifendruck prüfen darf, aber nicht am Motor schraubt. Du darfst Geräte einstecken, sie vorher ansehen und kaputte Geräte aus dem Verkehr ziehen. Steckdosen, Leitungen und Sicherungskästen sind Sache einer **Elektrofachkraft** (ausgebildete Elektrikerin oder Elektriker). Die arbeitet nach den **fünf Sicherheitsregeln**: freischalten, gegen Wiedereinschalten sichern, Spannungsfreiheit feststellen, erden und kurzschließen, benachbarte Teile abdecken. **Sicherheitszeichen** erkennst du an Form und Farbe: rund mit rotem Rand = Verbot, gelbes Dreieck = Warnung, blau rund = Gebot, grün = Rettung, rot eckig = Brandschutz.
+
+**Merke:** Fünf Sicherheitsregeln in fester Reihenfolge – und an der Elektroinstallation arbeitet nur die Elektrofachkraft.`,
+      steps: [
+        {
+          type: 'explain',
+          title: 'Laie, unterwiesene Person, Elektrofachkraft',
+          body: `Die Unfallversicherung (DGUV Vorschrift 3 „Elektrische Anlagen und Betriebsmittel“) unterscheidet drei Gruppen:
+
+| Gruppe | Wer? | Darf zum Beispiel |
+|---|---|---|
+| **Elektrofachkraft (EFK)** | Ausbildung in der Elektrotechnik (z. B. Elektroniker/in), kann Gefahren selbst beurteilen | Anlagen errichten, ändern, instand setzen, prüfen |
+| **Elektrotechnisch unterwiesene Person (EuP)** | von einer EFK für bestimmte Aufgaben unterwiesen | festgelegte Tätigkeiten unter Leitung und Aufsicht einer EFK, z. B. Prüfen von Geräten mit geeignetem Prüfgerät |
+| **Elektrotechnischer Laie** | alle anderen – auch **IT-Fachkräfte ohne Zusatzqualifikation** | Geräte bestimmungsgemäß benutzen und anschließen (Stecker) |
+
+**Das darfst du als IT-Fachkraft (Laie):** Geräte per Stecker anschließen und vom Netz trennen, **vor der Benutzung eine Sichtprüfung** machen (Kabel, Stecker, Gehäuse, Prüfplakette), defekte Geräte sofort aus dem Verkehr ziehen, kennzeichnen und melden, Kabel ordentlich verlegen (keine Stolperfallen, Steckdosenleisten nicht hintereinanderstecken).
+
+**Das darfst du nicht:** Gehäuse von Netzteilen, Monitoren oder USVs öffnen und reparieren; Steckdosen, Leitungen oder Stecker montieren oder tauschen; an Verteilern und Sicherungskästen arbeiten; Schutzleiter überbrücken oder „wegadaptieren“.
+
+**Prüfung ortsveränderlicher Geräte (DGUV Vorschrift 3):** PCs, Monitore, Steckdosenleisten und Netzteile werden regelmäßig von einer Elektrofachkraft (oder einer unterwiesenen Person unter ihrer Leitung) mit einem Prüfgerät gemessen; geprüfte Geräte bekommen eine **Prüfplakette**. Die Fristen legt der Arbeitgeber in der Gefährdungsbeurteilung fest – in Büros sind bei geringer Fehlerquote bis zu zwei Jahre üblich.
+
+**Fünf Sicherheitsregeln (DIN VDE 0105-100)** – so macht eine Elektrofachkraft eine Anlage vor Arbeiten sicher, **immer in dieser Reihenfolge**:
+1. **Freischalten** (allpolig vom Netz trennen)
+2. **Gegen Wiedereinschalten sichern** (z. B. Schloss, Warnschild „Nicht einschalten“)
+3. **Spannungsfreiheit feststellen** (allpolig messen, mit geeignetem Prüfgerät)
+4. **Erden und kurzschließen**
+5. **Benachbarte, unter Spannung stehende Teile abdecken oder abschranken**
+
+Nach der Arbeit wird in umgekehrter Reihenfolge wieder eingeschaltet. **IT-Bezug:** Eine **USV** liefert auch dann noch Spannung, wenn die Unterverteilung abgeschaltet ist. Beim Freischalten müssen deshalb USV-Ausgänge und zweite Einspeisungen (A/B-Versorgung) mitbedacht werden.
+
+**Sicherheitszeichen** (DIN EN ISO 7010, ASR A1.3) erkennst du an **Form und Farbe**:
+
+| Zeichenart | Form | Farbe | Beispiel |
+|---|---|---|---|
+| **Verbotszeichen** | rund, roter Rand mit Querbalken | rot, weiß, schwarzes Symbol | „Zutritt für Unbefugte verboten“, „Rauchen verboten“ |
+| **Warnzeichen** | Dreieck | gelb mit schwarzem Rand und Symbol | „Warnung vor elektrischer Spannung“ (Blitz) |
+| **Gebotszeichen** | rund | blau, weißes Symbol | „Gehörschutz benutzen“, „Vor Arbeiten freischalten“ |
+| **Rettungszeichen** | rechteckig oder quadratisch | grün, weißes Symbol | „Notausgang“, „Erste Hilfe“ |
+| **Brandschutzzeichen** | rechteckig oder quadratisch | rot, weißes Symbol | „Feuerlöscher“, „Brandmeldetelefon“ |
+
+**Verhalten im Brandfall:** Ruhe bewahren → **Brand melden** (Notruf 112 oder Brandmelder) → **in Sicherheit bringen** (Kollegen warnen, Fluchtweg nutzen, keinen Aufzug) → **Löschversuch** nur ohne Eigengefährdung. Für elektrische Geräte und Serverräume eignen sich **CO₂-Löscher** (rückstandsfrei, leiten nicht); in kleinen Räumen Erstickungsgefahr beachten.`,
+        },
+        {
+          type: 'visual',
+          title: 'Sicherheitszeichen an Form und Farbe erkennen',
+          widget: {
+            kind: 'cards',
+            data: {
+              columns: 3,
+              items: [
+                { title: 'Verbot', text: 'Rund, roter Rand mit Querbalken. Etwas ist untersagt.', icon: 'Ban' },
+                { title: 'Warnung', text: 'Gelbes Dreieck mit schwarzem Rand. Hier droht eine Gefahr (z. B. Spannung).', icon: 'AlertTriangle' },
+                { title: 'Gebot', text: 'Blau und rund. Etwas muss getan werden (z. B. Schutzausrüstung).', icon: 'Info' },
+                { title: 'Rettung', text: 'Grün und eckig. Fluchtweg, Notausgang, Erste Hilfe.', icon: 'DoorOpen' },
+                { title: 'Brandschutz', text: 'Rot und eckig. Feuerlöscher, Brandmelder, Löschschlauch.', icon: 'Flame' },
+                { title: 'Fünf Regeln', text: 'Freischalten → sichern → Spannungsfreiheit feststellen → erden und kurzschließen → abdecken.', icon: 'ListOrdered' },
+              ],
+            },
+          },
+        },
+        {
+          type: 'check',
+          question: {
+            id: 'h05-c10', kind: 'order', skill: 'hw.safety.work', difficulty: 2,
+            prompt: `Eine Elektrofachkraft soll im Serverraum an einer Unterverteilung arbeiten. Bringe die fünf Sicherheitsregeln in die richtige Reihenfolge.`,
+            items: ['Freischalten', 'Gegen Wiedereinschalten sichern', 'Spannungsfreiheit feststellen', 'Erden und kurzschließen', 'Benachbarte, unter Spannung stehende Teile abdecken oder abschranken'],
+            explanation: 'Freischalten → Sichern → Spannungsfreiheit feststellen → Erden und kurzschließen → Abdecken (DIN VDE 0105-100). Häufiger Fehler: erst messen, dann sichern – dann könnte jemand während der Arbeit wieder einschalten.',
+          },
+        },
+        {
+          type: 'check',
+          question: {
+            id: 'h05-c11', kind: 'match', skill: 'hw.safety.work', difficulty: 1,
+            prompt: `Ordne die Zeichenart ihrem Aussehen zu.`,
+            left: ['Verbotszeichen', 'Warnzeichen', 'Gebotszeichen', 'Rettungszeichen', 'Brandschutzzeichen'],
+            right: ['rund, roter Rand mit Querbalken', 'gelbes Dreieck mit schwarzem Rand', 'rund, blau mit weißem Symbol', 'eckig, grün mit weißem Symbol', 'eckig, rot mit weißem Symbol'],
+            answer: [0, 1, 2, 3, 4],
+            explanation: 'Verbot rot-rund mit Balken, Warnung gelbes Dreieck, Gebot blau-rund, Rettung grün-eckig, Brandschutz rot-eckig (DIN EN ISO 7010).',
+          },
+        },
+        { type: 'practice', title: 'Übung: Arbeitssicherheit', questionIds: ['h05-q038', 'h05-q039', 'h05-q040', 'h05-q041', 'h05-q042', 'h05-q043', 'h05-q044', 'h05-q045', 'h05-q046'], count: 6, difficulty: 2 },
+        {
+          type: 'summary',
+          points: [
+            'IT-Fachkräfte sind elektrotechnische Laien: anschließen, Sichtprüfung, Defektes aussortieren und melden – keine Arbeiten an Installation und Geräten.',
+            'DGUV Vorschrift 3: regelmäßige Prüfung ortsveränderlicher Geräte durch eine Elektrofachkraft, Prüfplakette.',
+            'Fünf Sicherheitsregeln: freischalten, sichern, Spannungsfreiheit feststellen, erden und kurzschließen, abdecken – USV-Ausgänge mitbedenken.',
+            'Zeichen: Verbot rot-rund, Warnung gelbes Dreieck, Gebot blau-rund, Rettung grün, Brandschutz rot-eckig.',
+            'Brandfall: melden → in Sicherheit bringen → löschen (CO₂ bei Elektrogeräten).',
           ],
         },
       ],
@@ -640,6 +874,159 @@ Barrierefreie Gestaltung hilft allen: Untertitel im Großraumbüro, Tastaturbedi
       options: ['Sprachausgabe (Screenreader)', 'Bildschirmlupe', 'Kontrastdesigns', 'Live-Untertitel', 'Defragmentierung', 'Einrastfunktion für Tastenkombinationen'],
       answer: [0, 1, 2, 3, 5],
       explanation: 'Sprachausgabe, Lupe, Kontrastdesigns, Live-Untertitel und Einrastfunktion sind Bedienungshilfen. Defragmentierung ist Datenträgerwartung.',
+    },
+    /* --------------------- Elektrische Sicherheit (l05) --------------------- */
+    {
+      id: 'h05-q031', kind: 'table', skill: 'hw.safety.electric', difficulty: 2,
+      prompt: `Du liest an einem neuen Arbeitsplatz die Typenschilder. Trage die **Schutzklasse** (I, II oder III) ein.`,
+      columns: [
+        { key: 'geraet', label: 'Gerät / Typenschild', type: 'text' },
+        { key: 'sk', label: 'Schutzklasse', type: 'text' },
+      ],
+      rows: [
+        { cells: { geraet: { given: 'Desktop-PC, Metallgehäuse, Kaltgerätekabel mit Schutzkontakt' }, sk: { answer: 'I', accept: ['1', 'SK I', 'SK1', 'Schutzklasse I'] } } },
+        { cells: { geraet: { given: 'Notebook-Netzteil, Symbol „zwei Quadrate“, Eurostecker' }, sk: { answer: 'II', accept: ['2', 'SK II', 'SK2', 'Schutzklasse II'] } } },
+        { cells: { geraet: { given: 'Kabellose Maus mit 1,2-V-Akku' }, sk: { answer: 'III', accept: ['3', 'SK III', 'SK3', 'Schutzklasse III'] } } },
+        { cells: { geraet: { given: 'Laserdrucker mit Schutzleiteranschluss' }, sk: { answer: 'I', accept: ['1', 'SK I', 'SK1', 'Schutzklasse I'] } } },
+        { cells: { geraet: { given: 'USB-Webcam (5 V aus dem USB-Port)' }, sk: { answer: 'III', accept: ['3', 'SK III', 'SK3', 'Schutzklasse III'] } } },
+      ],
+      misconceptions: [{ answer: 'III', cell: '1:sk', error: 'schutzklasse-netzteil-iii', why: 'Das Netzteil hängt an 230 V und ist schutzisoliert (zwei Quadrate) → Schutzklasse II. Schutzklasse III hat erst das Gerät, das mit der Kleinspannung betrieben wird.' }],
+      explanation: '**I, II, III, I, III.** Schutzleiter → I; zwei Quadrate → II; Betrieb nur mit Kleinspannung (Akku, USB) → III.\n\nHäufiger Fehler: das Netzteil selbst als Schutzklasse III einordnen – es erzeugt die Kleinspannung, hängt aber am 230-V-Netz.',
+    },
+    {
+      id: 'h05-q032', kind: 'single', skill: 'hw.safety.electric', difficulty: 2,
+      prompt: `Welche Maßnahme ist nach DIN VDE 0100-410 ein **Zusatzschutz**?`,
+      options: ['Fehlerstrom-Schutzeinrichtung (RCD) mit einem Bemessungsfehlerstrom von höchstens 30 mA', 'Isolierung der Leiter', 'Schutzleiter mit automatischer Abschaltung durch den Leitungsschutzschalter', 'Abdeckung Strom führender Teile durch ein Gehäuse'],
+      answer: 0,
+      distractors: {
+        '1': { why: 'Die Isolierung verhindert das Berühren aktiver Teile im Normalbetrieb – das ist **Basisschutz**.', error: 'schutzmassnahme-stufe' },
+        '2': { why: 'Schutzleiter plus automatische Abschaltung wirkt im Fehlerfall (Körperschluss) – das ist **Fehlerschutz**.', error: 'schutzmassnahme-stufe' },
+        '3': { why: 'Abdeckungen und Gehäuse gehören zum **Basisschutz**.', error: 'schutzmassnahme-stufe' },
+      },
+      explanation: '**RCD ≤ 30 mA.** Er greift, wenn Basis- und Fehlerschutz versagen oder bei Unvorsichtigkeit. Häufiger Fehler: Schutzleiter und RCD verwechseln – der Schutzleiter gehört zum Fehlerschutz.',
+    },
+    {
+      id: 'h05-q033', kind: 'number', skill: 'hw.safety.electric', difficulty: 2,
+      prompt: `Eine Person berührt ein defektes Gehäuse, an dem **230 V** anliegen, und steht barfuß auf feuchtem Boden. Der Widerstand auf dem Weg Hand–Fuß beträgt **1.150 Ω**.\n\nWelcher Strom fließt durch den Körper – in **mA**?`,
+      answer: 200, unit: 'mA',
+      misconceptions: [
+        { answer: '0.2', error: 'einheit-umrechnung', why: '0,2 A ist richtig gerechnet, gefragt sind Milliampere: 0,2 A · 1.000 = 200 mA.' },
+        { answer: '264500', error: 'ohm-formel', why: 'U und R multipliziert. Der Strom ist I = U ÷ R.' },
+      ],
+      explanation: '**200 mA.** I = U ÷ R = 230 V ÷ 1.150 Ω = 0,2 A = **200 mA**. Das liegt weit über der Grenze, ab der Herzkammerflimmern möglich ist (ca. 50 mA). Ein RCD mit 30 mA schaltet hier ab.\n\nHäufiger Fehler: in A antworten, obwohl mA gefragt ist.',
+    },
+    {
+      id: 'h05-q034', kind: 'free', skill: 'hw.safety.electric', difficulty: 3,
+      prompt: `Ein Kunde fragt, warum in seinem neuen Büro alle Steckdosenstromkreise über einen **RCD (FI-Schutzschalter) 30 mA** laufen. Erkläre ihm, **wie ein RCD arbeitet**, wovor er schützt und nenne **zwei Grenzen** des RCD.`,
+      modelAnswer: 'Der RCD vergleicht ständig den Strom, der über den Außenleiter zum Gerät fließt, mit dem Strom, der über den Neutralleiter zurückfließt. Im Normalfall sind beide gleich. Fließt ein Teil über einen anderen Weg ab – zum Beispiel über einen Menschen oder den Schutzleiter zur Erde – entsteht eine Differenz. Überschreitet sie den Bemessungsfehlerstrom von 30 mA, schaltet der RCD in Bruchteilen einer Sekunde ab. Er dient damit als Zusatzschutz gegen gefährliche Körperströme und verringert die Brandgefahr durch Fehlerströme. Grenzen: Er schützt nicht vor Überlast und Kurzschluss (dafür ist der Leitungsschutzschalter da). Er schützt nicht, wenn jemand isoliert stehend Außenleiter und Neutralleiter gleichzeitig berührt, weil dann kein Differenzstrom entsteht. Er ersetzt weder Basis- noch Fehlerschutz und muss regelmäßig mit der Prüftaste getestet werden.',
+      keywords: ['Differenz', 'Außenleiter', 'Neutralleiter', '30 mA', 'abschalten', 'Überlast', 'Kurzschluss', 'Zusatzschutz'],
+      explanation: 'Kern: Differenzstrommessung zwischen hin- und rückfließendem Strom; Abschaltung über 30 mA; kein Schutz vor Überlast/Kurzschluss und nicht bei Berührung zwischen L und N.',
+    },
+    {
+      id: 'h05-q035', kind: 'match', skill: 'hw.safety.electric', difficulty: 2,
+      prompt: `Ordne die Maßnahmen der Schutzstufe nach DIN VDE 0100-410 zu.`,
+      left: ['Isolierung der Leitungen und geschlossenes Gehäuse', 'Schutzleiter am Metallgehäuse und Abschaltung durch den Leitungsschutzschalter', 'RCD mit 30 mA vor den Steckdosen'],
+      right: ['Basisschutz', 'Fehlerschutz', 'Zusatzschutz'],
+      answer: [0, 1, 2],
+      explanation: 'Basisschutz verhindert das Berühren aktiver Teile im Normalbetrieb. Fehlerschutz wirkt bei einem Defekt (Spannung am Gehäuse). Zusatzschutz greift, wenn beides versagt.',
+    },
+    {
+      id: 'h05-q036', kind: 'free', skill: 'hw.safety.electric', difficulty: 2,
+      prompt: `In einem Altbau gibt es im Lagerraum nur eine alte Steckdose **ohne Schutzkontakt**. Ein Kollege will den **Laserdrucker (Schutzklasse I)** mit einem Adapter vom Schuko-Stecker auf diese Steckdose anschließen. Bewerte das Vorhaben und schlage eine Lösung vor.`,
+      modelAnswer: 'Das ist nicht zulässig. Ein Gerät der Schutzklasse I braucht den Schutzleiter: Bei einem Körperschluss leitet der Schutzleiter den Fehlerstrom ab und die Sicherung bzw. der RCD schaltet ab. Ohne Schutzkontakt fehlt dieser Fehlerschutz, das Metallgehäuse kann dann gefährliche Spannung führen. Lösung: Den Drucker an eine Schutzkontakt-Steckdose an einem anderen Ort anschließen oder eine Elektrofachkraft beauftragen, die Installation zu prüfen und eine Schutzkontakt-Steckdose (mit RCD) zu setzen. Als IT-Fachkraft (Laie) darf man die Steckdose nicht selbst tauschen.',
+      keywords: ['Schutzklasse I', 'Schutzleiter', 'Fehlerschutz', 'nicht zulässig', 'Elektrofachkraft'],
+      explanation: 'Schutzklasse I funktioniert nur mit Schutzleiter. Der Adapter hebelt den Fehlerschutz aus.',
+    },
+    {
+      id: 'h05-q037', kind: 'single', skill: 'hw.safety.electric', difficulty: 2,
+      prompt: `Ein Smartphone wird mit 5 V über USB-C geladen. Welche Schutzklasse hat **typischerweise das Steckernetzteil**, das in der 230-V-Steckdose steckt?`,
+      options: ['Schutzklasse II', 'Schutzklasse III', 'Schutzklasse I', 'Schutzklasse 0'],
+      answer: 0,
+      distractors: {
+        '1': { why: 'Schutzklasse III hat das **Smartphone**, das mit Kleinspannung arbeitet. Das Netzteil hängt am 230-V-Netz und ist schutzisoliert.', error: 'schutzklasse-netzteil-iii' },
+        '2': { why: 'Das Netzteil hat keinen Schutzleiteranschluss (Eurostecker).', error: 'schutzklasse-netzteil-iii' },
+        '3': { why: 'Schutzklasse 0 (nur Basisisolierung) ist in Deutschland nicht zulässig.' },
+      },
+      explanation: '**Schutzklasse II.** Das Netzteil ist doppelt isoliert (Symbol zwei Quadrate) und erzeugt die Schutzkleinspannung. Häufiger Fehler: Netzteil und Endgerät gleichsetzen.',
+    },
+    {
+      id: 'h05-q047', kind: 'multi', skill: 'hw.safety.electric', difficulty: 1,
+      prompt: `Wovon hängt ab, wie gefährlich ein Stromunfall für einen Menschen ist?`,
+      options: ['Höhe des Körperstroms', 'Einwirkdauer', 'Weg des Stroms durch den Körper (z. B. über das Herz)', 'Feuchtigkeit der Haut und Standort (Körperwiderstand)', 'Farbe der Leitungsisolierung', 'Hersteller des Geräts'],
+      answer: [0, 1, 2, 3],
+      explanation: 'Entscheidend sind Stromstärke, Dauer, Stromweg und der Körperwiderstand (Haut, Feuchtigkeit, Standort). Farbe und Hersteller spielen keine Rolle.',
+    },
+    /* ----------------------- Arbeitssicherheit (l06) ----------------------- */
+    {
+      id: 'h05-q038', kind: 'order', skill: 'hw.safety.work', difficulty: 3,
+      prompt: `Die Arbeiten an einer Unterverteilung sind fertig. Die Sicherheitsmaßnahmen werden **in umgekehrter Reihenfolge** wieder aufgehoben. Bringe die Schritte in die richtige Reihenfolge.`,
+      items: ['Abdeckungen und Abschrankungen entfernen', 'Erdung und Kurzschließung aufheben', 'Sperre und Warnschild „Nicht einschalten“ entfernen', 'Wieder einschalten'],
+      explanation: 'Umgekehrt zu den fünf Sicherheitsregeln: erst abdecken rückgängig machen, dann Erdung/Kurzschluss aufheben, dann die Sicherung gegen Wiedereinschalten entfernen, zuletzt einschalten. Vorher müssen alle Personen die Arbeitsstelle verlassen haben.',
+    },
+    {
+      id: 'h05-q039', kind: 'multi', skill: 'hw.safety.work', difficulty: 2,
+      prompt: `Du bist IT-Fachkraft ohne elektrotechnische Zusatzqualifikation (elektrotechnischer Laie). Was **darfst** du tun?`,
+      options: ['Einen PC per Stecker an eine Steckdosenleiste anschließen', 'Vor der Benutzung Kabel, Stecker und Gehäuse auf Schäden ansehen', 'Ein defektes Gerät vom Netz trennen, kennzeichnen und melden', 'Eine Unterputz-Steckdose austauschen', 'Das Netzteil eines Servers öffnen und die Feinsicherung wechseln', 'Den Schutzkontakt eines Steckers abkleben, weil der RCD auslöst'],
+      answer: [0, 1, 2],
+      explanation: 'Laien dürfen Geräte bestimmungsgemäß benutzen, anschließen, sichtprüfen und Defekte melden. Arbeiten an der Installation und das Öffnen von Netzteilen sind Sache der Elektrofachkraft. Den Schutzleiter zu überbrücken ist lebensgefährlich.',
+    },
+    {
+      id: 'h05-q040', kind: 'match', skill: 'hw.safety.work', difficulty: 1,
+      prompt: `Ordne die Sicherheitszeichen ihrer Bedeutung zu.`,
+      left: ['Gelbes Dreieck mit Blitz', 'Grünes Rechteck mit laufender Person und Tür', 'Rotes Quadrat mit Feuerlöscher', 'Blauer Kreis mit Stecker und Hinweis „Vor Arbeiten freischalten“', 'Roter Kreis mit Querbalken über einer Zigarette'],
+      right: ['Warnung vor elektrischer Spannung', 'Notausgang / Rettungsweg', 'Standort eines Feuerlöschers', 'Gebot: vor Arbeiten freischalten', 'Verbot: Rauchen verboten'],
+      answer: [0, 1, 2, 3, 4],
+      explanation: 'Gelbes Dreieck = Warnung, grün = Rettung, rot eckig = Brandschutz, blau rund = Gebot, rot rund mit Balken = Verbot.',
+    },
+    {
+      id: 'h05-q041', kind: 'single', skill: 'hw.safety.work', difficulty: 1,
+      prompt: `An der Tür des Serverraums hängt ein **rundes, blaues** Schild mit weißem Symbol. Um welche Art von Sicherheitszeichen handelt es sich?`,
+      options: ['Gebotszeichen', 'Warnzeichen', 'Verbotszeichen', 'Rettungszeichen'],
+      answer: 0,
+      distractors: {
+        '1': { why: 'Warnzeichen sind gelbe Dreiecke mit schwarzem Rand.', error: 'zeichen-farbe' },
+        '2': { why: 'Verbotszeichen sind rund mit rotem Rand und Querbalken.', error: 'zeichen-farbe' },
+        '3': { why: 'Rettungszeichen sind grün und eckig.', error: 'zeichen-farbe' },
+      },
+      explanation: '**Gebotszeichen:** blau und rund – etwas **muss** getan werden, z. B. „Gehörschutz benutzen“ oder „Vor Arbeiten freischalten“.',
+    },
+    {
+      id: 'h05-q042', kind: 'free', skill: 'hw.safety.work', difficulty: 3,
+      prompt: `Im Serverraum soll eine Elektrofachkraft einen Unterverteiler erweitern. Die Server hängen an einer **USV** und haben zum Teil **zwei Netzteile (A/B-Versorgung)**. Was muss beim **Freischalten** zusätzlich beachtet werden, und was ist deine Aufgabe als IT-Fachkraft?`,
+      modelAnswer: 'Die USV speist ihre Ausgänge aus dem Akku weiter, auch wenn die Zuleitung im Verteiler abgeschaltet ist. Hinter der USV liegt also weiter Spannung an. Bei der A/B-Versorgung kommt Spannung zusätzlich über den zweiten Strang. Die Elektrofachkraft muss deshalb alle Einspeisungen (Netz, USV-Ausgang, Bypass, zweiter Strang) freischalten, gegen Wiedereinschalten sichern und die Spannungsfreiheit allpolig feststellen. Meine Aufgabe als IT-Fachkraft: die Arbeiten mit der Elektrofachkraft abstimmen, eine Liste der Stromkreise und angeschlossenen Systeme liefern, ein Wartungsfenster planen, Nutzer informieren, Server gegebenenfalls kontrolliert herunterfahren oder auf den anderen Strang umlegen und nach den Arbeiten den Betrieb prüfen. Selbst an der Elektroinstallation arbeite ich nicht.',
+      keywords: ['USV', 'weiter Spannung', 'A/B', 'alle Einspeisungen', 'Spannungsfreiheit', 'Wartungsfenster', 'herunterfahren', 'Elektrofachkraft'],
+      explanation: 'Eine USV ist eine zweite Einspeisung. Wer nur den Verteiler abschaltet, hat die Anlage nicht freigeschaltet.',
+    },
+    {
+      id: 'h05-q043', kind: 'text', skill: 'hw.safety.work', difficulty: 1,
+      prompt: `Nach welcher **Unfallverhütungsvorschrift** werden ortsveränderliche elektrische Geräte wie PCs und Steckdosenleisten regelmäßig geprüft? (Kurzbezeichnung)`,
+      accept: ['DGUV Vorschrift 3', 'DGUV V3', 'DGUV V 3', 'DGUV 3', 'DGUV-Vorschrift 3', 'BGV A3'],
+      explanation: '**DGUV Vorschrift 3** „Elektrische Anlagen und Betriebsmittel“ (früher BGV A3). Geprüfte Geräte erhalten eine Prüfplakette.',
+    },
+    {
+      id: 'h05-q044', kind: 'order', skill: 'hw.safety.work', difficulty: 1,
+      prompt: `Im Druckerraum brennt ein Papierstapel neben einem Kopierer. Bringe die Schritte des Verhaltens im Brandfall in die richtige Reihenfolge.`,
+      items: ['Brand melden (Notruf 112 oder Brandmelder)', 'In Sicherheit bringen (andere warnen, Fluchtweg nutzen, keinen Aufzug)', 'Löschversuch unternehmen, nur ohne Eigengefährdung'],
+      explanation: 'Melden → in Sicherheit bringen → löschen. Menschenleben gehen vor Sachwerten.',
+    },
+    {
+      id: 'h05-q045', kind: 'single', skill: 'hw.safety.work', difficulty: 2,
+      prompt: `In einem Serverrack beginnt ein Netzteil zu brennen. Welcher Handfeuerlöscher eignet sich **am besten**?`,
+      options: ['Kohlendioxid-Löscher (CO₂)', 'Wasserlöscher', 'Schaumlöscher', 'Pulverlöscher'],
+      answer: 0,
+      distractors: {
+        '1': { why: 'Wasser leitet den Strom und zerstört die Elektronik.', error: 'loeschmittel-elektro' },
+        '2': { why: 'Schaum enthält Wasser, ist leitfähig und hinterlässt Rückstände.', error: 'loeschmittel-elektro' },
+        '3': { why: 'Pulver ist zwar an elektrischen Anlagen einsetzbar, verteilt sich aber überall und beschädigt die übrige Elektronik. CO₂ ist rückstandsfrei.', error: 'loeschmittel-elektro' },
+      },
+      explanation: '**CO₂-Löscher:** löscht durch Verdrängen des Sauerstoffs, leitet nicht und hinterlässt keine Rückstände. Achtung: In kleinen, geschlossenen Räumen besteht Erstickungsgefahr – nach dem Löschen den Raum verlassen und lüften.',
+    },
+    {
+      id: 'h05-q046', kind: 'free', skill: 'hw.safety.work', difficulty: 2,
+      prompt: `Bei einem Arbeitsplatzumzug bemerkst du, dass bei einer Steckdosenleiste die Isolierung des Kabels aufgescheuert ist und die inneren Adern sichtbar sind. Beschreibe, wie du als IT-Fachkraft vorgehst.`,
+      modelAnswer: 'Die Leiste nicht mehr benutzen und das Kabel nicht anfassen. Ist sie noch eingesteckt, am Stecker (nicht am Kabel) ziehen oder den Stromkreis abschalten lassen; dabei die beschädigte Stelle nicht berühren. Danach die Leiste deutlich als defekt kennzeichnen („Defekt – nicht benutzen“), aus dem Verkehr ziehen und dem Vorgesetzten bzw. der zuständigen Elektrofachkraft melden. Nicht selbst mit Isolierband reparieren. Die angeschlossenen Geräte an eine geprüfte Leiste mit gültiger Prüfplakette anschließen. Zusätzlich prüfen, warum das Kabel beschädigt wurde (z. B. eingeklemmt unter dem Tisch), und die Kabelführung verbessern.',
+      keywords: ['nicht benutzen', 'vom Netz trennen', 'kennzeichnen', 'melden', 'Elektrofachkraft', 'nicht selbst reparieren'],
+      explanation: 'Laien trennen vom Netz, kennzeichnen, melden – reparieren darf nur die Elektrofachkraft.',
     },
   ],
 };

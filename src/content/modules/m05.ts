@@ -8,7 +8,7 @@ export const m05: Module = {
   icon: 'SplitSquareHorizontal',
   relevance: 'ap1-teilweise',
   prerequisites: ['m03', 'm04'],
-  generators: ['ipv4.network', 'ipv4.broadcast', 'ipv4.hostcount', 'ipv4.samesubnet', 'subnet.hosts2prefix', 'subnet.count', 'subnet.nth', 'subnet.blocksize', 'subnet.table', 'subnet.split'],
+  generators: ['ipv4.network', 'ipv4.broadcast', 'ipv4.hostcount', 'ipv4.samesubnet', 'subnet.hosts2prefix', 'subnet.count', 'subnet.nth', 'subnet.blocksize', 'subnet.table', 'subnet.split', 'subnet.szenario'],
   skills: [
     { id: 'subnet.why', module: 'm05', title: 'Warum Subnetting?' },
     { id: 'subnet.borrow', module: 'm05', title: 'Hostbits ausleihen verstehen', requires: ['ipv4.mask', 'bin.powers'] },
@@ -29,6 +29,13 @@ export const m05: Module = {
       minutes: 12,
       relevance: 'ap1',
       skills: ['subnet.why'],
+      simple: `**Subnetting** heißt: ein großes Netz in mehrere kleine Netze teilen – wie ein Großraumbüro, das durch Wände in Räume mit Türen geteilt wird.
+In einem großen Netz hört jeder jede Durchsage „an alle“ (Broadcast) – das stört und kostet Leistung.
+Getrennte Netze sind ruhiger und sicherer: Zwischen den Räumen sitzt ein Router oder eine Firewall als Türsteher.
+Außerdem erkennst du schon an der Adresse, in welcher Abteilung ein Gerät steht.
+Neue Adressen entstehen dabei nicht – die vorhandenen werden nur aufgeteilt.
+
+**Merke:** Subnetting = ein Netz teilen; Vorteile: weniger Broadcasts, mehr Sicherheit, bessere Ordnung.`,
       steps: [
         {
           type: 'explain',
@@ -86,6 +93,13 @@ export const m05: Module = {
       minutes: 25,
       relevance: 'ap1',
       skills: ['subnet.borrow', 'subnet.count', 'ipv4.hostcount'],
+      simple: `Stell dir das Netz als Torte mit 256 Stücken (Adressen) vor.
+Leihst du **ein** Hostbit aus, schneidest du die Torte einmal durch: 2 Hälften mit je 128 Stücken.
+**Zwei** geliehene Bits ergeben 4 Viertel mit je 64 Stücken, **drei** Bits 8 Achtel mit je 32.
+Das geliehene Bit ist also nicht weg – es sagt, welches Tortenstück gemeint ist (die Subnetz-Nummer).
+In jedem Stück sind zwei Adressen reserviert (Netz- und Broadcastadresse), der Rest ist für Geräte.
+
+**Merke:** b geliehene Bits → 2^b Subnetze; h übrige Hostbits → 2^h Adressen, davon 2^h − 2 nutzbar.`,
       steps: [
         {
           type: 'explain',
@@ -187,6 +201,13 @@ Und die Probe: Subnetze × Adressen pro Subnetz = Adressen des Ausgangsnetzes (z
       minutes: 20,
       relevance: 'ap1',
       skills: ['subnet.blocksize', 'subnet.nth'],
+      simple: `Alle Subnetze sind gleich groß, deshalb beginnen sie in festen Abständen – wie Hausnummern, die immer um 32 springen: 0, 32, 64, 96 …
+Diesen Abstand nennt man **Blockgröße** oder **Schrittweite**.
+Du findest ihn schnell mit **256 − Maskenwert** im „interessanten Oktett“ (dem Oktett der Maske, das weder 255 noch 0 ist).
+Beispiel /27: Maske 255.255.255.224, also 256 − 224 = 32.
+Das n-te Subnetz beginnt bei (n − 1) × Schrittweite, weil das erste bei 0 anfängt.
+
+**Merke:** Schrittweite = 256 − Maskenwert; das 1. Subnetz beginnt bei 0, das n-te bei (n − 1) × Schrittweite.`,
       steps: [
         {
           type: 'explain',
@@ -252,6 +273,13 @@ Bei **/20** liegt die Grenze im **3. Oktett**: Die Netze beginnen bei x.x.**0**.
       minutes: 20,
       relevance: 'ap1',
       skills: ['ipv4.network'],
+      simple: `Die Netzadresse zu einer IP findest du wie das Kapitel zu einer Buchseite: Seite 77 gehört zum Kapitel, das auf Seite 64 begonnen hat.
+Dazu bestimmst du die Schrittweite und schreibst ihre Vielfachen auf (z. B. 0, 64, 128, 192).
+Du nimmst das größte Vielfache, das nicht größer ist als dein Wert.
+Die Oktette davor übernimmst du, alle Oktette danach werden 0.
+Beispiel 192.168.10.77/26: Schrittweite 64, 77 liegt im Block ab 64 → Netzadresse 192.168.10.64.
+
+**Merke:** Netzadresse = größtes Vielfaches der Schrittweite, das kleiner oder gleich dem Oktettwert ist.`,
       steps: [
         {
           type: 'explain',
@@ -296,6 +324,13 @@ Beide Wege liefern dasselbe. Methode A ist in der Prüfung schneller; Methode B 
       minutes: 20,
       relevance: 'ap1',
       skills: ['ipv4.broadcast', 'subnet.table'],
+      simple: `Wenn du weißt, wo ein Kapitel beginnt, weißt du auch, wo es endet: eine Seite vor dem nächsten Kapitel.
+Genauso ist die **Broadcastadresse** (die Adresse „an alle“ im Netz) immer die nächste Netzadresse minus 1.
+Beispiel: Netz .64 mit Schrittweite 64 → nächstes Netz .128 → Broadcast .127.
+Der erste nutzbare Host ist Netzadresse + 1 (.65), der letzte ist Broadcast − 1 (.126).
+Liegt die Grenze im 3. Oktett, endet der Broadcast immer auf .255.
+
+**Merke:** Broadcast = nächstes Netz − 1; Hosts von Netzadresse + 1 bis Broadcast − 1.`,
       steps: [
         {
           type: 'explain',
@@ -356,6 +391,13 @@ Binär: Beim Broadcast werden **alle Hostbits auf 1** gesetzt:
       minutes: 15,
       relevance: 'ap1',
       skills: ['subnet.hosts2prefix'],
+      simple: `Das passende Netz zu wählen ist wie die richtige Kartongröße beim Umzug: Alles muss hineinpassen, aber der Karton soll nicht unnötig groß sein.
+Du suchst die kleinste Zahl Hostbits h, bei der 2^h − 2 mindestens so groß ist wie der Bedarf.
+Das Präfix ist dann 32 − h.
+Beispiel 48 Geräte: 2⁵ − 2 = 30 reicht nicht, 2⁶ − 2 = 62 reicht → 6 Hostbits → /26.
+Zähle die Router-Schnittstelle mit, denn auch sie braucht eine Adresse.
+
+**Merke:** Kleinstes h mit 2^h − 2 ≥ Bedarf, Präfix = 32 − h; 64 Geräte passen nicht in ein /26.`,
       steps: [
         {
           type: 'explain',
@@ -398,6 +440,12 @@ Ob der Router (Gateway) im Hostbedarf schon enthalten ist, steht in der Aufgaben
       minutes: 25,
       relevance: 'ap1-teilweise',
       skills: ['subnet.split', 'subnet.table', 'subnet.count'],
+      simple: `Beim gleichmäßigen Aufteilen gibt es zwei Fragen – wie beim Tortenschneiden für eine Feier.
+Frage 1: **Wie viele Stücke** brauche ich? Dann suchst du die kleinste Bitzahl b mit 2^b ≥ Anzahl und addierst b zum Präfix.
+Frage 2: **Wie groß** muss jedes Stück sein? Dann suchst du die Hostbits wie beim Dimensionieren (2^h − 2 ≥ Bedarf).
+Danach listest du die Subnetze mit der Schrittweite auf und prüfst jede Adresse.
+
+**Merke:** X Subnetze → 2^b ≥ X; Y Hosts je Subnetz → 2^h − 2 ≥ Y; das Ergebnis immer kontrollieren.`,
       steps: [
         {
           type: 'explain',
@@ -429,7 +477,29 @@ Ob der Router (Gateway) im Hostbedarf schon enthalten ist, steht in der Aufgaben
           widget: { kind: 'subnet-bar', data: { network: '172.20.0.0', prefix: 20, minPrefix: 16, maxPrefix: 24 } },
           caption: 'Ein /16 mit 65.536 Adressen. Ändere das Präfix und beobachte, wie viele Subnetze entstehen und wie groß sie sind.',
         },
+        {
+          type: 'example',
+          title: 'Prüfungsformat: Netz auf Abteilungen aufteilen',
+          problem: `**Handlungssituation:** Der Standort Berlin der Elektro Krämer GmbH nutzt das Netz **192.168.40.0/24**. Für die drei Abteilungen **Vertrieb (50 Geräte)**, **Lager (28 Geräte)** und **Verwaltung (40 Geräte)** sollen gleich große Subnetze gebildet werden – mit so wenigen ausgeliehenen Bits wie möglich. Die Abteilungen erhalten die Subnetze in dieser Reihenfolge. Gib Präfix, Maske, Hosts je Subnetz sowie für jede Abteilung Netzadresse, ersten und letzten Host und Broadcast an.`,
+          steps: [
+            { label: '1. Wie viele Subnetze?', body: `3 Abteilungen → 3 Subnetze. 2¹ = 2 reicht nicht, 2² = 4 ≥ 3 → **2 Bits** ausleihen. (Ein Subnetz bleibt als Reserve frei.)` },
+            { label: '2. Präfix und Maske', body: `/24 + 2 = **/26**. Maske: 26 Einsen = 255.255.255.**192** (11000000 = 128 + 64).` },
+            { label: '3. Größe prüfen', body: `32 − 26 = 6 Hostbits → 2⁶ = **64 Adressen**, davon 64 − 2 = **62 nutzbar**. Größte Abteilung: Vertrieb mit 50 Geräten → 50 ≤ 62 ✔` },
+            { label: '4. Schrittweite', body: `256 − 192 = **64** → Subnetze beginnen bei .0, .64, .128, .192.` },
+            { label: '5. Tabelle füllen', body: `| Abteilung | Netzadresse | erster Host | letzter Host | Broadcast |
+|---|---|---|---|---|
+| Vertrieb | 192.168.40.0 | .1 | .62 | .63 |
+| Lager | 192.168.40.64 | .65 | .126 | .127 |
+| Verwaltung | 192.168.40.128 | .129 | .190 | .191 |
+| (Reserve) | 192.168.40.192 | .193 | .254 | .255 |
+
+Broadcast jeweils = nächstes Netz − 1 (z. B. 64 − 1 = 63).` },
+          ],
+          result: `/26 · 255.255.255.192 · 62 Hosts je Subnetz. Vertrieb 192.168.40.0–.63, Lager .64–.127, Verwaltung .128–.191, Reserve .192–.255. **Typische Fehler:** 3 Bits leihen (eins je Abteilung → /27 mit nur 30 Hosts – dann passt der Vertrieb nicht hinein), Broadcast = nächstes Netz (.64 statt .63), Hostzahl ohne „− 2“ (64 statt 62).`,
+        },
+        { type: 'practice', title: 'Übung: Szenario – Netz auf Abteilungen aufteilen', generator: 'subnet.szenario', count: 2, difficulty: 1 },
         { type: 'practice', title: 'Übung: Netz aufteilen (Tabelle)', generator: 'subnet.split', count: 2, difficulty: 2 },
+        { type: 'practice', title: 'Übung: Szenario mit Reserve und Grenze im 3. Oktett', generator: 'subnet.szenario', count: 2, difficulty: 3 },
         { type: 'practice', title: 'Übung: gemischt anspruchsvoll', generator: 'subnet.table', count: 2, difficulty: 3 },
         { type: 'summary', points: ['Subnetzbedarf → Bits ausleihen; Hostbedarf → Hostbits reservieren.', 'Ergebnis immer mit Probe kontrollieren (Vielfaches, Broadcast = nächstes Netz − 1).'] },
       ],

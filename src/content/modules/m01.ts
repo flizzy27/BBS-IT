@@ -29,6 +29,13 @@ export const m01: Module = {
       minutes: 15,
       relevance: 'ap1',
       skills: ['basics.terms'],
+      simple: `Ein Netzwerk ist wie das Straßennetz einer Stadt: Die Geräte sind die Häuser, Kabel und Funk sind die Straßen.
+Jedes aktive Gerät im Netz heißt **Knoten** – also auch Switch und Router, die nur weiterleiten.
+Ein **Host** (Endgerät) ist ein Knoten, der selbst Daten sendet oder empfängt, z. B. PC, Server oder Drucker.
+Damit sich alle verstehen, gibt es **Protokolle** – feste Verkehrsregeln für Daten.
+Die **Bandbreite** (Datenrate in Bit pro Sekunde) ist wie die Zahl der Fahrspuren: Sie sagt, wie viele Daten pro Sekunde durchpassen.
+
+**Merke:** Knoten = jedes aktive Netzgerät, Host = Endgerät; Protokolle sind die Regeln, nach denen sie Daten austauschen.`,
       steps: [
         {
           type: 'explain',
@@ -171,6 +178,13 @@ Rechenweg für Übertragungszeiten: **Zeit = Datenmenge in Bit ÷ Datenrate in b
       minutes: 15,
       relevance: 'ap1',
       skills: ['basics.network-types'],
+      simple: `Netze werden nach ihrer Reichweite benannt – vom Flur deiner Wohnung bis zur Weltreise.
+**PAN** (Personal Area Network) reicht nur wenige Meter, z. B. Handy und Bluetooth-Kopfhörer.
+**LAN** (Local Area Network) ist das Netz in einem Gebäude oder auf einem Firmengelände.
+**MAN** (Metropolitan Area Network) verbindet Standorte in einer Stadt oder Region.
+**WAN** (Wide Area Network) verbindet weit entfernte Standorte wie Hamburg und Berlin, **GAN** (Global Area Network) umspannt die ganze Welt.
+
+**Merke:** Nach Größe sortiert: PAN < LAN < MAN < WAN < GAN.`,
       steps: [
         {
           type: 'explain',
@@ -303,6 +317,13 @@ WLAN ist keine eigene „Größenklasse“, sondern ein **LAN mit Funk als Mediu
       minutes: 15,
       relevance: 'ap1',
       skills: ['basics.architecture'],
+      simple: `Das **Client-Server-Modell** funktioniert wie ein Restaurant: Du als Gast (Client, der anfragende Rechner) bestellst, die Küche (Server, der Rechner mit dem Dienst) liefert.
+Der Server steht zentral, verwaltet die Daten und ist immer erreichbar.
+Bei **Peer-to-Peer** (P2P, „unter Gleichen“) ist jeder Rechner Gast und Koch zugleich – jeder bietet an und fragt an.
+Das reicht für zwei, drei Rechner, wird aber schnell unübersichtlich und unsicher.
+Firmen nutzen deshalb Client-Server, weil Rechte, Datensicherung und Verwaltung an einer Stelle liegen.
+
+**Merke:** Client fragt an, Server bietet an – in Firmen ist Client-Server Standard, P2P nur für sehr kleine Netze.`,
       steps: [
         {
           type: 'explain',
@@ -400,6 +421,13 @@ Mit 60 Mitarbeitenden ist ein **Client-Server-Netz** mit Domäne (Active Directo
       minutes: 20,
       relevance: 'ap1',
       skills: ['basics.topologies'],
+      simple: `Die **Topologie** ist der Bauplan, wie Geräte miteinander verkabelt sind.
+Beim **Stern** hängen alle Geräte an einem Mittelpunkt (Switch) – wie Häuser an einem Kreisverkehr: Ein kaputtes Kabel trifft nur ein Gerät, ein kaputter Mittelpunkt trifft alle.
+Beim **Bus** teilen sich alle eine einzige Leitung, beim **Ring** wird reihum weitergegeben.
+Bei der **Masche** gibt es mehrere Wege zwischen den Knoten – teurer, aber ausfallsicher (redundant, also doppelt abgesichert).
+Firmennetze sind heute meist ein erweiterter Stern (Baum).
+
+**Merke:** Stern = Standard im LAN, Masche = Ausfallsicherheit durch mehrere Wege.`,
       steps: [
         {
           type: 'explain',
@@ -543,6 +571,13 @@ Und ein modernes **Ethernet mit Switch**? Physisch Stern – und da der Switch g
       minutes: 25,
       relevance: 'ap1',
       skills: ['basics.devices'],
+      simple: `Jedes Netzwerkgerät hat eine feste Aufgabe – wie die Mitarbeitenden in einem Postzentrum.
+Der **Hub** (veraltet) ruft jede Nachricht einfach an alle weiter.
+Der **Switch** kennt die Hardware-Adressen (MAC-Adressen) der Geräte und stellt im eigenen Netz gezielt zu – wie ein Postbote, der jeden Briefkasten im Haus kennt.
+Der **Router** verbindet verschiedene Netze und wählt den Weg anhand der IP-Adresse – wie das Sortierzentrum, das Briefe in andere Städte schickt.
+Der **Access Point** bringt WLAN-Geräte ins Kabelnetz, die **Firewall** prüft als Türsteher, welcher Verkehr durchdarf.
+
+**Merke:** Switch = innerhalb eines Netzes (MAC, Schicht 2), Router = zwischen Netzen (IP, Schicht 3).`,
       steps: [
         {
           type: 'explain',
@@ -691,6 +726,12 @@ Und ein modernes **Ethernet mit Switch**? Physisch Stern – und da der Switch g
       minutes: 20,
       relevance: 'ap1',
       skills: ['basics.domains'],
+      simple: `Eine **Kollisionsdomäne** ist wie ein Raum, in dem alle durcheinanderreden: Sprechen zwei gleichzeitig, versteht keiner etwas (Kollision).
+Ein Switch gibt jedem Gerät seinen eigenen Raum – jeder Switch-Port ist eine eigene Kollisionsdomäne.
+Eine **Broadcastdomäne** ist der Bereich, in dem eine Durchsage „an alle“ (Broadcast) ankommt – wie eine Lautsprecherdurchsage im ganzen Gebäude.
+Erst ein Router begrenzt diese Durchsage. Ein Hub trennt gar nichts.
+
+**Merke:** Switch trennt Kollisionsdomänen, Router trennt Broadcastdomänen.`,
       steps: [
         {
           type: 'explain',
@@ -828,6 +869,13 @@ Warum ist das wichtig? Zu große Broadcastdomänen (hunderte Geräte) erzeugen v
       minutes: 20,
       relevance: 'ap1-teilweise',
       skills: ['basics.enterprise'],
+      simple: `Ein großes Firmennetz ist aufgebaut wie ein Straßennetz mit Autobahn, Bundesstraße und Wohnstraße.
+Der **Core** (Kern) ist die Autobahn: schnelle, doppelt ausgelegte Verbindungen.
+Die **Distribution** (Verteilung) ist die Bundesstraße: Sie fasst die Etagen zusammen und regelt den Verkehr zwischen den Netzen.
+Der **Access** (Zugang) ist die Wohnstraße, an der PCs, Drucker und Telefone hängen.
+Server, die aus dem Internet erreichbar sein müssen, stehen in der **DMZ** (eigenes, abgeschottetes Netzsegment) – wie ein Empfangsraum, in den Besucher dürfen, aber nicht ins Büro.
+
+**Merke:** Endgeräte hängen am Access-Switch; öffentlich erreichbare Server gehören in die DMZ.`,
       steps: [
         {
           type: 'explain',

@@ -32,6 +32,9 @@ export const p05: Module = {
       minutes: 15,
       relevance: 'ap1',
       skills: ['prog.paradigms'],
+      simple: `Ein Programmierparadigma ist ein grundsätzlicher Programmierstil – so wie es verschiedene Arten gibt, jemandem den Weg zu erklären. Imperativ heißt: Du sagst Schritt für Schritt, wie etwas passiert, wie bei „zweimal links, dann geradeaus“. Objektorientiert heißt: Du baust das Programm aus Objekten, die ihre Daten und passenden Methoden selbst mitbringen. Funktional heißt: Das Programm besteht aus Funktionen, die aus Eingaben Ergebnisse berechnen, ohne nebenbei etwas zu verändern (keine Seiteneffekte) – wie ein Taschenrechner.
+
+**Merke:** imperativ = Schritt-für-Schritt-Befehle, objektorientiert = Objekte mit Daten und Methoden, funktional = Funktionen ohne Seiteneffekte.`,
       steps: [
         {
           type: 'explain',
@@ -132,6 +135,9 @@ ${F}
       minutes: 25,
       relevance: 'ap1',
       skills: ['qa.tools', 'qa.debugging'],
+      simple: `Ein Compiler ist wie ein Übersetzungsbüro: Er übersetzt das ganze Programm vorab in Maschinensprache, danach läuft es schnell und ohne Übersetzer. Ein Interpreter ist wie ein Dolmetscher: Er übersetzt Zeile für Zeile, während das Programm läuft. Eine IDE (Entwicklungsumgebung) ist die Werkstatt, in der Editor, Übersetzer und Debugger zusammen bereitliegen. Mit dem Debugger (Fehlersuchwerkzeug) hältst du das Programm an einem Haltepunkt an und schaust dir die Variablenwerte an.
+
+**Merke:** Compiler = vorab alles übersetzen, Interpreter = beim Ausführen Zeile für Zeile; Debugger = anhalten und nachschauen.`,
       steps: [
         {
           type: 'explain',
@@ -166,6 +172,30 @@ Editor mit **Syntaxhervorhebung** und **Autovervollständigung**, Compiler/Inter
 - **Aufrufstapel (Call Stack):** Welche Funktion hat welche aufgerufen?
 
 **Systematisches Debugging:** Fehler **reproduzieren** → **eingrenzen** (Breakpoints, Logausgaben) → **Ursache** finden → **beheben** → **erneut testen** (inkl. Regressionstest) → **dokumentieren**.`,
+        },
+        {
+          type: 'explain',
+          title: 'Vom Quellcode zum Programm – und weitere Debugging-Begriffe',
+          body: `**Die Build-Kette bei kompilierten Sprachen** (z. B. C, C++):
+
+1. **Quellcode** schreiben (Textdatei, z. B. \`main.c\`)
+2. Der **Compiler** übersetzt jede Quelldatei in **Objektcode** (Maschinencode-Baustein, z. B. \`main.obj\` bzw. \`main.o\`) und meldet dabei Syntaxfehler.
+3. Der **Linker** (Binder) verbindet alle Objektdateien und die benötigten **Bibliotheken** zu **einer ausführbaren Datei** (z. B. \`programm.exe\`). Fehlt eine Funktion, meldet er einen Linker-Fehler.
+4. Beim Start lädt das Betriebssystem (Lader, *Loader*) das Programm in den Arbeitsspeicher; **dynamische Bibliotheken** (\`.dll\` unter Windows, \`.so\` unter Linux) werden erst jetzt eingebunden, **statische** sind schon in der .exe enthalten.
+
+**Bibliothek oder Framework?** Eine **Bibliothek** ist eine Sammlung fertiger Funktionen, die **dein Programm aufruft** (z. B. eine Mathe- oder PDF-Bibliothek). Ein **Framework** gibt den **Rahmen** vor und ruft **deinen Code auf** (Umkehr der Steuerung, z. B. Web-Frameworks wie Django oder Spring, Test-Frameworks wie JUnit oder pytest). Ein **GUI-Editor** (Oberflächen-Designer) erzeugt Fenster und Formulare per Drag-and-Drop.
+
+**Weitere Debugging-Begriffe:**
+
+| Begriff | Bedeutung |
+|---|---|
+| **bedingter Haltepunkt** | hält nur an, wenn eine Bedingung WAHR ist (z. B. \`summe > 100\`) – spart tausende Einzelschritte |
+| **Log- bzw. Print-Debugging** | Zwischenwerte gezielt ausgeben oder protokollieren; nützlich, wenn kein Debugger verfügbar ist (z. B. auf dem Server) |
+| **Just-in-time-Debugging** | Stürzt ein Programm mit einem **unbehandelten Fehler** ab, bietet das System an, **nachträglich** einen Debugger an den laufenden Prozess anzuhängen – auch wenn das Programm nicht aus der IDE gestartet wurde |
+| **Edit and Continue** (ähnlich *Hot Reload*) | Code **während einer angehaltenen Debug-Sitzung ändern** und ohne Neustart weiterlaufen lassen |
+| **Speicherabbild (Crash-Dump)** | Zustand des Programms im Moment des Absturzes; wird später im Debugger untersucht (Post-mortem-Analyse) |
+
+📘 **Achtung:** Manche Prüfungsbücher erklären Just-in-time-Debugging als „Anweisungen im laufenden Debuggen ändern“. Das ist **Edit and Continue**. Just-in-time-Debugging heißt: Der Debugger wird **im Moment des Absturzes** „gerade rechtzeitig“ angehängt.`,
         },
         {
           type: 'visual',
@@ -206,8 +236,8 @@ Editor mit **Syntaxhervorhebung** und **Autovervollständigung**, Compiler/Inter
             explanation: 'Syntax: Regelverstoß der Sprache (Compiler meldet). Laufzeit: Abbruch während der Ausführung. Logik: läuft, aber falsches Ergebnis.',
           },
         },
-        { type: 'practice', title: 'Übung: Werkzeuge & Debugging', questionIds: ['p05-q004', 'p05-q005', 'p05-q006', 'p05-q007', 'p05-q008', 'p05-q009', 'p05-q010', 'p05-q011'], count: 6, difficulty: 2 },
-        { type: 'summary', points: ['Compiler: alles vorab übersetzen, schnell, plattformabhängig.', 'Interpreter: zur Laufzeit, flexibel, Fehler erst bei Ausführung.', 'Java/C#: Bytecode + VM + JIT.', 'Syntax-, Laufzeit-, Logikfehler; Debugger: Breakpoint, Einzelschritt, Watch, Call Stack.'] },
+        { type: 'practice', title: 'Übung: Werkzeuge & Debugging', questionIds: ['p05-q004', 'p05-q005', 'p05-q006', 'p05-q007', 'p05-q008', 'p05-q009', 'p05-q010', 'p05-q011', 'p05-q039', 'p05-q040', 'p05-q041'], count: 6, difficulty: 2 },
+        { type: 'summary', points: ['Build-Kette: Quellcode → Compiler → Objektcode → Linker (+ Bibliotheken) → ausführbare Datei.', 'Just-in-time-Debugging = Debugger beim Absturz nachträglich anhängen; Code im Lauf ändern = Edit and Continue.', 'Compiler: alles vorab übersetzen, schnell, plattformabhängig.', 'Interpreter: zur Laufzeit, flexibel, Fehler erst bei Ausführung.', 'Java/C#: Bytecode + VM + JIT.', 'Syntax-, Laufzeit-, Logikfehler; Debugger: Breakpoint, Einzelschritt, Watch, Call Stack.'] },
       ],
     },
     /* ------------------------------------------------------------------ */
@@ -217,6 +247,9 @@ Editor mit **Syntaxhervorhebung** und **Autovervollständigung**, Compiler/Inter
       minutes: 20,
       relevance: 'ap1-teilweise',
       skills: ['qa.git'],
+      simple: `Git ist wie ein Speicherstand-System in einem Videospiel: Du kannst jederzeit einen Zwischenstand sichern und später dorthin zurückkehren. Mit git add legst du fest, welche Änderungen in den nächsten Speicherstand kommen, mit git commit sicherst du ihn mit einer kurzen Beschreibung. Mit git push lädst du deine Speicherstände auf den gemeinsamen Server (Remote-Repository), mit git pull holst du die Änderungen der anderen. Branches (Zweige) sind Nebenstränge, in denen du ausprobieren kannst, ohne den Hauptstand zu gefährden.
+
+**Merke:** add → commit → push zum Hochladen, pull zum Holen; jeder Commit ist ein Zwischenstand mit Beschreibung.`,
       steps: [
         {
           type: 'explain',
@@ -303,6 +336,9 @@ Editor mit **Syntaxhervorhebung** und **Autovervollständigung**, Compiler/Inter
       minutes: 25,
       relevance: 'ap1',
       skills: ['qa.testing'],
+      simple: `Testen ist wie die Probefahrt nach der Autoreparatur: Du prüfst, ob alles funktioniert, bevor der Kunde losfährt. Getestet wird in Stufen – erst einzelne Bauteile (Komponententest), dann ihr Zusammenspiel (Integrationstest), dann das ganze System (Systemtest) und zum Schluss durch den Kunden (Abnahmetest). Beim Black-Box-Test kennst du nur Eingaben und erwartete Ausgaben, beim White-Box-Test schaust du in den Code hinein. Ein Test kann Fehler finden, aber nie beweisen, dass es keine gibt.
+
+**Merke:** Komponente → Integration → System → Abnahme; Black-Box ohne, White-Box mit Blick in den Code.`,
       steps: [
         {
           type: 'explain',
@@ -338,7 +374,9 @@ Editor mit **Syntaxhervorhebung** und **Autovervollständigung**, Compiler/Inter
 **Weitere Begriffe:**
 - **Regressionstest:** Nach einer Änderung werden bestehende Tests **erneut** ausgeführt, um sicherzustellen, dass nichts kaputtgegangen ist – ideal automatisiert.
 - **Testfall:** Vorbedingung + Eingabe + **erwartetes Ergebnis** (vorher festgelegt!) + tatsächliches Ergebnis + Bewertung.
-- **Testprotokoll:** dokumentiert durchgeführte Tests und Ergebnisse; **Abnahmeprotokoll:** bestätigt die Übergabe/Annahme durch den Kunden (ggf. mit Mängelliste).`,
+- **Testprotokoll:** dokumentiert durchgeführte Tests und Ergebnisse; **Abnahmeprotokoll:** bestätigt die Übergabe/Annahme durch den Kunden (ggf. mit Mängelliste).
+
+➡️ Testprozess, Testprotokoll mit Soll/Ist, Alpha-/Beta-Test und Review-Formen vertieft das Modul **p06** (Softwareentwicklungsprozess).`,
         },
         {
           type: 'visual',
@@ -390,6 +428,9 @@ Editor mit **Syntaxhervorhebung** und **Autovervollständigung**, Compiler/Inter
       minutes: 20,
       relevance: 'ap1',
       skills: ['qa.equivalence'],
+      simple: `Du kannst nicht jede mögliche Eingabe testen – also wählst du klug aus. Stell dir den Kinderpreis im Kino vor (unter 14 Jahren): Alle Alter von 0 bis 13 verhalten sich gleich, sie bilden eine Äquivalenzklasse (Gruppe gleich behandelter Werte), und ein Vertreter daraus reicht. Fehler stecken aber oft an den Grenzen, darum testest du zusätzlich die Grenzwerte 13 und 14 (Grenzwertanalyse). Vergiss die ungültigen Klassen nicht, etwa negative Zahlen oder Buchstaben.
+
+**Merke:** Je Äquivalenzklasse ein Vertreter, dazu die Werte an und direkt neben jeder Grenze.`,
       steps: [
         {
           type: 'explain',
@@ -470,6 +511,9 @@ Editor mit **Syntaxhervorhebung** und **Autovervollständigung**, Compiler/Inter
       minutes: 25,
       relevance: 'ap1',
       skills: ['qa.secdesign'],
+      simple: `Security by Design ist wie die Planung von Fluchtwegen beim Hausbau: Sicherheit wird von Anfang an mitgeplant, nicht nachträglich angeschraubt. Privacy by Design bedeutet dasselbe für den Datenschutz – nur so viele personenbezogene Daten wie nötig, und die Voreinstellungen sind datenschutzfreundlich (Art. 25 DSGVO). Jeder bekommt nur die Rechte, die er wirklich braucht (Least Privilege, minimale Rechte). Geht etwas schief, soll das System sicher reagieren und den Zugriff im Zweifel verweigern (sicherer Ausfall, fail secure).
+
+**Merke:** Sicherheit und Datenschutz von Anfang an einplanen; minimale Rechte, im Fehlerfall verweigern.`,
       steps: [
         {
           type: 'explain',
@@ -497,6 +541,27 @@ Orientierung geben z. B. die **OWASP Top 10** (häufigste Risiken von Webanwendu
 - **by Default:** Die **Voreinstellungen** sind datenschutzfreundlich – z. B. Profil standardmäßig nicht öffentlich, optionale Felder leer, Tracking erst nach Einwilligung, nur notwendige Cookies vorausgewählt.
 
 **Im Projektalltag:** Sicherheits- und Datenschutzanforderungen ins Lastenheft/Pflichtenheft, Schutzbedarf festlegen, im Klassendiagramm sensible Attribute kennzeichnen und kapseln, Bedrohungen im Anwendungsfalldiagramm mitdenken („Was könnte ein Angreifer tun?“), Sicherheitstests und Code-Reviews einplanen.`,
+        },
+        {
+          type: 'explain',
+          title: 'Sicher ausfallen, Rechte trennen, sinnvoll protokollieren',
+          body: `**Sicherer Ausfall (fail secure, sichere Standardwerte):** Geht etwas schief, fällt das System in den **sicheren Zustand** – im Zweifel wird der Zugriff **verweigert**. Beispiele: Ist der Berechtigungsserver nicht erreichbar, lehnt die Anwendung die Anmeldung ab, statt „vorsichtshalber“ alle durchzulassen. Neue Konten haben zunächst **keine** Rechte; erlaubt ist nur, was ausdrücklich freigegeben wurde (**Default Deny**, Whitelist).
+*Abgrenzung:* In der Gebäudetechnik heißt „fail safe“ oft das Gegenteil – Fluchttüren entriegeln bei Stromausfall, weil Menschenleben vorgehen. Für Zugriffskontrolle in Software gilt: im Zweifel verweigern.
+
+**Weitere Gestaltungsprinzipien:**
+
+| Prinzip | Bedeutung / Beispiel |
+|---|---|
+| **Berechtigungstrennung** (Funktionstrennung, Vier-Augen-Prinzip) | kritische Aktionen brauchen zwei Personen oder zwei Rechte – wer eine Zahlung anlegt, darf sie nicht selbst freigeben |
+| **Vollständige Zugriffsüberwachung** | **jeder** Zugriff wird geprüft, nicht nur der erste (Rechte können sich seit dem Login geändert haben) |
+| **Mehrere Sicherheitsebenen** | siehe Defense in Depth |
+| **Benutzerfreundliche Sicherheit** | Sicherheit, die lästig ist, wird umgangen (Passwortzettel am Monitor). Besser: Passwortmanager, Single Sign-on mit MFA, verständliche Meldungen |
+
+**Protokollierung (Logging) sicherheitsrelevanter Ereignisse** – nur so lassen sich Angriffe erkennen und aufklären:
+- **Protokollieren:** An- und Abmeldungen inklusive **Fehlversuchen**, Änderungen an Konten und Rechten, Zugriffe auf schützenswerte Daten, Konfigurationsänderungen, Aktionen von Administratoren, Fehler und Ausnahmen – jeweils mit **Zeitstempel** (synchronisierte Uhr, z. B. per NTP), Benutzerkennung, Quelle (IP-Adresse), Aktion und Ergebnis.
+- **Nicht protokollieren:** **Passwörter** (auch keine falsch eingegebenen), Sitzungs-Token und Schlüssel, vollständige Zahlungsdaten, unnötige personenbezogene Daten (Datenminimierung).
+- **Logs schützen:** nur lesend zugänglich, möglichst zentral speichern (z. B. Syslog-Server, SIEM), gegen Manipulation sichern, **Aufbewahrungs- und Löschfristen** festlegen und regelmäßig auswerten (Alarm bei vielen Fehlversuchen).
+- Logs enthalten oft personenbezogene Daten: Zweck festlegen, Zugriff beschränken; wenn sie sich zur Leistungs- oder Verhaltenskontrolle eignen, hat ein vorhandener Betriebsrat ein Mitbestimmungsrecht (§ 87 Abs. 1 Nr. 6 BetrVG).`,
         },
         {
           type: 'visual',
@@ -539,8 +604,8 @@ Orientierung geben z. B. die **OWASP Top 10** (häufigste Risiken von Webanwendu
             explanation: '**Privacy by Default** (Art. 25 Abs. 2 DSGVO): Ohne Zutun des Nutzers werden nur die für den Zweck nötigen Daten verarbeitet und nicht einer unbestimmten Zahl von Personen zugänglich gemacht.',
           },
         },
-        { type: 'practice', title: 'Übung: Security & Privacy by Design', questionIds: ['p05-q026', 'p05-q027', 'p05-q028', 'p05-q029', 'p05-q038'], count: 4, difficulty: 2 },
-        { type: 'summary', points: ['Security by Design: Least Privilege, Secure Defaults, Eingabevalidierung, Defense in Depth.', 'SQL-Injection → Prepared Statements; Passwörter → Hash mit Salt (Argon2/bcrypt).', 'Art. 25 DSGVO: Datenschutz durch Technikgestaltung und datenschutzfreundliche Voreinstellungen.', 'Datenminimierung, Pseudonymisierung, Verschlüsselung, Löschkonzept.'] },
+        { type: 'practice', title: 'Übung: Security & Privacy by Design', questionIds: ['p05-q026', 'p05-q027', 'p05-q028', 'p05-q029', 'p05-q038', 'p05-q042', 'p05-q043', 'p05-q044'], count: 5, difficulty: 2 },
+        { type: 'summary', points: ['Security by Design: Least Privilege, Secure Defaults, Eingabevalidierung, Defense in Depth.', 'Sicher ausfallen: im Fehlerfall Zugriff verweigern (Default Deny); Vier-Augen-Prinzip für kritische Aktionen.', 'Protokollieren: Anmeldungen inkl. Fehlversuche, Rechteänderungen, Admin-Aktionen – nie Passwörter oder Tokens.', 'SQL-Injection → Prepared Statements; Passwörter → Hash mit Salt (Argon2/bcrypt).', 'Art. 25 DSGVO: Datenschutz durch Technikgestaltung und datenschutzfreundliche Voreinstellungen.', 'Datenminimierung, Pseudonymisierung, Verschlüsselung, Löschkonzept.'] },
       ],
     },
     /* ------------------------------------------------------------------ */
@@ -550,6 +615,9 @@ Orientierung geben z. B. die **OWASP Top 10** (häufigste Risiken von Webanwendu
       minutes: 30,
       relevance: 'ap1',
       skills: ['ai.basics', 'ai.workplace'],
+      simple: `Eine KI wie ein Chatbot ist wie ein sehr belesener Praktikant: Er weiß viel und schreibt schnell, erfindet aber manchmal überzeugend klingende Dinge (Halluzination). Deshalb prüfst du jedes Ergebnis selbst, bevor du es verwendest – vor allem Code, Fakten und Quellen. Personenbezogene oder vertrauliche Firmendaten gibst du nicht in einen öffentlichen KI-Dienst ein. Richtig eingesetzt spart KI Zeit, etwa beim Formulieren, Zusammenfassen oder Erklären von Fehlermeldungen.
+
+**Merke:** KI-Ergebnisse immer prüfen, keine vertraulichen Daten eingeben, die Verantwortung bleibt bei dir.`,
       steps: [
         {
           type: 'explain',
@@ -967,6 +1035,67 @@ Die Verordnung gilt **gestaffelt**: Verbote und die Pflicht zur **KI-Kompetenz**
       modelAnswer: 'Security by Design: 1. Anmeldung über das zentrale Firmenkonto (SSO) mit MFA, keine eigenen Standardpasswörter. 2. Rollen- und Rechtekonzept nach Least Privilege: Mitarbeiter sehen nur eigene Zeiten, Vorgesetzte nur ihr Team, Personalabteilung alle. 3. Ausschließlich HTTPS/TLS, Prepared Statements für Datenbankzugriffe, Eingabevalidierung aller Zeitangaben. 4. Protokollierung sicherheitsrelevanter Ereignisse (Anmeldungen, Änderungen an Buchungen) und regelmäßige Updates der eingesetzten Bibliotheken. Privacy by Design/Default: 5. Datenminimierung: nur die für die Zeiterfassung nötigen Daten (keine Standortverfolgung per GPS, sofern nicht erforderlich). 6. Lösch- und Aufbewahrungskonzept nach gesetzlichen Fristen; Auswertungen für die Geschäftsführung nur aggregiert/pseudonymisiert; datenschutzfreundliche Voreinstellungen; Einbindung des Datenschutzbeauftragten und ggf. des Betriebsrats.',
       keywords: ['MFA', 'Least Privilege/Rollen', 'TLS', 'Prepared Statements', 'Protokollierung', 'Datenminimierung', 'Löschkonzept', 'Pseudonymisierung'],
       explanation: 'Gute Antworten sind konkret auf die App bezogen und decken beide Bereiche ab (je etwa drei Anforderungen).',
+    },
+    {
+      id: 'p05-q039', kind: 'order', skill: 'qa.tools', difficulty: 1,
+      prompt: 'Bringe die Schritte vom Quellcode zum laufenden Programm (kompilierte Sprache wie C) in die richtige Reihenfolge.',
+      items: ['Quellcode schreiben', 'Compiler übersetzt in Objektcode', 'Linker bindet Objektdateien und Bibliotheken', 'ausführbare Datei (.exe) liegt vor', 'Betriebssystem lädt das Programm in den Arbeitsspeicher und führt es aus'],
+      hints: ['Der Linker braucht die Ergebnisse des Compilers.'],
+      explanation: 'Quellcode → **Compiler** (Objektcode) → **Linker** (verbindet mit Bibliotheken) → ausführbare Datei → Laden und Ausführen. Syntaxfehler meldet der Compiler, fehlende Funktionen der Linker.',
+    },
+    {
+      id: 'p05-q040', kind: 'match', skill: 'qa.debugging', difficulty: 2,
+      prompt: 'Ordne die Debugging-Begriffe ihrer Bedeutung zu.',
+      left: ['bedingter Haltepunkt', 'Step Into', 'Watch (Überwachung)', 'Just-in-time-Debugging', 'Edit and Continue'],
+      right: ['Programm hält nur an, wenn eine Bedingung erfüllt ist', 'in die aufgerufene Funktion hineinspringen', 'aktuelle Werte ausgewählter Variablen anzeigen', 'beim Absturz eines Programms nachträglich einen Debugger anhängen', 'Code während einer angehaltenen Debug-Sitzung ändern und ohne Neustart weiterlaufen'],
+      answer: [0, 1, 2, 3, 4],
+      explanation: 'Häufige Verwechslung: Just-in-time-Debugging ist **nicht** das Ändern von Code im laufenden Debuggen (das ist Edit and Continue), sondern das Anhängen eines Debuggers im Moment des Absturzes.',
+    },
+    {
+      id: 'p05-q041', kind: 'number', skill: 'qa.debugging', difficulty: 2,
+      prompt: `In Zeile 4 wird ein **bedingter Haltepunkt** mit der Bedingung \`summe > 100\` gesetzt. Welchen Wert hat \`i\`, wenn der Debugger **zum ersten Mal** anhält?\n\n${F}\n1  summe ← 0\n2  FÜR i VON 1 BIS 50\n3    summe ← summe + i\n4    AUSGABE summe\n5  ENDE FÜR\n${F}`,
+      answer: 14,
+      hints: ['summe ist nach i Durchläufen 1 + 2 + … + i.', 'Bei i = 13 ist summe = 91.'],
+      misconceptions: [
+        { answer: '13', error: 'debugging', why: 'Bei i = 13 ist summe = 91 – noch nicht > 100. Erst bei i = 14 ist summe = 105.' },
+        { answer: '105', error: 'variable-verwechselt', why: '105 ist der Wert von summe. Gefragt ist i.' },
+      ],
+      explanation: 'summe nach Zeile 3: i = 12 → 78, i = 13 → 91, i = 14 → **105** > 100. Der Debugger hält also erstmals bei **i = 14** (summe = 105) in Zeile 4 an.',
+    },
+    {
+      id: 'p05-q042', kind: 'free', skill: 'qa.secdesign', difficulty: 2,
+      prompt: 'Die Zeiterfassung der Elektro Krämer GmbH prüft Berechtigungen über einen zentralen Server. Ein Entwickler schlägt vor: „Wenn der Berechtigungsserver nicht erreichbar ist, lassen wir alle Benutzer mit vollen Rechten weiterarbeiten.“ Beurteilen Sie den Vorschlag.',
+      modelAnswer: 'Der Vorschlag widerspricht dem Prinzip des sicheren Ausfalls (fail secure, sichere Standardwerte). Fällt die Prüfung aus, muss das System in den sicheren Zustand gehen und den Zugriff verweigern bzw. höchstens auf ungefährliche Funktionen beschränken. Sonst könnte ein Angreifer den Berechtigungsserver gezielt stören (z. B. per DoS) und erhielte volle Rechte; auch normale Benutzer bekämen Rechte, die ihnen nicht zustehen (Verletzung von Vertraulichkeit und Integrität). Besser: Zugriff verweigern, verständliche Meldung anzeigen, Ausfall protokollieren und Administratoren alarmieren; für die Verfügbarkeit den Berechtigungsdienst redundant auslegen.',
+      keywords: ['fail secure', 'Zugriff verweigern', 'Angreifer provoziert Ausfall', 'protokollieren/alarmieren', 'Redundanz'],
+      hints: ['Was würde ein Angreifer tun, wenn er diese Regel kennt?'],
+      explanation: 'Kern: Im Fehlerfall verweigern statt erlauben. Verfügbarkeit erreicht man durch Redundanz, nicht durch das Abschalten der Sicherheit.',
+    },
+    {
+      id: 'p05-q043', kind: 'table', skill: 'qa.secdesign', difficulty: 2,
+      prompt: 'Entscheide für jedes Datum, ob es im **Sicherheitsprotokoll** (Log) einer Webanwendung gespeichert werden soll: **ja** oder **nein**.',
+      columns: [{ key: 'log', label: 'protokollieren?', type: 'text' }],
+      rows: [
+        { label: 'fehlgeschlagene Anmeldung mit Benutzername, Zeitstempel und IP-Adresse', cells: { log: { answer: 'ja', accept: ['j'] } } },
+        { label: 'das falsch eingegebene Passwort', cells: { log: { answer: 'nein', accept: ['n'] } } },
+        { label: 'Änderung der Rechte eines Benutzerkontos durch einen Administrator', cells: { log: { answer: 'ja', accept: ['j'] } } },
+        { label: 'vollständige Kreditkartennummer einer Bestellung', cells: { log: { answer: 'nein', accept: ['n'] } } },
+        { label: 'Sitzungs-Token (Session-ID) des angemeldeten Benutzers', cells: { log: { answer: 'nein', accept: ['n'] } } },
+        { label: 'Änderung der Firewall-Konfiguration', cells: { log: { answer: 'ja', accept: ['j'] } } },
+      ],
+      misconceptions: [
+        { cell: '1:log', answer: 'ja', error: 'protokollierung-daten', why: 'Passwörter – auch falsche – gehören nie ins Log: Oft ist es nur ein Tippfehler des echten Passworts.' },
+        { cell: '4:log', answer: 'ja', error: 'protokollierung-daten', why: 'Mit einem Sitzungs-Token könnte jeder Log-Leser die Sitzung übernehmen.' },
+      ],
+      hints: ['Protokolliert wird, **wer was wann** getan hat – nicht die Geheimnisse selbst.'],
+      explanation: 'ja: Fehlversuche, Rechteänderungen, Konfigurationsänderungen (sicherheitsrelevante Ereignisse mit Zeitstempel und Benutzer). nein: Passwörter, vollständige Zahlungsdaten, Sitzungs-Token – sie würden das Log selbst zu einem lohnenden Angriffsziel machen und widersprechen der Datenminimierung.',
+    },
+    {
+      id: 'p05-q044', kind: 'match', skill: 'qa.secdesign', difficulty: 2,
+      prompt: 'Ordne jedem Sicherheitsprinzip das passende Beispiel zu.',
+      left: ['Sicherer Ausfall (fail secure)', 'Berechtigungstrennung (Vier-Augen-Prinzip)', 'Vollständige Zugriffsüberwachung', 'Benutzerfreundliche Sicherheit', 'Minimale Rechte (Least Privilege)'],
+      right: ['bei einem Fehler in der Rechteprüfung wird der Zugriff verweigert', 'eine Überweisung über 10.000 € muss eine zweite Person freigeben', 'die Anwendung prüft die Berechtigung bei jedem Aufruf, nicht nur beim Login', 'Single Sign-on mit MFA statt fünf verschiedener Passwörter', 'das Datenbankkonto der Web-App darf nur lesen und schreiben, aber keine Tabellen löschen'],
+      answer: [0, 1, 2, 3, 4],
+      explanation: 'fail secure = im Fehlerfall verweigern · Berechtigungstrennung = kritische Aktion braucht zwei · vollständige Zugriffsüberwachung = jeder Zugriff wird geprüft · benutzerfreundlich = Sicherheit, die nicht umgangen wird · Least Privilege = nur nötige Rechte.',
     },
   ],
 };

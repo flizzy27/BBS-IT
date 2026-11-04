@@ -31,6 +31,7 @@ export const m11: Module = {
       title: 'Fehlerbilder bei DHCP, Gateway und DNS diagnostizieren',
       requires: ['svc.dhcp.relay', 'svc.dns.resolve'],
     },
+    { id: 'svc.dns.secure', module: 'm11', title: 'DNS absichern (DoT, DoH, DNSSEC) und DNS-Filter einordnen', requires: ['svc.dns.resolve'] },
   ],
 
   /* ================================================================== */
@@ -44,6 +45,9 @@ export const m11: Module = {
       minutes: 25,
       relevance: 'ap1',
       skills: ['svc.dhcp.dora', 'svc.dhcp.lease'],
+      simple: `Ein neuer PC kennt seine IP-Adresse noch nicht. Er ruft deshalb laut ins Netz: „Gibt es hier einen DHCP-Server?“ – wie ein neuer Gast an der Hotelrezeption. Der Server bietet eine Adresse an, der PC nimmt sie an, der Server bestätigt: **D**iscover, **O**ffer, **R**equest, **A**cknowledge (**DORA**). Die Adresse ist nur **ausgeliehen** (Lease, „Mietvertrag“). Nach der Hälfte der Zeit (T1) fragt der PC nach Verlängerung, nach 87,5 % (T2) fragt er notfalls jeden DHCP-Server.
+
+**Merke:** DORA = Discover, Offer, Request, Acknowledge; T1 = 50 %, T2 = 87,5 % der Lease-Dauer.`,
       steps: [
         {
           type: 'explain',
@@ -207,6 +211,9 @@ Wann versucht der PC zum ersten Mal zu verlängern (T1), wann beginnt das Rebind
       minutes: 30,
       relevance: 'ap1',
       skills: ['svc.dhcp.config', 'svc.dhcp.relay'],
+      simple: `Ein DHCP-Server braucht einen Plan, welche Adressen er verteilen darf – wie ein Parkhaus mit nummerierten Plätzen. Der **Bereich** (Scope) sind alle Plätze, **Ausschlüsse** sind Plätze für feste Mieter wie Server und Drucker, eine **Reservierung** ist ein fester Platz für ein bestimmtes Auto (erkannt an seiner MAC-Adresse). Über **Optionen** bekommt jeder Client auch Gateway und DNS-Server mitgeteilt. Steht der Server in einem anderen Netz, leitet ein **DHCP-Relay** die Anfragen weiter. Antwortet gar kein Server, gibt Windows sich selbst eine **APIPA-Adresse** aus 169.254.x.x.
+
+**Merke:** 169.254.x.x heißt „kein DHCP-Server erreichbar“ – kein Gateway, kein Internet.`,
       steps: [
         {
           type: 'explain',
@@ -408,6 +415,9 @@ Plane den Bereich und berechne, wie viele Adressen für die dynamische Vergabe �
       minutes: 30,
       relevance: 'ap1',
       skills: ['svc.dns.resolve'],
+      simple: `**DNS** ist das Telefonbuch des Internets: Du kennst den Namen, DNS liefert die Nummer (IP-Adresse). Dein PC fragt seinen DNS-Server und will eine fertige Antwort (**rekursive** Anfrage). Kennt der Server sie nicht, fragt er sich Schritt für Schritt durch: Root-Server → Server für „.de“ → Server der Firma (**iterative** Anfragen) – wie eine Auskunft, die mehrere Ämter abtelefoniert. Antworten werden für eine bestimmte Zeit (**TTL**) im **Cache** gespeichert, damit die nächste Frage schneller geht.
+
+**Merke:** Client → DNS-Server rekursiv, DNS-Server → Root/TLD/zuständiger Server iterativ; der Cache spart Zeit.`,
       steps: [
         {
           type: 'explain',
@@ -556,6 +566,9 @@ Beschreibe für jeden Aufruf, welche Server gefragt werden.`,
       minutes: 25,
       relevance: 'ap1',
       skills: ['svc.dns.records'],
+      simple: `Ein DNS-Server speichert seine Einträge in **Zonen** – wie ein Telefonbuch pro Stadt. Jede Zeile ist ein **Resource Record** mit einem Typ: **A** (Name → IPv4), **AAAA** (Name → IPv6), **CNAME** (Spitzname, der auf einen anderen Namen zeigt), **MX** (zuständiger Mailserver), **PTR** (Rückwärtssuche: IP → Name). Die **hosts-Datei** auf dem PC ist ein kleines privates Notizbuch, das noch vor dem DNS-Server gelesen wird.
+
+**Merke:** A = IPv4, AAAA = IPv6, MX = Mailserver, CNAME = Alias, PTR = Reverse-Lookup.`,
       steps: [
         {
           type: 'explain',
@@ -715,6 +728,9 @@ c) Was muss der Admin tun, wenn er den A-Record von \`www\` ändert?`,
       minutes: 30,
       relevance: 'ap1',
       skills: ['svc.nat'],
+      simple: `Im Firmennetz haben alle Geräte **private** Adressen (z. B. 192.168.x.x), die im Internet nicht weitergeleitet werden. **NAT** (Network Address Translation) ist wie die Poststelle einer Firma: Alle Briefe gehen mit der **einen** öffentlichen Firmenadresse hinaus, und die Poststelle merkt sich, welcher Antwortbrief an welchen Mitarbeiter gehört. Bei **PAT** unterscheidet der Router die Verbindungen über die Portnummern. Mit **Portweiterleitung** (DNAT) werden Anfragen von außen gezielt an einen internen Server geschickt.
+
+**Merke:** PAT = viele private Adressen teilen sich eine öffentliche, unterschieden über Ports; Portweiterleitung macht einen internen Server von außen erreichbar.`,
       steps: [
         {
           type: 'explain',
@@ -894,6 +910,9 @@ Welche NAT-Regel ist nötig, und wie sehen die Adressen des ersten Pakets vor un
       minutes: 35,
       relevance: 'ap1',
       skills: ['svc.vpn', 'svc.proxy', 'svc.firewall'],
+      simple: `Am Übergang zum Internet arbeiten drei Wächter. Ein **VPN** (Virtual Private Network) ist ein verschlüsselter Tunnel durch das Internet – wie ein blickdichter Gang zwischen zwei Gebäuden. Ein **Proxy** ist ein Stellvertreter: Er ruft Webseiten im Auftrag der Nutzer ab und kann dabei filtern und zwischenspeichern. Die **Firewall** ist der Türsteher mit Gästeliste: Sie lässt nur erlaubten Verkehr durch. Öffentlich erreichbare Server stehen in einer **DMZ**, einer abgetrennten Pufferzone zwischen Internet und internem Netz.
+
+**Merke:** VPN = verschlüsselter Tunnel, Proxy = Stellvertreter, Firewall = filtert nach Regeln, DMZ = Pufferzone für öffentliche Server.`,
       steps: [
         {
           type: 'explain',
@@ -1119,6 +1138,9 @@ Erstelle ein Regelwerk in der richtigen Reihenfolge.`,
       minutes: 25,
       relevance: 'ap1',
       skills: ['svc.troubleshoot'],
+      simple: `Die meisten „Ich komme nicht ins Internet“-Fälle haben drei Ursachen – und jede hinterlässt eine typische Spur. **APIPA-Adresse 169.254.x.x** → der PC hat keinen DHCP-Server erreicht. **Gateway falsch oder fehlt** → das eigene Netz geht, alles andere nicht. **DNS falsch** → Ping auf eine IP-Adresse klappt, Aufruf über den Namen nicht. Wie eine Ärztin prüfst du erst die Anzeichen (\`ipconfig /all\`, \`ping\`, \`nslookup\`) und stellst dann die Diagnose.
+
+**Merke:** Erst Befund sammeln (ipconfig /all, ping auf IP und Name), dann gezielt DHCP, Gateway oder DNS korrigieren.`,
       steps: [
         {
           type: 'explain',
@@ -1238,6 +1260,129 @@ Was ist die Ursache?`,
             'Lokal geht, Internet nicht (auch per IP) → Gateway prüfen: Liegt es im eigenen Subnetz? Ist es erreichbar?',
             'Ping per IP geht, per Name nicht → DNS-Server-Eintrag und DNS-Server prüfen (nslookup), ggf. hosts-Datei.',
             'Reihenfolge: Konfiguration ansehen → Gateway → externe IP → Name. Der erste Fehlschlag zeigt die Problemebene.',
+          ],
+        },
+      ],
+    },
+    /* ------------------------------------------------------------------ */
+    {
+      id: 'm11-l08',
+      title: 'DNS absichern und filtern: DoT, DoH, DNSSEC, DNS-Filter',
+      minutes: 20,
+      relevance: 'ap1-teilweise',
+      skills: ['svc.dns.secure'],
+      simple: `Eine normale DNS-Anfrage ist wie eine Postkarte: Jeder auf dem Weg kann lesen, welche Webseite du aufrufen willst, und ein Angreifer könnte eine falsche Antwort unterschieben. **DoT** und **DoH** stecken die Anfrage in einen verschlüsselten Umschlag. **DNSSEC** ist dagegen wie ein Siegel auf der Antwort: Man erkennt Fälschungen, lesen kann man sie aber trotzdem. Ein **DNS-Filter** ist wie eine Auskunft mit Sperrliste: Fragt jemand nach einer bekannten Schadsoftware-Seite, bekommt er keine Adresse.
+
+**Merke:** DoT = DNS über TLS auf Port 853, DoH = DNS über HTTPS auf Port 443; DNSSEC schützt vor Fälschung, verschlüsselt aber nicht.`,
+      steps: [
+        {
+          type: 'explain',
+          title: 'Das Problem: DNS im Klartext',
+          body: `Klassisches DNS läuft unverschlüsselt über **UDP/TCP 53**. Daraus folgen zwei Risiken:
+
+| Risiko | Was passiert? | Verletztes Schutzziel |
+|---|---|---|
+| **Mitlesen** | Jeder auf dem Übertragungsweg (offenes WLAN, Provider) sieht, welche Namen ein Gerät auflöst – also welche Dienste und Webseiten genutzt werden. | Vertraulichkeit |
+| **Fälschen** (DNS-Spoofing, Cache Poisoning) | Ein Angreifer schiebt eine falsche Antwort unter, z. B. die IP-Adresse eines nachgebauten Bank-Logins. | Integrität, Authentizität |
+
+Dagegen gibt es zwei verschiedene Werkzeuge: **Verschlüsseln** (DoT/DoH) und **Signieren** (DNSSEC).`,
+        },
+        {
+          type: 'explain',
+          title: 'DoT, DoH und DNSSEC im Vergleich',
+          body: `| Verfahren | Ausgeschrieben | Port | Was es leistet |
+|---|---|---|---|
+| **DoT** | DNS over TLS | **TCP 853** | verschlüsselt die Strecke zwischen Client und Resolver (DNS-Server, der die Anfrage auflöst). Eigener Port → in der Firewall gut erkennbar und steuerbar. |
+| **DoH** | DNS over HTTPS | **TCP 443** | verschlüsselt DNS-Anfragen **innerhalb von HTTPS**. Sieht aus wie normaler Webverkehr – oft direkt im Browser eingebaut. |
+| **DoQ** | DNS over QUIC | UDP 853 | neuere Variante über QUIC (Randthema) |
+| **DNSSEC** | DNS Security Extensions | wie DNS (53) | **signiert** DNS-Antworten. Der Resolver prüft die Signatur und erkennt gefälschte Einträge. **Keine Verschlüsselung** – Anfragen bleiben lesbar. |
+
+**Typische Prüfungsfalle:** „DNSSEC verschlüsselt DNS“ – **falsch**. DNSSEC sichert Integrität und Echtheit der Antwort, DoT/DoH sichern die Vertraulichkeit der Übertragung. Beides ergänzt sich.
+
+**DoH im Unternehmen:** Weil DoH wie normales HTTPS aussieht, kann ein Browser damit am **firmeneigenen DNS-Server vorbei** auflösen. Interne Namen (z. B. intranet.elektro-kraemer.local) funktionieren dann nicht mehr, und Sicherheitsfilter werden umgangen. Deshalb legt die IT per Richtlinie (Gruppenrichtlinie, Browser-Policy) fest, dass DoH abgeschaltet ist oder nur der interne Resolver genutzt wird.
+
+**Kurz: DynDNS.** Ein privater oder kleiner Firmenanschluss bekommt oft wechselnde öffentliche IP-Adressen. **Dynamisches DNS (DynDNS)** meldet die jeweils aktuelle Adresse an einen DNS-Dienst, sodass ein fester Name (z. B. praxis-mueller.dyndns-beispiel.de) immer zur aktuellen Adresse zeigt – praktisch für VPN-Zugänge ins Büro.`,
+        },
+        {
+          type: 'explain',
+          title: 'DNS-Filter: Schutz für alle Geräte',
+          body: `Ein **DNS-Filter** ist ein Resolver mit **Sperrlisten** (Blocklisten). Bekannte Domains für Schadsoftware, Phishing, Werbung oder Tracking werden nicht aufgelöst:
+
+1. Der Client fragt den Firmen-Resolver nach \`login-bank-sicherheit.example\`.
+2. Der Filter findet die Domain auf der Sperrliste.
+3. Statt der echten Adresse antwortet er mit „Domain existiert nicht“ (**NXDOMAIN**) oder mit der Adresse einer Hinweisseite bzw. 0.0.0.0 (**Sinkhole**).
+4. Der Aufruf scheitert – auch wenn jemand auf einen Phishing-Link geklickt hat.
+
+**Vorteile:** wirkt für **alle** Geräte im Netz, auch für Drucker, IP-Kameras und Smartphones, auf denen keine Schutzsoftware läuft; zentral gepflegt; Protokolle zeigen, welche Geräte auffällige Domains abfragen (Hinweis auf Infektion). Bekanntes Beispiel für kleine Netze: **Pi-hole**; in Firmen häufig als Funktion der Firewall oder eines Cloud-Dienstes.
+
+**Grenzen:** Ein DNS-Filter wirkt nur, wenn die Geräte ihn auch benutzen. Er lässt sich umgehen durch einen anderen DNS-Server, durch **DoH** im Browser oder durch den direkten Aufruf einer IP-Adresse. **Gegenmaßnahmen:** In der Firewall ausgehendes DNS (53, 853) nur vom internen Resolver erlauben, DoH per Richtlinie steuern, zusätzlich Webfilter/Proxy und Virenschutz einsetzen. Ein DNS-Filter ist eine **zusätzliche** Schutzschicht, kein Ersatz für Firewall und Virenschutz.`,
+        },
+        {
+          type: 'visual',
+          title: 'Vier Begriffe, vier Aufgaben',
+          widget: {
+            kind: 'cards',
+            data: {
+              columns: 4,
+              items: [
+                { title: 'DoT', text: 'DNS über TLS, TCP 853 – verschlüsselt, gut in der Firewall erkennbar.', icon: 'Lock' },
+                { title: 'DoH', text: 'DNS über HTTPS, TCP 443 – verschlüsselt, versteckt im Webverkehr.', icon: 'Globe' },
+                { title: 'DNSSEC', text: 'Signiert Antworten – erkennt Fälschungen, verschlüsselt nicht.', icon: 'BadgeCheck' },
+                { title: 'DNS-Filter', text: 'Sperrliste im Resolver – blockiert Malware- und Phishing-Domains für alle Geräte.', icon: 'Filter' },
+              ],
+            },
+          },
+        },
+        {
+          type: 'example',
+          title: 'DNS-Filter in der Zentrale einführen',
+          problem: `Die Elektro Krämer GmbH will Phishing-Domains zentral sperren. Der interne DNS-Server (192.168.10.10) bekommt eine Filterfunktion. Nach einer Woche fällt auf: Einige Laptops rufen gesperrte Domains trotzdem auf. Finde die Ursachen und die Maßnahmen.`,
+          steps: [
+            { label: 'Befund sammeln', body: `Auf den betroffenen Laptops ist im Browser „Sicheres DNS (DoH)“ mit einem öffentlichen Anbieter aktiv. Ein Laptop hat außerdem manuell 9.9.9.9 als DNS-Server eingetragen.` },
+            { label: 'Ursache', body: `Beide Wege umgehen den internen Resolver: DoH läuft über Port 443 direkt zum öffentlichen Anbieter, der manuell eingetragene DNS-Server über Port 53.` },
+            { label: 'Maßnahme Firewall', body: `Ausgehend **UDP/TCP 53 und TCP 853** nur vom internen DNS-Server (192.168.10.10) ins Internet erlauben, für alle anderen Geräte sperren.` },
+            { label: 'Maßnahme Richtlinie', body: `DoH per Gruppenrichtlinie/Browser-Policy abschalten oder auf den internen Resolver festlegen; DNS-Server per DHCP verteilen und manuelle Änderung der Netzwerkeinstellungen für Standardbenutzer sperren.` },
+          ],
+          result: `Der Filter wirkt nur, wenn **alle** DNS-Anfragen über den internen Resolver laufen: Firewall-Regel für ausgehendes DNS plus Richtlinie gegen DoH.`,
+        },
+        {
+          type: 'check',
+          question: {
+            id: 'm11-l08-c1',
+            kind: 'single',
+            skill: 'svc.dns.secure',
+            difficulty: 2,
+            prompt: `Ein Kollege sagt: „Seit wir DNSSEC aktiviert haben, kann niemand mehr mitlesen, welche Webseiten wir aufrufen.“ Stimmt das?`,
+            options: [
+              'Ja, DNSSEC verschlüsselt alle DNS-Anfragen.',
+              'Nein, DNSSEC signiert nur die Antworten (Schutz vor Fälschung). Gegen Mitlesen hilft DoT oder DoH.',
+              'Ja, aber nur, wenn zusätzlich IPv6 genutzt wird.',
+              'Nein, DNSSEC ist nur ein anderer Name für DNS-Filter.',
+            ],
+            answer: 1,
+            distractors: {
+              '0': { why: 'DNSSEC verschlüsselt nicht. Es signiert Antworten.', error: 'dnssec-verschluesselung' },
+              '2': { why: 'IPv6 hat mit der Verschlüsselung von DNS nichts zu tun.', error: 'fakt-falsch' },
+              '3': { why: 'Ein DNS-Filter sperrt Domains. DNSSEC prüft die Echtheit von Antworten.', error: 'begriff-verwechselt' },
+            },
+            explanation: `**Nein.** DNSSEC sichert **Integrität und Authentizität** (gefälschte Antworten werden erkannt). Vertraulichkeit (nicht mitlesbar) bringen erst **DoT (853)** oder **DoH (443)**.`,
+          },
+        },
+        {
+          type: 'practice',
+          title: 'Übung: DNS absichern und filtern',
+          questionIds: ['m11-q047', 'm11-q048', 'm11-q049', 'm11-q050', 'm11-q051', 'm11-q052'],
+          count: 5,
+          difficulty: 2,
+        },
+        {
+          type: 'summary',
+          points: [
+            'Klassisches DNS (53) ist unverschlüsselt: Mitlesen und Fälschen sind möglich.',
+            'DoT = DNS über TLS, TCP 853; DoH = DNS über HTTPS, TCP 443 – beide verschlüsseln die Übertragung.',
+            'DNSSEC signiert Antworten (Integrität/Echtheit), verschlüsselt aber nicht.',
+            'DNS-Filter sperren Malware-/Phishing-Domains für alle Geräte; Umgehung über fremde DNS-Server oder DoH per Firewall und Richtlinie verhindern.',
+            'DynDNS verknüpft einen festen Namen mit einer wechselnden öffentlichen IP-Adresse.',
           ],
         },
       ],
@@ -2033,6 +2178,92 @@ Lokale Ziele und Internetadressen per IP funktionieren. Namen werden **nicht** a
         'Die Adresse stammt aus dem APIPA-/Link-Local-Bereich 169.254.0.0/16. Windows vergibt sie sich selbst, wenn auf DHCPDISCOVER kein DHCP-Server antwortet. Es gibt kein Gateway und keinen DNS-Server, daher ist kein Internetzugriff möglich. Mögliche Ursachen: Kabel/Netzwerkdose/Switchport defekt oder deaktiviert, Port im falschen VLAN, DHCP-Server oder -Dienst ausgefallen, DHCP-Bereich erschöpft, fehlender oder falsch konfigurierter DHCP-Relay, Firewall blockiert UDP 67/68. Vorgehen: Eingrenzen, ob nur dieser PC, ein VLAN oder alle betroffen sind; Link-Status und Switchport/VLAN prüfen; DHCP-Server (Dienst, freie Adressen im Bereich, Relay) prüfen; anschließend mit ipconfig /release und ipconfig /renew eine neue Adresse anfordern und mit ping (Gateway, externe IP, Name) die Verbindung testen.',
       keywords: ['APIPA', '169.254', 'kein DHCP-Server', 'kein Gateway', 'VLAN', 'Bereich erschöpft', 'Relay', 'ipconfig /renew', 'eingrenzen'],
       explanation: 'Eine gute Antwort erklärt die Adresse, nennt mehrere plausible Ursachen und beschreibt ein strukturiertes Vorgehen mit Kontrolle am Ende.',
+    },
+    {
+      id: 'm11-q047',
+      kind: 'match',
+      skill: 'svc.dns.secure',
+      difficulty: 1,
+      prompt: `Ordne jedem Verfahren seine Aufgabe zu.`,
+      left: ['DoT', 'DoH', 'DNSSEC', 'DNS-Filter'],
+      right: ['sperrt Domains von einer Blockliste (z. B. Phishing)', 'verschlüsselt DNS über TLS auf eigenem Port 853', 'signiert DNS-Antworten, damit Fälschungen erkannt werden', 'verschlüsselt DNS innerhalb von HTTPS über Port 443'],
+      answer: [1, 3, 2, 0],
+      explanation: `DoT = TLS auf 853, DoH = HTTPS auf 443, DNSSEC = Signatur (Echtheit, keine Verschlüsselung), DNS-Filter = Sperrliste im Resolver.`,
+    },
+    {
+      id: 'm11-q048',
+      kind: 'number',
+      skill: 'svc.dns.secure',
+      difficulty: 1,
+      prompt: `Welchen TCP-Port nutzt **DNS over TLS (DoT)**?`,
+      answer: 853,
+      misconceptions: [
+        { answer: '53', error: 'port-verwechselt', why: '53 ist klassisches, unverschlüsseltes DNS.' },
+        { answer: '443', error: 'port-verwechselt', why: '443 nutzt DNS over **HTTPS** (DoH).' },
+      ],
+      explanation: `DoT = **TCP 853**. DoH läuft über HTTPS auf 443, klassisches DNS auf 53.`,
+    },
+    {
+      id: 'm11-q049',
+      kind: 'single',
+      skill: 'svc.dns.secure',
+      difficulty: 2,
+      prompt: `Warum ist **DoH** für die IT-Abteilung einer Firma schwieriger zu kontrollieren als **DoT**?`,
+      options: [
+        'DoH ist nicht verschlüsselt.',
+        'DoH läuft über Port 443 und sieht wie normaler HTTPS-Webverkehr aus – eine Portsperre wie bei 853 ist nicht möglich, ohne das Web zu sperren.',
+        'DoH funktioniert nur mit IPv6.',
+        'DoH braucht keinen DNS-Server.',
+      ],
+      answer: 1,
+      distractors: {
+        '0': { why: 'DoH ist verschlüsselt (HTTPS).', error: 'fakt-falsch' },
+        '2': { why: 'DoH funktioniert mit IPv4 und IPv6.', error: 'fakt-falsch' },
+        '3': { why: 'Auch DoH fragt einen Resolver – nur eben per HTTPS.', error: 'fakt-falsch' },
+      },
+      explanation: `DoT hat einen **eigenen Port (853)** und lässt sich in der Firewall gezielt erlauben oder sperren. DoH versteckt sich im **HTTPS-Verkehr auf 443**. Deshalb steuert man DoH über Richtlinien (Browser-/Gruppenrichtlinien) und ggf. über Sperrlisten bekannter DoH-Anbieter.`,
+    },
+    {
+      id: 'm11-q050',
+      kind: 'free',
+      skill: 'svc.dns.secure',
+      difficulty: 3,
+      prompt: `Die Elektro Krämer GmbH möchte einen **DNS-Filter** gegen Phishing und Schadsoftware einführen. Erläutern Sie die Funktionsweise, zwei Vorteile und zwei Wege, wie der Filter umgangen werden kann, jeweils mit einer Gegenmaßnahme.`,
+      modelAnswer: `Funktionsweise: Der interne DNS-Resolver prüft jede angefragte Domain gegen Sperrlisten (z. B. bekannte Phishing- und Malware-Domains). Steht die Domain auf der Liste, liefert er keine echte IP-Adresse, sondern NXDOMAIN oder die Adresse einer Hinweisseite/0.0.0.0 (Sinkhole). Die Verbindung kommt dadurch nicht zustande. Vorteile: Der Schutz gilt zentral für alle Geräte im Netz, auch für Geräte ohne Schutzsoftware (Drucker, Kameras, Smartphones), und die Protokolle zeigen, welche Geräte auffällige Domains abfragen. Umgehung 1: Ein Gerät nutzt einen anderen DNS-Server (manuell eingetragen) – Gegenmaßnahme: In der Firewall ausgehendes DNS (UDP/TCP 53, TCP 853) nur vom internen Resolver erlauben und Netzwerkeinstellungen für Benutzer sperren. Umgehung 2: Der Browser nutzt DNS over HTTPS zu einem externen Anbieter – Gegenmaßnahme: DoH per Gruppen-/Browser-Richtlinie abschalten oder auf den internen Resolver festlegen. Weitere Umgehung: direkter Aufruf über die IP-Adresse – dagegen helfen Proxy/Webfilter und Firewall. Ein DNS-Filter ergänzt Firewall und Virenschutz, ersetzt sie aber nicht.`,
+      keywords: ['Sperrliste', 'Resolver', 'NXDOMAIN', 'alle Geräte', 'fremder DNS-Server', 'Port 53', 'DoH', 'Richtlinie', 'Firewall'],
+      hints: ['Was antwortet der Resolver bei einer gesperrten Domain?', 'Welche Wege führen am internen DNS-Server vorbei?'],
+      explanation: `Erwartet: Funktion (Sperrliste im Resolver → keine echte Antwort), zwei Vorteile (zentral, alle Geräte, Protokollierung) und zwei Umgehungen mit Gegenmaßnahme (fremder DNS-Server → Firewall; DoH → Richtlinie).`,
+    },
+    {
+      id: 'm11-q051',
+      kind: 'multi',
+      skill: 'svc.dns.secure',
+      difficulty: 2,
+      prompt: `Welche Maßnahmen sorgen dafür, dass alle Clients wirklich den **internen DNS-Filter** benutzen? (alle zutreffenden wählen)`,
+      options: [
+        'Firewall: ausgehendes UDP/TCP 53 und TCP 853 nur vom internen DNS-Server erlauben',
+        'DoH im Browser per Gruppenrichtlinie abschalten oder auf den internen Resolver festlegen',
+        'DNS-Server per DHCP verteilen und Änderung der Netzwerkeinstellungen für Standardbenutzer sperren',
+        'DNSSEC auf dem Client deaktivieren',
+        'Die TTL aller DNS-Einträge auf 0 setzen',
+      ],
+      answer: [0, 1, 2],
+      explanation: `Firewall-Regel, DoH-Richtlinie und zentrale Verteilung der DNS-Server schließen die Umgehungswege. DNSSEC abzuschalten würde die Sicherheit verschlechtern, die TTL hat mit der Umgehung nichts zu tun.`,
+    },
+    {
+      id: 'm11-q052',
+      kind: 'single',
+      skill: 'svc.dns.secure',
+      difficulty: 1,
+      prompt: `Ein Steuerberater hat zu Hause einen Internetanschluss mit **wechselnder öffentlicher IP-Adresse**. Er möchte per VPN immer unter demselben Namen auf seinen Büro-Router zugreifen. Welcher Dienst hilft?`,
+      options: ['DynDNS (dynamisches DNS)', 'DNSSEC', 'Reverse-DNS (PTR-Record)', 'DHCP-Reservierung'],
+      answer: 0,
+      distractors: {
+        '1': { why: 'DNSSEC signiert Antworten, löst aber nicht das Problem wechselnder Adressen.', error: 'begriff-verwechselt' },
+        '2': { why: 'Ein PTR-Record übersetzt eine IP in einen Namen – und müsste bei jeder Änderung angepasst werden.', error: 'record-verwechselt' },
+        '3': { why: 'Eine DHCP-Reservierung betrifft interne Adressen im LAN, nicht die öffentliche Adresse vom Provider.', error: 'begriff-verwechselt' },
+      },
+      explanation: `**DynDNS**: Der Router meldet jede neue öffentliche IP an einen DNS-Dienst. Der feste Name zeigt so immer auf die aktuelle Adresse.`,
     },
   ],
 };

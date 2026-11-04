@@ -25,6 +25,12 @@ export const s02: Module = {
       minutes: 20,
       relevance: 'ap1',
       skills: ['sich.ds.begriffe'],
+      simple: `Personenbezogene Daten sind alles, womit man auf einen bestimmten Menschen kommen kann – nicht nur der Name. Wie bei einem Steckbrief verraten auch Kfz-Kennzeichen, Personalnummer oder IP-Adresse (die Nummer eines Internetanschlusses), wer gemeint ist.
+Die **DSGVO** (Datenschutz-Grundverordnung der EU) regelt, was Firmen damit tun dürfen; das **BDSG** (Bundesdatenschutzgesetz) ergänzt sie in Deutschland.
+Besonders geschützt sind z. B. Gesundheitsdaten, Religion und Fingerabdrücke.
+Ersetzt man den Namen nur durch eine Nummer (**pseudonymisiert**), bleibt es personenbezogen. Erst wenn niemand mehr zurückfinden kann (**anonym**), gilt die DSGVO nicht mehr.
+
+**Merke:** Personenbezogen = ein Mensch ist identifiziert oder identifizierbar, auch indirekt – pseudonym ist noch personenbezogen, anonym nicht.`,
       steps: [
         {
           type: 'explain',
@@ -132,6 +138,12 @@ Die DSGVO gilt **nicht** für rein persönliche oder familiäre Tätigkeiten (da
       minutes: 25,
       relevance: 'ap1',
       skills: ['sich.ds.grundsaetze'],
+      simple: `Mit personenbezogenen Daten ist es wie mit einem geliehenen Schlüssel: Du darfst ihn nur mit gutem Grund benutzen, nur wofür er gedacht ist und nur so lange wie nötig.
+Die DSGVO nennt das „Verbot mit Erlaubnisvorbehalt“: Erst einmal ist alles verboten – außer eine **Rechtsgrundlage** erlaubt es (z. B. Vertrag, Gesetz oder Einwilligung).
+Dazu kommen Grundsätze wie **Zweckbindung** (nur für den genannten Zweck), **Datenminimierung** (nur so viel wie nötig) und **Speicherbegrenzung** (nur so lange wie nötig).
+Eine Einwilligung zählt nur, wenn jemand aktiv und freiwillig zustimmt – ein vorangekreuztes Kästchen reicht nicht.
+
+**Merke:** Ohne Rechtsgrundlage nach Art. 6 DSGVO keine Verarbeitung – und immer nur so viel, so lange und wofür es nötig ist.`,
       steps: [
         {
           type: 'explain',
@@ -236,6 +248,12 @@ Bei Kindern unter **16 Jahren** ist für Online-Dienste die Zustimmung der Elter
       minutes: 20,
       relevance: 'ap1-teilweise',
       skills: ['sich.ds.rechte'],
+      simple: `Jeder Mensch darf eine Firma fragen: „Was wisst ihr über mich?“ – wie ein Kontoauszug für die eigenen Daten (**Auskunft**).
+Er darf falsche Daten korrigieren lassen (**Berichtigung**), nicht mehr benötigte löschen lassen (**Löschung**) und Werbung jederzeit widersprechen (**Widerspruch**).
+Die Firma muss innerhalb **eines Monats** antworten und vorher prüfen, ob die Anfrage wirklich von dieser Person kommt.
+Muss die Firma Daten gesetzlich aufbewahren (z. B. Rechnungen), werden sie gesperrt statt gelöscht.
+
+**Merke:** Antwort innerhalb eines Monats (Verlängerung um zwei Monate nur mit Begründung) – gesetzliche Aufbewahrungspflichten gehen dem Löschen vor.`,
       steps: [
         {
           type: 'explain',
@@ -312,6 +330,11 @@ Bei Kindern unter **16 Jahren** ist für Online-Dienste die Zustimmung der Elter
       minutes: 25,
       relevance: 'ap1',
       skills: ['sich.ds.tom'],
+      simple: `**TOM** (technische und organisatorische Maßnahmen) sind die Schlösser und Hausregeln für Daten. Technisch heißt: durch Technik, z. B. Verschlüsselung. Organisatorisch heißt: durch Regeln, z. B. Schulung oder Besucherbuch.
+Die drei „Z“ kannst du dir an einer Bank merken: **Zutritt** = in die Filiale hineingehen (Raum), **Zugang** = dich mit Karte und PIN am Automaten anmelden (System), **Zugriff** = nur dein eigenes Konto sehen (Daten).
+Manche Bücher verwenden andere Namen (nach § 64 BDSG) – dort heißt der Schutz des Raums ausgerechnet „Zugangskontrolle“.
+
+**Merke:** Zutritt = Raum, Zugang = System, Zugriff = Daten – und im Zweifel schreibst du in der Antwort dazu, was du meinst.`,
       steps: [
         {
           type: 'explain',
@@ -346,7 +369,32 @@ Dazu fordert **Art. 25** **Datenschutz durch Technikgestaltung** (*Privacy by De
 **Merkhilfe für die drei Z:**
 - **Zutritt** = **Raum** (mit dem Körper hinein)
 - **Zugang** = **System** (sich anmelden)
-- **Zugriff** = **Daten** (Dateien/Datensätze öffnen)`,
+- **Zugriff** = **Daten** (Dateien/Datensätze öffnen)
+
+**So unterscheidest du sie sicher:** Frag dich, **wo** die Maßnahme wirkt. Muss ein Mensch mit seinem Körper irgendwo hinein (Gebäude, Serverraum)? → Zutritt. Muss er sich an einem Gerät oder Programm **anmelden**? → Zugang. Ist er schon angemeldet und es geht darum, **welche Dateien oder Datensätze** er sehen oder ändern darf? → Zugriff.`,
+        },
+        {
+          type: 'explain',
+          title: 'Andere Bezeichnungen in manchen Büchern (§ 64 BDSG)',
+          body: `Einige Lehrbücher arbeiten nicht mit den acht klassischen Kontrollen, sondern mit den **14 Anforderungen aus § 64 Abs. 3 BDSG**. Das Tückische: Dort bedeuten **gleiche Wörter etwas anderes**!
+
+| Klassischer Begriff (diese App, viele Prüfungsaufgaben) | Bezeichnung nach § 64 BDSG | Worum geht es? |
+|---|---|---|
+| **Zutrittskontrolle** | **Zugangskontrolle** (Zugang zu Verarbeitungsanlagen) | Raum: Wer kommt an die Geräte heran? |
+| **Zugangskontrolle** | **Benutzerkontrolle** | System: Wer kann es benutzen bzw. sich anmelden? |
+| **Zugriffskontrolle** | **Zugriffskontrolle**, dazu **Speicherkontrolle** | Daten: nur die Daten, für die man berechtigt ist |
+| **Weitergabekontrolle** | **Übertragungskontrolle** und **Transportkontrolle**, dazu **Datenträgerkontrolle** | Daten unterwegs – im Netz und auf Datenträgern |
+| **Eingabekontrolle** | **Eingabekontrolle** | Wer hat was wann eingegeben oder geändert? |
+| **Auftragskontrolle** | **Auftragskontrolle** | Dienstleister arbeitet nur nach Weisung |
+| **Verfügbarkeitskontrolle** | **Verfügbarkeitskontrolle** und **Wiederherstellbarkeit** | Schutz vor Verlust, schnelle Wiederherstellung |
+| **Trennungsgebot** (Trennungskontrolle) | **Trennbarkeit** | Daten verschiedener Zwecke getrennt verarbeiten |
+| – | **Zuverlässigkeit** und **Datenintegrität** | Systemfunktionen stehen zur Verfügung, Fehlfunktionen werden gemeldet und beschädigen keine gespeicherten Daten |
+
+*Die Zuordnung der Zusatzbegriffe (Speicher-, Datenträgerkontrolle) ist nicht ganz trennscharf – sie berühren mehrere klassische Kontrollen.*
+
+**Hintergrund:** Die acht klassischen Kontrollen stammen aus dem alten BDSG (vor 2018). § 64 BDSG gehört zum Teil des BDSG, der für Polizei und Justiz gilt. Für Unternehmen gilt **Art. 32 DSGVO** – und der nennt gar keine Kontrollliste, sondern Ziele (Verschlüsselung, Pseudonymisierung, Vertraulichkeit, Integrität, Verfügbarkeit, Belastbarkeit, Wiederherstellbarkeit, regelmäßige Überprüfung). Beide Listen sind deshalb **Gliederungshilfen**.
+
+**So gehst du in der Prüfung vor:** Benutze die Begriffe aus der Aufgabenstellung. Ist unklar, was gemeint ist, schreib es in Klammern dazu: „Zugangskontrolle (Anmeldung am System)“ oder „Zutrittskontrolle (Zugang zum Raum)“. Dann ist deine Antwort in jedem Fall eindeutig.`,
         },
         {
           type: 'visual',
@@ -404,13 +452,26 @@ Dazu fordert **Art. 25** **Datenschutz durch Technikgestaltung** (*Privacy by De
             explanation: 'Organisatorisch = Regeln, Abläufe, Schulung, Verantwortlichkeiten.',
           },
         },
-        { type: 'practice', title: 'Übung: TOM', questionIds: ['s02-q017', 's02-q018', 's02-q019', 's02-q020', 's02-q021', 's02-q022'], count: 4, difficulty: 2 },
+        {
+          type: 'check',
+          question: {
+            id: 's02-c12', kind: 'match', skill: 'sich.ds.tom', difficulty: 2,
+            prompt: 'Dein Schulbuch verwendet die Begriffe aus **§ 64 BDSG**. Ordne jedem Buchbegriff den **klassischen** Begriff mit derselben Bedeutung zu.',
+            left: ['Zugangskontrolle (§ 64: Zugang zu Verarbeitungsanlagen)', 'Benutzerkontrolle', 'Übertragungskontrolle', 'Trennbarkeit'],
+            right: ['Zutrittskontrolle', 'Zugangskontrolle', 'Weitergabekontrolle', 'Trennungsgebot'],
+            answer: [0, 1, 2, 3],
+            hints: ['Bei § 64 meint „Zugang“ den Zugang zu den Geräten – also den Raum.'],
+            explanation: '§ 64-Zugangskontrolle = klassische **Zutrittskontrolle** (Raum). Benutzerkontrolle = klassische **Zugangskontrolle** (System). Übertragungskontrolle = **Weitergabekontrolle**. Trennbarkeit = **Trennungsgebot**.\n\nHäufiger Fehler: „Zugangskontrolle“ in beiden Listen für dasselbe halten. Schreib in der Prüfung in Klammern dazu, was du meinst.',
+          },
+        },
+        { type: 'practice', title: 'Übung: TOM', questionIds: ['s02-q017', 's02-q018', 's02-q019', 's02-q020', 's02-q021', 's02-q022', 's02-q033', 's02-q034'], count: 4, difficulty: 2 },
         {
           type: 'summary',
           points: [
             'Art. 32: angemessene TOM – u. a. Pseudonymisierung, Verschlüsselung, CIA + Belastbarkeit, Wiederherstellbarkeit, regelmäßige Überprüfung.',
             'Art. 25: Privacy by Design und by Default.',
             'Kontrollarten: Zutritt (Raum), Zugang (System), Zugriff (Daten), Weitergabe, Eingabe, Auftrag, Verfügbarkeit, Trennung.',
+            'Bücher nach § 64 BDSG: dort „Zugangskontrolle“ = Raum (klassisch Zutritt), „Benutzerkontrolle“ = System (klassisch Zugang) – im Zweifel in Klammern erklären.',
             'Technisch = durch Technik, organisatorisch = durch Regeln und Abläufe.',
           ],
         },
@@ -424,6 +485,12 @@ Dazu fordert **Art. 25** **Datenschutz durch Technikgestaltung** (*Privacy by De
       minutes: 25,
       relevance: 'ap1-teilweise',
       skills: ['sich.ds.organisation'],
+      simple: `Im Datenschutz gibt es feste Rollen wie in einem Fußballverein: Die **Geschäftsführung** ist verantwortlich (der Vorstand). Der **Datenschutzbeauftragte** (DSB) berät und kontrolliert – wie ein Schiedsrichter, der nicht mitspielt.
+Ein DSB ist in Deutschland Pflicht, wenn in der Regel mindestens **20 Personen** ständig mit personenbezogenen Daten am Computer arbeiten.
+Lässt die Firma Daten von einem Dienstleister verarbeiten (z. B. Cloud oder Lohnabrechnung), braucht sie einen **Vertrag zur Auftragsverarbeitung** nach Art. 28 DSGVO.
+Bei einer **Datenpanne** (Daten verloren oder in falsche Hände geraten) muss die Aufsichtsbehörde möglichst innerhalb von **72 Stunden** informiert werden.
+
+**Merke:** DSB ab 20 Personen (§ 38 BDSG), AV-Vertrag nach Art. 28 DSGVO, Panne binnen 72 Stunden melden – ältere Bücher mit „10 Personen“ sind überholt.`,
       steps: [
         {
           type: 'explain',
@@ -435,10 +502,29 @@ Dazu fordert **Art. 25** **Datenschutz durch Technikgestaltung** (*Privacy by De
 - Interessenkonflikte sind zu vermeiden: Geschäftsführer oder IT-Leiter sollten nicht DSB sein (sie würden sich selbst kontrollieren).
 - **Aufgaben** (Art. 39): unterrichten und beraten, die Einhaltung **überwachen**, Schulungen, Beratung zur Datenschutz-Folgenabschätzung, Zusammenarbeit mit der Aufsichtsbehörde, Anlaufstelle für Betroffene.
 - **Wichtig:** Verantwortlich für den Datenschutz bleibt das **Unternehmen** (die Geschäftsführung) – der DSB berät und kontrolliert.
+- **Achtung, ältere Bücher:** Manche Lehrbücher nennen noch „mindestens **zehn** Personen“. Diese Grenze galt bis November 2019. Seitdem sind es **20 Personen** (§ 38 Abs. 1 BDSG) – rechne in der Prüfung mit 20.
 
 **Verzeichnis von Verarbeitungstätigkeiten (VVT)** – Art. 30: Dokumentation aller Verarbeitungen (Zweck, Kategorien von Daten und Betroffenen, Empfänger, Löschfristen, TOM). Grundlage der Rechenschaftspflicht.
 
-**Auftragsverarbeitung (AV)** – Art. 28: Lässt die Firma personenbezogene Daten durch einen Dienstleister **nach Weisung** verarbeiten (Cloud-Speicher, externes Rechenzentrum, Lohnabrechnung, Fernwartung mit Datenzugriff, Aktenvernichtung), ist ein **Vertrag zur Auftragsverarbeitung (AVV)** nötig. Er regelt u. a. Gegenstand, Dauer, Art der Daten, **Weisungsgebundenheit**, Vertraulichkeit, **TOM** des Dienstleisters, Unterauftragnehmer nur mit Genehmigung, Kontrollrechte, Löschung/Rückgabe am Ende. Der Auftraggeber bleibt **verantwortlich** und muss den Dienstleister sorgfältig auswählen.
+**Auftragsverarbeitung (AV)** – Art. 28: Lässt die Firma personenbezogene Daten durch einen Dienstleister **nach Weisung** verarbeiten (Cloud-Speicher, externes Rechenzentrum, Lohnabrechnung, Fernwartung mit Datenzugriff, Aktenvernichtung), ist ein **Vertrag zur Auftragsverarbeitung (AVV)** nötig – auch „AV-Vereinbarung“ genannt. Der Auftraggeber bleibt **verantwortlich** und muss den Dienstleister sorgfältig auswählen.
+
+**Was muss im AV-Vertrag stehen?** (Art. 28 Abs. 3 DSGVO)
+
+| Inhalt | Beispiel Lohnabrechnung |
+|---|---|
+| **Gegenstand und Dauer** der Verarbeitung | Lohn- und Gehaltsabrechnung, Vertragslaufzeit |
+| **Art und Zweck**, **Art der Daten**, **Kategorien betroffener Personen** | Stammdaten, Bankverbindung, Steuer-ID; Beschäftigte |
+| Verarbeitung nur auf **dokumentierte Weisung** | keine eigene Nutzung der Daten durch den Dienstleister |
+| **Vertraulichkeit** der eingesetzten Personen | schriftliche Verpflichtung der Mitarbeitenden |
+| **TOM** nach Art. 32 | Verschlüsselung, Zutritts-/Zugangs-/Zugriffskontrolle, Backup |
+| **Unterauftragsverarbeiter** nur mit Genehmigung | Rechenzentrum des Dienstleisters muss genannt und genehmigt sein |
+| **Unterstützung** bei Betroffenenrechten und Datenpannen | Hilfe bei Auskunftsanfragen, Meldung von Pannen an den Auftraggeber |
+| **Löschung oder Rückgabe** nach Vertragsende | Daten werden gelöscht, Löschung wird bestätigt |
+| **Nachweise und Kontrollrechte** (Audits, Inspektionen) | Auftraggeber darf prüfen, Zertifikate vorlegen lassen |
+
+Typische Fälle für einen AV-Vertrag: Cloud-Speicher, externes Rechenzentrum, Lohnabrechnung, **Fernwartung oder Helpdesk mit Zugriff auf personenbezogene Daten**, Aktenvernichtung.
+
+**Achtung, Buchfehler:** Manche Lehrbücher verweisen für die Auftragsverarbeitung auf **§ 62 BDSG**. Diese Vorschrift gehört zum Teil des BDSG für Polizei und Justiz. Für Unternehmen gilt **Art. 28 DSGVO**.
 
 **Datenschutz-Folgenabschätzung (DSFA)** – Art. 35: vorab bei Verarbeitungen mit **voraussichtlich hohem Risiko** (z. B. umfangreiche Verarbeitung von Gesundheitsdaten, systematische Überwachung).`,
         },
@@ -502,12 +588,13 @@ Zusätzlich haben Betroffene Anspruch auf **Schadensersatz** – auch für immat
           },
         },
         { type: 'practice', title: 'Übung: Bußgeldrahmen berechnen', generator: 'sich.bussgeld', count: 3, difficulty: 2 },
+        { type: 'practice', title: 'Übung: DSB und AV-Vertrag', questionIds: ['s02-q035', 's02-q036', 's02-q037'], count: 3, difficulty: 2 },
         {
           type: 'summary',
           points: [
             'DSB-Pflicht in Deutschland ab i. d. R. 20 Personen, die ständig automatisiert personenbezogene Daten verarbeiten (§ 38 BDSG); intern oder extern, weisungsfrei, berät und überwacht.',
             'VVT (Art. 30) dokumentiert alle Verarbeitungen; DSFA (Art. 35) bei hohem Risiko.',
-            'Dienstleister nach Weisung → AV-Vertrag (Art. 28); Verantwortung bleibt beim Auftraggeber.',
+            'Dienstleister nach Weisung → AV-Vertrag (Art. 28 DSGVO, nicht § 62 BDSG): Gegenstand, Daten, Weisung, Vertraulichkeit, TOM, Unterauftragnehmer, Unterstützung, Löschung, Kontrollrechte; Verantwortung bleibt beim Auftraggeber.',
             'Datenpanne: Meldung an die Aufsicht unverzüglich, möglichst binnen 72 h (Art. 33); Betroffene bei hohem Risiko (Art. 34); immer dokumentieren.',
             'Bußgelder: Abs. 4 bis 10 Mio. €/2 %, Abs. 5 bis 20 Mio. €/4 % – der höhere Wert ist die Obergrenze.',
           ],
@@ -522,6 +609,11 @@ Zusätzlich haben Betroffene Anspruch auf **Schadensersatz** – auch für immat
       minutes: 15,
       relevance: 'ap1',
       skills: ['sich.ds.organisation', 'sich.ds.tom'],
+      simple: `Eine Datenpanne ist wie ein Wasserrohrbruch: Erst den Haupthahn zudrehen (Schaden begrenzen), dann den Hausverwalter anrufen (melden), dann aufschreiben, was passiert ist.
+Wichtig ist, dass alle den **Meldeweg** kennen und sofort Bescheid geben – auch nachts oder am Wochenende.
+Ob die Aufsichtsbehörde informiert werden muss, hängt vom Risiko für die betroffenen Menschen ab. Waren die Daten wirksam verschlüsselt, ist das Risiko meist so klein, dass keine Meldung nötig ist – aufgeschrieben (dokumentiert) wird trotzdem.
+
+**Merke:** Sofort intern melden → Schaden begrenzen → Risiko bewerten → bei Risiko binnen 72 Stunden an die Aufsicht → immer dokumentieren.`,
       steps: [
         {
           type: 'explain',
@@ -845,6 +937,59 @@ Die Entscheidung über die Meldung trifft der **Verantwortliche** (Geschäftsfü
       modelAnswer: 'Datenschutz schützt die Persönlichkeitsrechte von Menschen: Er regelt, ob und wie personenbezogene Daten verarbeitet werden dürfen (z. B. Rechtsgrundlage, Zweckbindung, Betroffenenrechte nach DSGVO). Datensicherheit schützt Daten jeder Art technisch und organisatorisch vor Verlust, Manipulation und unbefugtem Zugriff (Schutzziele Vertraulichkeit, Integrität, Verfügbarkeit). Zusammenhang: Die DSGVO verlangt in Art. 32 Datensicherheit als Mittel des Datenschutzes. Beispiel: Die Personaldatenbank darf nach Datenschutzrecht für die Gehaltsabrechnung genutzt werden; damit Unbefugte sie nicht lesen, sorgt die Datensicherheit mit Zugriffsrechten, Verschlüsselung und Backups für ihren Schutz.',
       keywords: ['Persönlichkeitsrecht', 'personenbezogen', 'Schutzziele', 'Art. 32', 'TOM'],
       explanation: 'Datenschutz = Ob/Wie der Verarbeitung (Menschen); Datensicherheit = Schutz der Daten (Technik/Organisation).',
+    },
+    {
+      id: 's02-q033', kind: 'table', skill: 'sich.ds.tom', difficulty: 3,
+      prompt: 'Dein Schulbuch nennt die Kontrollen nach **§ 64 BDSG**. Trage für jeden Buchbegriff den **klassischen** Begriff ein (Zutrittskontrolle, Zugangskontrolle, Zugriffskontrolle, Weitergabekontrolle, Eingabekontrolle, Auftragskontrolle, Verfügbarkeitskontrolle oder Trennungsgebot).',
+      columns: [{ key: 'k', label: 'klassischer Begriff', type: 'text' }],
+      rows: [
+        { label: 'Zugangskontrolle (§ 64: Unbefugten den Zugang zu Verarbeitungsanlagen verwehren)', cells: { k: { answer: 'Zutrittskontrolle', accept: ['Zutritt'] } } },
+        { label: 'Benutzerkontrolle (Nutzung der Systeme durch Unbefugte verhindern)', cells: { k: { answer: 'Zugangskontrolle', accept: ['Zugang'] } } },
+        { label: 'Transportkontrolle (Daten bei Übermittlung und Transport von Datenträgern schützen)', cells: { k: { answer: 'Weitergabekontrolle', accept: ['Weitergabe'] } } },
+        { label: 'Wiederherstellbarkeit (Systeme nach einer Störung wiederherstellen)', cells: { k: { answer: 'Verfügbarkeitskontrolle', accept: ['Verfügbarkeit', 'Verfuegbarkeitskontrolle'] } } },
+        { label: 'Trennbarkeit (Daten verschiedener Zwecke getrennt verarbeiten)', cells: { k: { answer: 'Trennungsgebot', accept: ['Trennungskontrolle', 'Trennung'] } } },
+      ],
+      misconceptions: [{ cell: '0:k', answer: 'Zugangskontrolle', error: 'tom-zutritt-zugang', why: 'In § 64 BDSG meint „Zugangskontrolle“ den Zugang zu den **Geräten** (Raum) – das ist klassisch die **Zutrittskontrolle**.' }],
+      hints: ['Achte auf die Beschreibung in Klammern, nicht nur auf das Wort.'],
+      explanation: '§ 64-Zugangskontrolle → **Zutrittskontrolle** (Raum) · Benutzerkontrolle → **Zugangskontrolle** (System) · Transportkontrolle → **Weitergabekontrolle** · Wiederherstellbarkeit → **Verfügbarkeitskontrolle** · Trennbarkeit → **Trennungsgebot**.\n\nHäufiger Fehler: das Wort „Zugangskontrolle“ einfach übernehmen, obwohl die Beschreibung den Raum meint.',
+    },
+    {
+      id: 's02-q034', kind: 'free', skill: 'sich.ds.tom', difficulty: 2,
+      prompt: 'In einer Aufgabe heißt es: „Nennen Sie eine Maßnahme zur **Zugangskontrolle** für den Serverraum.“ Erläutern Sie, warum der Begriff hier missverständlich ist, und formulieren Sie eine eindeutige Antwort.',
+      modelAnswer: 'Der Begriff ist doppeldeutig: Nach der klassischen Gliederung (altes BDSG) bedeutet Zugangskontrolle, dass Unbefugte ein IT-System nicht benutzen können (Anmeldung). Der räumliche Schutz heißt dort Zutrittskontrolle. Nach § 64 BDSG, den manche Bücher verwenden, ist mit Zugangskontrolle dagegen gerade der Zugang zu den Verarbeitungsanlagen, also der Raumschutz, gemeint. Da die Aufgabe den Serverraum nennt, ist der räumliche Schutz gemeint. Eindeutige Antwort: „Zutrittskontrolle (Raum): Der Serverraum wird mit einem elektronischen Schließsystem gesichert, Zutritt nur für Administratoren per Chipkarte mit Protokollierung.“',
+      keywords: ['Zutrittskontrolle', 'Raum', 'Anmeldung', '§ 64', 'Chipkarte', 'eindeutig'],
+      explanation: 'Wenn Begriffe doppeldeutig sind, nenne beide Lesarten kurz oder schreibe in Klammern dazu, was du meinst – so verlierst du keine Punkte.',
+    },
+    {
+      id: 's02-q035', kind: 'free', skill: 'sich.ds.organisation', difficulty: 2,
+      prompt: 'Die Elektro Krämer GmbH lagert die Lohnabrechnung an einen Dienstleister aus. Nennen Sie sechs Inhalte, die der **Vertrag zur Auftragsverarbeitung** enthalten muss, und die Rechtsgrundlage.',
+      modelAnswer: 'Rechtsgrundlage: Art. 28 DSGVO (Abs. 3). Inhalte: 1. Gegenstand und Dauer der Verarbeitung. 2. Art und Zweck der Verarbeitung, Art der personenbezogenen Daten (z. B. Bankverbindung, Steuer-ID) und Kategorien betroffener Personen (Beschäftigte). 3. Verarbeitung nur auf dokumentierte Weisung des Auftraggebers. 4. Verpflichtung der eingesetzten Personen zur Vertraulichkeit. 5. Technische und organisatorische Maßnahmen nach Art. 32. 6. Einsatz von Unterauftragsverarbeitern nur mit Genehmigung. 7. Unterstützung bei Betroffenenrechten und bei Datenpannen. 8. Löschung oder Rückgabe aller Daten nach Vertragsende. 9. Nachweise und Kontrollrechte (Audits/Inspektionen) des Auftraggebers.',
+      keywords: ['Art. 28', 'Weisung', 'Vertraulichkeit', 'TOM', 'Unterauftrag', 'Löschung', 'Kontrollrechte'],
+      explanation: 'Sechs der neun Punkte genügen. Achtung: Manche Bücher nennen § 62 BDSG – für Unternehmen ist **Art. 28 DSGVO** richtig.',
+    },
+    {
+      id: 's02-q036', kind: 'single', skill: 'sich.ds.organisation', difficulty: 2,
+      prompt: 'Das IT-Systemhaus betreut per **Fernwartung** den Server einer Arztpraxis und kann dabei auf Patientendaten zugreifen. Was ist datenschutzrechtlich nötig?',
+      options: [
+        'Ein Vertrag zur Auftragsverarbeitung nach Art. 28 DSGVO mit Regeln zu Weisungen, TOM und Kontrollrechten',
+        'Nichts, weil das Systemhaus die Daten nur sieht und nicht speichert',
+        'Eine Einwilligung jeder Patientin und jedes Patienten in die Fernwartung',
+        'Ein Vertrag nach § 62 BDSG',
+      ],
+      answer: 0,
+      distractors: {
+        '1': { why: 'Schon die Möglichkeit, auf personenbezogene Daten zuzugreifen, ist Verarbeitung im Auftrag – „nur ansehen“ ist ebenfalls Verarbeitung.', error: 'av-missverstanden' },
+        '2': { why: 'Die Praxis setzt einen weisungsgebundenen Dienstleister ein – das regelt ein AV-Vertrag, keine Einwilligung der Patienten.', error: 'av-missverstanden' },
+        '3': { why: '§ 62 BDSG betrifft Polizei und Justiz. Für Unternehmen und Praxen gilt Art. 28 DSGVO.', error: 'av-missverstanden' },
+      },
+      explanation: 'Fernwartung und Helpdesk mit Zugriff auf personenbezogene Daten sind klassische Fälle der **Auftragsverarbeitung** (Art. 28 DSGVO). Zusätzlich sinnvoll: Fernzugriff nur nach Freigabe durch die Praxis, protokolliert, verschlüsselt.',
+    },
+    {
+      id: 's02-q037', kind: 'multi', skill: 'sich.ds.organisation', difficulty: 2,
+      prompt: 'Welche Regelungen gehören nach Art. 28 Abs. 3 DSGVO **zwingend** in einen Vertrag zur Auftragsverarbeitung?',
+      options: ['Verarbeitung nur auf dokumentierte Weisung', 'Unterauftragsverarbeiter nur mit Genehmigung des Auftraggebers', 'Löschung oder Rückgabe der Daten nach Vertragsende', 'Kontrollrechte des Auftraggebers (Inspektionen)', 'Höhe der Vergütung des Dienstleisters', 'Zahlungsziel und Skonto'],
+      answer: [0, 1, 2, 3],
+      explanation: 'Weisungsbindung, Unterauftragsverarbeiter, Löschung/Rückgabe und Kontrollrechte sind Pflichtinhalte nach Art. 28 Abs. 3. Vergütung und Zahlungsbedingungen stehen im Hauptvertrag (Dienstleistungsvertrag), nicht im AV-Vertrag.',
     },
   ],
 };

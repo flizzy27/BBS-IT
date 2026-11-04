@@ -29,6 +29,9 @@ export const p04: Module = {
       minutes: 25,
       relevance: 'ap1',
       skills: ['oop.concepts'],
+      simple: `Eine Klasse ist wie eine Ausstechform für Plätzchen: Sie legt fest, welche Form jedes Plätzchen hat. Die einzelnen Plätzchen sind die Objekte – alle aus derselben Form, aber jedes mit eigener Verzierung (eigene Attributwerte). Abstraktion heißt: Du nimmst nur die Eigenschaften auf, die für dein Programm wichtig sind. Kapselung heißt: Die Daten sind privat (von außen nicht direkt erreichbar) und werden nur über Methoden geändert, die aufpassen, dass nichts Unsinniges passiert.
+
+**Merke:** Klasse = Bauplan, Objekt = Exemplar; Attribute privat, Zugriff über Methoden.`,
       steps: [
         {
           type: 'explain',
@@ -135,6 +138,9 @@ ${F}`,
       minutes: 25,
       relevance: 'ap1',
       skills: ['oop.inheritance'],
+      simple: `Vererbung beschreibt eine „ist ein“-Beziehung: Ein Laptop ist ein Computer – also erbt die Klasse Laptop alles, was ein Computer hat, und ergänzt eigene Dinge wie den Akku. Die allgemeine Klasse heißt Oberklasse, die speziellere Unterklasse. Polymorphie (Vielgestaltigkeit) heißt: Derselbe Methodenaufruf bewirkt je nach Objekt etwas anderes – wie der Befehl „Gib Laut!“, auf den ein Hund bellt und eine Katze miaut. Dafür überschreibt die Unterklasse die geerbte Methode (Überschreiben).
+
+**Merke:** Vererbung nur bei echtem „ist ein“; Polymorphie = gleicher Aufruf, unterschiedliches Verhalten.`,
       steps: [
         {
           type: 'explain',
@@ -232,6 +238,9 @@ Die Variable hat den Typ \`Geraet\`, aufgerufen wird aber die Methode des **tats
       minutes: 20,
       relevance: 'ap1',
       skills: ['uml.activity'],
+      simple: `UML (Unified Modeling Language) ist wie ein genormter Satz Bauplan-Symbole: Jeder Fachmann versteht die Zeichnung, egal in welcher Sprache später programmiert wird. Es gibt Strukturdiagramme (wie ist das System aufgebaut?) und Verhaltensdiagramme (was passiert wann?). Das Aktivitätsdiagramm zeigt einen Ablauf: Er beginnt am gefüllten Kreis (Startknoten), Aktionen stehen in abgerundeten Rechtecken, an einer Raute verzweigt sich der Weg mit Bedingungen in eckigen Klammern (z. B. [Betrag > 100]), und er endet am Kreis mit Punkt (Endknoten).
+
+**Merke:** Start ●, Aktion = abgerundetes Rechteck, Verzweigung ◇ mit [Bedingung], Ende ◉.`,
       steps: [
         {
           type: 'explain',
@@ -317,6 +326,9 @@ Für die AP1 sind vor allem **Aktivitäts-, Anwendungsfall-, Klassen- und Sequen
       minutes: 25,
       relevance: 'ap1',
       skills: ['uml.activity2code'],
+      simple: `Ein Aktivitätsdiagramm und Pseudocode beschreiben denselben Ablauf – wie eine Landkarte und eine geschriebene Wegbeschreibung denselben Weg. Eine Raute mit zwei Ausgängen wird zu WENN … SONST, ein Pfeil, der zurück nach oben führt, wird zu einer Schleife. Prüft die Raute vor den Aktionen, ist es eine SOLANGE-Schleife; liegt die Prüfung nach den Aktionen, ist es WIEDERHOLE … BIS. Beim Zeichnen gilt: Jede Raute braucht an jedem Ausgang eine Bedingung, und die Bedingungen müssen sich ausschließen.
+
+**Merke:** Raute ohne Rücksprung = Verzweigung, Raute mit Rücksprung = Schleife.`,
       steps: [
         {
           type: 'explain',
@@ -407,6 +419,9 @@ ${F}
       minutes: 20,
       relevance: 'ap1',
       skills: ['uml.usecase'],
+      simple: `Ein Anwendungsfalldiagramm (Use-Case-Diagramm) ist wie die Speisekarte eines Restaurants: Es zeigt, was man bestellen kann, aber nicht, wie in der Küche gekocht wird. Die Strichmännchen sind Akteure (Personen oder andere Systeme), die Ellipsen sind Anwendungsfälle (das, was sie mit dem System tun können). «include» bedeutet: Dieser Teil läuft immer mit, z. B. „Anmelden“ beim Bestellen. «extend» bedeutet: Dieser Teil kommt nur manchmal dazu, z. B. „Gutschein einlösen“.
+
+**Merke:** include = immer, Pfeil zum eingebundenen Fall; extend = optional, Pfeil zum Basisfall.`,
       steps: [
         {
           type: 'explain',
@@ -443,7 +458,9 @@ ${F}
 - Akteure stehen **außerhalb** der Systemgrenze.
 - **include** = „muss immer“ · **extend** = „kann unter Bedingung“.
 - Pfeilrichtung: **include** zeigt **zum Teil**, der eingebunden wird; **extend** zeigt **zum Basisfall**, der erweitert wird.
-- Ein Anwendungsfalldiagramm zeigt **keine Reihenfolge** – dafür nimmt man Aktivitäts- oder Sequenzdiagramme.`,
+- Ein Anwendungsfalldiagramm zeigt **keine Reihenfolge** – dafür nimmt man Aktivitäts- oder Sequenzdiagramme.
+
+📘 **Vorsicht bei Schulbuch-Beispielen:** Das Stereotyp heißt **«extend»** (nicht „extends“ – das ist das Java-Schlüsselwort für Vererbung). Und „Bestellen setzt eine Anmeldung voraus“ ist **«include»** (die Anmeldung ist Pflichtteil), nicht extend. Prüffrage für jede Beziehung: Läuft der Teil **immer** mit (include) oder nur **manchmal, unter einer Bedingung** (extend)?`,
         },
         {
           type: 'visual',
@@ -486,7 +503,7 @@ ${F}
             explanation: 'Optional → **«extend»**, Pfeil vom erweiternden Anwendungsfall („Gutschein einlösen“) zum Basisfall („Bestellung aufgeben“).',
           },
         },
-        { type: 'practice', title: 'Übung: Anwendungsfalldiagramm', questionIds: ['p04-q018', 'p04-q019', 'p04-q020', 'p04-q021', 'p04-q022'], count: 5, difficulty: 2 },
+        { type: 'practice', title: 'Übung: Anwendungsfalldiagramm', questionIds: ['p04-q018', 'p04-q019', 'p04-q020', 'p04-q021', 'p04-q022', 'p04-q035', 'p04-q037'], count: 5, difficulty: 2 },
         { type: 'summary', points: ['Akteure außerhalb, Anwendungsfälle (Ellipsen) innerhalb der Systemgrenze.', 'Akteur = Rolle, auch ein externes System.', '«include»: immer, Pfeil zum eingebundenen Fall · «extend»: optional, Pfeil zum Basisfall.', 'Keine zeitliche Reihenfolge im Use-Case-Diagramm.'] },
       ],
     },
@@ -497,6 +514,9 @@ ${F}
       minutes: 25,
       relevance: 'ap1',
       skills: ['uml.class'],
+      simple: `Ein Klassendiagramm ist wie der Grundriss eines Hauses: Es zeigt, welche Klassen es gibt und wie sie zusammenhängen, aber keinen zeitlichen Ablauf. Jede Klasse ist ein Kasten mit drei Fächern: Name, Attribute, Methoden. Vor den Einträgen steht die Sichtbarkeit: − privat (nur die Klasse selbst), + öffentlich (alle), # geschützt (auch Unterklassen). An den Linien stehen Multiplizitäten (wie viele, z. B. 1 oder 0..*); eine leere Raute heißt Aggregation (Teile können allein existieren), eine gefüllte Raute Komposition (Teile existieren nur mit dem Ganzen).
+
+**Merke:** − privat, + öffentlich, # geschützt; Raute immer am Ganzen, gefüllt = Komposition.`,
       steps: [
         {
           type: 'explain',
@@ -585,7 +605,7 @@ Lesen: **Kunde 1 ——— 0..* Bestellung** → „Ein Kunde hat **0 bis belieb
             explanation: 'Existenzabhängige Teile → **Komposition**, gefüllte Raute ◆ am Ganzen (Rechnung). Multiplizität z. B. Rechnung 1 ◆—— 1..* Rechnungsposition.',
           },
         },
-        { type: 'practice', title: 'Übung: Klassendiagramm', questionIds: ['p04-q023', 'p04-q024', 'p04-q025', 'p04-q026', 'p04-q027', 'p04-q010'], count: 5, difficulty: 2 },
+        { type: 'practice', title: 'Übung: Klassendiagramm', questionIds: ['p04-q023', 'p04-q024', 'p04-q025', 'p04-q026', 'p04-q027', 'p04-q010', 'p04-q036'], count: 5, difficulty: 2 },
         { type: 'summary', points: ['Klasse: Name | Attribute (Sichtbarkeit name: Typ) | Methoden (… (Parameter): Rückgabetyp).', 'Assoziation —, Aggregation ◇ (unabhängige Teile), Komposition ◆ (existenzabhängig), Vererbung △.', 'Raute am Ganzen, Dreieck an der Oberklasse.', 'Multiplizitäten: 1, 0..1, *, 1..*.'] },
       ],
     },
@@ -596,6 +616,9 @@ Lesen: **Kunde 1 ——— 0..* Bestellung** → „Ein Kunde hat **0 bis belieb
       minutes: 20,
       relevance: 'ap1-teilweise',
       skills: ['uml.sequence'],
+      simple: `Ein Sequenzdiagramm ist wie ein Telefonprotokoll: Es zeigt, wer wem wann welche Nachricht schickt. Die Beteiligten stehen oben nebeneinander, von ihnen führt eine gestrichelte Lebenslinie nach unten. Die Zeit läuft von oben nach unten, die Nachrichten sind waagerechte Pfeile zwischen den Lebenslinien. Eine Antwort (Rückgabe) wird als gestrichelter Pfeil zurück gezeichnet.
+
+**Merke:** Oben die Objekte, nach unten die Zeit; durchgezogener Pfeil = Aufruf, gestrichelter Pfeil = Antwort.`,
       steps: [
         {
           type: 'explain',
@@ -955,6 +978,45 @@ Sequenzdiagramme eignen sich gut, um **Protokollabläufe** zu dokumentieren – 
         '3': { why: 'Java meldet den Verstoß ausdrücklich als Fehler.', error: 'oop-kapselung' },
       },
       explanation: 'Ein Verstoß gegen die Sichtbarkeit ist ein **Compilerfehler** („saldo has private access in Konto“). Änderungen nur über Methoden wie `einzahlen(betrag)`, die prüfen können.',
+    },
+    {
+      id: 'p04-q035', kind: 'table', skill: 'uml.usecase', difficulty: 2,
+      prompt: 'Für das Ticketportal des IT-Systemhauses gilt: Ein Ticket kann nur nach der **Anmeldung** erstellt werden; beim Erstellen **kann** der Kunde eine Datei anhängen. Auch den Ticketstatus sieht er nur nach der Anmeldung. Beim Schließen eines Tickets **kann** der Kunde – wenn er möchte – den Service bewerten. Bestimme für jedes Paar die Beziehung (**include** oder **extend**) und den Anwendungsfall, **auf den der gestrichelte Pfeil zeigt**.',
+      columns: [
+        { key: 'bez', label: 'Beziehung', type: 'text' },
+        { key: 'ziel', label: 'Pfeil zeigt auf', type: 'text' },
+      ],
+      rows: [
+        { label: '„Ticket erstellen“ und „Anmelden“', cells: { bez: { answer: 'include', accept: ['«include»', '<<include>>'] }, ziel: { answer: 'Anmelden' } } },
+        { label: '„Ticket erstellen“ und „Datei anhängen“', cells: { bez: { answer: 'extend', accept: ['«extend»', '<<extend>>'] }, ziel: { answer: 'Ticket erstellen' } } },
+        { label: '„Ticketstatus abfragen“ und „Anmelden“', cells: { bez: { answer: 'include', accept: ['«include»', '<<include>>'] }, ziel: { answer: 'Anmelden' } } },
+        { label: '„Ticket schließen“ und „Service bewerten“', cells: { bez: { answer: 'extend', accept: ['«extend»', '<<extend>>'] }, ziel: { answer: 'Ticket schließen', accept: ['Ticket schliessen'] } } },
+      ],
+      misconceptions: [
+        { cell: '1:bez', answer: 'include', error: 'usecase-include-extend', why: 'Das Anhängen ist **optional** → extend. include hieße, es passiert bei jedem Ticket.' },
+        { cell: '1:ziel', answer: 'Datei anhängen', error: 'usecase-pfeilrichtung', why: 'Bei extend zeigt der Pfeil vom erweiternden Fall **zum Basisfall** („Ticket erstellen“).' },
+        { cell: '0:ziel', answer: 'Ticket erstellen', error: 'usecase-pfeilrichtung', why: 'Bei include zeigt der Pfeil vom Basisfall **zum eingebundenen Fall** („Anmelden“).' },
+        { cell: '3:bez', answer: 'include', error: 'usecase-include-extend', why: 'Die Bewertung ist freiwillig → extend.' },
+      ],
+      hints: ['Immer → include, manchmal/unter Bedingung → extend.', 'include-Pfeil zeigt zum eingebundenen Teil, extend-Pfeil zum Basisfall.'],
+      explanation: '| Paar | Beziehung | Pfeil zeigt auf |\n|---|---|---|\n| Ticket erstellen – Anmelden | «include» (immer) | Anmelden |\n| Ticket erstellen – Datei anhängen | «extend» (optional) | Ticket erstellen |\n| Ticketstatus abfragen – Anmelden | «include» | Anmelden |\n| Ticket schließen – Service bewerten | «extend» | Ticket schließen |\n\nMerke: Beide Pfeile sind gestrichelt; die **Richtung** unterscheidet sie. Häufiger Fehler: den extend-Pfeil wie den include-Pfeil vom Basisfall wegzeichnen.',
+    },
+    {
+      id: 'p04-q036', kind: 'free', skill: 'uml.class', difficulty: 3,
+      prompt: 'Aus dem Rechnungsprogramm der Elektro Krämer GmbH stammt folgender Beleg:\n\n| Rechnung Nr. | R-2027-0815 | Datum | 14.01.2027 |\n|---|---|---|---|\n| Kunde | Nr. 10457, Praxis Dr. Albers, Hafenstraße 3, Hamburg | Sachbearbeiter | Herr Yilmaz (Personal-Nr. 233) |\n\n| Pos. | Artikel-Nr. | Bezeichnung | Menge | Einzelpreis |\n|---|---|---|---|---|\n| 1 | 44120 | Netzwerkkabel Cat 6A, 5 m | 12 | 6,90 € |\n| 2 | 30815 | Switch 24 Port | 1 | 289,00 € |\n\nEntwerfen Sie ein **UML-Klassendiagramm** (Klassen mit Attributen, Sichtbarkeit, einer sinnvollen Methode, Beziehungen und Multiplizitäten). Beschreiben Sie es in Textform.',
+      modelAnswer: 'Klassen (Attribute privat „−“, Methoden öffentlich „+“):\n- Kunde: −kundenNr: int, −name: String, −anschrift: String\n- Rechnung: −rechnungsNr: String, −datum: Date, +berechneGesamtbetrag(): double\n- Rechnungsposition: −posNr: int, −menge: int, +berechnePositionsbetrag(): double\n- Artikel: −artikelNr: int, −bezeichnung: String, −einzelpreis: double\n- Mitarbeiter: −personalNr: int, −name: String\nBeziehungen: Kunde 1 —— 0..* Rechnung (ein Kunde hat beliebig viele Rechnungen, jede Rechnung gehört zu genau einem Kunden). Rechnung 1 ◆—— 1..* Rechnungsposition (Komposition, Raute an der Rechnung: Positionen existieren nicht ohne Rechnung). Rechnungsposition 0..* —— 1 Artikel (jede Position verweist auf genau einen Artikel, ein Artikel kann in vielen Positionen vorkommen). Mitarbeiter 1 —— 0..* Rechnung (Sachbearbeiter). Prüfliste: Ist die Position eine eigene Klasse? Komposition mit gefüllter Raute beim Ganzen (Rechnung)? Multiplizitäten an beiden Enden? Einzelpreis beim Artikel, Menge bei der Position? Sichtbarkeiten angegeben?',
+      keywords: ['Kunde', 'Rechnung', 'Rechnungsposition', 'Artikel', 'Mitarbeiter', 'Komposition', '1..*', '0..*', 'Sichtbarkeit'],
+      hints: ['Eine Rechnung hat mehrere Positionen – das ist eine eigene Klasse.', 'Menge gehört zur Position, Einzelpreis zum Artikel.'],
+      explanation: 'Typische Punkte in der Bewertung: fünf Klassen erkannt, Attribute sinnvoll verteilt (Menge an der Position, nicht am Artikel), Komposition Rechnung ◆— Rechnungsposition, Multiplizitäten an beiden Linienenden, Sichtbarkeiten. Häufiger Fehler: die Positionen als Attribut „artikel1, artikel2“ in die Rechnung schreiben.',
+    },
+    {
+      id: 'p04-q037', kind: 'match', skill: 'uml.usecase', difficulty: 2,
+      prompt: 'Ordne jeder Aussage die passende Darstellung im Anwendungsfalldiagramm zu.',
+      left: ['Bestellen setzt immer eine Anmeldung voraus.', 'Beim Bestellen kann der Kunde optional einen Gutschein einlösen.', 'Ein Administrator darf alles, was ein Benutzer darf, und zusätzlich Benutzer verwalten.', 'Der Kunde führt den Anwendungsfall „Bestellung aufgeben“ aus.'],
+      right: ['«include»-Beziehung', '«extend»-Beziehung', 'Generalisierung zwischen Akteuren', 'Assoziation (Linie) zwischen Akteur und Anwendungsfall'],
+      answer: [0, 1, 2, 3],
+      hints: ['„setzt immer voraus“ = Pflichtteil.'],
+      explanation: 'Pflichtteil → include · optional → extend · „darf alles, was … darf, und mehr“ → Generalisierung (Pfeil mit hohlem Dreieck zum allgemeineren Akteur) · Akteur nutzt Anwendungsfall → einfache Linie. Manche Schulbücher stellen „Bestellen setzt Login voraus“ als extend dar – fachlich richtig ist include.',
     },
   ],
 };

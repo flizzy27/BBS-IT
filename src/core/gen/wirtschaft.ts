@@ -271,12 +271,14 @@ const angebotspreis: GeneratorMeta = {
     const g = rng.pick([5, 8, 10, 12, 15, 20]);
     const sk = d === 3 ? rng.pick([2, 3]) : 0;
     const ra = d === 3 ? rng.pick([5, 10, 15]) : 0;
+    const prov = d === 3 ? rng.pick([0, 5, 8, 10]) : 0; // Vertreterprovision, wie Skonto im Hundert vom Zielverkaufspreis
     const hkB = pctOf(bzp, hk);
     const skost = bzp + hkB;
     const gB = pctOf(skost, g);
     const bvp = skost + gB;
-    const zvp = sk ? Math.round((bvp * 100) / (100 - sk)) : bvp;
-    const skB = zvp - bvp;
+    const zvp = sk ? Math.round((bvp * 100) / (100 - sk - prov)) : bvp;
+    const skB = prov ? pctOf(zvp, sk) : zvp - bvp;
+    const provB = zvp - bvp - skB;
     const lvp = ra ? Math.round((zvp * 100) / (100 - ra)) : zvp;
     const raB = lvp - zvp;
     const ust = pctOf(lvp, 19);
@@ -289,13 +291,19 @@ const angebotspreis: GeneratorMeta = {
       rows.push(`| Bezugspreis | | ${eur(bzp)} |`, `| + Handlungskosten (${pctS(hk)} vom Bezugspreis) | ${eur(bzp)} · ${hk} / 100 | + ${eur(hkB)} |`);
     }
     rows.push(`| **= Selbstkosten** | | **${eur(skost)}** |`, `| + Gewinn (${pctS(g)} von den Selbstkosten) | ${eur(skost)} · ${g} / 100 | + ${eur(gB)} |`, `| **= Barverkaufspreis** | | **${eur(bvp)}** |`);
-    if (sk) rows.push(`| + Kundenskonto (${pctS(sk)} **im Hundert**) | ${eur(bvp)} / ${100 - sk} · ${sk} | + ${eur(skB)} |`, `| **= Zielverkaufspreis** | | **${eur(zvp)}** |`);
+    if (sk && !prov) rows.push(`| + Kundenskonto (${pctS(sk)} **im Hundert**) | ${eur(bvp)} / ${100 - sk} · ${sk} | + ${eur(skB)} |`, `| **= Zielverkaufspreis** | | **${eur(zvp)}** |`);
+    if (sk && prov) rows.push(
+      `| Zielverkaufspreis (im Hundert) | ${eur(bvp)} ÷ (100 − ${sk} − ${prov}) · 100 = ${eur(bvp)} ÷ ${100 - sk - prov} · 100 | |`,
+      `| + Kundenskonto (${pctS(sk)} vom Zielverkaufspreis) | ${eur(zvp)} · ${sk} / 100 | + ${eur(skB)} |`,
+      `| + Vertreterprovision (${pctS(prov)} vom Zielverkaufspreis) | Rest bis zum Zielverkaufspreis | + ${eur(provB)} |`,
+      `| **= Zielverkaufspreis** | | **${eur(zvp)}** |`,
+    );
     if (ra) rows.push(`| + Kundenrabatt (${pctS(ra)} **im Hundert**) | ${eur(zvp)} / ${100 - ra} · ${ra} | + ${eur(raB)} |`);
     rows.push(`| **= Listenverkaufspreis netto** | | **${eur(lvp)}** |`, `| + Umsatzsteuer 19 % | ${eur(lvp)} · 0,19 | + ${eur(ust)} |`, `| **= Listenverkaufspreis brutto** | | **${eur(brutto)}** |`);
 
     const naive = (() => {
       // Skonto/Rabatt fälschlich „vom Hundert“ aufgeschlagen
-      const z = bvp + pctOf(bvp, sk);
+      const z = bvp + pctOf(bvp, sk + prov);
       const l = z + pctOf(z, ra);
       return l + pctOf(l, 19);
     })();
@@ -303,21 +311,25 @@ const angebotspreis: GeneratorMeta = {
       { answer: cs(lvp), error: 'w-ust-vergessen', why: 'Das ist der **Nettopreis**. Gefragt ist der Bruttopreis – es fehlen 19 % Umsatzsteuer.' },
       { answer: cs(lvp + pctOf(lvp, 7)), error: 'w-ust-satz', why: 'IT-Hardware unterliegt dem Regelsteuersatz von **19 %**, nicht dem ermäßigten Satz von 7 %.' },
       { answer: cs(bzp + gB + pctOf(bzp + gB, 19)), error: 'w-handlungskosten-vergessen', why: 'Die Handlungskosten (Gemeinkosten) wurden nicht zugeschlagen – erst Bezugspreis + Handlungskosten = Selbstkosten.' },
-      { answer: cs((() => { const s = bzp + pctOf(bzp, hk + g); const z = sk ? Math.round((s * 100) / (100 - sk)) : s; const l = ra ? Math.round((z * 100) / (100 - ra)) : z; return l + pctOf(l, 19); })()), error: 'w-zuschlaege-addiert', why: 'Handlungskosten- und Gewinnzuschlag dürfen nicht addiert werden: Der Gewinn wird auf die **Selbstkosten** (inkl. Handlungskosten) aufgeschlagen.' },
+      { answer: cs((() => { const s = bzp + pctOf(bzp, hk + g); const z = sk ? Math.round((s * 100) / (100 - sk - prov)) : s; const l = ra ? Math.round((z * 100) / (100 - ra)) : z; return l + pctOf(l, 19); })()), error: 'w-zuschlaege-addiert', why: 'Handlungskosten- und Gewinnzuschlag dürfen nicht addiert werden: Der Gewinn wird auf die **Selbstkosten** (inkl. Handlungskosten) aufgeschlagen.' },
     ];
-    if (sk || ra) mcs.push({ answer: cs(naive), error: 'w-im-hundert', why: 'Kundenskonto und Kundenrabatt werden **im Hundert** gerechnet (der Barverkaufspreis entspricht 100 % − Skonto), nicht als Aufschlag vom Hundert.' });
+    if (sk || ra) mcs.push({ answer: cs(naive), error: 'w-im-hundert', why: 'Kundenskonto, Provision und Kundenrabatt werden **im Hundert** gerechnet (der Barverkaufspreis entspricht 100 % − Skonto − Provision), nicht als Aufschlag vom Hundert.' });
+    if (prov) {
+      const z = Math.round((bvp * 100) / (100 - sk)), l = Math.round((z * 100) / (100 - ra));
+      mcs.push({ answer: cs(l + pctOf(l, 19)), error: 'w-provision-vergessen', why: 'Die Vertreterprovision fehlt. Sie wird zusammen mit dem Kundenskonto im Hundert vom Zielverkaufspreis gerechnet: Barverkaufspreis ÷ (100 − Skonto − Provision) · 100.' });
+    }
 
     const steps = hk
-      ? `Bezugspreis ${eur(bzp)}, Handlungskostenzuschlag ${pctS(hk)}, Gewinnzuschlag ${pctS(g)}${sk ? `, Kundenskonto ${pctS(sk)}, Kundenrabatt ${pctS(ra)}` : ''}`
+      ? `Bezugspreis ${eur(bzp)}, Handlungskostenzuschlag ${pctS(hk)}, Gewinnzuschlag ${pctS(g)}${sk ? `, Kundenskonto ${pctS(sk)}${prov ? `, Vertreterprovision ${pctS(prov)}` : ''}, Kundenrabatt ${pctS(ra)}` : ''}`
       : `Selbstkosten ${eur(skost)}, Gewinnzuschlag ${pctS(g)}`;
     return {
       id: gid('w.angebotspreis'), generated: true, kind: 'number', skill: 'w.handelskalkulation', difficulty: d,
-      prompt: `Das IT-Systemhaus kalkuliert den Verkaufspreis für **1 × ${prod.n}**. Gegeben: ${steps}. Es gilt der Umsatzsteuersatz von 19 %.\n\nBerechne den **Listenverkaufspreis brutto** in Euro. Runde jedes Zwischenergebnis kaufmännisch **auf Cent**.${sk ? ' Kundenskonto und Kundenrabatt werden im Hundert gerechnet.' : ''}`,
+      prompt: `Das IT-Systemhaus kalkuliert den Verkaufspreis für **1 × ${prod.n}**. Gegeben: ${steps}. Es gilt der Umsatzsteuersatz von 19 %.\n\nBerechne den **Listenverkaufspreis brutto** in Euro. Runde jedes Zwischenergebnis kaufmännisch **auf Cent**.${sk ? (prov ? ' Kundenskonto und Vertreterprovision werden gemeinsam im Hundert vom Zielverkaufspreis gerechnet, der Kundenrabatt im Hundert vom Listenverkaufspreis.' : ' Kundenskonto und Kundenrabatt werden im Hundert gerechnet.') : ''}`,
       answer, tolerance: tol, unit: '€',
       misconceptions: cleanMc(answer, tol, mcs),
       hints: [
         hk ? 'Bezugspreis + Handlungskosten = Selbstkosten; Selbstkosten + Gewinn = Barverkaufspreis.' : 'Selbstkosten + Gewinn = Barverkaufspreis (= Nettoverkaufspreis).',
-        ...(sk ? ['Im Hundert: Zielverkaufspreis = Barverkaufspreis / (100 − Skontosatz) · 100.'] : []),
+        ...(sk ? [prov ? 'Im Hundert: Zielverkaufspreis = Barverkaufspreis ÷ (100 − Skontosatz − Provisionssatz) · 100.' : 'Im Hundert: Zielverkaufspreis = Barverkaufspreis / (100 − Skontosatz) · 100.'] : []),
         'Zum Schluss 19 % Umsatzsteuer auf den Nettopreis aufschlagen.',
       ],
       explanation: `| Schritt | Rechnung | Betrag |\n|---|---|---:|\n${rows.join('\n')}`,
@@ -783,7 +795,1131 @@ const netzplanGen: GeneratorMeta = {
 };
 
 /* ------------------------------------------------------------------ */
+/* Hilfen für Prozent-, Faktor- und Tabellenaufgaben                   */
+/* ------------------------------------------------------------------ */
+
+/** kaufmännisch runden (auch negative Werte: −2,5 → −3) */
+const rk = (x: number) => Math.sign(x) * Math.round(Math.abs(x));
+/** num ÷ den · 100 in Prozent, auf n Nachkommastellen (num/den ganzzahlig → exakte Rundung) */
+const pq = (num: number, den: number, n = 2) => rk((num * 10 ** (n + 2)) / den) / 10 ** n;
+/** num ÷ den auf n Nachkommastellen */
+const qn = (num: number, den: number, n = 2) => rk((num * 10 ** n) / den) / 10 ** n;
+/** Nachbarwerte (± eine Einheit der letzten Stelle) für Tabellenzellen mit exaktem Vergleich */
+const near = (x: number, n = 2) => [String(rk((x - 10 ** -n) * 10 ** n) / 10 ** n), String(rk((x + 10 ** -n) * 10 ** n) / 10 ** n)];
+/** deutsche Zahl mit genau einer Nachkommastelle */
+const de1 = (x: number) => x.toLocaleString('de-DE', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+/** Prozent mit Vorzeichen, deutsch */
+const sgn = (x: number, n = 1) => `${x > 0 ? '+' : x < 0 ? '−' : ''}${deN(Math.abs(x), n)}`;
+
+/** Tabellen-Fehlbilder entfernen, die einer zulässigen Zellantwort entsprechen (generate() filtert Tabellen nicht). */
+function finishTable(q: TableQuestion): TableQuestion {
+  q.misconceptions = (q.misconceptions ?? []).filter((m) => {
+    const [ri, key] = (m.cell ?? '').split(':');
+    const c = q.rows[Number(ri)]?.cells[key];
+    if (!c || c.answer === undefined) return false;
+    const v = Number(m.answer);
+    return ![c.answer, ...(c.accept ?? [])].some((a) => (Number.isFinite(v) ? Math.abs(Number(a) - v) < 1e-9 : a.toLowerCase() === m.answer.toLowerCase()));
+  });
+  return q;
+}
+
+type Row = { label: string; v: number; given?: boolean; n?: number };
+/** Einspaltige Werttabelle aus Zeilen (v in Cent bzw. als Zahl mit n Nachkommastellen). */
+function valueRows(rows: Row[], money = true) {
+  return rows.map((r) => ({
+    label: r.label,
+    cells: {
+      v: r.given
+        ? { given: r.n !== undefined ? deN(r.v, r.n) : de2(r.v / 100) }
+        : r.n !== undefined
+          ? { answer: String(r.v), accept: r.n ? near(r.v, r.n) : [] }
+          : money ? { answer: cs(r.v), accept: acceptCent(r.v) } : { answer: String(r.v) },
+    },
+  }));
+}
+
+/* ------------------------------------------------------------------ */
+/* w02: Preis in Nutzwertpunkte umrechnen                              */
+/* ------------------------------------------------------------------ */
+
+const STUFEN_TXT = `| Mehrpreis gegenüber dem günstigsten Angebot | Preispunkte |
+|---|---|
+| 0 % (günstigstes Angebot) | 10 |
+| über 0 % bis 5 % | 8 |
+| über 5 % bis 10 % | 6 |
+| über 10 % bis 15 % | 4 |
+| über 15 % bis 20 % | 2 |
+| über 20 % | 0 |`;
+
+function stufenPunkte(p: number, pmin: number) {
+  if (p === pmin) return 10;
+  const m = ((p - pmin) * 100) / pmin;
+  return m <= 5 ? 8 : m <= 10 ? 6 : m <= 15 ? 4 : m <= 20 ? 2 : 0;
+}
+
+/** Drei Bezugspreise in Cent (10-€-Schritte); Mehrpreise ≥ 1 % und mit Abstand zu den Stufengrenzen. */
+function preisSet(rng: Rng): number[] {
+  for (let t = 0; t < 500; t++) {
+    const pmin = rng.int(600, 3000) * 1000;
+    const others = [rng.int(15, 120), rng.int(15, 240)].map((pm) => Math.round((pmin * (1000 + pm)) / 1e6) * 1000);
+    const ok = others[0] !== others[1] && others.every((p) => {
+      const m = ((p - pmin) * 100) / pmin;
+      return m >= 1 && [5, 10, 15, 20].every((g) => Math.abs(m - g) >= 0.1);
+    });
+    if (ok) return rng.shuffle([pmin, ...others]);
+  }
+  return [1250000, 1312000, 1420000];
+}
+
+const preispunkte: GeneratorMeta = {
+  id: 'w.preispunkte',
+  title: 'Preis in Nutzwertpunkte umrechnen',
+  skill: 'w.nutzwertanalyse',
+  module: 'w02',
+  make(rng, d) {
+    const prices = preisSet(rng);
+    const pmin = Math.min(...prices);
+    const iMin = prices.indexOf(pmin);
+    const N = ['A', 'B', 'C'];
+    const what = rng.pick(['14 Notebooks für den Außendienst', '25 Arbeitsplatz-PCs für die Buchhaltung', 'einen Server mit Storage für den Standort Berlin', 'drei Managed Switches für den Verteilerraum', '40 Monitore für das Großraumbüro']);
+    const priceTbl = `| | Angebot A | Angebot B | Angebot C |\n|---|---|---|---|\n| Bezugspreis (netto, Ergebnis der Bezugskalkulation) | ${prices.map(eur).join(' | ')} |`;
+    const mehr = prices.map((p) => pq(p - pmin, pmin));
+    const propRule = '**Preispunkte = 10 × günstigster Bezugspreis ÷ eigener Bezugspreis**';
+    const intro = `Die Elektro Krämer GmbH beschafft **${what}**. Drei Angebote erfüllen alle K.-o.-Kriterien:\n\n${priceTbl}\n\n`;
+
+    if (d === 1) {
+      const o = rng.pick([0, 1, 2].filter((i) => i !== iMin));
+      const ans = Math.round((pmin * 100) / prices[o]) / 10;
+      return {
+        id: gid('w.preispunkte'), generated: true, kind: 'number', skill: 'w.nutzwertanalyse', difficulty: d,
+        prompt: `${intro}Für die Nutzwertanalyse wird der Preis in Punkte (0 bis 10) übersetzt. Regel: Das günstigste Angebot erhält 10 Punkte, die anderen anteilig: ${propRule}.\n\nBerechne die **Preispunkte von Angebot ${N[o]}** (auf eine Nachkommastelle runden).`,
+        answer: ans, tolerance: 0.05,
+        misconceptions: cleanMc(ans, 0.05, [
+          { answer: String(Math.round((prices[o] * 100) / pmin) / 10), error: 'w-preispunkte-kehrwert', why: 'Kehrwert: Der **günstigste** Preis steht im Zähler. Ein teureres Angebot bekommt weniger als 10 Punkte, nie mehr.' },
+          { answer: '10', error: 'w-preispunkte-regel', why: 'Nur das günstigste Angebot erhält die vollen 10 Punkte.' },
+          { answer: String(Math.round(100 - mehr[o]) / 10), error: 'w-preispunkte-regel', why: 'Du hast den Mehrpreis in Prozent abgezogen. Laut Aufgabe gilt die Verhältnisregel: 10 × günstigster Preis ÷ eigener Preis.' },
+        ]),
+        hints: ['Suche zuerst den günstigsten Bezugspreis.', 'Punkte = 10 × günstigster Preis ÷ Preis des Angebots.'],
+        explanation: `**Ergebnis: ${deN(ans, 1)} Punkte.**\n\n1. Günstigster Bezugspreis: ${eur(pmin)} (Angebot ${N[iMin]}) → 10 Punkte\n2. Angebot ${N[o]}: 10 × ${eur(pmin)} ÷ ${eur(prices[o])} = ${deN((10 * pmin) / prices[o], 4)} ≈ **${deN(ans, 1)}**\n\nZum Vergleich alle Angebote: ${prices.map((p, i) => `${N[i]} = ${deN(Math.round((pmin * 100) / p) / 10, 1)}`).join(' · ')}\n\nHäufiger Fehler: Preis und günstigster Preis vertauschen – dann bekäme das teurere Angebot mehr als 10 Punkte.`,
+      };
+    }
+
+    if (d === 2) {
+      const pts = prices.map((p) => stufenPunkte(p, pmin));
+      return finishTable({
+        id: gid('w.preispunkte'), generated: true, kind: 'table', skill: 'w.nutzwertanalyse', difficulty: d,
+        prompt: `${intro}Für die Nutzwertanalyse wird der Preis nach folgender **Stufenregel** in Punkte übersetzt. Der Mehrpreis wird in Prozent **bezogen auf das günstigste Angebot** berechnet:\n\n${STUFEN_TXT}\n\nTrage für jedes Angebot den **Mehrpreis in %** (zwei Nachkommastellen; günstigstes Angebot = 0) und die **Preispunkte** ein.`,
+        columns: [
+          { key: 'mehr', label: 'Mehrpreis (%)', type: 'number' },
+          { key: 'pkt', label: 'Preispunkte', type: 'number' },
+        ],
+        rows: N.map((n, i) => ({ label: `Angebot ${n}`, cells: { mehr: { answer: String(mehr[i]), accept: near(mehr[i]) }, pkt: { answer: String(pts[i]) } } })),
+        misconceptions: N.flatMap((_, i) => (i === iMin ? [] : [{ cell: `${i}:mehr`, answer: String(pq(prices[i] - pmin, prices[i])), error: 'w-prozent-bezugsgroesse', why: 'Falsche Bezugsgröße: Der Mehrpreis wird auf den **günstigsten** Preis bezogen (Grundwert = günstigstes Angebot), nicht auf den eigenen Preis.' }])),
+        hints: ['Mehrpreis in % = (eigener Preis − günstigster Preis) ÷ günstigster Preis × 100.', 'Dann in der Stufentabelle nachsehen.'],
+        explanation: `${prices.map((p, i) => i === iMin ? `**Angebot ${N[i]}** ist am günstigsten → Mehrpreis 0 % → **10 Punkte**` : `**Angebot ${N[i]}:** (${eur(p)} − ${eur(pmin)}) ÷ ${eur(pmin)} × 100 = **${deN(mehr[i], 2)} %** → **${pts[i]} Punkte**`).join('\n\n')}\n\nHäufiger Fehler: Den Mehrpreis auf den teureren Preis beziehen. Grundwert ist immer das günstigste Angebot, so steht es in der Regel.`,
+      });
+    }
+
+    // d === 3: vollständige Nutzwertanalyse mit Preis-Umrechnung
+    const stufe = rng.bool();
+    const pp = prices.map((p) => (stufe ? stufenPunkte(p, pmin) : Math.round((pmin * 10) / p)));
+    const others = rng.shuffle(CRITERIA.filter((c) => c !== 'Preis')).slice(0, 3);
+    const wSet = [...rng.pick(WEIGHTS[4])].sort((a, b) => b - a);
+    const w = [wSet[0], ...rng.shuffle(wSet.slice(1))];
+    let pts: number[][] = [];
+    let sums: number[] = [];
+    for (let t = 0; t < 300; t++) {
+      pts = N.map((_, o) => [pp[o], ...others.map(() => rng.int(2, 10))]);
+      sums = pts.map((p) => p.reduce((s, x, i) => s + x * w[i], 0));
+      const sorted = [...sums].sort((a, b) => b - a);
+      if (sorted.every((v, i) => i === 0 || sorted[i - 1] - v >= 10)) break;
+    }
+    const rank = sums.map((s) => sums.filter((x) => x > s).length + 1);
+    const crit = ['Preis', ...others];
+    const tbl = `| Kriterium | Gewicht | Angebot A | Angebot B | Angebot C |\n|---|---|---|---|---|\n| Preis | ${w[0]} % | ? | ? | ? |\n${others.map((c, i) => `| ${c} | ${w[i + 1]} % | ${pts.map((p) => p[i + 1]).join(' | ')} |`).join('\n')}`;
+    const rule = stufe ? `Preispunkte nach Stufenregel (Mehrpreis bezogen auf das günstigste Angebot):\n\n${STUFEN_TXT}` : `Preispunkte nach Verhältnisregel: ${propRule}, auf **ganze Punkte** runden.`;
+    return finishTable({
+      id: gid('w.preispunkte'), generated: true, kind: 'table', skill: 'w.nutzwertanalyse', difficulty: d,
+      prompt: `${intro}${rule}\n\nBewertung der übrigen Kriterien (Punkte 0–10):\n\n${tbl}\n\nErmittle die **Preispunkte**, den **Nutzwert** (Summe Gewicht · Punkte, zwei Nachkommastellen; Gewicht als Dezimalfaktor oder als ganze Prozentzahl – beides wird akzeptiert) und den **Rang** (1 = beste Wahl).`,
+      columns: N.map((n, o) => ({ key: `o${o}`, label: `Angebot ${n}`, type: 'number' as const })),
+      rows: [
+        { label: 'Preispunkte', cells: Object.fromEntries(N.map((_, o) => [`o${o}`, { answer: String(pp[o]) }])) },
+        { label: 'Nutzwert', cells: Object.fromEntries(N.map((_, o) => [`o${o}`, { answer: String(sums[o] / 100), accept: [String(sums[o])] }])) },
+        { label: 'Rang', cells: Object.fromEntries(N.map((_, o) => [`o${o}`, { answer: String(rank[o]) }])) },
+      ],
+      misconceptions: N.map((_, o) => ({ cell: `1:o${o}`, answer: String(pts[o].reduce((s, x) => s + x, 0)), error: 'w-nutzwert-ungewichtet', why: 'Nur Punkte addiert – jede Punktzahl muss mit dem Gewicht multipliziert werden.' })),
+      hints: ['Erst die Preispunkte bestimmen, dann wie gewohnt Gewicht × Punkte rechnen.', 'Höchster Nutzwert = Rang 1.'],
+      explanation:
+        `**1. Preispunkte** (günstigstes Angebot: ${N[iMin]} mit ${eur(pmin)})\n\n` +
+        prices.map((p, i) => stufe
+          ? `- Angebot ${N[i]}: Mehrpreis ${deN(mehr[i], 2)} % → **${pp[i]} Punkte**`
+          : `- Angebot ${N[i]}: 10 × ${eur(pmin)} ÷ ${eur(p)} = ${deN((10 * pmin) / p, 2)} → **${pp[i]} Punkte**`).join('\n') +
+        `\n\n**2. Nutzwerte**\n\n` +
+        N.map((n, o) => `- Angebot ${n}: ${crit.map((_, i) => `${deN(w[i] / 100)} · ${pts[o][i]}`).join(' + ')} = **${de2(sums[o] / 100)}** (in Prozent-Schreibweise ${sums[o]})`).join('\n') +
+        `\n\n**3. Rangfolge:** ${rank.map((r, o) => ({ r, o })).sort((a, b) => a.r - b.r).map(({ r, o }) => `${r}. Angebot ${N[o]}`).join(' · ')} → Empfehlung **Angebot ${N[rank.indexOf(1)]}**.`,
+    });
+  },
+};
+
+/* ------------------------------------------------------------------ */
+/* w03: Handelskalkulation vollständig (vorwärts, rückwärts, Differenz) */
+/* ------------------------------------------------------------------ */
+
+function kalkVor(bzp: number, hk: number, g: number, sk: number, prov: number, ra: number) {
+  const hkB = pctOf(bzp, hk), sko = bzp + hkB, gB = pctOf(sko, g), bvp = sko + gB;
+  const zvp = Math.round((bvp * 100) / (100 - sk - prov));
+  const skB = prov ? pctOf(zvp, sk) : zvp - bvp;
+  const provB = zvp - bvp - skB;
+  const lvp = Math.round((zvp * 100) / (100 - ra)), raB = lvp - zvp;
+  return { hkB, sko, gB, bvp, zvp, skB, provB, lvp, raB };
+}
+
+function kalkRueck(lvp: number, ra: number, sk: number, prov: number, g: number, hk: number) {
+  const raB = pctOf(lvp, ra), zvp = lvp - raB;
+  const spB = pctOf(zvp, sk + prov), bvp = zvp - spB;
+  const sko = Math.round((bvp * 100) / (100 + g)), gB = bvp - sko;
+  const bzp = Math.round((sko * 100) / (100 + hk)), hkB = sko - bzp;
+  return { raB, zvp, spB, bvp, sko, gB, bzp, hkB };
+}
+
+const kalkulation: GeneratorMeta = {
+  id: 'w.kalkulation',
+  title: 'Handelskalkulation: vorwärts, rückwärts, Differenz',
+  skill: 'w.handelskalkulation',
+  module: 'w03',
+  make(rng, d) {
+    const prod = rng.pick(PRODUCTS);
+    const hk = rng.pick([15, 20, 25, 30]);
+
+    if (d === 1) {
+      // Differenzkalkulation ohne Kundennachlässe
+      const bzp = rng.pick(prod.p) - rng.pick([0, 1000, 2500]);
+      const sko = bzp + pctOf(bzp, hk);
+      const lvp = Math.round((sko * (100 + rng.int(30, 160) / 10)) / 10000) * 100 - rng.pick([0, 100]);
+      const gB = lvp - sko;
+      const ans = pq(gB, sko);
+      return {
+        id: gid('w.kalkulation'), generated: true, kind: 'number', skill: 'w.handelskalkulation', difficulty: d,
+        prompt: `**Differenzkalkulation:** Ein Mitbewerber bietet **1 × ${prod.n}** für **${eur(lvp)} netto** an. Das IT-Systemhaus will denselben Nettopreis verlangen (ohne Kundenrabatt und ohne Kundenskonto). Der Bezugspreis beträgt **${eur(bzp)}**, der Handlungskostenzuschlag **${pctS(hk)}**.\n\nWie viel **Prozent Gewinn, bezogen auf die Selbstkosten**, bleiben? Runde die Handlungskosten auf Cent und das Ergebnis auf zwei Nachkommastellen.`,
+        answer: ans, tolerance: 0.01, unit: '%',
+        misconceptions: cleanMc(ans, 0.01, [
+          { answer: String(pq(gB, lvp)), error: 'w-gewinn-basis', why: 'Der Gewinnsatz bezieht sich auf die **Selbstkosten** (Grundwert), nicht auf den Verkaufspreis.' },
+          { answer: String(pq(lvp - bzp, bzp)), error: 'w-handlungskosten-vergessen', why: 'Die Handlungskosten fehlen. Erst Bezugspreis + Handlungskosten = Selbstkosten, dann Gewinn = Verkaufspreis − Selbstkosten.' },
+          { answer: cs(gB), error: 'w-euro-statt-prozent', why: 'Das ist der Gewinn in Euro. Gefragt ist der Gewinn in Prozent der Selbstkosten.' },
+        ]),
+        hints: ['Selbstkosten = Bezugspreis + Handlungskosten.', 'Gewinn in % = Gewinn ÷ Selbstkosten × 100.'],
+        explanation: `**Ergebnis: ${deN(ans, 2)} %.**\n\n| Schritt | Rechnung | Betrag |\n|---|---|---:|\n| Bezugspreis | | ${eur(bzp)} |\n| + Handlungskosten (${pctS(hk)}) | ${eur(bzp)} · ${hk} / 100 | + ${eur(sko - bzp)} |\n| **= Selbstkosten** | | **${eur(sko)}** |\n| Verkaufspreis netto (= Barverkaufspreis) | vom Markt vorgegeben | ${eur(lvp)} |\n| **Gewinn** | ${eur(lvp)} − ${eur(sko)} | **${eur(gB)}** |\n\nGewinn in % = ${eur(gB)} ÷ ${eur(sko)} × 100 = **${deN(ans, 2)} %**\n\nHäufiger Fehler: Den Gewinn durch den Verkaufspreis teilen. Der Gewinnzuschlag hat immer die Selbstkosten als Grundwert.`,
+      };
+    }
+
+    if (d === 2) {
+      // Rückwärtskalkulation: höchstens zulässiger Bezugspreis
+      const ra = rng.pick([5, 10, 15, 20]), sk = rng.pick([2, 3]), prov = rng.pick([0, 0, 5, 8]);
+      const g = rng.pick([5, 8, 10, 12.5, 15]);
+      const lvp = Math.round((rng.pick(prod.p) * rng.pick([1.25, 1.35, 1.45, 1.6])) / 1000) * 1000 - 100;
+      const brutto = rng.bool() ? lvp + pctOf(lvp, 19) : 0;
+      const r = kalkRueck(lvp, ra, sk, prov, g, hk);
+      const ans = r.bzp / 100;
+      const wrongZ = (() => { const s2 = r.bvp - pctOf(r.bvp, g); return s2 - pctOf(s2, hk); })();
+      const wrongN = (() => { const z = Math.round((lvp * 100) / (100 + ra)); const b = Math.round((z * 100) / (100 + sk + prov)); const s2 = Math.round((b * 100) / (100 + g)); return Math.round((s2 * 100) / (100 + hk)); })();
+      const mcs: Mc[] = [
+        { answer: cs(wrongZ), error: 'w-rueckwaerts-prozent', why: 'Gewinn und Handlungskosten sind **Zuschläge auf einen kleineren Grundwert**. Rückwärts musst du sie herausrechnen (÷ 1,xx), nicht als Prozent vom größeren Betrag abziehen.' },
+        { answer: cs(wrongN), error: 'w-rueckwaerts-nachlass', why: 'Rabatt, Skonto und Provision sind Prozent vom **größeren** Preis (vom Hundert). Rückwärts ziehst du sie einfach ab: Listenpreis − Rabatt, Zielpreis − Skonto/Provision.' },
+      ];
+      if (brutto) mcs.push({ answer: cs(kalkRueck(brutto, ra, sk, prov, g, hk).bzp), error: 'w-ust-kosten', why: 'Zuerst die Umsatzsteuer herausrechnen: Bruttopreis ÷ 1,19 = Listenverkaufspreis netto. Die USt gehört dem Finanzamt, nicht dem Systemhaus.' });
+      if (prov) mcs.push({ answer: cs(kalkRueck(lvp, ra, sk, 0, g, hk).bzp), error: 'w-provision-vergessen', why: 'Die Vertreterprovision fehlt. Sie wird zusammen mit dem Skonto vom Zielverkaufspreis abgezogen.' });
+      return {
+        id: gid('w.kalkulation'), generated: true, kind: 'number', skill: 'w.handelskalkulation', difficulty: d,
+        prompt: `**Rückwärtskalkulation:** Ein Kunde ist bereit, für **1 × ${prod.n}** höchstens **${brutto ? `${eur(brutto)} brutto (inkl. 19 % USt)` : `${eur(lvp)} netto`}** zu zahlen (Listenverkaufspreis). Das Systemhaus gewährt **${pctS(ra)} Kundenrabatt** und **${pctS(sk)} Kundenskonto**${prov ? `; der Außendienst erhält **${pctS(prov)} Vertreterprovision** (wie das Skonto vom Zielverkaufspreis)` : ''}. Kalkuliert wird mit **${pctS(g)} Gewinn** und **${pctS(hk)} Handlungskosten**.\n\nWelchen **Bezugspreis** darf das Systemhaus höchstens bezahlen? Runde jedes Zwischenergebnis kaufmännisch auf Cent.`,
+        answer: ans, tolerance: 0.02, unit: '€',
+        misconceptions: cleanMc(ans, 0.02, mcs),
+        hints: ['Rabatt und Skonto/Provision vom Hundert **abziehen**.', `Selbstkosten = Barverkaufspreis ÷ ${deN(1 + g / 100, 3)}; Bezugspreis = Selbstkosten ÷ ${deN(1 + hk / 100)}.`],
+        explanation: `**Ergebnis: höchstens ${eur(r.bzp)}.**\n\n| Schritt | Rechnung | Betrag |\n|---|---|---:|\n${brutto ? `| Listenverkaufspreis brutto | | ${eur(brutto)} |\n| − Umsatzsteuer | ${eur(brutto)} ÷ 1,19 | → netto |\n` : ''}| Listenverkaufspreis netto | | ${eur(lvp)} |\n| − Kundenrabatt ${pctS(ra)} (vom Hundert) | ${eur(lvp)} · ${ra} / 100 | − ${eur(r.raB)} |\n| = Zielverkaufspreis | | ${eur(r.zvp)} |\n| − Kundenskonto ${pctS(sk)}${prov ? ` und Provision ${pctS(prov)}` : ''} (vom Hundert) | ${eur(r.zvp)} · ${sk + prov} / 100 | − ${eur(r.spB)} |\n| = Barverkaufspreis | | ${eur(r.bvp)} |\n| − Gewinn (herausrechnen) | ${eur(r.bvp)} ÷ ${deN(100 + g, 1)} · 100 = Selbstkosten | − ${eur(r.gB)} |\n| = Selbstkosten | | ${eur(r.sko)} |\n| − Handlungskosten (herausrechnen) | ${eur(r.sko)} ÷ ${100 + hk} · 100 = Bezugspreis | − ${eur(r.hkB)} |\n| **= Bezugspreis (Höchstwert)** | | **${eur(r.bzp)}** |\n\nMerke: Nachlässe (Rabatt, Skonto, Provision) rückwärts **abziehen**, Zuschläge (Gewinn, Handlungskosten) rückwärts **herausrechnen** (teilen).`,
+      };
+    }
+
+    // d === 3: vollständige Tabelle vorwärts ab Listeneinkaufspreis oder Differenzkalkulation
+    const unit = rng.pick(prod.p);
+    const lr = rng.pick([5, 10, 15, 20, 25]), ls = rng.pick([2, 3]), bk = rng.pick([490, 990, 1490, 1990]);
+    const g = rng.pick([5, 8, 10, 12, 15]), sk = rng.pick([2, 3]), prov = rng.pick([0, 5, 8, 10]), ra = rng.pick([5, 10, 15, 20]);
+    const b = bezugCalc(unit, 1, lr, ls, bk);
+    const bezugRows: Row[] = [
+      { label: 'Listeneinkaufspreis', v: unit, given: true },
+      { label: `− Liefererrabatt (${pctS(lr)})`, v: b.rab },
+      { label: '= Zieleinkaufspreis', v: b.zep },
+      { label: `− Liefererskonto (${pctS(ls)})`, v: b.sk },
+      { label: '= Bareinkaufspreis', v: b.bep },
+      { label: '+ Bezugskosten', v: bk, given: true },
+      { label: '= Bezugspreis', v: b.bzp },
+      { label: `+ Handlungskosten (${pctS(hk)})`, v: 0 },
+      { label: '= Selbstkosten', v: 0 },
+    ];
+    if (rng.bool()) {
+      // Vorwärts
+      const v = kalkVor(b.bzp, hk, g, sk, prov, ra);
+      bezugRows[7].v = v.hkB; bezugRows[8].v = v.sko;
+      const rows: Row[] = [
+        ...bezugRows,
+        { label: `+ Gewinn (${pctS(g)})`, v: v.gB },
+        { label: '= Barverkaufspreis', v: v.bvp },
+        { label: `+ Kundenskonto (${pctS(sk)})`, v: v.skB },
+        ...(prov ? [{ label: `+ Vertreterprovision (${pctS(prov)})`, v: v.provB }] : []),
+        { label: '= Zielverkaufspreis', v: v.zvp },
+        { label: `+ Kundenrabatt (${pctS(ra)})`, v: v.raB },
+        { label: '= Listenverkaufspreis netto', v: v.lvp },
+      ];
+      const idx = (l: string) => rows.findIndex((r) => r.label.startsWith(l));
+      const q: TableQuestion = {
+        id: gid('w.kalkulation'), generated: true, kind: 'table', skill: 'w.handelskalkulation', difficulty: d,
+        prompt: `Das IT-Systemhaus nimmt **1 × ${prod.n}** neu ins Sortiment. Kalkuliere den **Listenverkaufspreis netto** vollständig (Vorwärtskalkulation). Der Liefererskonto wird genutzt. Kundenskonto${prov ? ' und Vertreterprovision werden gemeinsam' : ' wird'} im Hundert vom Zielverkaufspreis gerechnet, der Kundenrabatt im Hundert vom Listenverkaufspreis. Runde jedes Zwischenergebnis kaufmännisch **auf Cent**; Abzüge und Zuschläge als positive Beträge eintragen.`,
+        columns: [{ key: 'v', label: 'Betrag (€)', type: 'number' }],
+        rows: valueRows(rows),
+        misconceptions: [
+          { cell: `${idx('− Liefererskonto')}:v`, answer: cs(pctOf(unit, ls)), error: 'w-skonto-basis', why: 'Liefererskonto vom **Zieleinkaufspreis** (nach Rabatt), nicht vom Listeneinkaufspreis.' },
+          { cell: `${idx('+ Kundenskonto')}:v`, answer: cs(pctOf(v.bvp, sk)), error: 'w-im-hundert', why: 'Kundenskonto im Hundert: Der Barverkaufspreis entspricht 100 % − Skonto − Provision. Erst den Zielverkaufspreis berechnen, dann Skonto davon.' },
+          { cell: `${idx('+ Kundenrabatt')}:v`, answer: cs(pctOf(v.zvp, ra)), error: 'w-im-hundert', why: 'Kundenrabatt im Hundert: Zielverkaufspreis ÷ (100 − Rabatt) · 100 = Listenverkaufspreis; Rabatt = Differenz.' },
+        ],
+        hints: ['Bezugskalkulation: Rabatt vom Listenpreis, Skonto vom Zieleinkaufspreis.', `Im Hundert: Zielverkaufspreis = Barverkaufspreis ÷ ${100 - sk - prov} · 100.`],
+        explanation: `| Schritt | Rechnung | Betrag |\n|---|---|---:|\n` +
+          `| Listeneinkaufspreis | | ${eur(unit)} |\n| − Liefererrabatt | ${eur(unit)} · ${lr} / 100 | − ${eur(b.rab)} |\n| = Zieleinkaufspreis | | ${eur(b.zep)} |\n| − Liefererskonto | ${eur(b.zep)} · ${ls} / 100 | − ${eur(b.sk)} |\n| = Bareinkaufspreis | | ${eur(b.bep)} |\n| + Bezugskosten | | + ${eur(bk)} |\n| **= Bezugspreis** | | **${eur(b.bzp)}** |\n` +
+          `| + Handlungskosten | ${eur(b.bzp)} · ${hk} / 100 | + ${eur(v.hkB)} |\n| **= Selbstkosten** | | **${eur(v.sko)}** |\n| + Gewinn | ${eur(v.sko)} · ${g} / 100 | + ${eur(v.gB)} |\n| **= Barverkaufspreis** (= ${100 - sk - prov} %) | | **${eur(v.bvp)}** |\n` +
+          `| Zielverkaufspreis (= 100 %) | ${eur(v.bvp)} ÷ ${100 - sk - prov} · 100 | ${eur(v.zvp)} |\n| davon Kundenskonto | ${eur(v.zvp)} · ${sk} / 100 | + ${eur(v.skB)} |\n${prov ? `| davon Vertreterprovision | Rest: ${eur(v.zvp)} − ${eur(v.bvp)} − ${eur(v.skB)} | + ${eur(v.provB)} |\n` : ''}` +
+          `| **= Zielverkaufspreis** (= ${100 - ra} %) | | **${eur(v.zvp)}** |\n| + Kundenrabatt | ${eur(v.zvp)} ÷ ${100 - ra} · 100 − ${eur(v.zvp)} | + ${eur(v.raB)} |\n| **= Listenverkaufspreis netto** (= 100 %) | | **${eur(v.lvp)}** |\n\n` +
+          `Probe: ${eur(v.lvp)} − ${ra} % Rabatt = ${eur(v.lvp - pctOf(v.lvp, ra))}; davon − ${sk + prov} % = ${eur(v.lvp - pctOf(v.lvp, ra) - pctOf(v.lvp - pctOf(v.lvp, ra), sk + prov))} ≈ Barverkaufspreis ✔`,
+      };
+      return finishTable(q);
+    }
+    // Differenzkalkulation
+    const sko = b.bzp + pctOf(b.bzp, hk);
+    bezugRows[7].v = sko - b.bzp; bezugRows[8].v = sko;
+    const tv = kalkVor(b.bzp, hk, rng.int(3, 14), sk, prov, ra);
+    const lvp = Math.round(tv.lvp / 100) * 100 - rng.pick([0, 100]);
+    const raB = pctOf(lvp, ra), zvp = lvp - raB, spB = pctOf(zvp, sk + prov), bvp = zvp - spB, gB = bvp - sko;
+    const gp = pq(gB, sko);
+    const rows: Row[] = [
+      ...bezugRows,
+      { label: 'Listenverkaufspreis netto (Marktpreis)', v: lvp, given: true },
+      { label: `− Kundenrabatt (${pctS(ra)})`, v: raB },
+      { label: '= Zielverkaufspreis', v: zvp },
+      { label: `− Kundenskonto (${pctS(sk)})${prov ? ` und Provision (${pctS(prov)})` : ''}`, v: spB },
+      { label: '= Barverkaufspreis', v: bvp },
+      { label: 'Gewinn in €', v: gB },
+      { label: 'Gewinn in % der Selbstkosten (2 Nachkommastellen)', v: gp, n: 2 },
+    ];
+    return finishTable({
+      id: gid('w.kalkulation'), generated: true, kind: 'table', skill: 'w.handelskalkulation', difficulty: d,
+      prompt: `**Differenzkalkulation:** Für **1 × ${prod.n}** ist der Listenverkaufspreis vom Markt vorgegeben: **${eur(lvp)} netto**. Prüfe, ob sich der Verkauf lohnt: Berechne von oben den **Selbstkostenpreis** und von unten (ab dem Marktpreis) den **Barverkaufspreis**; die Differenz ist der Gewinn. Der Liefererskonto wird genutzt. Kundenrabatt, Kundenskonto${prov ? ' und Vertreterprovision' : ''} werden vom Hundert abgezogen. Runde jedes Zwischenergebnis kaufmännisch auf Cent; Abzüge als positive Beträge eintragen.`,
+      columns: [{ key: 'v', label: 'Betrag (€) bzw. %', type: 'number' }],
+      rows: valueRows(rows),
+      misconceptions: [
+        { cell: `${rows.length - 1}:v`, answer: String(pq(gB, bvp)), error: 'w-gewinn-basis', why: 'Der Gewinnsatz bezieht sich auf die **Selbstkosten**, nicht auf den Barverkaufspreis.' },
+        { cell: `${rows.length - 1}:v`, answer: String(pq(gB, lvp)), error: 'w-gewinn-basis', why: 'Der Gewinnsatz bezieht sich auf die **Selbstkosten**, nicht auf den Listenverkaufspreis.' },
+      ],
+      hints: ['Oben: Bezugskalkulation + Handlungskosten = Selbstkosten.', 'Unten: Marktpreis − Rabatt − Skonto/Provision = Barverkaufspreis. Gewinn = Barverkaufspreis − Selbstkosten.'],
+      explanation: `**Von oben:** ${eur(unit)} − ${eur(b.rab)} = ${eur(b.zep)} − ${eur(b.sk)} = ${eur(b.bep)} + ${eur(bk)} = Bezugspreis **${eur(b.bzp)}** + Handlungskosten ${eur(sko - b.bzp)} = Selbstkosten **${eur(sko)}**\n\n` +
+        `**Von unten:** ${eur(lvp)} − ${ra} % (${eur(raB)}) = ${eur(zvp)} − ${sk + prov} % (${eur(spB)}) = Barverkaufspreis **${eur(bvp)}**\n\n` +
+        `**Gewinn:** ${eur(bvp)} − ${eur(sko)} = **${eur(gB)}** → ${eur(gB)} ÷ ${eur(sko)} × 100 = **${deN(gp, 2)} %**${gB < 0 ? ' (Verlust! Zu diesem Marktpreis lohnt sich der Verkauf nicht.)' : ''}`,
+    });
+  },
+};
+
+/* ------------------------------------------------------------------ */
+/* w03: Kalkulationszuschlag, Handelsspanne, Kalkulationsfaktor        */
+/* ------------------------------------------------------------------ */
+
+const SPANNE_PROD = ['USB-C-Dockingstation', 'Monitor 27 Zoll', 'Headset (kabellos)', 'Webcam 4K', 'Thin Client', 'Tastatur-Maus-Set', 'Netzwerkdrucker A4'];
+
+function spanneVals(rng: Rng) {
+  const bzp = rng.int(100, 500) * 100 + rng.pick([0, 50, 90]);
+  const lvp = Math.round((bzp * rng.int(130, 220)) / 10000) * 100 - 10;
+  return { bzp, lvp, kz: pq(lvp - bzp, bzp), hs: pq(lvp - bzp, lvp), fa: qn(lvp, bzp, 4) };
+}
+const SPANNE_DEF = '**Kalkulationszuschlag** = (Listenverkaufspreis netto − Bezugspreis) ÷ Bezugspreis × 100 · **Handelsspanne** = (Listenverkaufspreis netto − Bezugspreis) ÷ Listenverkaufspreis netto × 100 · **Kalkulationsfaktor** = Listenverkaufspreis netto ÷ Bezugspreis';
+
+const handelsspanne: GeneratorMeta = {
+  id: 'w.handelsspanne',
+  title: 'Kalkulationszuschlag, Handelsspanne und Kalkulationsfaktor',
+  skill: 'w.handelsspanne',
+  module: 'w03',
+  make(rng, d) {
+    if (d === 1) {
+      const p = rng.pick(SPANNE_PROD);
+      const v = spanneVals(rng);
+      const which = rng.pick(['kz', 'hs', 'fa'] as const);
+      const name = { kz: 'Kalkulationszuschlag in %', hs: 'Handelsspanne in %', fa: 'Kalkulationsfaktor' }[which];
+      const ans = v[which];
+      const tol = which === 'fa' ? 0.0001 : 0.01;
+      return {
+        id: gid('w.handelsspanne'), generated: true, kind: 'number', skill: 'w.handelsspanne', difficulty: d,
+        prompt: `Das IT-Systemhaus kauft eine **${p}** zum Bezugspreis von **${eur(v.bzp)}** ein und bietet sie für **${eur(v.lvp)} netto** (Listenverkaufspreis) an.\n\nBerechne den **${name}** (${which === 'fa' ? 'vier' : 'zwei'} Nachkommastellen).`,
+        answer: ans, tolerance: tol, unit: which === 'fa' ? undefined : '%',
+        misconceptions: cleanMc(ans, tol, which === 'kz'
+          ? [{ answer: String(v.hs), error: 'w-zuschlag-spanne', why: 'Das ist die Handelsspanne (Grundwert = Verkaufspreis). Der Kalkulationszuschlag bezieht sich auf den **Bezugspreis**.' }, { answer: String(v.fa), error: 'w-zuschlag-spanne', why: 'Das ist der Kalkulationsfaktor. Zuschlag in % = (Faktor − 1) × 100.' }]
+          : which === 'hs'
+            ? [{ answer: String(v.kz), error: 'w-zuschlag-spanne', why: 'Das ist der Kalkulationszuschlag (Grundwert = Bezugspreis). Die Handelsspanne bezieht sich auf den **Verkaufspreis**.' }]
+            : [{ answer: String(qn(v.lvp - v.bzp, v.bzp, 4)), error: 'w-faktor', why: 'Der Faktor ist Verkaufspreis ÷ Bezugspreis (immer größer als 1), nicht der Zuschlag als Dezimalzahl.' }, { answer: String(qn(v.bzp, v.lvp, 4)), error: 'w-kehrwert', why: 'Kehrwert: Faktor = Verkaufspreis ÷ Bezugspreis.' }]),
+        hints: ['Rohgewinn = Verkaufspreis netto − Bezugspreis.', which === 'hs' ? 'Grundwert der Handelsspanne ist der Verkaufspreis.' : which === 'kz' ? 'Grundwert des Kalkulationszuschlags ist der Bezugspreis.' : 'Faktor = Verkaufspreis ÷ Bezugspreis.'],
+        explanation: `**Ergebnis: ${deN(ans, which === 'fa' ? 4 : 2)}${which === 'fa' ? '' : ' %'}.**\n\nRohgewinn: ${eur(v.lvp)} − ${eur(v.bzp)} = ${eur(v.lvp - v.bzp)}\n\n- Kalkulationszuschlag = ${eur(v.lvp - v.bzp)} ÷ ${eur(v.bzp)} × 100 = **${deN(v.kz, 2)} %**\n- Handelsspanne = ${eur(v.lvp - v.bzp)} ÷ ${eur(v.lvp)} × 100 = **${deN(v.hs, 2)} %**\n- Kalkulationsfaktor = ${eur(v.lvp)} ÷ ${eur(v.bzp)} = **${deN(v.fa, 4)}**\n\nMerke: Zuschlag → Grundwert Bezugspreis (Einkauf), Spanne → Grundwert Verkaufspreis. Der Zuschlag ist deshalb immer größer als die Spanne.`,
+      };
+    }
+    if (d === 2) {
+      const ps = rng.shuffle(SPANNE_PROD).slice(0, 3);
+      const vs = ps.map(() => spanneVals(rng));
+      return finishTable({
+        id: gid('w.handelsspanne'), generated: true, kind: 'table', skill: 'w.handelsspanne', difficulty: d,
+        prompt: `Der Einkauf möchte die Preispolitik für drei Artikel prüfen (alle Preise netto):\n\n| Artikel | Bezugspreis | Listenverkaufspreis |\n|---|---|---|\n${ps.map((p, i) => `| ${p} | ${eur(vs[i].bzp)} | ${eur(vs[i].lvp)} |`).join('\n')}\n\n${SPANNE_DEF}\n\nBerechne für jeden Artikel Kalkulationszuschlag und Handelsspanne (in %, zwei Nachkommastellen) sowie den Kalkulationsfaktor (vier Nachkommastellen).`,
+        columns: [
+          { key: 'kz', label: 'Kalk.-zuschlag (%)', type: 'number' },
+          { key: 'hs', label: 'Handelsspanne (%)', type: 'number' },
+          { key: 'fa', label: 'Kalk.-faktor', type: 'number' },
+        ],
+        rows: ps.map((p, i) => ({ label: p, cells: { kz: { answer: String(vs[i].kz), accept: near(vs[i].kz) }, hs: { answer: String(vs[i].hs), accept: near(vs[i].hs) }, fa: { answer: vs[i].fa.toFixed(4), accept: near(vs[i].fa, 4).map((x) => Number(x).toFixed(4)) } } })), // 4 Stellen erzwingen: „1.429“ läse der Bewerter als 1.429 (Tausender)
+        misconceptions: ps.flatMap((_, i) => [
+          { cell: `${i}:kz`, answer: String(vs[i].hs), error: 'w-zuschlag-spanne', why: 'Zuschlag und Spanne vertauscht: Der Kalkulationszuschlag bezieht sich auf den Bezugspreis.' },
+          { cell: `${i}:hs`, answer: String(vs[i].kz), error: 'w-zuschlag-spanne', why: 'Zuschlag und Spanne vertauscht: Die Handelsspanne bezieht sich auf den Verkaufspreis.' },
+        ]),
+        hints: ['Rohgewinn = Verkaufspreis − Bezugspreis.', 'Zuschlag ÷ Bezugspreis, Spanne ÷ Verkaufspreis, Faktor = Verkaufspreis ÷ Bezugspreis.'],
+        explanation: ps.map((p, i) => `**${p}:** Rohgewinn ${eur(vs[i].lvp - vs[i].bzp)} → Zuschlag ${deN(vs[i].kz, 2)} % · Spanne ${deN(vs[i].hs, 2)} % · Faktor ${deN(vs[i].fa, 4)}`).join('\n\n') + '\n\nKontrolle: Faktor = 1 + Zuschlag ÷ 100.',
+      });
+    }
+    // d === 3: Umrechnungen
+    const b1 = rng.int(80, 400) * 100 + rng.pick([0, 50]);
+    const fh = rng.int(125, 210);
+    const l1 = Math.round((b1 * fh) / 100);
+    const l2 = rng.int(150, 900) * 100;
+    const h2 = rng.int(18, 45);
+    const bz2 = (l2 * (100 - h2)) / 100;
+    const h3 = rng.pick([20, 25, 30, 35, 37.5, 40, 45]);
+    const k3 = pq(h3 * 100, (100 - h3) * 100);
+    const k4 = rng.pick([25, 40, 50, 60, 75, 80]);
+    const h4 = pq(k4 * 100, (100 + k4) * 100);
+    const rows: Row[] = [
+      { label: `Bezugspreis ${eur(b1)}, Kalkulationsfaktor ${deN(fh / 100, 2)} → Listenverkaufspreis netto (€)`, v: l1 },
+      { label: `Listenverkaufspreis netto ${eur(l2)}, Handelsspanne ${pctS(h2)} → höchster Bezugspreis (€)`, v: bz2 },
+      { label: `Handelsspanne ${pctS(h3)} → Kalkulationszuschlag (%)`, v: k3, n: 2 },
+      { label: `Kalkulationszuschlag ${pctS(k4)} → Handelsspanne (%)`, v: h4, n: 2 },
+    ];
+    return finishTable({
+      id: gid('w.handelsspanne'), generated: true, kind: 'table', skill: 'w.handelsspanne', difficulty: d,
+      prompt: `Rechne die Kalkulationsgrößen ineinander um (alle Preise netto). ${SPANNE_DEF}\n\nEuro-Beträge auf Cent, Prozentwerte auf zwei Nachkommastellen runden.`,
+      columns: [{ key: 'v', label: 'Ergebnis', type: 'number' }],
+      rows: valueRows(rows),
+      misconceptions: [
+        { cell: '1:v', answer: cs(Math.round((l2 * 100) / (100 + h2))), error: 'w-zuschlag-spanne', why: 'Die Handelsspanne bezieht sich auf den Verkaufspreis: Bezugspreis = Verkaufspreis × (100 − Spanne) ÷ 100, nicht ÷ (1 + Spanne).' },
+        { cell: '2:v', answer: String(h3), error: 'w-zuschlag-spanne', why: 'Spanne und Zuschlag sind nicht gleich groß, weil sie verschiedene Grundwerte haben: Zuschlag = Spanne ÷ (100 − Spanne) × 100.' },
+        { cell: '3:v', answer: String(k4), error: 'w-zuschlag-spanne', why: 'Spanne = Zuschlag ÷ (100 + Zuschlag) × 100 – sie ist immer kleiner als der Zuschlag.' },
+      ],
+      hints: ['Mit einem Beispiel-Bezugspreis von 100 € rechnen hilft beim Umrechnen.', 'Zuschlag = Spanne ÷ (100 − Spanne) × 100; Spanne = Zuschlag ÷ (100 + Zuschlag) × 100.'],
+      explanation: `1. ${eur(b1)} × ${deN(fh / 100, 2)} = **${eur(l1)}**\n\n2. Spanne ${h2} % vom Verkaufspreis = Rohgewinn → Bezugspreis = ${eur(l2)} × ${100 - h2} / 100 = **${eur(bz2)}**\n\n3. Annahme Verkaufspreis 100 € → Rohgewinn ${deN(h3)} €, Bezugspreis ${deN(100 - h3)} € → Zuschlag = ${deN(h3)} ÷ ${deN(100 - h3)} × 100 = **${deN(k3, 2)} %**\n\n4. Annahme Bezugspreis 100 € → Rohgewinn ${k4} €, Verkaufspreis ${100 + k4} € → Spanne = ${k4} ÷ ${100 + k4} × 100 = **${deN(h4, 2)} %**`,
+    });
+  },
+};
+
+/* ------------------------------------------------------------------ */
+/* w03: Stundensatz und Minutensatz herleiten                          */
+/* ------------------------------------------------------------------ */
+
+function stdJahr(rng: Rng) {
+  const f = rng.int(8, 12), u = rng.int(25, 30), k = rng.int(4, 12), fb = rng.int(3, 8), nv = rng.int(12, 30);
+  const hd = rng.bool(0.8) ? 8 : 7.5;
+  const tage = 365 - 104 - f - u - k - fb - nv;
+  return { f, u, k, fb, nv, hd, tage, hMA: tage * hd };
+}
+const stdTageTbl = (s: ReturnType<typeof stdJahr>) => `| Position | Tage |\n|---|---:|\n| Kalendertage | 365 |\n| Wochenenden (Sa/So) | 104 |\n| Feiertage | ${s.f} |\n| Urlaub | ${s.u} |\n| Krankheit (Durchschnitt) | ${s.k} |\n| Fortbildung | ${s.fb} |\n| nicht abrechenbare Zeit (Akquise, Rüst-, Warte- und Verteilzeit) | ${s.nv} |`;
+
+const stundensatz: GeneratorMeta = {
+  id: 'w.stundensatz',
+  title: 'Stundensatz und Minutensatz herleiten',
+  skill: 'w.stundensatz',
+  module: 'w03',
+  make(rng, d) {
+    if (d === 1) {
+      const s = stdJahr(rng);
+      return {
+        id: gid('w.stundensatz'), generated: true, kind: 'number', skill: 'w.stundensatz', difficulty: d,
+        prompt: `Das IT-Systemhaus will seinen Stundensatz neu kalkulieren. Zuerst braucht es die **produktiven (abrechenbaren) Stunden** eines Technikers pro Jahr. Ein Arbeitstag hat **${deN(s.hd, 1)} Stunden**.\n\n${stdTageTbl(s)}\n\nWie viele **produktive Stunden** leistet ein Techniker pro Jahr?`,
+        answer: s.hMA, tolerance: 0, unit: 'h',
+        misconceptions: cleanMc(s.hMA, 0, [
+          { answer: String(s.tage), error: 'w-stunden-tage', why: 'Das sind die produktiven **Tage**. Mal Stunden pro Tag nehmen.' },
+          { answer: String((s.tage + 104) * s.hd), error: 'w-abzuege-unvollstaendig', why: 'Die Wochenenden (104 Tage) müssen abgezogen werden.' },
+          { answer: String(160 * 12), error: 'w-stundensatz-160', why: '160 h × 12 Monate sind **bezahlte** Sollstunden. Urlaub, Krankheit, Fortbildung und nicht abrechenbare Zeit kann man keinem Kunden berechnen.' },
+          { answer: String((s.tage + s.k + s.fb + s.nv) * s.hd), error: 'w-abzuege-unvollstaendig', why: 'Auch Krankheit, Fortbildung und nicht abrechenbare Zeiten werden abgezogen – nur produktive Stunden kann man abrechnen.' },
+        ]),
+        hints: ['365 − alle Abzüge = produktive Tage.', 'Produktive Tage × Stunden pro Tag.'],
+        explanation: `**Ergebnis: ${deN(s.hMA, 1)} h.**\n\nProduktive Tage = 365 − 104 − ${s.f} − ${s.u} − ${s.k} − ${s.fb} − ${s.nv} = **${s.tage} Tage**\n\nProduktive Stunden = ${s.tage} × ${deN(s.hd, 1)} h = **${deN(s.hMA, 1)} h**\n\nHäufiger Fehler: Mit 160 h im Monat (1.920 h im Jahr) rechnen. Bezahlt wird der Techniker zwar für diese Zeit, abrechnen kann das Systemhaus aber nur die produktiven Stunden.`,
+      };
+    }
+    if (d === 2) {
+      // Monatsmodell: verrechenbare Stunden, Gemeinkostenzuschlag, Gewinn
+      const soll = rng.pick([160, 168]);
+      const ab = [rng.int(18, 26), rng.int(4, 10), rng.int(12, 24), rng.int(10, 20)];
+      const hv = soll - ab.reduce((a, b) => a + b, 0);
+      const geh = rng.int(32, 44) * 10000;
+      const ag = Math.round(geh * 0.21 / 100) * 100;
+      const dir = rng.int(15, 40) * 1000;
+      const gk = rng.pick([30, 40, 50, 60]);
+      const g = rng.pick([8, 10, 12, 15]);
+      const kost = geh + ag + dir;
+      const mitGk = kost + pctOf(kost, gk);
+      const sks = Math.round(mitGk / hv);
+      const net = sks + pctOf(sks, g);
+      const ans = net / 100;
+      const n160 = (() => { const x = Math.round(mitGk / soll); return x + pctOf(x, g); })();
+      const nAdd = Math.round((kost + pctOf(kost, gk + g)) / hv);
+      const nGk = (() => { const x = Math.round(kost / hv); return x + pctOf(x, g); })();
+      return {
+        id: gid('w.stundensatz'), generated: true, kind: 'number', skill: 'w.stundensatz', difficulty: d,
+        prompt: `Das IT-Systemhaus kalkuliert den Stundensatz, den es Kunden für einen Servicetechniker berechnet. Monatswerte:\n\n| Position | Wert |\n|---|---:|\n| Sollarbeitszeit | ${soll} h |\n| − Urlaub und Krankheit (anteilig) | ${ab[0]} h |\n| − Fortbildung | ${ab[1]} h |\n| − interne Aufgaben (Besprechungen, Dokumentation, Lager) | ${ab[2]} h |\n| − Fahr- und Wartezeiten | ${ab[3]} h |\n| Bruttogehalt | ${eur(geh)} |\n| Arbeitgeberanteil Sozialversicherung | ${eur(ag)} |\n| direkte Kosten (Diensthandy, Fahrzeuganteil) | ${eur(dir)} |\n| Gemeinkostenzuschlag (auf alle Personal- und direkten Kosten) | ${pctS(gk)} |\n| Gewinnzuschlag (auf den Selbstkostensatz) | ${pctS(g)} |\n\nBerechne den **Netto-Stundensatz**. Runde den Selbstkostensatz und den Netto-Stundensatz jeweils auf Cent.`,
+        answer: ans, tolerance: 0.01, unit: '€/h',
+        misconceptions: cleanMc(ans, 0.01, [
+          { answer: cs(n160), error: 'w-stundensatz-160', why: `Teile durch die **verrechenbaren** Stunden (${hv} h), nicht durch die Sollarbeitszeit (${soll} h).` },
+          { answer: cs(nAdd), error: 'w-zuschlaege-addiert', why: 'Die Zuschläge haben verschiedene Grundwerte: erst Gemeinkosten auf die Kosten, dann den Gewinn auf den Selbstkostensatz.' },
+          { answer: cs(sks), error: 'w-gewinn-vergessen', why: 'Das ist der Selbstkostensatz – der Gewinnzuschlag fehlt noch.' },
+          { answer: cs(nGk), error: 'w-gemeinkosten-vergessen', why: 'Der Gemeinkostenzuschlag fehlt (Büro, Verwaltung, Werkzeug …).' },
+        ]),
+        hints: [`Verrechenbare Stunden = ${soll} h − alle Abzüge.`, 'Kosten × (1 + Gemeinkostenzuschlag) ÷ verrechenbare Stunden = Selbstkostensatz; dann Gewinn aufschlagen.'],
+        explanation: `**Ergebnis: ${eur(net)} pro Stunde (netto).**\n\n| Schritt | Rechnung | Ergebnis |\n|---|---|---:|\n| verrechenbare Stunden | ${soll} − ${ab.join(' − ')} | ${hv} h |\n| Kosten pro Monat | ${eur(geh)} + ${eur(ag)} + ${eur(dir)} | ${eur(kost)} |\n| + Gemeinkosten ${pctS(gk)} | ${eur(kost)} · ${gk} / 100 | ${eur(mitGk - kost)} |\n| = Selbstkosten pro Monat | | ${eur(mitGk)} |\n| Selbstkostensatz | ${eur(mitGk)} ÷ ${hv} h | ${eur(sks)} |\n| + Gewinn ${pctS(g)} | ${eur(sks)} · ${g} / 100 | ${eur(net - sks)} |\n| **= Netto-Stundensatz** | | **${eur(net)}** |\n\nHinweis: Für eine rein interne Verrechnung (z. B. IT-Abteilung an Fachabteilung) reicht oft der Selbstkostensatz. Externen Kunden berechnet man Selbstkosten + Gewinn, auf der Rechnung kommen 19 % USt dazu.`,
+      };
+    }
+    // d === 3: Jahresmodell als Tabelle mit Minutensatz und Angebot
+    const s = stdJahr(rng);
+    const n = rng.int(3, 8);
+    const jk = rng.int(38, 62) * 100000;
+    const gk = rng.int(12, 52) * 500000;
+    const sek = rng.int(6, 24) * 100000;
+    const g = rng.pick([8, 10, 12, 14, 15, 18, 20]);
+    const hGes = n * s.hMA;
+    const sk = n * jk + gk;
+    const sks = Math.round(sk / hGes);
+    const net = sks + pctOf(sks, g);
+    const br = net + pctOf(net, 19);
+    const ms = Math.round(net / 60);
+    const min = rng.pick([45, 75, 90, 105, 135, 150, 195]);
+    const anf = rng.pick([3900, 4500, 4900, 5900]);
+    const ang = min * ms + anf;
+    const rows: Row[] = [
+      { label: 'produktive Tage je Techniker', v: s.tage, n: 0 },
+      { label: 'produktive Stunden je Techniker', v: s.hMA, n: 0 },
+      { label: `produktive Stunden gesamt (${n} Techniker)`, v: hGes, n: 0 },
+      { label: 'Selbstkosten gesamt pro Jahr (€)', v: sk },
+      { label: 'Selbstkostensatz (€/h)', v: sks },
+      { label: `Netto-Stundensatz mit ${pctS(g)} Gewinn (€/h)`, v: net },
+      { label: 'Brutto-Stundensatz mit 19 % USt (€/h)', v: br },
+      { label: 'Minutensatz netto (€/min)', v: ms },
+      { label: `Angebotspreis netto: ${min} min Arbeit + Anfahrt (€)`, v: ang },
+    ];
+    return finishTable({
+      id: gid('w.stundensatz'), generated: true, kind: 'table', skill: 'w.stundensatz', difficulty: d,
+      prompt: `Das IT-Systemhaus beschäftigt **${n} Techniker** mit Kosten von je **${eur(jk)} pro Jahr** (Bruttolohn inkl. Sonderzahlungen und Arbeitgeberanteil). Die **Gemeinkosten** (Büro, Fahrzeuge, Verwaltung, Versicherungen) betragen **${eur(gk)}** pro Jahr. Für Reisen zu Kundenprojekten fielen außerdem **${eur(sek)} Reisekosten** an; sie werden den Kunden als Sondereinzelkosten direkt berechnet. Ein Arbeitstag hat **${deN(s.hd, 1)} Stunden**.\n\n${stdTageTbl(s)}\n\nVervollständige die Kalkulation. Gewinnzuschlag **${pctS(g)}**. Ein Kunde bucht einen Einsatz von **${min} Minuten**, dazu kommt eine Anfahrtspauschale von **${eur(anf)}** netto. Rundung: Sätze jeweils auf Cent; Minutensatz = Netto-Stundensatz ÷ 60, auf Cent gerundet; Arbeitskosten = Minuten × Minutensatz.`,
+      columns: [{ key: 'v', label: 'Wert', type: 'number' }],
+      rows: valueRows(rows),
+      misconceptions: [
+        { cell: '3:v', answer: cs(sk + sek), error: 'w-sondereinzelkosten', why: 'Reisekosten zu Kundenprojekten sind **Sondereinzelkosten**: Sie werden direkt dem jeweiligen Kunden berechnet und gehören nicht in den Stundensatz.' },
+        { cell: '1:v', answer: String(160 * 12), error: 'w-stundensatz-160', why: 'Nicht mit 1.920 bezahlten Stunden rechnen – nur produktive Stunden kann man abrechnen.' },
+        { cell: '7:v', answer: cs(Math.round(br / 60)), error: 'w-brutto-statt-netto', why: 'Der Minutensatz für das Angebot wird aus dem **Netto**-Stundensatz berechnet; die USt kommt erst auf die Rechnungssumme.' },
+        { cell: '8:v', answer: cs(min * ms), error: 'w-position-vergessen', why: 'Die Anfahrtspauschale fehlt.' },
+      ],
+      hints: ['Selbstkosten = Techniker × Jahreskosten + Gemeinkosten (ohne Sondereinzelkosten).', 'Selbstkostensatz = Selbstkosten ÷ produktive Stunden gesamt.'],
+      explanation: `| Schritt | Rechnung | Ergebnis |\n|---|---|---:|\n| produktive Tage | 365 − 104 − ${s.f} − ${s.u} − ${s.k} − ${s.fb} − ${s.nv} | ${s.tage} |\n| produktive Stunden je Techniker | ${s.tage} × ${deN(s.hd, 1)} h | ${deN(s.hMA, 1)} h |\n| produktive Stunden gesamt | ${n} × ${deN(s.hMA, 1)} h | ${deN(hGes, 1)} h |\n| Selbstkosten | ${n} × ${eur(jk)} + ${eur(gk)} | ${eur(sk)} |\n| Selbstkostensatz | ${eur(sk)} ÷ ${deN(hGes, 1)} h | ${eur(sks)} |\n| Netto-Stundensatz | ${eur(sks)} + ${g} % | ${eur(net)} |\n| Brutto-Stundensatz | ${eur(net)} × 1,19 | ${eur(br)} |\n| Minutensatz | ${eur(net)} ÷ 60 | ${eur(ms)} |\n| Angebot netto | ${min} × ${eur(ms)} + ${eur(anf)} | **${eur(ang)}** |\n\nDie Reisekosten (${eur(sek)}) bleiben außen vor: Sondereinzelkosten werden dem Kunden direkt in Rechnung gestellt.`,
+    });
+  },
+};
+
+/* ------------------------------------------------------------------ */
+/* w03: Finanzierung – Darlehen (Tilgungsplan) und Leasing              */
+/* ------------------------------------------------------------------ */
+
+/** Abzahlungsdarlehen (Ratendarlehen): gleiche Tilgung, Zinsen vom Restschuldstand am Jahresanfang. */
+function abzahlung(k: number, n: number, i: number) {
+  const t = k / n;
+  return Array.from({ length: n }, (_, j) => { const rs = k - j * t; const z = pctOf(rs, i); return { rs, z, t, r: z + t }; });
+}
+/** Annuitätendarlehen: gleichbleibende Annuität (auf Cent), letzte Rate gleicht Rundung aus. */
+function annuitaet(k: number, n: number, i: number) {
+  const q = 1 + i / 100;
+  const a = Math.round((k * q ** n * (q - 1)) / (q ** n - 1));
+  const plan: { rs: number; z: number; t: number; r: number }[] = [];
+  let rs = k;
+  for (let j = 0; j < n; j++) {
+    const z = pctOf(rs, i);
+    const t = j === n - 1 ? rs : a - z;
+    plan.push({ rs, z, t, r: z + t });
+    rs -= t;
+  }
+  return { a, plan };
+}
+
+const finanzierung: GeneratorMeta = {
+  id: 'w.finanzierung',
+  title: 'Darlehen (Tilgungsplan) und Leasing vergleichen',
+  skill: 'w.finanzierung',
+  module: 'w03',
+  make(rng, d) {
+    const n = rng.pick([3, 4, 5]);
+    const i = rng.int(3, 8);
+    const k = n * rng.int(20, 80) * 10000;
+    const what = rng.pick(['einen Server-Cluster mit Storage', '30 neue Arbeitsplatzrechner', 'eine neue Firewall- und Switch-Infrastruktur', 'die Ausstattung des neuen Schulungsraums']);
+    const cols = [
+      { key: 'rs', label: 'Restschuld Jahresanfang (€)', type: 'number' as const },
+      { key: 'z', label: 'Zinsen (€)', type: 'number' as const },
+      { key: 't', label: 'Tilgung (€)', type: 'number' as const },
+      { key: 'r', label: d === 2 ? 'Annuität (€)' : 'Jahresrate (€)', type: 'number' as const },
+    ];
+    if (d === 1 || d === 2) {
+      const ann = d === 2 ? annuitaet(k, n, i) : null;
+      const plan = ann ? ann.plan : abzahlung(k, n, i);
+      const sz = plan.reduce((s, p) => s + p.z, 0);
+      const rows = plan.map((p, j) => ({
+        label: `Jahr ${j + 1}`,
+        cells: {
+          rs: j === 0 ? { given: de2(p.rs / 100) } : { answer: cs(p.rs), accept: ann ? acceptCent(p.rs) : [] },
+          z: { answer: cs(p.z), accept: ann ? acceptCent(p.z) : [] },
+          t: { answer: cs(p.t), accept: ann ? acceptCent(p.t) : [] },
+          r: ann && j < n - 1 ? { given: de2(p.r / 100) } : { answer: cs(p.r), accept: ann ? acceptCent(p.r) : [] },
+        },
+      }));
+      const sumRow = { label: 'Summe', cells: { rs: { given: '–' }, z: { answer: cs(sz), accept: ann ? [cs(sz - 2), ...acceptCent(sz), cs(sz + 2)] : [] }, t: { given: de2(k / 100) }, r: { answer: cs(k + sz), accept: ann ? [cs(k + sz - 2), ...acceptCent(k + sz), cs(k + sz + 2)] : [] } } };
+      const q: TableQuestion = {
+        id: gid('w.finanzierung'), generated: true, kind: 'table', skill: 'w.finanzierung', difficulty: d,
+        prompt: ann
+          ? `Die Elektro Krämer GmbH finanziert ${what} über ein **Annuitätendarlehen** von **${eur(k)}**, Laufzeit **${n} Jahre**, Zinssatz **${i} % p. a.** Die Bank nennt eine gleichbleibende jährliche **Annuität von ${eur(ann.a)}** (Zinsen + Tilgung). Zinsen werden am Jahresende vom Restschuldstand am Jahresanfang berechnet und auf Cent gerundet. Im letzten Jahr wird die Restschuld vollständig getilgt – die letzte Annuität weicht deshalb um einige Cent ab.\n\nVervollständige den **Tilgungsplan**.`
+          : `Die Elektro Krämer GmbH finanziert ${what} über ein **Abzahlungsdarlehen (Ratendarlehen)** von **${eur(k)}**, Laufzeit **${n} Jahre**, Zinssatz **${i} % p. a.** Getilgt wird in gleichen Jahresbeträgen; die Zinsen werden am Jahresende vom Restschuldstand am Jahresanfang berechnet.\n\nVervollständige den **Tilgungsplan** (Jahresrate = Zinsen + Tilgung).`,
+        columns: cols,
+        rows: [...rows, sumRow],
+        misconceptions: ann
+          ? [{ cell: '0:t', answer: cs(k / n), error: 'w-darlehensart', why: 'Gleiche Tilgungsbeträge gibt es beim Abzahlungsdarlehen. Beim Annuitätendarlehen ist die **Annuität** gleich: Tilgung = Annuität − Zinsen.' }]
+          : [
+            { cell: '1:z', answer: cs(pctOf(k, i)), error: 'w-zins-anfangsschuld', why: 'Die Zinsen werden von der **Restschuld** am Jahresanfang berechnet, nicht jedes Jahr vom ursprünglichen Darlehensbetrag.' },
+            { cell: `${n}:z`, answer: cs(pctOf(k, i) * n), error: 'w-zins-anfangsschuld', why: 'Weil die Restschuld sinkt, sinken auch die Zinsen. Nicht n × Zinsen vom Anfangsbetrag rechnen.' },
+          ],
+        hints: ann ? ['Zinsen = Restschuld × Zinssatz.', 'Tilgung = Annuität − Zinsen; neue Restschuld = alte Restschuld − Tilgung.'] : [`Tilgung pro Jahr = ${eur(k)} ÷ ${n}.`, 'Zinsen = Restschuld am Jahresanfang × Zinssatz.'],
+        explanation: `| Jahr | Restschuld Anfang | Zinsen (${i} %) | Tilgung | ${ann ? 'Annuität' : 'Jahresrate'} | Restschuld Ende |\n|---|---:|---:|---:|---:|---:|\n${plan.map((p, j) => `| ${j + 1} | ${eur(p.rs)} | ${eur(p.z)} | ${eur(p.t)} | ${eur(p.r)} | ${eur(p.rs - p.t)} |`).join('\n')}\n| **Summe** | | **${eur(sz)}** | **${eur(k)}** | **${eur(k + sz)}** | |\n\n` +
+          (ann ? 'Beim **Annuitätendarlehen** bleibt die Rate gleich; der Zinsanteil sinkt, der Tilgungsanteil steigt von Jahr zu Jahr.' : 'Beim **Abzahlungsdarlehen** ist die Tilgung gleich; weil die Restschuld sinkt, sinken Zinsen und Jahresrate.') +
+          ` Die Finanzierungskosten (Zinsen) betragen insgesamt **${eur(sz)}**.`,
+      };
+      return finishTable(q);
+    }
+    // d === 3: Darlehen vs. Leasing mit Kaufoption, Preis brutto gegeben
+    const netto = k;
+    const brutto = netto + pctOf(netto, 19);
+    const months = n * 12;
+    const lf = rng.pick(n === 3 ? [2.8, 2.9, 3.0, 3.1] : n === 4 ? [2.2, 2.3, 2.4, 2.5] : [1.8, 1.9, 2.0, 2.1]); // realistische Leasingfaktoren je Laufzeit
+    const rate = Math.round((netto * lf) / 100);
+    const rwp = rng.pick([5, 10, 15]);
+    const rw = pctOf(netto, rwp);
+    const plan = abzahlung(netto, n, i);
+    const zins = plan.reduce((s, p) => s + p.z, 0);
+    const kD = netto + zins;
+    const lRates = rate * months;
+    const kL = lRates + rw;
+    const better = kD < kL ? 'Darlehen' : 'Leasing';
+    const rows = [
+      ...valueRows([
+        { label: 'Anschaffungspreis netto', v: netto },
+        { label: 'Zinsen gesamt (Abzahlungsdarlehen)', v: zins },
+        { label: 'Gesamtkosten Kauf mit Darlehen', v: kD },
+        { label: 'Leasingraten gesamt', v: lRates },
+        { label: 'Kaufpreis bei Ausübung der Kaufoption', v: rw },
+        { label: 'Gesamtkosten Leasing inkl. Kaufoption', v: kL },
+        { label: 'Kostenvorteil der günstigeren Variante', v: Math.abs(kD - kL) },
+      ]),
+      { label: 'günstigere Variante (Darlehen / Leasing)', cells: { t: { answer: better, accept: better === 'Darlehen' ? ['kauf mit darlehen', 'kredit', 'darlehen', 'kauf'] : ['leasing', 'leasing mit kaufoption'] } } },
+    ];
+    return finishTable({
+      id: gid('w.finanzierung'), generated: true, kind: 'table', skill: 'w.finanzierung', difficulty: d,
+      prompt: `Die Elektro Krämer GmbH (vorsteuerabzugsberechtigt) will ${what} anschaffen. Das Angebot des Systemhauses lautet über **${eur(brutto)} brutto** (inkl. 19 % USt). Zwei Finanzierungen stehen zur Wahl:\n\n| | Kauf mit Abzahlungsdarlehen | Leasing mit Kaufoption |\n|---|---|---|\n| Betrag / Grundlage | Darlehen über den **Nettopreis** | Leasingrate **${deN(lf, 1)} % des Nettopreises pro Monat** |\n| Laufzeit | ${n} Jahre, gleiche jährliche Tilgung | ${months} Monate |\n| Kosten | ${i} % Zinsen p. a. vom Restschuldstand am Jahresanfang | Kaufoption am Ende: **${rwp} % des Nettopreises** |\n| Eigentum | sofort beim Unternehmen | beim Leasinggeber, nach Ausübung der Kaufoption beim Unternehmen |\n\nVergleiche die Gesamtkosten (beide Varianten enden mit Eigentum an den Geräten). Beträge auf Cent.`,
+      columns: [
+        { key: 'v', label: 'Betrag (€)', type: 'number' },
+        { key: 't', label: 'Antwort', type: 'text' },
+      ],
+      rows,
+      misconceptions: [
+        { cell: '0:v', answer: cs(brutto), error: 'w-ust-kosten', why: 'Die Umsatzsteuer ist für ein vorsteuerabzugsberechtigtes Unternehmen kein Kostenbestandteil: Netto = Brutto ÷ 1,19.' },
+        { cell: '1:v', answer: cs(pctOf(netto, i) * n), error: 'w-zins-anfangsschuld', why: 'Zinsen nur vom Restschuldstand am Jahresanfang – die Restschuld sinkt jedes Jahr.' },
+        { cell: '3:v', answer: cs(Math.round((brutto * lf) / 100) * months), error: 'w-leasing-brutto', why: 'Der Leasingsatz bezieht sich laut Angebot auf den **Nettopreis**.' },
+        { cell: '5:v', answer: cs(lRates), error: 'w-kaufoption-vergessen', why: 'Für einen fairen Vergleich (am Ende Eigentum) gehört der Kaufpreis der Kaufoption dazu.' },
+      ],
+      hints: ['Netto = Brutto ÷ 1,19.', 'Darlehen: Tilgung = Netto ÷ Jahre; Zinsen jedes Jahr von der Restschuld. Leasing: Rate × Monate + Kaufoption.'],
+      explanation: `**Nettopreis:** ${eur(brutto)} ÷ 1,19 = **${eur(netto)}**\n\n**Darlehen:**\n\n| Jahr | Restschuld Anfang | Zinsen ${i} % | Tilgung |\n|---|---:|---:|---:|\n${plan.map((p, j) => `| ${j + 1} | ${eur(p.rs)} | ${eur(p.z)} | ${eur(p.t)} |`).join('\n')}\n\nZinsen gesamt **${eur(zins)}** → Gesamtkosten ${eur(netto)} + ${eur(zins)} = **${eur(kD)}**\n\n**Leasing:** Rate ${eur(netto)} × ${deN(lf, 1)} % = ${eur(rate)} pro Monat × ${months} = ${eur(lRates)} + Kaufoption ${eur(rw)} = **${eur(kL)}**\n\n**Ergebnis:** ${better} ist um **${eur(Math.abs(kD - kL))}** günstiger. In der Begründung gehören auch Liquidität (Leasing bindet kein Kapital, Darlehen belastet die Kreditlinie), Bilanz (Leasinggut meist beim Leasinggeber bilanziert) und Flexibilität dazu.`,
+    });
+  },
+};
+
+/* ------------------------------------------------------------------ */
+/* w03: Tarife vergleichen – Cloud-Blöcke, Servicevertrag, Break-even  */
+/* ------------------------------------------------------------------ */
+
+function serviceParams(rng: Rng) {
+  for (let t = 0; t < 300; t++) {
+    const G = rng.pick([19900, 29900, 39900, 49900, 55900, 69900]);
+    const h0 = rng.pick([2, 3, 4, 6, 8]);
+    const s = rng.pick([5500, 6000, 6500, 7000, 7500]);
+    const a = rng.pick([8500, 8900, 9500, 9900, 11000]);
+    const vert = (h: number) => G + Math.max(0, h - h0) * s;
+    const einz = (h: number) => h * a;
+    let hs = -1;
+    for (let h = 0; h <= 60; h++) if (vert(h) < einz(h)) { hs = h; break; }
+    if (hs >= 2 && hs <= 25) return { G, h0, s, a, vert, einz, hs };
+  }
+  throw new Error('serviceParams');
+}
+
+const tarif: GeneratorMeta = {
+  id: 'w.tarif',
+  title: 'Tarife vergleichen: Blockpreise und Break-even',
+  skill: 'w.tarifvergleich',
+  module: 'w03',
+  make(rng, d) {
+    const servicePrompt = (p: ReturnType<typeof serviceParams>) => `Ein Kunde des IT-Systemhauses (Steuerbüro, 12 Arbeitsplätze) überlegt, einen Servicevertrag abzuschließen. Preisliste (alle Preise netto):\n\n| | Servicevertrag „Basic“ | Einzelabrechnung |\n|---|---|---|\n| Grundgebühr | ${eur(p.G)} pro Monat, enthält **${p.h0} Technikerstunden** | – |\n| Stundensatz | ${eur(p.s)} je weitere Stunde | ${eur(p.a)} je Stunde |\n| nicht genutzte Inklusivstunden | verfallen am Monatsende | – |\n\n`;
+    const cloud = (() => {
+      const m = rng.int(4, 30), S = rng.int(12, 240) * 10 + rng.pick([0, 3, 7]), u = rng.int(5, 60);
+      const A = { grund: rng.pick([4900, 7900, 9900, 14900, 19900]), vm: rng.pick([3900, 4500, 4900, 5500]), blk: rng.pick([450, 590, 690, 890]), user: rng.pick([300, 400, 500, 600]) };
+      const B = { vm: A.vm + rng.pick([1000, 1500, 2000, 2500]), tb: rng.pick([2500, 3200, 3900, 4500]) };
+      const bA = Math.ceil(S / 100), bB = Math.ceil(S / 1000);
+      const cA = (mm: number) => A.grund + mm * A.vm + bA * A.blk + u * A.user;
+      const cB = (mm: number) => mm * B.vm + bB * B.tb;
+      return { m, S, u, A, B, bA, bB, cA, cB };
+    })();
+    const cloudTbl = (c: typeof cloud, withM = true) => `| | Anbieter A – CloudNord | Anbieter B – DataSky |\n|---|---|---|\n| Grundgebühr pro Monat | ${eur(c.A.grund)} | – |\n| je virtuelle Maschine (VM) pro Monat | ${eur(c.A.vm)} | ${eur(c.B.vm)} |\n| Speicher pro Monat | ${eur(c.A.blk)} je **angefangene 100 GB** | ${eur(c.B.tb)} je **angefangenes TB** (1 TB = 1.000 GB) |\n| Benutzerlizenz pro Monat | ${eur(c.A.user)} je Benutzer | inklusive |\n\nBedarf der Elektro Krämer GmbH: ${withM ? `**${c.m} VMs**, ` : ''}**${c.S.toLocaleString('de-DE')} GB** Speicher, **${c.u} Benutzer**.`;
+
+    if (d === 1) {
+      const p = serviceParams(rng);
+      const h = rng.bool(0.3) ? rng.int(0, Math.max(0, p.h0 - 1)) : rng.int(p.h0 + 1, p.h0 + 14);
+      const v = p.vert(h), e = p.einz(h);
+      if (v === e) return tarif.make(rng, d);
+      const better = v < e ? 'Servicevertrag' : 'Einzelabrechnung';
+      return finishTable({
+        id: gid('w.tarif'), generated: true, kind: 'table', skill: 'w.tarifvergleich', difficulty: d,
+        prompt: servicePrompt(p) + `Im März fallen **${h} Technikerstunden** an. Berechne die Kosten beider Varianten für diesen Monat und gib die günstigere an.`,
+        columns: [{ key: 'k', label: 'Kosten März (€)', type: 'number' }, { key: 't', label: 'Antwort', type: 'text' }],
+        rows: [
+          { label: 'Servicevertrag', cells: { k: { answer: cs(v) } } },
+          { label: 'Einzelabrechnung', cells: { k: { answer: cs(e) } } },
+          { label: 'günstigere Variante', cells: { t: { answer: better, accept: better === 'Servicevertrag' ? ['vertrag', 'servicevertrag basic', 'basic'] : ['einzel', 'einzelabrechnung', 'abrechnung nach aufwand'] } } },
+        ],
+        misconceptions: [
+          { cell: '0:k', answer: cs(p.G + h * p.s), error: 'w-inklusivstunden', why: `Die ersten ${p.h0} Stunden sind in der Grundgebühr enthalten – nur die Stunden darüber kosten extra.` },
+          ...(h < p.h0 ? [{ cell: '0:k', answer: cs(Math.round((p.G * h) / p.h0)), error: 'w-inklusivstunden-verfall', why: 'Nicht genutzte Inklusivstunden verfallen – die Grundgebühr ist trotzdem voll zu zahlen.' }] : []),
+        ],
+        hints: [`Vertrag: Grundgebühr + (Stunden − ${p.h0}) × Zusatzstundensatz, aber nie weniger als die Grundgebühr.`, 'Einzelabrechnung: Stunden × Stundensatz.'],
+        explanation: `**Servicevertrag:** ${h <= p.h0 ? `${h} h ≤ ${p.h0} Inklusivstunden → nur die Grundgebühr: **${eur(v)}**` : `${eur(p.G)} + (${h} − ${p.h0}) × ${eur(p.s)} = **${eur(v)}**`}\n\n**Einzelabrechnung:** ${h} × ${eur(p.a)} = **${eur(e)}**\n\n→ In diesem Monat ist **${better}** um ${eur(Math.abs(v - e))} günstiger.${h < p.h0 ? ' Achtung: Die nicht genutzten Inklusivstunden verfallen – die Grundgebühr bleibt gleich.' : ''}`,
+      });
+    }
+    if (d === 2) {
+      const c = cloud;
+      const kA = c.cA(c.m), kB = c.cB(c.m);
+      if (kA === kB) return tarif.make(rng, d);
+      const better = kA < kB ? 'A' : 'B';
+      return finishTable({
+        id: gid('w.tarif'), generated: true, kind: 'table', skill: 'w.tarifvergleich', difficulty: d,
+        prompt: `Die Elektro Krämer GmbH will ihre Testserver in die Cloud verlagern. Zwei Angebote (alle Preise netto):\n\n${cloudTbl(c)}\n\nSpeicher wird je **angefangenem** Block abgerechnet (aufrunden!). Berechne die abgerechneten Speicherblöcke und die **monatlichen Kosten** beider Anbieter und gib den günstigeren Anbieter an (A oder B).`,
+        columns: [{ key: 'b', label: 'Speicherblöcke (Anzahl)', type: 'number' }, { key: 'k', label: 'Kosten pro Monat (€)', type: 'number' }, { key: 't', label: 'Antwort', type: 'text' }],
+        rows: [
+          { label: 'Anbieter A (100-GB-Blöcke)', cells: { b: { answer: String(c.bA) }, k: { answer: cs(kA) } } },
+          { label: 'Anbieter B (TB-Blöcke)', cells: { b: { answer: String(c.bB) }, k: { answer: cs(kB) } } },
+          { label: 'günstigerer Anbieter', cells: { t: { answer: better, accept: [`anbieter ${better.toLowerCase()}`] } } },
+        ],
+        misconceptions: [
+          { cell: '0:b', answer: String(c.S / 100), error: 'w-block-aufrunden', why: 'Abgerechnet wird je **angefangene** 100 GB – auf die nächste ganze Zahl aufrunden.' },
+          { cell: '1:b', answer: String(c.S / 1000), error: 'w-block-aufrunden', why: 'Abgerechnet wird je **angefangenes** TB – auf die nächste ganze Zahl aufrunden.' },
+          { cell: '1:b', answer: String(Math.floor(c.S / 1000)), error: 'w-block-aufrunden', why: 'Abgerundet: Auch ein angefangenes TB wird voll berechnet.' },
+          { cell: '0:k', answer: cs(c.A.grund + c.m * c.A.vm + c.bA * c.A.blk), error: 'w-position-vergessen', why: 'Die Benutzerlizenzen bei Anbieter A fehlen.' },
+        ],
+        hints: [`Blöcke A: ${c.S.toLocaleString('de-DE')} GB ÷ 100 GB, aufrunden.`, 'Kosten = Grundgebühr + VMs × Preis + Blöcke × Preis + Benutzer × Preis.'],
+        explanation: `**Anbieter A:** Blöcke: ${c.S.toLocaleString('de-DE')} ÷ 100 = ${deN(c.S / 100, 2)} → **${c.bA}** · Kosten: ${eur(c.A.grund)} + ${c.m} × ${eur(c.A.vm)} + ${c.bA} × ${eur(c.A.blk)} + ${c.u} × ${eur(c.A.user)} = **${eur(kA)}**\n\n**Anbieter B:** Blöcke: ${c.S.toLocaleString('de-DE')} ÷ 1.000 = ${deN(c.S / 1000, 3)} → **${c.bB}** · Kosten: ${c.m} × ${eur(c.B.vm)} + ${c.bB} × ${eur(c.B.tb)} = **${eur(kB)}**\n\n→ Anbieter **${better}** ist um ${eur(Math.abs(kA - kB))} pro Monat günstiger. Häufiger Fehler: angefangene Blöcke abrunden oder mit Kommazahlen rechnen.`,
+      });
+    }
+    // d === 3: Break-even – Servicevertrag (Stunden) oder Cloud (VMs)
+    if (rng.bool()) {
+      const p = serviceParams(rng);
+      const inside = p.G < p.h0 * p.a; // Break-even innerhalb der Inklusivstunden
+      const x = inside ? p.G / p.a : (p.G - p.h0 * p.s) / (p.a - p.s);
+      return {
+        id: gid('w.tarif'), generated: true, kind: 'number', skill: 'w.tarifvergleich', difficulty: d,
+        prompt: servicePrompt(p) + 'Ab wie vielen **ganzen Technikerstunden pro Monat** ist der Servicevertrag **günstiger** (nicht nur gleich teuer) als die Einzelabrechnung?',
+        answer: p.hs, unit: 'h',
+        misconceptions: cleanMc(p.hs, 0, [
+          { answer: String(Math.floor(x)), error: 'w-break-even-runden', why: 'Beim Break-even sind beide gleich teuer bzw. der Vertrag noch teurer. Gefragt ist die erste ganze Stundenzahl, ab der der Vertrag **günstiger** ist.' },
+          { answer: String(Math.ceil(p.G / p.a)), error: 'w-inklusivstunden', why: 'Nur Grundgebühr ÷ Stundensatz reicht nicht, wenn der Bedarf über den Inklusivstunden liegt – dann kosten die Zusatzstunden extra.' },
+          { answer: String(p.h0), error: 'w-break-even', why: 'Die Zahl der Inklusivstunden ist nicht der Break-even. Setze beide Kostenfunktionen gleich.' },
+        ]),
+        hints: ['Stelle beide Kosten als Funktion der Stunden h auf.', inside ? 'Liegt der Schnittpunkt innerhalb der Inklusivstunden, gilt: Grundgebühr = h × Stundensatz Einzelabrechnung.' : 'Grundgebühr + (h − Inklusivstunden) × Zusatzsatz = h × Einzelsatz.'],
+        explanation: `**Ergebnis: ab ${p.hs} Stunden.**\n\nKosten Vertrag K_V(h) = ${eur(p.G)} + (h − ${p.h0}) × ${eur(p.s)} (für h > ${p.h0}, sonst ${eur(p.G)})\n\nKosten Einzelabrechnung K_E(h) = h × ${eur(p.a)}\n\n` +
+          (inside
+            ? `Schon innerhalb der Inklusivstunden: ${eur(p.G)} = h × ${eur(p.a)} → h = ${deN(x, 2)}`
+            : `${eur(p.G)} + (h − ${p.h0}) × ${eur(p.s)} = h × ${eur(p.a)} → h × (${eur(p.a)} − ${eur(p.s)}) = ${eur(p.G)} − ${p.h0} × ${eur(p.s)} → h = ${eur(p.G - p.h0 * p.s)} ÷ ${eur(p.a - p.s)} = ${deN(x, 2)}`) +
+          `\n\nDie erste ganze Stundenzahl, ab der der Vertrag günstiger ist: **${p.hs} h** (Probe: K_V(${p.hs}) = ${eur(p.vert(p.hs))} < K_E(${p.hs}) = ${eur(p.einz(p.hs))}; bei ${p.hs - 1} h: ${eur(p.vert(p.hs - 1))} ≥ ${eur(p.einz(p.hs - 1))}).`,
+      };
+    }
+    let c = cloud;
+    let ms = -1;
+    for (let t = 0; t < 300; t++) {
+      if (t) {
+        const S = rng.int(12, 240) * 10 + rng.pick([0, 3, 7]), u = rng.int(5, 60);
+        const A = { grund: rng.pick([9900, 14900, 19900, 24900]), vm: rng.pick([3900, 4500, 4900, 5500]), blk: rng.pick([450, 590, 690, 890]), user: rng.pick([300, 400, 500, 600]) };
+        const B = { vm: A.vm + rng.pick([1000, 1500, 2000, 2500]), tb: rng.pick([2500, 3200, 3900, 4500]) };
+        const bA = Math.ceil(S / 100), bB = Math.ceil(S / 1000);
+        c = { m: 0, S, u, A, B, bA, bB, cA: (mm: number) => A.grund + mm * A.vm + bA * A.blk + u * A.user, cB: (mm: number) => mm * B.vm + bB * B.tb };
+      }
+      ms = -1;
+      for (let m = 1; m <= 200; m++) if (c.cA(m) < c.cB(m)) { ms = m; break; }
+      if (ms >= 4 && ms <= 60) break;
+    }
+    const fA = c.cA(0), fB = c.cB(0), dv = c.B.vm - c.A.vm;
+    const x = (fA - fB) / dv;
+    return {
+      id: gid('w.tarif'), generated: true, kind: 'number', skill: 'w.tarifvergleich', difficulty: d,
+      prompt: `Die Elektro Krämer GmbH plant, Server schrittweise in die Cloud zu verlagern. Zwei Angebote (alle Preise netto):\n\n${cloudTbl(c, false)}\n\nSpeicher und Benutzer bleiben gleich, nur die Zahl der VMs wächst. Ab wie vielen **VMs** ist Anbieter A **günstiger** (nicht nur gleich teuer) als Anbieter B? (Speicherblöcke aufrunden)`,
+      answer: ms, unit: 'VMs',
+      misconceptions: cleanMc(ms, 0, [
+        { answer: String(Math.floor(x)), error: 'w-break-even-runden', why: 'Bei dieser VM-Zahl ist A noch nicht günstiger. Gefragt ist die erste ganze Zahl **über** dem Schnittpunkt.' },
+        { answer: String(Math.floor((fA - c.S / 1000 * c.B.tb) / dv) + 1), error: 'w-block-aufrunden', why: 'Speicher wird je **angefangenem** Block berechnet – vorher aufrunden.' },
+      ]),
+      hints: ['Fixkosten je Anbieter: alles außer den VMs (Grundgebühr, Speicherblöcke, Benutzer).', 'Break-even: Fixkosten A + x · VM-Preis A = Fixkosten B + x · VM-Preis B.'],
+      explanation: `**Ergebnis: ab ${ms} VMs.**\n\nFixkosten pro Monat (ohne VMs):\n- A: ${eur(c.A.grund)} + ${c.bA} × ${eur(c.A.blk)} (${c.S.toLocaleString('de-DE')} GB → ${c.bA} angefangene 100-GB-Blöcke) + ${c.u} × ${eur(c.A.user)} = **${eur(fA)}**\n- B: ${c.bB} × ${eur(c.B.tb)} (${c.bB} angefangene${c.bB === 1 ? "s" : ""} TB) = **${eur(fB)}**\n\nBreak-even: ${eur(fA)} + x · ${eur(c.A.vm)} = ${eur(fB)} + x · ${eur(c.B.vm)} → x = (${eur(fA)} − ${eur(fB)}) ÷ (${eur(c.B.vm)} − ${eur(c.A.vm)}) = ${deN(x, 2)}\n\nAb **${ms} VMs** ist A günstiger (Probe: A ${eur(c.cA(ms))} < B ${eur(c.cB(ms))}; bei ${ms - 1} VMs: A ${eur(c.cA(ms - 1))} ≥ B ${eur(c.cB(ms - 1))}). Dahinter steckt: A hat höhere Fixkosten, aber den niedrigeren Preis je VM.`,
+    };
+  },
+};
+
+/* ------------------------------------------------------------------ */
+/* w03: Return on Investment (ROI)                                     */
+/* ------------------------------------------------------------------ */
+
+const ROI_GEWINN = '**ROI = (Summe der Rückflüsse − Investition) ÷ Investition × 100 %**';
+const ROI_BUCH = '**ROI = Summe der Rückflüsse ÷ Investition** (als Faktor; größer als 1 bedeutet: die Investition hat sich gelohnt)';
+
+const roi: GeneratorMeta = {
+  id: 'w.roi',
+  title: 'ROI und Amortisation berechnen',
+  skill: 'w.roi',
+  module: 'w03',
+  make(rng, d) {
+    const what = rng.pick(['ein Ticketsystem mit Self-Service-Portal', 'ein Dokumentenmanagementsystem', 'eine Software-Verteilung für alle Clients', 'eine VoIP-Telefonanlage']);
+    const nd = rng.pick([3, 4, 5]);
+    if (d === 1) {
+      const inv = rng.int(20, 200) * 100000;
+      const e = Math.round((inv * rng.int(25, 60)) / 100 / 100000) * 100000 + rng.pick([0, 50000]);
+      const R = e * nd;
+      const ans = pq(R - inv, inv);
+      return {
+        id: gid('w.roi'), generated: true, kind: 'number', skill: 'w.roi', difficulty: d,
+        prompt: `Die Elektro Krämer GmbH investiert **${eur(inv)}** in ${what}. Dadurch spart sie jedes Jahr **${eur(e)}** (Rückfluss). Die Nutzungsdauer beträgt **${nd} Jahre**.\n\nBerechne den ROI über die Nutzungsdauer mit der Formel ${ROI_GEWINN} (zwei Nachkommastellen).`,
+        answer: ans, tolerance: 0.01, unit: '%',
+        misconceptions: cleanMc(ans, 0.01, [
+          { answer: String(pq(R, inv)), error: 'w-roi-definition', why: 'Du hast Rückflüsse ÷ Investition gerechnet. Laut vorgegebener Formel wird vorher die Investition abgezogen (Gewinn ÷ Investition).' },
+          { answer: String(pq(e - inv, inv)), error: 'w-laufzeit', why: 'Die Rückflüsse fallen in **jedem** Jahr der Nutzungsdauer an: jährlicher Rückfluss × Jahre.' },
+          { answer: String(pq(R - inv, R)), error: 'w-prozent-bezugsgroesse', why: 'Grundwert ist die **Investition**, nicht die Summe der Rückflüsse.' },
+        ]),
+        hints: ['Rückflüsse gesamt = jährliche Einsparung × Nutzungsdauer.', 'Gewinn = Rückflüsse − Investition; ROI = Gewinn ÷ Investition × 100.'],
+        explanation: `**Ergebnis: ${deN(ans, 2)} %.**\n\n1. Rückflüsse gesamt: ${eur(e)} × ${nd} = ${eur(R)}\n2. Gewinn aus der Investition: ${eur(R)} − ${eur(inv)} = ${eur(R - inv)}\n3. ROI = ${eur(R - inv)} ÷ ${eur(inv)} × 100 = **${deN(ans, 2)} %**\n\nManche Schulbücher rechnen ROI = Rückflüsse ÷ Investition = ${deN(qn(R, inv), 2)} (Faktor). Beides beschreibt dasselbe; in der Prüfung gilt immer die Formel aus der Aufgabe.`,
+      };
+    }
+    // d2/d3: Tabelle mit Rückflüssen, ROI (Faktor bzw. %) und Amortisation
+    let inv: number, save: number, cost: number, invTxt: string, saveTxt: string;
+    let invExpl = '', wrongNet = 0;
+    if (d === 2) {
+      inv = rng.int(30, 150) * 100000;
+      save = rng.int(15, 60) * 100000;
+      cost = rng.int(2, 10) * 100000;
+      invTxt = `Investition: **${eur(inv)}**`;
+      saveTxt = `jährliche Einsparungen **${eur(save)}**, neue laufende Kosten (Wartung, Lizenzen) **${eur(cost)} pro Jahr**`;
+    } else {
+      const hw = rng.int(20, 90) * 100000, hb = rng.int(20, 80), sb = rng.pick([9500, 11000, 12000]), sch = rng.int(2, 8) * 100000;
+      const hS = rng.int(30, 120), sat = rng.pick([4500, 5200, 5800]), wart = rng.int(3, 12) * 100000, lic = rng.int(2, 9) * 100000;
+      inv = hw + hb * sb + sch;
+      save = hS * 12 * sat + wart;
+      cost = lic;
+      wrongNet = hS * sat + wart - lic;
+      invExpl = `Investition: ${eur(hw)} + ${hb} h × ${eur(sb)} (${eur(hb * sb)}) + ${eur(sch)} = **${eur(inv)}**\n\nEinsparung pro Jahr: ${hS} h × 12 × ${eur(sat)} (${eur(hS * 12 * sat)}) + ${eur(wart)} = ${eur(save)}\n\n`;
+      invTxt = `| Investition | Betrag |\n|---|---:|\n| Hard- und Software | ${eur(hw)} |\n| Einrichtung und Beratung durch das Systemhaus | ${hb} h × ${eur(sb)} |\n| Schulung der Mitarbeitenden | ${eur(sch)} |`;
+      saveTxt = `| Jährliche Wirkung | Betrag |\n|---|---:|\n| eingesparte Arbeitszeit | ${hS} h pro Monat × ${eur(sat)} (interner Stundensatz) |\n| entfallender Wartungsvertrag der Altanlage | ${eur(wart)} pro Jahr |\n| neue Lizenz- und Supportkosten | − ${eur(lic)} pro Jahr |`;
+    }
+    const net = save - cost;
+    if (net <= 0) return roi.make(rng, d);
+    const R = net * nd;
+    const fac = qn(R, inv);
+    const rp = pq(R - inv, inv);
+    const am = qn(inv * 12, net, 1);
+    const rows: Row[] = [
+      ...(d === 3 ? [{ label: 'Investition gesamt (€)', v: inv }] : []),
+      { label: 'jährlicher Rückfluss netto (€)', v: net },
+      { label: `Rückflüsse über ${nd} Jahre (€)`, v: R },
+      d === 2 ? { label: 'ROI als Faktor (zwei Nachkommastellen)', v: fac, n: 2 } : { label: 'ROI in % (zwei Nachkommastellen)', v: rp, n: 2 },
+      { label: 'Amortisationsdauer in Monaten (eine Nachkommastelle)', v: am, n: 1 },
+    ];
+    const iR = rows.length - 2, iA = rows.length - 1;
+    return finishTable({
+      id: gid('w.roi'), generated: true, kind: 'table', skill: 'w.roi', difficulty: d,
+      prompt: `Die Elektro Krämer GmbH prüft eine Investition in ${what} (Nutzungsdauer **${nd} Jahre**, alle Beträge netto).\n\n${d === 3 ? `${invTxt}\n\n${saveTxt}` : `${invTxt}; ${saveTxt}.`}\n\nFormeln: ${d === 2 ? ROI_BUCH : ROI_GEWINN} · **Amortisationsdauer (Monate) = Investition ÷ monatlicher Rückfluss** (monatlicher Rückfluss = jährlicher Rückfluss ÷ 12).\n\nVervollständige die Tabelle.`,
+      columns: [{ key: 'v', label: 'Wert', type: 'number' }],
+      rows: valueRows(rows),
+      misconceptions: [
+        { cell: `${d === 3 ? 1 : 0}:v`, answer: cs(save), error: 'w-kosten-unvollstaendig', why: 'Neue laufende Kosten verringern den Rückfluss: Einsparungen − neue Kosten.' },
+        ...(d === 3 ? [{ cell: '1:v', answer: cs(wrongNet), error: 'w-einheit-zeit', why: 'Die Arbeitszeitersparnis ist pro **Monat** angegeben – mal 12 für das Jahr.' }] : []),
+        { cell: `${iR}:v`, answer: String(pq(R, inv)), error: 'w-roi-definition', why: d === 2 ? 'Laut Formel ist der ROI hier ein **Faktor** (z. B. 1,85), keine Prozentzahl.' : 'Laut Formel wird die Investition vorher von den Rückflüssen abgezogen.' },
+        { cell: `${iA}:v`, answer: String(qn(inv, net, 1)), error: 'w-einheit-zeit', why: 'Das ist die Amortisationsdauer in **Jahren**. Gefragt sind Monate.' },
+      ],
+      hints: ['Rückfluss netto = Einsparungen − neue laufende Kosten.', 'Amortisationsdauer = Investition ÷ (jährlicher Rückfluss ÷ 12).'],
+      explanation: `${invExpl}1. Jährlicher Rückfluss: ${eur(save)} − ${eur(cost)} = **${eur(net)}**\n2. Rückflüsse über ${nd} Jahre: ${eur(net)} × ${nd} = **${eur(R)}**\n3. ${d === 2 ? `ROI (Faktor) = ${eur(R)} ÷ ${eur(inv)} = **${deN(fac, 2)}**` : `ROI = (${eur(R)} − ${eur(inv)}) ÷ ${eur(inv)} × 100 = **${deN(rp, 2)} %**`}\n4. Amortisationsdauer: ${eur(inv)} ÷ (${eur(net)} ÷ 12) = **${deN(am, 1)} Monate** (≈ ${deN(am / 12, 1)} Jahre)\n\nBewertung: ${R > inv ? `Die Investition hat sich innerhalb der Nutzungsdauer amortisiert (${deN(am, 1)} Monate < ${nd * 12} Monate).` : 'Die Rückflüsse decken die Investition innerhalb der Nutzungsdauer nicht – rein wirtschaftlich lohnt sie sich nicht.'}`,
+    });
+  },
+};
+
+/* ------------------------------------------------------------------ */
+/* w03: Prozentvergleiche und KPI-Veränderungen                        */
+/* ------------------------------------------------------------------ */
+
+const KPI1 = [
+  { n: 'Anzahl der Störungstickets im Quartal', u: 'Tickets', f: 0, lo: 180, hi: 900 },
+  { n: 'durchschnittliche Lösungszeit eines Tickets', u: 'h', f: 1, lo: 20, hi: 160 },
+  { n: 'gedruckte Seiten pro Monat in der Verwaltung', u: 'Seiten', f: 0, lo: 8000, hi: 40000 },
+  { n: 'Stromkosten des Serverraums pro Quartal', u: '€', f: 2, lo: 120000, hi: 600000 },
+];
+
+const veraenderung: GeneratorMeta = {
+  id: 'w.veraenderung',
+  title: 'Prozentuale Veränderung und Unterschiede (Bezugsgröße)',
+  skill: 'w.prozentvergleich',
+  module: 'w03',
+  make(rng, d) {
+    if (d === 1) {
+      const k = rng.pick(KPI1);
+      const v = rng.int(k.lo, k.hi);
+      let a = v;
+      while (a === v || Math.abs(a - v) < v * 0.03) a = Math.round(v * (1 + (rng.pick([-1, 1]) * rng.int(4, 45)) / 100));
+      const sc = 10 ** k.f;
+      const fmt = (x: number) => `${deN(x / sc, k.f)} ${k.u}`;
+      const ans = pq(a - v, v, 1);
+      return {
+        id: gid('w.veraenderung'), generated: true, kind: 'number', skill: 'w.prozentvergleich', difficulty: d,
+        prompt: `Kennzahl der IT-Abteilung der Elektro Krämer GmbH: **${k.n}**\n\n| Vorjahr | aktuelles Jahr |\n|---|---|\n| ${fmt(v)} | ${fmt(a)} |\n\nUm wie viel **Prozent** hat sich die Kennzahl gegenüber dem Vorjahr verändert? Gib das Ergebnis **mit Vorzeichen** (Zunahme +, Abnahme -) auf eine Nachkommastelle an. Bezugsgröße ist der Vorjahreswert.`,
+        answer: ans, tolerance: 0.05, unit: '%',
+        misconceptions: cleanMc(ans, 0.05, [
+          { answer: String(pq(a - v, a, 1)), error: 'w-prozent-bezugsgroesse', why: 'Falsche Bezugsgröße: Die Veränderung wird auf den **Ausgangswert** (Vorjahr) bezogen, nicht auf den neuen Wert.' },
+          { answer: String(-ans), error: 'w-vorzeichen', why: 'Vorzeichen prüfen: Ist der neue Wert kleiner als der alte, ist die Veränderung negativ (Abnahme).' },
+          { answer: String(pq(a, v, 1)), error: 'w-prozent-veraenderung', why: 'Das ist der neue Wert in Prozent des alten. Die Veränderung ist dieser Wert minus 100 %.' },
+        ]),
+        hints: ['Veränderung = (neuer Wert − alter Wert) ÷ alter Wert × 100.', 'Wird der Wert kleiner, ist das Ergebnis negativ.'],
+        explanation: `**Ergebnis: ${sgn(ans)} %.**\n\n(${fmt(a)} − ${fmt(v)}) ÷ ${fmt(v)} × 100 = ${sgn((a - v) / sc, k.f)} ÷ ${deN(v / sc, k.f)} × 100 = **${sgn(ans)} %**\n\nHäufiger Fehler: durch den neuen Wert teilen. Grundwert (100 %) ist immer der Ausgangswert.`,
+      };
+    }
+    if (d === 2) {
+      const pA = rng.int(80, 600) * 1000 + rng.pick([0, 500, 900]);
+      const b = Math.round(pA - (rng.int(3, 25) * pA) / 100) - rng.pick([0, 300, 700]);
+      const cheaper = rng.bool();
+      const ans = cheaper ? pq(pA - b, pA) : pq(pA - b, b);
+      return {
+        id: gid('w.veraenderung'), generated: true, kind: 'number', skill: 'w.prozentvergleich', difficulty: d,
+        prompt: `Für die neue WLAN-Ausleuchtung liegen zwei Angebote vor (Bezugspreise netto): **Angebot A ${eur(pA)}**, **Angebot B ${eur(b)}**.\n\n${cheaper ? '**Um wie viel Prozent ist Angebot B günstiger als Angebot A?**' : '**Um wie viel Prozent ist Angebot A teurer als Angebot B?**'} (zwei Nachkommastellen)`,
+        answer: ans, tolerance: 0.01, unit: '%',
+        misconceptions: cleanMc(ans, 0.01, [
+          { answer: String(cheaper ? pq(pA - b, b) : pq(pA - b, pA)), error: 'w-prozent-bezugsgroesse', why: cheaper ? '„B ist günstiger **als A**“ – Bezugsgröße (100 %) ist das Vergleichsobjekt A, also der teurere Preis.' : '„A ist teurer **als B**“ – Bezugsgröße (100 %) ist das Vergleichsobjekt B, also der günstigere Preis.' },
+          { answer: cs(pA - b), error: 'w-euro-statt-prozent', why: 'Das ist der Unterschied in Euro. Gefragt ist der Unterschied in Prozent.' },
+        ]),
+        hints: ['Was steht nach dem Wort „als“? Das ist die Bezugsgröße (100 %).', 'Unterschied in % = Differenz ÷ Bezugsgröße × 100.'],
+        explanation: `**Ergebnis: ${deN(ans, 2)} %.**\n\nDifferenz: ${eur(pA)} − ${eur(b)} = ${eur(pA - b)}\n\n${cheaper ? `Bezugsgröße ist **A** (${eur(pA)}): ${eur(pA - b)} ÷ ${eur(pA)} × 100 = **${deN(ans, 2)} %**` : `Bezugsgröße ist **B** (${eur(b)}): ${eur(pA - b)} ÷ ${eur(b)} × 100 = **${deN(ans, 2)} %**`}\n\nDieselbe Differenz ergibt je nach Bezugsgröße zwei verschiedene Prozentwerte (${deN(pq(pA - b, pA), 2)} % bzw. ${deN(pq(pA - b, b), 2)} %). Deshalb in jeder Antwort die Bezugsgröße nennen.`,
+      };
+    }
+    // d === 3: KPI-Tabelle mit Schulnote und Prozentpunkten (Werte in Zehnteln)
+    const fl = rng.int(550, 850), fl2 = fl + rng.pick([-1, 1]) * rng.int(25, 120);
+    const wo = rng.int(40, 140), wo2 = wo + rng.pick([-1, 1]) * rng.int(8, 40);
+    const zn = rng.int(18, 34), zn2 = zn + rng.pick([-1, 1]) * rng.int(2, 7);
+    const lz = rng.int(60, 240), lz2 = lz + rng.pick([-1, 1]) * rng.int(10, 60);
+    const items = [
+      { n: 'Erstlösungsquote (%)', v: fl, a: fl2, up: true },
+      { n: 'Quote wieder geöffneter Tickets (%)', v: wo, a: wo2, up: false },
+      { n: 'Kundenzufriedenheit (Schulnote 1–6)', v: zn, a: zn2, up: false },
+      { n: 'mittlere Lösungszeit (h)', v: lz, a: lz2, up: false },
+    ];
+    const ch = items.map((it) => pq(it.a - it.v, it.v, 1));
+    const ev = items.map((it) => ((it.a > it.v) === it.up ? 'besser' : 'schlechter'));
+    const acc = (e: string) => (e === 'besser' ? ['verbessert', 'verbesserung', 'positiv'] : ['verschlechtert', 'verschlechterung', 'negativ']);
+    const pp = (fl2 - fl) / 10;
+    const rows = [
+      ...items.map((it, i) => ({ label: it.n, cells: { v: { answer: String(ch[i]), accept: near(ch[i], 1) }, b: { answer: ev[i], accept: acc(ev[i]) } } })),
+      { label: 'Erstlösungsquote: Veränderung in Prozentpunkten', cells: { v: { answer: String(pp) } } },
+    ];
+    return finishTable({
+      id: gid('w.veraenderung'), generated: true, kind: 'table', skill: 'w.prozentvergleich', difficulty: d,
+      prompt: `Auswertung des IT-Servicedesks der Elektro Krämer GmbH:\n\n| Kennzahl | Vorjahr | aktuelles Jahr |\n|---|---|---|\n${items.map((it) => `| ${it.n} | ${de1(it.v / 10)} | ${de1(it.a / 10)} |`).join('\n')}\n\nBerechne für jede Kennzahl die **relative Veränderung in %** gegenüber dem Vorjahr (mit Vorzeichen, Minus als - eingeben, eine Nachkommastelle) und bewerte sie mit **besser** oder **schlechter**. Gib zusätzlich die Veränderung der Erstlösungsquote in **Prozentpunkten** an.`,
+      columns: [{ key: 'v', label: 'Veränderung', type: 'number' }, { key: 'b', label: 'Bewertung', type: 'text' }],
+      rows,
+      misconceptions: [
+        { cell: '0:v', answer: String(pp), error: 'w-prozentpunkte', why: 'Das ist die Differenz in **Prozentpunkten**. Gefragt ist die relative Veränderung: Differenz ÷ Vorjahreswert × 100.' },
+        { cell: '1:v', answer: String((wo2 - wo) / 10), error: 'w-prozentpunkte', why: 'Das ist die Differenz in **Prozentpunkten**. Gefragt ist die relative Veränderung in %.' },
+        { cell: '4:v', answer: String(ch[0]), error: 'w-prozentpunkte', why: 'Prozentpunkte sind die einfache Differenz zweier Prozentwerte, keine relative Veränderung.' },
+        { cell: '2:b', answer: ev[2] === 'besser' ? 'schlechter' : 'besser', error: 'w-schulnote', why: 'Bei Schulnoten ist ein **kleinerer** Wert besser: Sinkt die Note, hat sich die Zufriedenheit verbessert.' },
+      ],
+      hints: ['Relative Veränderung = (neu − alt) ÷ alt × 100.', 'Bei Schulnoten, Lösungszeit und Wiedereröffnungen gilt: weniger ist besser.'],
+      explanation: items.map((it, i) => `**${it.n}:** (${de1(it.a / 10)} − ${de1(it.v / 10)}) ÷ ${de1(it.v / 10)} × 100 = **${sgn(ch[i])} %** → **${ev[i]}**`).join('\n\n') +
+        `\n\n**Prozentpunkte:** ${de1(fl2 / 10)} % − ${de1(fl / 10)} % = **${sgn(pp)} Prozentpunkte** (die relative Veränderung beträgt ${sgn(ch[0])} %).\n\nHäufige Fehler: Prozentpunkte und Prozent verwechseln; bei der Schulnote „gesunken = schlechter“ annehmen.`,
+    });
+  },
+};
+
+/* ------------------------------------------------------------------ */
+/* w03: Eigenerstellung oder Fremdbezug (Make or Buy)                  */
+/* ------------------------------------------------------------------ */
+
+/** p = Fremdbezugspreis, diff = p − variable Kosten (Cent), x = kritische Menge (ganzzahlig für d1) */
+const MOB = [
+  { n: 'Patchkabel (Cat 6A, 3 m)', u: 'Kabel', fixTxt: 'Crimpzange, Kabeltester und Einweisung', fixItems: ['Crimpzange und Abisolierwerkzeug', 'Kabeltester', 'Einweisung der Azubis'], p: () => 0, pr: [690, 1290], diffs: [150, 200, 250, 300, 350, 400], xr: [10, 60], xs: 20, mat: [180, 320], min: [4, 8] },
+  { n: 'vorinstallierte Arbeitsplatz-PCs (Montage + Image)', u: 'PCs', fixTxt: 'Montagearbeitsplatz und Deployment-Server', fixItems: ['Montagearbeitsplatz mit ESD-Ausstattung', 'Deployment-Server für Images', 'Schulung Deployment-Software'], p: () => 0, pr: [749, 999], diffs: [2500, 3000, 4000, 5000, 6000], xr: [4, 30], xs: 5, mat: [62000, 78000], min: [45, 90] },
+  { n: 'Wandhalterungen für Access Points (3D-Druck)', u: 'Halterungen', fixTxt: '3D-Drucker und Konstruktion', fixItems: ['3D-Drucker', 'Konstruktion der Halterung (CAD)', 'Probedrucke'], p: () => 0, pr: [149, 299], diffs: [400, 500, 600, 700, 800, 900], xr: [10, 60], xs: 10, mat: [250, 600], min: [3, 6] },
+] as const;
+
+const makeOrBuy: GeneratorMeta = {
+  id: 'w.makeorbuy',
+  title: 'Eigenerstellung oder Fremdbezug (kritische Menge)',
+  skill: 'w.amortisation',
+  module: 'w03',
+  make(rng, d) {
+    const pr = rng.pick([...MOB]);
+    const intro = `Das IT-Systemhaus überlegt, **${pr.n}** künftig selbst herzustellen (Eigenerstellung), statt sie fertig beim Distributor zu kaufen (Fremdbezug).`;
+    if (d === 1 || d === 2) {
+      const diff = rng.pick([...pr.diffs]);
+      const x = rng.int(pr.xr[0], pr.xr[1]) * pr.xs;
+      const fix = x * diff;
+      // Fremdpreis in Cent; für PCs/Halterungen ganze bzw. 10-Cent-Beträge
+      const p = pr.u === 'PCs' ? rng.int(pr.pr[0], pr.pr[1]) * 100 : pr.u === 'Kabel' ? rng.int(pr.pr[0] / 10, pr.pr[1] / 10) * 10 : rng.int(pr.pr[0], pr.pr[1]) * 10;
+      const v = p - diff;
+      const tbl = `| | Eigenerstellung | Fremdbezug |\n|---|---|---|\n| Fixkosten (${pr.fixTxt}) | ${eur(fix)} | – |\n| Kosten je Stück | ${eur(v)} (Material und Arbeitszeit) | ${eur(p)} (Einkaufspreis) |`;
+      if (d === 1) {
+        return {
+          id: gid('w.makeorbuy'), generated: true, kind: 'number', skill: 'w.amortisation', difficulty: d,
+          prompt: `${intro}\n\n${tbl}\n\nBei welcher Menge (**kritische Menge**) sind beide Varianten **gleich teuer**? Gib die Stückzahl an.`,
+          answer: x, unit: pr.u,
+          misconceptions: cleanMc(x, 0, [
+            { answer: String(qn(fix, p)), error: 'w-kritische-menge', why: 'Durch den Fremdbezugspreis allein geteilt. Jedes selbst hergestellte Stück spart nur die **Differenz** aus Fremdpreis und variablen Kosten.' },
+            { answer: String(qn(fix, v)), error: 'w-kritische-menge', why: 'Durch die variablen Kosten geteilt. Die Fixkosten werden durch die **Ersparnis je Stück** (Fremdpreis − variable Kosten) gedeckt.' },
+          ]),
+          hints: ['Ansatz: Fixkosten + x · variable Kosten = x · Fremdpreis.', 'x = Fixkosten ÷ (Fremdpreis − variable Kosten).'],
+          explanation: `**Ergebnis: ${x} ${pr.u}.**\n\nAnsatz: ${eur(fix)} + x · ${eur(v)} = x · ${eur(p)}\n\nx = ${eur(fix)} ÷ (${eur(p)} − ${eur(v)}) = ${eur(fix)} ÷ ${eur(diff)} = **${x}**\n\nProbe: Eigenerstellung ${eur(fix)} + ${x} × ${eur(v)} = ${eur(fix + x * v)}; Fremdbezug ${x} × ${eur(p)} = ${eur(x * p)} ✔\n\nUnterhalb dieser Menge ist der Fremdbezug günstiger, darüber die Eigenerstellung.\n\nHäufiger Fehler: die Fixkosten durch den Fremdpreis teilen statt durch die Ersparnis je Stück.`,
+        };
+      }
+      let m = x;
+      while (Math.abs(m - x) < x * 0.2) m = Math.max(1, Math.round(x * (rng.bool() ? rng.int(30, 75) : rng.int(130, 220)) / 100));
+      const e = fix + m * v, f = m * p;
+      const better = e < f ? 'Eigenerstellung' : 'Fremdbezug';
+      return finishTable({
+        id: gid('w.makeorbuy'), generated: true, kind: 'table', skill: 'w.amortisation', difficulty: d,
+        prompt: `${intro}\n\n${tbl}\n\nIm nächsten Jahr werden **${m} ${pr.u}** benötigt. Berechne die Gesamtkosten beider Varianten (auf Cent) und entscheide.`,
+        columns: [{ key: 'k', label: 'Gesamtkosten (€)', type: 'number' }, { key: 't', label: 'Antwort', type: 'text' }],
+        rows: [
+          { label: 'Eigenerstellung', cells: { k: { answer: cs(e) } } },
+          { label: 'Fremdbezug', cells: { k: { answer: cs(f) } } },
+          { label: 'günstigere Variante', cells: { t: { answer: better, accept: better === 'Eigenerstellung' ? ['eigenfertigung', 'selbst herstellen', 'make'] : ['fremdbezug', 'kauf', 'zukauf', 'buy'] } } },
+        ],
+        misconceptions: [
+          { cell: '0:k', answer: cs(m * v), error: 'w-fixkosten-vergessen', why: `Die Fixkosten (${eur(fix)}) fallen bei der Eigenerstellung zusätzlich an.` },
+        ],
+        hints: ['Eigenerstellung = Fixkosten + Menge × variable Kosten.', 'Fremdbezug = Menge × Einkaufspreis.'],
+        explanation: `**Ergebnis: ${better} ist um ${eur(Math.abs(e - f))} günstiger.**\n\nEigenerstellung: ${eur(fix)} + ${m} × ${eur(v)} = **${eur(e)}**\n\nFremdbezug: ${m} × ${eur(p)} = **${eur(f)}**\n\nKontrolle über die kritische Menge: ${eur(fix)} ÷ ${eur(diff)} = ${x} ${pr.u}. Der Bedarf von ${m} liegt ${m > x ? 'darüber → Eigenerstellung' : 'darunter → Fremdbezug'}.\n\nHäufiger Fehler: die Fixkosten der Eigenerstellung weglassen.`,
+      });
+    }
+    // d === 3: Fixkosten aus Positionen, variable Kosten aus Material + Arbeitszeit, kritische Menge nicht ganzzahlig
+    const rate = rng.pick([4200, 4800, 5400, 6000]);
+    const mat = rng.int(pr.mat[0], pr.mat[1]) * (pr.u === 'PCs' ? 1 : 1);
+    const mn = rng.int(pr.min[0], pr.min[1]);
+    const lab = (mn * rate) / 60;
+    const v = mat + lab;
+    const diff = rng.pick([...pr.diffs]) + rng.int(1, 9) * (pr.u === 'PCs' ? 100 : 10);
+    const p = v + diff;
+    const target = rng.int(pr.xr[0], pr.xr[1]) * pr.xs;
+    const parts = [0.5, 0.3, 0.2].map((s) => Math.round((target * diff * s) / 1000) * 1000);
+    const fix = parts.reduce((a, b) => a + b, 0);
+    const x = qn(fix, diff);
+    const ms = Math.floor(fix / diff) + 1;
+    let m = ms;
+    while (Math.abs(m - ms) < ms * 0.2) m = Math.max(1, Math.round(ms * (rng.bool() ? rng.int(40, 75) : rng.int(130, 200)) / 100));
+    const better = m >= ms ? 'Eigenerstellung' : 'Fremdbezug';
+    return finishTable({
+      id: gid('w.makeorbuy'), generated: true, kind: 'table', skill: 'w.amortisation', difficulty: d,
+      prompt: `${intro}\n\n**Eigenerstellung – einmalige Fixkosten:**\n\n| Position | Betrag |\n|---|---|\n${pr.fixItems.map((t, i) => `| ${t} | ${eur(parts[i])} |`).join('\n')}\n\n**Eigenerstellung – je Stück:** Material ${eur(mat)}, Arbeitszeit **${mn} Minuten** zu einem Stundensatz von ${eur(rate)}.\n\n**Fremdbezug:** ${eur(p)} je Stück.\n\nBerechne die Fixkosten, die variablen Kosten je Stück und die kritische Menge (zwei Nachkommastellen). Gib an, ab welcher **ganzen Stückzahl** die Eigenerstellung **günstiger** (nicht nur gleich teuer) ist, und entscheide für einen Jahresbedarf von **${m} ${pr.u}**.`,
+      columns: [{ key: 'v', label: 'Wert', type: 'number' }, { key: 't', label: 'Antwort', type: 'text' }],
+      rows: [
+        { label: 'Fixkosten gesamt (€)', cells: { v: { answer: cs(fix) } } },
+        { label: 'variable Kosten je Stück (€)', cells: { v: { answer: cs(v), accept: acceptCent(v) } } },
+        { label: 'kritische Menge (Stück)', cells: { v: { answer: String(x), accept: near(x) } } },
+        { label: 'Eigenerstellung günstiger ab (Stück)', cells: { v: { answer: String(ms) } } },
+        { label: `Entscheidung bei ${m} ${pr.u}`, cells: { t: { answer: better, accept: better === 'Eigenerstellung' ? ['eigenfertigung', 'selbst herstellen', 'make'] : ['fremdbezug', 'kauf', 'zukauf', 'buy'] } } },
+      ],
+      misconceptions: [
+        { cell: '1:v', answer: cs(mat), error: 'w-variable-kosten-unvollstaendig', why: `Die Arbeitszeit gehört zu den variablen Kosten: ${mn} min × ${eur(rate)} ÷ 60 = ${eur(lab)} je Stück.` },
+        { cell: '2:v', answer: String(qn(fix, p)), error: 'w-kritische-menge', why: 'Die Fixkosten werden durch die **Ersparnis je Stück** (Fremdpreis − variable Kosten) geteilt, nicht durch den Fremdpreis.' },
+        ...(Number.isInteger(fix / diff) ? [] : [{ cell: '3:v', answer: String(Math.floor(fix / diff)), error: 'w-break-even-runden', why: 'Bei dieser Stückzahl ist die Eigenerstellung noch teurer. Die kritische Menge wird hier **aufgerundet**.' }]),
+      ],
+      hints: [`Arbeitskosten je Stück = ${mn} min × Stundensatz ÷ 60.`, 'Kritische Menge = Fixkosten ÷ (Fremdpreis − variable Kosten).'],
+      explanation: `**Ergebnis: Eigenerstellung lohnt sich ab ${ms} ${pr.u}; bei ${m} ${pr.u} → ${better}.**\n\n1. Fixkosten: ${parts.map(eur).join(' + ')} = **${eur(fix)}**\n2. Variable Kosten: ${eur(mat)} Material + ${mn} min × ${eur(rate)} ÷ 60 (${eur(lab)}) = **${eur(v)}**\n3. Ersparnis je Stück: ${eur(p)} − ${eur(v)} = ${eur(diff)}\n4. Kritische Menge: ${eur(fix)} ÷ ${eur(diff)} = **${deN(x, 2)}** → ab **${ms}** Stück ist die Eigenerstellung günstiger\n5. Bedarf ${m}: Eigenerstellung ${eur(fix + m * v)}, Fremdbezug ${eur(m * p)} → **${better}**\n\nHäufige Fehler: die Arbeitszeit bei den variablen Kosten vergessen; die kritische Menge abrunden. Neben den Kosten zählen auch Qualität, Know-how und Abhängigkeit vom Lieferanten.`,
+    });
+  },
+};
+
+/* ------------------------------------------------------------------ */
+/* w03: Soll-Ist-Vergleich (Kostenabweichung)                          */
+/* ------------------------------------------------------------------ */
+
+const SOLLIST = ['Hardware', 'Lizenzen', 'Dienstleistung extern', 'eigene Arbeitsstunden', 'Schulung', 'Verkabelung', 'Reisekosten'];
+
+const sollIst: GeneratorMeta = {
+  id: 'w.sollist',
+  title: 'Soll-Ist-Vergleich: Kostenabweichung absolut und in Prozent',
+  skill: 'w.prozentvergleich',
+  module: 'w03',
+  make(rng, d) {
+    const n = d === 1 ? 1 : d === 2 ? 3 : 4;
+    const names = rng.shuffle([...SOLLIST]).slice(0, n);
+    const items = names.map((nm) => {
+      const soll = rng.int(8, 160) * 10000;
+      let ist = soll;
+      while (ist === soll) ist = soll + rng.pick([-1, 1, 1]) * rng.int(2, 30) * soll / 100 + rng.pick([0, 2500, 4900]);
+      ist = Math.round(ist / 100) * 100;
+      return { nm, soll, ist, ab: ist - soll, pc: pq(ist - soll, soll) };
+    }).filter((it) => it.ab !== 0);
+    if (items.length < n) return sollIst.make(rng, d);
+    const tbl = `| Kostenposition | Soll (Plan) | Ist |\n|---|---|---|\n${items.map((it) => `| ${it.nm} | ${eur(it.soll)} | ${eur(it.ist)} |`).join('\n')}`;
+    const intro = 'Nach dem Projekt „Netzwerkerneuerung“ bei der Elektro Krämer GmbH vergleicht die Projektleitung die geplanten mit den tatsächlichen Kosten.';
+    if (d === 1) {
+      const it = items[0];
+      return {
+        id: gid('w.sollist'), generated: true, kind: 'number', skill: 'w.prozentvergleich', difficulty: d,
+        prompt: `${intro}\n\n${tbl}\n\nBerechne die **Abweichung in Prozent vom Soll** (Überschreitung +, Unterschreitung −; zwei Nachkommastellen, Minus als „-“ eingeben).`,
+        answer: it.pc, tolerance: 0.01, unit: '%',
+        misconceptions: cleanMc(it.pc, 0.01, [
+          { answer: String(pq(it.ab, it.ist)), error: 'w-prozent-bezugsgroesse', why: 'Bezugsgröße ist der **Sollwert** (Plan), nicht der Istwert.' },
+          { answer: String(-it.pc), error: 'w-vorzeichen', why: 'Abweichung = Ist − Soll. Liegt das Ist über dem Soll, ist sie positiv (Überschreitung).' },
+          { answer: cs(it.ab), error: 'w-euro-statt-prozent', why: 'Das ist die Abweichung in Euro – gefragt sind Prozent.' },
+        ]),
+        hints: ['Abweichung = Ist − Soll.', 'In Prozent: Abweichung ÷ Soll × 100.'],
+        explanation: `**Ergebnis: ${sgn(it.pc, 2)} %.**\n\nAbweichung: ${eur(it.ist)} − ${eur(it.soll)} = ${it.ab < 0 ? '−' : ''}${eur(Math.abs(it.ab))}\n\nIn Prozent vom Soll: ${it.ab < 0 ? '−' : ''}${eur(Math.abs(it.ab))} ÷ ${eur(it.soll)} × 100 = **${sgn(it.pc, 2)} %** (${it.ab > 0 ? 'Überschreitung' : 'Unterschreitung'})\n\nHäufiger Fehler: durch den Istwert teilen. Der Plan (Soll) ist 100 %.`,
+      };
+    }
+    const S = items.reduce((a, it) => a + it.soll, 0), I = items.reduce((a, it) => a + it.ist, 0);
+    const tot = { nm: 'Summe', soll: S, ist: I, ab: I - S, pc: pq(I - S, S) };
+    const all = d === 3 ? [...items, tot] : items;
+    const worst = items.reduce((a, b) => (b.pc > a.pc ? b : a));
+    return finishTable({
+      id: gid('w.sollist'), generated: true, kind: 'table', skill: 'w.prozentvergleich', difficulty: d,
+      prompt: `${intro}\n\n${tbl}\n\nBerechne für jede Position${d === 3 ? ' und für die Summe' : ''} die **Abweichung in Euro** (Ist − Soll) und die **Abweichung in Prozent vom Soll** (zwei Nachkommastellen, Minus als „-“).${d === 3 ? ' Nenne außerdem die Position mit der **größten prozentualen Überschreitung**.' : ''}`,
+      columns: [{ key: 'a', label: 'Abweichung (€)', type: 'number' }, { key: 'p', label: 'Abweichung (%)', type: 'number' }, ...(d === 3 ? [{ key: 't', label: 'Antwort', type: 'text' as const }] : [])],
+      rows: [
+        ...all.map((it) => ({ label: it.nm, cells: { a: { answer: cs(it.ab) }, p: { answer: String(it.pc), accept: near(it.pc) } } })),
+        ...(d === 3 ? [{ label: 'größte prozentuale Überschreitung', cells: { t: { answer: worst.nm, accept: [worst.nm.split(' ')[0]] } } }] : []),
+      ],
+      misconceptions: [
+        { cell: '0:p', answer: String(pq(items[0].ab, items[0].ist)), error: 'w-prozent-bezugsgroesse', why: 'Bezugsgröße ist der **Sollwert** (Plan), nicht der Istwert.' },
+        { cell: '0:a', answer: cs(-items[0].ab), error: 'w-vorzeichen', why: 'Abweichung = Ist − Soll. Eine Überschreitung ist positiv, eine Unterschreitung negativ.' },
+        ...(d === 3 ? [{ cell: `${items.length}:p`, answer: String(rk(items.reduce((a, it) => a + it.pc, 0) * 100) / 100), error: 'w-prozent-summe', why: 'Prozentwerte dürfen nicht addiert werden – die Gesamtabweichung bezieht sich auf die Soll-Summe.' }] : []),
+      ],
+      hints: ['Abweichung € = Ist − Soll.', 'Abweichung % = Abweichung € ÷ Soll × 100.'],
+      explanation: `**Ergebnis:**\n\n${all.map((it) => `**${it.nm}:** ${eur(it.ist)} − ${eur(it.soll)} = ${it.ab < 0 ? '−' : '+'}${eur(Math.abs(it.ab))} → ÷ ${eur(it.soll)} × 100 = **${sgn(it.pc, 2)} %**`).join('\n\n')}${d === 3 ? `\n\nGrößte prozentuale Überschreitung: **${worst.nm}** (${sgn(worst.pc, 2)} %).` : ''}\n\nHäufige Fehler: durch den Istwert teilen; Prozentwerte der Positionen addieren statt die Summe neu zu berechnen.`,
+    });
+  },
+};
+
+/* ------------------------------------------------------------------ */
 
 export const GENERATORS_WIRTSCHAFT: GeneratorMeta[] = [
   bezugspreis, nutzwert, angebotspreis, dienstleistung, kaufLeasing, amortisation, afa, sla, netzplanGen,
+  preispunkte, kalkulation, handelsspanne, stundensatz, finanzierung, tarif, roi, veraenderung, makeOrBuy, sollIst,
 ];
