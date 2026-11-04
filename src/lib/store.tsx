@@ -8,6 +8,7 @@ import { MODULE_MAP, SKILL_MAP } from '../content';
 import { applyEvidence, knowledge, markLessonDone, newSkillState, type SkillState } from '../core/learning';
 import type { GradeResult } from '../core/grading';
 import { api, backendMode, localDay, type Attempt } from './api';
+import { buildQStat, pushResult, type QStatMap } from '../core/catalog';
 
 export interface Settings {
   theme: 'dark' | 'light';
@@ -58,6 +59,8 @@ interface Ctx {
   lessonProgress: LessonProgress;
   resume: ResumeInfo | null;
   studyTime: { day: string; seconds: number }[];
+  /** Fragenkatalog: letzte Ergebnisse je Frage (Fahrschul-Prinzip) */
+  qstat: QStatMap;
   updateSettings: (p: Partial<Settings>) => void;
   setLessonProgress: (lessonId: string, step: number, done?: boolean) => void;
   completeLesson: (lessonId: string, skills: string[]) => void;
@@ -89,6 +92,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   const [lessonProgress, setLP] = useState<LessonProgress>({});
   const [resume, setResumeState] = useState<ResumeInfo | null>(null);
   const [studyTime, setStudyTime] = useState<{ day: string; seconds: number }[]>([]);
+  const [qstat, setQstat] = useState<QStatMap>({});
   const [tutorContext, setTutorContext] = useState<TutorContext>({ view: 'Dashboard' });
   const [tutorOpen, setTutorOpen] = useState(false);
   const [tutorQueue, setTutorQueue] = useState<string | null>(null);
@@ -110,6 +114,10 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       setLP((s.kv.lessonProgress as LessonProgress) ?? {});
       setResumeState((s.kv.resume as ResumeInfo) ?? null);
       setStudyTime(s.studyTime);
+      // einmalige Übernahme aus dem bisherigen Verlauf, falls der Katalogstatus noch fehlt
+      const qs = (s.kv.qstat as QStatMap | undefined) ?? buildQStat(await api.attempts(5000).catch(() => []));
+      setQstat(qs);
+      if (!s.kv.qstat) api.setKv('qstat', qs).catch(() => {});
       setLoaded(true);
       setError(null);
     } catch (e) {
@@ -199,6 +207,11 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       weight: a.weight,
     });
     setSkills((s) => ({ ...s, [a.skill]: next }));
+    setQstat((q) => {
+      const n = { ...q, [a.questionId]: pushResult(q[a.questionId], a.correct) };
+      api.setKv('qstat', n).catch(() => {});
+      return n;
+    });
     const module = SKILL_MAP.get(a.skill)?.module ?? a.question.id.slice(0, 3);
     const { weight, ...rest } = a;
     await api.addAttempt({ ...rest, ts, module }, next).catch((e) => console.error(e));
@@ -229,7 +242,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   }, [skills]);
 
   const value: Ctx = {
-    loaded, error, skills, settings, lessonProgress, resume, studyTime, updateSettings, setLessonProgress, completeLesson, recordAttempt,
+    loaded, error, skills, settings, lessonProgress, resume, studyTime, qstat, updateSettings, setLessonProgress, completeLesson, recordAttempt,
     setResume, tutorContext, setTutorContext, tutorOpen, setTutorOpen, tutorQueue, askTutor, consumeTutorQueue, overallProgress, reload, aiEnabled, staticMode, refreshAi,
   };
   return <StoreCtx.Provider value={value}>{children}</StoreCtx.Provider>;

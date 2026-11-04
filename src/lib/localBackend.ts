@@ -29,11 +29,19 @@ function load(): LocalDb {
 
 let cache: LocalDb | null = null;
 const db = () => (cache ??= load());
-function save() {
-  try {
-    localStorage.setItem(KEY, JSON.stringify(db()));
-  } catch (e) {
-    console.error('Speichern im Browser fehlgeschlagen', e);
+/** Speichert; ist der Browser-Speicher (~5 MB) voll, werden die ältesten Verlaufseinträge gekürzt,
+ *  damit Kenntnisstand, Fragenstatus und Einstellungen nie verloren gehen. */
+export function save(store: Pick<Storage, 'setItem'> = localStorage) {
+  const d = db();
+  for (;;) {
+    try {
+      store.setItem(KEY, JSON.stringify(d));
+      return;
+    } catch (e) {
+      if (d.attempts.length > 50) d.attempts.splice(0, Math.ceil(d.attempts.length / 4));
+      else if (d.tests.length > 3) d.tests.splice(0, Math.ceil(d.tests.length / 4));
+      else return console.error('Speichern im Browser fehlgeschlagen', e);
+    }
   }
 }
 

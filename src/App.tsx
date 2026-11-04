@@ -1,4 +1,4 @@
-import React, { Suspense, lazy, useEffect } from 'react';
+import React, { Suspense, lazy, useEffect, useState } from 'react';
 import { StoreProvider, navigate, useRoute, useStore } from './lib/store';
 import { Icon, Progress } from './components/common';
 import { TutorChat } from './components/TutorPanel';
@@ -9,12 +9,15 @@ import { ExamHome, ExamResult, ExamRun, type TestType } from './pages/Exam';
 import { VlsmTrainer } from './pages/Vlsm';
 import { HistoryPage, LabPage, SettingsPage, TutorPage } from './pages/Other';
 import { isDue } from './core/learning';
+import { CatalogHome, CatalogRound } from './pages/Catalog';
+import type { RoundFilter } from './core/catalog';
 
 const ToolsPage = lazy(() => import('./pages/Tools').then((m) => ({ default: m.ToolsPage })));
 
 const NAV: { section?: string; route: string; label: string; icon: string; match?: string[] }[] = [
   { route: '/', label: 'Dashboard', icon: 'LayoutDashboard' },
-  { section: 'Lernen', route: '/lehrplan', label: 'Lehrplan & Lernen', icon: 'BookOpen', match: ['/lehrplan', '/modul', '/lektion'] },
+  { section: 'Lernen', route: '/katalog', label: 'Fragenkatalog', icon: 'ListChecks', match: ['/katalog'] },
+  { route: '/lehrplan', label: 'Lehrplan & Lernen', icon: 'BookOpen', match: ['/lehrplan', '/modul', '/lektion'] },
   { route: '/lektion/m05-l02', label: 'Subnetting lernen', icon: 'SplitSquareHorizontal' },
   { route: '/ueben', label: 'Üben', icon: 'Dumbbell', match: ['/ueben'] },
   { route: '/schwaechen', label: 'Schwachstellen', icon: 'Target', match: ['/schwaechen'] },
@@ -33,6 +36,7 @@ function Router({ route }: { route: string }) {
   const p = path.split('/').filter(Boolean);
   switch (p[0]) {
     case undefined: return <Dashboard />;
+    case 'katalog': return p[1] === 'runde' ? <CatalogRound filter={p[2] as RoundFilter} scope={p[3] ?? 'ap1'} key={route} /> : <CatalogHome />;
     case 'lehrplan': return <CurriculumPage />;
     case 'modul': return <ModulePage id={p[1]} key={p[1]} />;
     case 'lektion': return <LessonPage id={p[1]} key={p[1]} />;
@@ -75,8 +79,10 @@ function PlacementIntro() {
 function Shell() {
   const { loaded, error, tutorOpen, setTutorOpen, overallProgress, skills, settings, aiEnabled, staticMode } = useStore();
   const [route] = useRoute();
+  const [menuOpen, setMenuOpen] = useState(false);
   useEffect(() => {
     document.querySelector('.main')?.scrollTo({ top: 0 });
+    setMenuOpen(false);
   }, [route]);
   if (error) return <div className="page"><div className="block result-bad"><b>Fehler:</b> {error}</div></div>;
   if (!loaded) return <div className="page dim">Lade FISI Academy …</div>;
@@ -84,7 +90,14 @@ function Shell() {
   const active = (n: (typeof NAV)[number]) => (n.route === '/' ? route === '/' : (n.match ?? [n.route]).some((m) => route === m || route.startsWith(m + '/') || route.startsWith(m + '?')) && !(n.route === '/lehrplan' && route === '/lektion/m05-l02'));
   return (
     <div className={`app ${tutorOpen && aiEnabled ? 'tutor-open' : ''}`}>
-      <aside className="sidebar">
+      <div className="mobile-bar">
+        <button className="btn ghost sm" aria-label="Menü öffnen" onClick={() => setMenuOpen(true)}><Icon name="Menu" size={20} /></button>
+        FISI Academy
+        <span className="spacer" />
+        <span className="tiny dim">{Math.round(overallProgress * 100)} %</span>
+      </div>
+      {menuOpen && <div className="sidebar-backdrop" onClick={() => setMenuOpen(false)} />}
+      <aside className={`sidebar ${menuOpen ? 'open' : ''}`}>
         <div className="brand">
           <div className="brand-logo"><Icon name="Network" size={20} /></div>
           <div>FISI Academy<small>Prüfungsvorbereitung AP1 & AP2</small></div>

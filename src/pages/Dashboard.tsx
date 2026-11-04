@@ -7,9 +7,13 @@ import { navigate, useStore } from '../lib/store';
 import { recommend } from '../lib/recommend';
 import { BarChart, Icon, LineChart, Progress, Ring, fmtDuration } from '../components/common';
 import { ihkGrade } from './Exam';
+import { countStatus, readiness } from '../core/catalog';
 
 export function Dashboard() {
-  const { skills, overallProgress, studyTime, lessonProgress, settings, resume, updateSettings } = useStore();
+  const { skills, overallProgress, studyTime, lessonProgress, settings, resume, updateSettings, qstat } = useStore();
+  const ap1Ids = useMemo(() => MODULES.filter((m) => m.relevance !== 'vertiefung').flatMap((m) => m.questions.map((q) => q.id)), []);
+  const cat = countStatus(ap1Ids, qstat);
+  const ready = readiness(ap1Ids.length ? cat.sicher / ap1Ids.length : 0);
   const [tests, setTests] = useState<TestRecord[]>([]);
   useEffect(() => {
     api.tests().then(setTests).catch(() => {});
@@ -96,6 +100,15 @@ export function Dashboard() {
           <Countdown date={settings.examDate} />
           <Stat icon="Award" label="Letzte AP1-Simulation" value={lastAp1 ? `${Math.round(lastAp1.score ?? 0)} P. (${ihkGrade(lastAp1.score ?? 0).note})` : '–'} />
         </div>
+      </div>
+
+      <div className="card mt row wrap" style={{ gap: 18, cursor: 'pointer' }} onClick={() => navigate('/katalog')}>
+        <div className="stat-icon" style={{ background: { rot: 'var(--bad-soft)', gelb: 'var(--warn-soft)', gruen: 'var(--ok-soft)' }[ready.level], color: { rot: 'var(--bad)', gelb: 'var(--warn)', gruen: 'var(--ok)' }[ready.level] }}><Icon name="ListChecks" size={18} /></div>
+        <div style={{ flex: 1, minWidth: 220 }}>
+          <b>Prüfungsreife (Fragenkatalog): {cat.sicher} von {ap1Ids.length} AP1-Fragen sicher</b>
+          <div className="small muted">{ready.text}</div>
+        </div>
+        <button className="btn primary" onClick={(e) => { e.stopPropagation(); navigate('/katalog/runde/offen/ap1'); }}><Icon name="Play" size={16} />Weiterlernen</button>
       </div>
 
       <div className="grid grid-3 mt">
