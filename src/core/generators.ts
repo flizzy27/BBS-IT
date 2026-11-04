@@ -27,6 +27,7 @@ import { compressIpv6, expandIpv6, ipv6NthSubnet, ipv6Type, stripLeadingZeros } 
 import { Rng } from './rng';
 import { grade } from './grading';
 import { GENERATORS_HARDWARE } from './gen/hardware';
+import { GENERATORS_WIRTSCHAFT } from './gen/wirtschaft';
 import { allocateVlsm, requiredPrefix, totalRequired, type VlsmDemand } from './vlsm';
 
 export interface GeneratorMeta {
@@ -951,6 +952,7 @@ export const GENERATORS: GeneratorMeta[] = [
   unitsGen, transferTime, rateGen,
   lpmGen,
   ...GENERATORS_HARDWARE,
+  ...GENERATORS_WIRTSCHAFT,
 ];
 
 export const GENERATOR_MAP = new Map(GENERATORS.map((g) => [g.id, g]));
