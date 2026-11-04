@@ -52,6 +52,19 @@ export function parseNumberInput(s: string): number | null {
   return Number.isFinite(n) ? n : null;
 }
 
+/**
+ * Alle sinnvollen Lesarten einer Zahleneingabe. "1.819" kann deutsch 1819 oder englisch 1,819 bedeuten –
+ * beide werden geprüft, damit korrekte Antworten nie an der Schreibweise scheitern.
+ */
+export function parseNumberCandidates(s: string): number[] {
+  const out = new Set<number>();
+  const a = parseNumberInput(s);
+  if (a !== null) out.add(a);
+  const t = s.trim().replace(/\s/g, '').replace(/[a-zA-Zäöü/%€]+$/, '');
+  if (/^-?\d+\.\d+$/.test(t)) out.add(Number(t));
+  return [...out];
+}
+
 function findMisconception(q: Question, given: string, cell?: string) {
   if (!q.misconceptions) return undefined;
   const g = norm(given);
@@ -75,8 +88,8 @@ function cellMatches(type: string, expected: string, accept: string[] | undefine
     case 'cidr':
       return all.some((e) => cidrEqual(e, g));
     case 'number': {
-      const n = parseNumberInput(g);
-      return n !== null && all.some((e) => parseNumberInput(e) === n);
+      const ns = parseNumberCandidates(g);
+      return ns.length > 0 && all.some((e) => ns.includes(parseNumberInput(e) ?? NaN));
     }
     default:
       return all.some((e) => norm(e) === norm(g) || (parseIpv6(e) && ipv6Equal(e, g)));
@@ -160,10 +173,11 @@ export function grade(q: Question, response: ResponseValue): GradeResult {
       return { ...base, correct, score, feedback, errorTags: correct ? [] : [`${q.skill}:unvollstaendig`] };
     }
     case 'number': {
-      const n = typeof response === 'string' ? parseNumberInput(response) : null;
-      if (n === null) return { ...base, correct: false, score: 0, feedback: 'Bitte eine Zahl eingeben.', errorTags: ['eingabeformat'] };
+      const cands = typeof response === 'string' ? parseNumberCandidates(response) : [];
+      if (!cands.length) return { ...base, correct: false, score: 0, feedback: 'Bitte eine Zahl eingeben.', errorTags: ['eingabeformat'] };
       const tol = q.tolerance ?? 0;
-      if (Math.abs(n - q.answer) <= tol + 1e-9) return { ...base, correct: true, score: 1, feedback: 'Richtig!', errorTags: [] };
+      if (cands.some((c) => Math.abs(c - q.answer) <= tol + 1e-9)) return { ...base, correct: true, score: 1, feedback: 'Richtig!', errorTags: [] };
+      const n = cands[0];
       const mc = findMisconception(q, String(n)) ?? findMisconception(q, response as string);
       return {
         ...base,
@@ -202,7 +216,7 @@ export function grade(q: Question, response: ResponseValue): GradeResult {
     }
     case 'free': {
       if (response && typeof response === 'object' && 'selfScore' in response) {
-        const sc = Math.max(0, Math.min(1, response.selfScore));
+        const sc = Math.max(0, Math.min(1, Number((response as { selfScore: number }).selfScore)));
         return {
           ...base,
           correct: sc >= 0.75,
